@@ -218,8 +218,8 @@ MonoBehaviour:
     y: 0
     width: 970
     height: 610.6667
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 226}
+  m_MaxSize: {x: 4002, y: 4026}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
@@ -273,8 +273,8 @@ MonoBehaviour:
     y: 0
     width: 422.66663
     height: 968
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 76}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 18}
@@ -616,11 +616,11 @@ MonoBehaviour:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs:
-      - m_Data: -67768
+      - m_Data: 77416
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
-      - m_Data: -59600
+      - m_Data: -60920
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1739,7 +1739,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets
+    - Assets/Ivan
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1749,21 +1749,21 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 68
   m_LastFolders:
-  - Assets
+  - Assets/Ivan
   m_LastFoldersGridSize: 68
-  m_LastProjectPath: C:\Unity Projects\DongbaCultureProject
+  m_LastProjectPath: C:\Unity Projects\DongbaCulture_Project
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs:
-    - m_Data: 66076
+    - m_Data: 77416
     m_LastClickedID:
-      m_Data: 66076
+      m_Data: 77416
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 66076
+    - m_Data: 68294
     - m_Data: 1000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1823,9 +1823,9 @@ MonoBehaviour:
       m_ResourceFile: 
   m_ListAreaState:
     m_SelectedInstanceIDs:
-    - m_Data: -67768
-    m_LastClickedInstanceID: -67768
-    m_HadKeyboardFocusLastEvent: 1
+    - m_Data: 77416
+    m_LastClickedInstanceID: 77416
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs:
     - m_Data: 64506
     - m_Data: 92224
@@ -2045,7 +2045,7 @@ MonoBehaviour:
       height: 1490.6887
     m_MinimalGUI: 1
   m_defaultScale: 0.378125
-  m_LastWindowPixelSize: {x: 1452, y: 877}
+  m_LastWindowPixelSize: {x: 968, y: 584.6667}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000
