@@ -1,2 +1,20 @@
 /Library
 /Logs
+
+# Unity generated files and local verification outputs
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Bb]uild/
+/[Bb]uilds/
+/Release*/
+/Verification/
+/tmp/
+/.vs/
+/.idea/
+/.codex/
+*.csproj
+*.sln
+*.slnx

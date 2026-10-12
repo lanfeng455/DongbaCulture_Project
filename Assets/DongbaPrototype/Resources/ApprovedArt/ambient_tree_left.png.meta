@@ -1,0 +1,949 @@
+fileFormatVersion: 2
+guid: f1391f8f660340b44b15cd833b4cc6e7
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1020001118636606267
+    second: ambient_tree_left_0
+  - first:
+      213: 8851390404086989901
+    second: ambient_tree_left_1
+  - first:
+      213: 7509232262887056629
+    second: ambient_tree_left_2
+  - first:
+      213: 1521171285551334572
+    second: ambient_tree_left_3
+  - first:
+      213: 7826080569689461102
+    second: ambient_tree_left_4
+  - first:
+      213: -6433288570076001569
+    second: ambient_tree_left_5
+  - first:
+      213: 4276524659780290419
+    second: ambient_tree_left_6
+  - first:
+      213: 7786152830972148367
+    second: ambient_tree_left_7
+  - first:
+      213: -6320681284554066656
+    second: ambient_tree_left_8
+  - first:
+      213: -8671309535986776237
+    second: ambient_tree_left_9
+  - first:
+      213: -4376251598420328990
+    second: ambient_tree_left_10
+  - first:
+      213: 3144161976074014359
+    second: ambient_tree_left_11
+  - first:
+      213: 5208242489985280713
+    second: ambient_tree_left_12
+  - first:
+      213: 1286971317523297018
+    second: ambient_tree_left_13
+  - first:
+      213: 5417248633006482004
+    second: ambient_tree_left_14
+  - first:
+      213: 2903835478775472841
+    second: ambient_tree_left_15
+  - first:
+      213: -8280958093455033253
+    second: ambient_tree_left_16
+  - first:
+      213: 1042451692720662318
+    second: ambient_tree_left_17
+  - first:
+      213: 329690865856891255
+    second: ambient_tree_left_18
+  - first:
+      213: 7268396482315471192
+    second: ambient_tree_left_19
+  - first:
+      213: 4209557692285142124
+    second: ambient_tree_left_20
+  - first:
+      213: -6808718688004031515
+    second: ambient_tree_left_21
+  - first:
+      213: 85691649132492139
+    second: ambient_tree_left_22
+  - first:
+      213: -1214259049275205171
+    second: ambient_tree_left_23
+  - first:
+      213: 4435280355850210135
+    second: ambient_tree_left_24
+  - first:
+      213: -1718079062303969006
+    second: ambient_tree_left_25
+  - first:
+      213: -3649219268081674976
+    second: ambient_tree_left_26
+  - first:
+      213: -430466331468210469
+    second: ambient_tree_left_27
+  - first:
+      213: 2639610978839286783
+    second: ambient_tree_left_28
+  - first:
+      213: 6415699390810280928
+    second: ambient_tree_left_29
+  - first:
+      213: 263552464805203445
+    second: ambient_tree_left_30
+  - first:
+      213: 6832072500674059107
+    second: ambient_tree_left_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ambient_tree_left_0
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 473
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3306dafc95c72e00800000000000000
+      internalID: 1020001118636606267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_1
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 467
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4408e30da476da70800000000000000
+      internalID: 8851390404086989901
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_2
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 466
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f4294d15f6263860800000000000000
+      internalID: 7509232262887056629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_3
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 468
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca4cfc589394c1510800000000000000
+      internalID: 1521171285551334572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_4
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 459
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e615de350d2db9c60800000000000000
+      internalID: 7826080569689461102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_5
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 457
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fda0a0b612e58b6a0800000000000000
+      internalID: -6433288570076001569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 428
+        width: 15
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37707632584495b30800000000000000
+      internalID: 4276524659780290419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_7
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 0
+        width: 158
+        height: 454
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8a3ff83fb8fd0c60800000000000000
+      internalID: 7786152830972148367
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_8
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 451
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 025f1bf2cdd6848a0800000000000000
+      internalID: -6320681284554066656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 408
+        width: 28
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3570d0a6be159a780800000000000000
+      internalID: -8671309535986776237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_10
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 393
+        width: 26
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2edbb6c8b5e6443c0800000000000000
+      internalID: -4376251598420328990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_11
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 405
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79e8e24a8ae42ab20800000000000000
+      internalID: 3144161976074014359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 367
+        width: 13
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ca2baf33f4674840800000000000000
+      internalID: 5208242489985280713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_13
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 388
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af2b719389d3cd110800000000000000
+      internalID: 1286971317523297018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_14
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 379
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 452625e0eeeed2b40800000000000000
+      internalID: 5417248633006482004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_15
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 363
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c2a6969bfe7c4820800000000000000
+      internalID: 2903835478775472841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 345
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5c77b70d70241d80800000000000000
+      internalID: -8280958093455033253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_17
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 319
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e27ae189a48877e00800000000000000
+      internalID: 1042451692720662318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 279
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7794711881c439400800000000000000
+      internalID: 329690865856891255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_19
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 283
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 859cc1f47188ed460800000000000000
+      internalID: 7268396482315471192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_20
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 268
+        width: 20
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c644b2efa6a5b6a30800000000000000
+      internalID: 4209557692285142124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_21
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 253
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ebb4f96d629281a0800000000000000
+      internalID: -6808718688004031515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_22
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 225
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6572c2d910703100800000000000000
+      internalID: 85691649132492139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_23
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 231
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc9d5aef3d5162fe0800000000000000
+      internalID: -1214259049275205171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_24
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 211
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75b48b90cf74d8d30800000000000000
+      internalID: 4435280355850210135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_25
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 216
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 211f55312382828e0800000000000000
+      internalID: -1718079062303969006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_26
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 187
+        width: 22
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0251b7af86e5b5dc0800000000000000
+      internalID: -3649219268081674976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_27
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 168
+        width: 26
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bde5219f62da60af0800000000000000
+      internalID: -430466331468210469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_28
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 179
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff3dfe23338c1a420800000000000000
+      internalID: 2639610978839286783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_29
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 9
+        width: 33
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e3dfe6aa94290950800000000000000
+      internalID: 6415699390810280928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 70
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fd8464029358a300800000000000000
+      internalID: 263552464805203445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ambient_tree_left_31
+      rect:
+        serializedVersion: 2
+        x: 154
+        y: 0
+        width: 6
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36b5462ddb560de50800000000000000
+      internalID: 6832072500674059107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ambient_tree_left_0: 1020001118636606267
+      ambient_tree_left_1: 8851390404086989901
+      ambient_tree_left_10: -4376251598420328990
+      ambient_tree_left_11: 3144161976074014359
+      ambient_tree_left_12: 5208242489985280713
+      ambient_tree_left_13: 1286971317523297018
+      ambient_tree_left_14: 5417248633006482004
+      ambient_tree_left_15: 2903835478775472841
+      ambient_tree_left_16: -8280958093455033253
+      ambient_tree_left_17: 1042451692720662318
+      ambient_tree_left_18: 329690865856891255
+      ambient_tree_left_19: 7268396482315471192
+      ambient_tree_left_2: 7509232262887056629
+      ambient_tree_left_20: 4209557692285142124
+      ambient_tree_left_21: -6808718688004031515
+      ambient_tree_left_22: 85691649132492139
+      ambient_tree_left_23: -1214259049275205171
+      ambient_tree_left_24: 4435280355850210135
+      ambient_tree_left_25: -1718079062303969006
+      ambient_tree_left_26: -3649219268081674976
+      ambient_tree_left_27: -430466331468210469
+      ambient_tree_left_28: 2639610978839286783
+      ambient_tree_left_29: 6415699390810280928
+      ambient_tree_left_3: 1521171285551334572
+      ambient_tree_left_30: 263552464805203445
+      ambient_tree_left_31: 6832072500674059107
+      ambient_tree_left_4: 7826080569689461102
+      ambient_tree_left_5: -6433288570076001569
+      ambient_tree_left_6: 4276524659780290419
+      ambient_tree_left_7: 7786152830972148367
+      ambient_tree_left_8: -6320681284554066656
+      ambient_tree_left_9: -8671309535986776237
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
