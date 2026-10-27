@@ -1,0 +1,429 @@
+fileFormatVersion: 2
+guid: ac2bbd1a93ddb1b48a75e1dbd0b722ea
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2097749304303196214
+    second: plant_02_leaf_3_piece_0
+  - first:
+      213: 2043284985308566971
+    second: plant_02_leaf_3_piece_1
+  - first:
+      213: -8948046260062616961
+    second: plant_02_leaf_3_piece_2
+  - first:
+      213: -2528743013761971007
+    second: plant_02_leaf_3_piece_3
+  - first:
+      213: -6713037664584927317
+    second: plant_02_leaf_3_piece_4
+  - first:
+      213: 2875423968492465421
+    second: plant_02_leaf_3_piece_5
+  - first:
+      213: 5457874576806308665
+    second: plant_02_leaf_3_piece_6
+  - first:
+      213: -745861194153877433
+    second: plant_02_leaf_3_piece_7
+  - first:
+      213: -7391076038287396988
+    second: plant_02_leaf_3_piece_8
+  - first:
+      213: 4115830414932063035
+    second: plant_02_leaf_3_piece_9
+  - first:
+      213: -7387457885079454276
+    second: plant_02_leaf_3_piece_10
+  - first:
+      213: 2580966349910021104
+    second: plant_02_leaf_3_piece_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 9
+  spritePivot: {x: 0.5, y: 0}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_0
+      rect:
+        serializedVersion: 2
+        x: 330
+        y: 603
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac76f214f1c43e2e0800000000000000
+      internalID: -2097749304303196214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_1
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 546
+        width: 21
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb5d43c4ed43b5c10800000000000000
+      internalID: 2043284985308566971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_2
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 524
+        width: 171
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f728433d55722d380800000000000000
+      internalID: -8948046260062616961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 492
+        width: 51
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cc877870a918ecd0800000000000000
+      internalID: -2528743013761971007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_4
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 511
+        width: 31
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba7f89eafcf76d2a0800000000000000
+      internalID: -6713037664584927317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_5
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 356
+        width: 92
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0d23ac5dde87e720800000000000000
+      internalID: 2875423968492465421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_6
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 464
+        width: 10
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93bec23b2044ebb40800000000000000
+      internalID: 5457874576806308665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 335
+        width: 70
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 740a5b6123b26a5f0800000000000000
+      internalID: -745861194153877433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_8
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 452
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48f6af5b08f9d6990800000000000000
+      internalID: -7391076038287396988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_9
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 195
+        width: 7
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3336cda4fd5e1930800000000000000
+      internalID: 4115830414932063035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_10
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 223
+        width: 83
+        height: 149
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbd3ea6a13a7a7990800000000000000
+      internalID: -7387457885079454276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: plant_02_leaf_3_piece_11
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 0
+        width: 23
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f39f9f783f61d320800000000000000
+      internalID: 2580966349910021104
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      plant_02_leaf_3_piece_0: -2097749304303196214
+      plant_02_leaf_3_piece_1: 2043284985308566971
+      plant_02_leaf_3_piece_10: -7387457885079454276
+      plant_02_leaf_3_piece_11: 2580966349910021104
+      plant_02_leaf_3_piece_2: -8948046260062616961
+      plant_02_leaf_3_piece_3: -2528743013761971007
+      plant_02_leaf_3_piece_4: -6713037664584927317
+      plant_02_leaf_3_piece_5: 2875423968492465421
+      plant_02_leaf_3_piece_6: 5457874576806308665
+      plant_02_leaf_3_piece_7: -745861194153877433
+      plant_02_leaf_3_piece_8: -7391076038287396988
+      plant_02_leaf_3_piece_9: 4115830414932063035
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

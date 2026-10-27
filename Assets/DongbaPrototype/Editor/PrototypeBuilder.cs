@@ -19,7 +19,7 @@ namespace DongbaPrototype
             File.Delete("Verification/build.request");
             try { Build(); } catch(System.Exception e) { File.WriteAllText("Verification/build-result.txt",e.ToString()); Debug.LogException(e); }
         }
-        [MenuItem("Dongba Prototype/Build Windows Player")]
+        [MenuItem("Dongba Prototype/Legacy/Build Side View")]
         public static void Build()
         {
             if(!File.Exists(ScenePath)) {
@@ -47,7 +47,7 @@ namespace DongbaPrototype
             File.WriteAllText("Verification/share-build-result.txt",report.summary.result+"\nErrors: "+report.summary.totalErrors+"\nOutput: "+report.summary.outputPath);
             if(report.summary.result!=BuildResult.Succeeded) throw new System.Exception("Share build failed");
         }
-        [MenuItem("Dongba Prototype/Open Prototype Scene")]
+        [MenuItem("Dongba Prototype/Legacy/Open Side View")]
         public static void Open() { if(EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) EditorSceneManager.OpenScene(ScenePath); }
     }
 }

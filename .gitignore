@@ -18,3 +18,19 @@
 *.csproj
 *.sln
 *.slnx
+
+# Local research, exports and captures
+/ArtPreview/
+/Presentation/
+/DevelopmentLog/
+/文字字形素材/
+/文字字形素材.zip
+/Backup*/
+/Archive*/
+*.log
+*.tmp
+*.user
+*.pidb
+*.booproj
+.DS_Store
+Thumbs.db
