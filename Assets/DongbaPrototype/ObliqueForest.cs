@@ -24,6 +24,11 @@ public partial class ObliqueForest : MonoBehaviour {
     [Header("Flourishing feedback")] public int FlourishThreshold=10;
     [Range(1.5f,4f)] public float EcologyTransitionSeconds=2.5f;
     [Range(.2f,.95f)] public float FlowerTrailSpacing=.72f;
+    [Header("Player glyph grip point")]
+    [Tooltip("Normalized hand point in player_glyph.png when facing right, measured from the image rectangle's bottom-left. Adjust this when replacing the glyph; the axe follows this point and mirrors it for left-facing attacks.")]
+    public Vector2 PlayerHandAnchorNormalized=new Vector2(.72f,.39f);
+    [Tooltip("Normalized grip point in axe_glyph.png, measured from its bottom-left. Keep aligned with the handle end if replacing the axe art.")]
+    public Vector2 AxeGripAnchorNormalized=new Vector2(32f/256f,62f/256f);
     int careCount,damageCount; float flourishAge=-1,ecologyVisual; int Balance { get { return careCount-damageCount; } }
     [Header("Whole-scene ecology atmosphere")]
     [Range(.3f,2f)] public float EcologyEffectStrength=1;
@@ -51,7 +56,7 @@ public partial class ObliqueForest : MonoBehaviour {
         // This user-provided glyph is foot-centered in its transparent canvas; keep its full inscription intact.
         body=Billboard("Player glyph",player,Get("player_glyph"),1.8f); playerImage=body.GetComponent<SpriteRenderer>();
         Billboard("Ground shadow",player,shadow,.8f,true);
-        axe=Billboard("Axe",player,Get("axe_glyph"),1.05f); axe.GetComponent<SpriteRenderer>().sprite=Sprite.Create(axe.GetComponent<SpriteRenderer>().sprite.texture,new Rect(0,0,axe.GetComponent<SpriteRenderer>().sprite.texture.width,axe.GetComponent<SpriteRenderer>().sprite.texture.height),new Vector2(32f/256f,62f/256f),100);hand=new GameObject("Hand - visible glyph endpoint").transform;hand.SetParent(body,false);hand.localPosition=new Vector3(.37f,.65f,0);axe.SetParent(hand,true);axe.localPosition=Vector3.zero;axe.localRotation=Quaternion.identity;axe.GetComponent<SpriteRenderer>().material=new Material(Resources.Load<Shader>("InkStroke"));axe.gameObject.SetActive(false);
+        axe=Billboard("Axe",player,Get("axe_glyph"),1.05f); axe.GetComponent<SpriteRenderer>().sprite=Sprite.Create(axe.GetComponent<SpriteRenderer>().sprite.texture,new Rect(0,0,axe.GetComponent<SpriteRenderer>().sprite.texture.width,axe.GetComponent<SpriteRenderer>().sprite.texture.height),AxeGripAnchorNormalized,100);hand=new GameObject("Hand - visible glyph endpoint").transform;hand.SetParent(body,false);hand.localPosition=PlayerHandLocalPosition();axe.SetParent(hand,true);axe.localPosition=Vector3.zero;axe.localRotation=Quaternion.identity;axe.GetComponent<SpriteRenderer>().material=new Material(Resources.Load<Shader>("InkStroke"));axe.gameObject.SetActive(false);
         ComposeForest();
         var layout=new System.Random(148);
         PlaceForestAnimals();
@@ -103,7 +108,8 @@ public partial class ObliqueForest : MonoBehaviour {
         float hop=0;if(jumpAge>=0){jumpAge+=dt;hop=Mathf.Sin(Mathf.Clamp01(jumpAge/.85f)*Mathf.PI)*1.45f;if(jumpAge>=.85f){jumpAge=-1;if(River(Feet)){player.position=lastDryPosition;Tell("Back to the riverbank");}}}
         UpdateFlowerTrail(previousFeet,move,dt);
         body.localPosition=new Vector3(0,hop+.015f*Mathf.Sin(clock*3.4f),0);playerImage.flipX=facing<0;playerImage.color=damageCooldown>0?new Color(1,.55f,.45f):Color.white;
-        if(attackAge>=0){attackAge+=dt;axe.gameObject.SetActive(true);hand.localPosition=new Vector3(facing*.37f,.65f,0);axe.localPosition=Vector3.zero;float swing=attackAge<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,attackAge/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(attackAge-.16f)/.3f));axe.localRotation=Quaternion.Euler(0,0,facing*swing);var axeScale=axe.localScale;axeScale.x=Mathf.Abs(axeScale.x)*facing;axe.localScale=axeScale;if(attackAge>.25f&&!hit){hit=true;StrikeTrees();foreach(var b in animals){Vector3 d=b.root.position-Feet;if(b.health>0&&d.magnitude<2&&Vector3.Dot(d.normalized,heading)>.15f){ApplyEcologyHit(b);b.angry=true;var p=b.root.position+heading*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);}}}if(attackAge>.62f){attackAge=-1;axe.gameObject.SetActive(false);}}
+        hand.localPosition=PlayerHandLocalPosition();
+        if(attackAge>=0){attackAge+=dt;axe.gameObject.SetActive(true);axe.localPosition=Vector3.zero;float swing=attackAge<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,attackAge/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(attackAge-.16f)/.3f));axe.localRotation=Quaternion.Euler(0,0,facing*swing);var axeScale=axe.localScale;axeScale.x=Mathf.Abs(axeScale.x)*facing;axe.localScale=axeScale;if(attackAge>.25f&&!hit){hit=true;StrikeTrees();foreach(var b in animals){Vector3 d=b.root.position-Feet;if(b.health>0&&d.magnitude<2&&Vector3.Dot(d.normalized,heading)>.15f){ApplyEcologyHit(b);b.angry=true;var p=b.root.position+heading*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);}}}if(attackAge>.62f){attackAge=-1;axe.gameObject.SetActive(false);}}
         foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;
             if(b.tree){bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
             b.renderer.sortingOrder=100-Mathf.RoundToInt(b.home.z*10);if(!b.tree)Fade(b);
@@ -170,7 +176,15 @@ public partial class ObliqueForest : MonoBehaviour {
     EcologyParticle CreateEcologyParticle(string name,bool flower){var t=new GameObject(name).transform;t.rotation=billboard;var r=t.gameObject.AddComponent<SpriteRenderer>();if(flower)r.sharedMaterial=flowerInk;r.sortingOrder=0;r.enabled=false;t.gameObject.SetActive(false);return new EcologyParticle{transform=t,renderer=r,flower=flower};}
     // Former wind-glyph creation and animation removed; original texture retained.
     // Hand coordinates are in the upright glyph plane, not the world's vertical plane.
-    Vector3 HandPosition(){return body.TransformPoint(new Vector3(facing*.37f,.65f,0));}
+    Vector3 PlayerHandLocalPosition(){
+        if(playerImage==null||playerImage.sprite==null)return Vector3.zero;
+        var sprite=playerImage.sprite;
+        Vector2 anchor=PlayerHandAnchorNormalized;
+        if(facing<0)anchor.x=1-anchor.x; // SpriteRenderer.flipX mirrors the drawn glyph, not child transforms.
+        float ppu=sprite.pixelsPerUnit;
+        return new Vector3((anchor.x*sprite.rect.width-sprite.pivot.x)/ppu,(anchor.y*sprite.rect.height-sprite.pivot.y)/ppu,0);
+    }
+    Vector3 HandPosition(){return body.TransformPoint(PlayerHandLocalPosition());}
     void RegisterCare(){careCount++;}
     void RegisterDamage(){damageCount++;}
     void ApplyEcologyHit(Being target){
@@ -413,7 +427,7 @@ public partial class ObliqueForest : MonoBehaviour {
         File.AppendAllText("Verification/oblique-smoke.txt","; ecology="+ecologyVisual.ToString("0.00")+"; balance="+Balance);
         while(Balance<FlourishThreshold)RegisterCare();
         player.position=ForestSpawn;yield return new WaitForSeconds(2);ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-after-care.png"));yield return new WaitForSeconds(1);attackAge=0;hit=false;yield return new WaitForSeconds(.2f);ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-axe-right.png"));bool rightGrip=Vector3.Distance(axe.position,HandPosition())<.001f;yield return new WaitForSeconds(.8f);facing=-1;heading=Vector3.left;attackAge=0;hit=false;yield return new WaitForSeconds(.2f);ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-axe-left.png"));bool leftGrip=Vector3.Distance(axe.position,HandPosition())<.001f;File.AppendAllText("Verification/oblique-smoke.txt","\nRight grip="+rightGrip+"; left grip="+leftGrip);yield return new WaitForSeconds(1);
-        float maxError=0;for(int side=-1;side<=1;side+=2){facing=side;heading=Vector3.right*side;attackAge=0;hit=false;for(int frame=0;frame<35;frame++){yield return null;maxError=Mathf.Max(maxError,Vector3.Distance(axe.TransformPoint(Vector3.zero),body.TransformPoint(new Vector3(side*.37f,.65f,0))));}}
+        float maxError=0;for(int side=-1;side<=1;side+=2){facing=side;heading=Vector3.right*side;attackAge=0;hit=false;for(int frame=0;frame<35;frame++){yield return null;maxError=Mathf.Max(maxError,Vector3.Distance(axe.TransformPoint(Vector3.zero),body.TransformPoint(PlayerHandLocalPosition())));}}
         File.AppendAllText("Verification/oblique-smoke.txt","\nVisible hand endpoint error across both swings="+maxError);Application.Quit();}
 }
 }
