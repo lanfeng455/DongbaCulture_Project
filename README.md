@@ -6,6 +6,8 @@
 
 素材用途、来源状态和替换注意事项见 [素材目录与替换说明](Docs/素材目录与替换说明.md)。
 
+树木与动物的纳西语回应录音接入规则见 [自然回应语音说明](Docs/NaxiWordResponseAudio.md)。
+
 ## 打开项目
 
 1. 用 GitHub Desktop 克隆仓库，再在 Unity Hub 添加仓库根目录，不是 Assets 或 exe 文件夹。

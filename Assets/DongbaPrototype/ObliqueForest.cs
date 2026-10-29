@@ -13,6 +13,8 @@ public partial class ObliqueForest : MonoBehaviour {
     readonly List<SpriteRenderer> riverWashImages=new List<SpriteRenderer>();
     readonly List<Transform> water=new List<Transform>(); readonly List<SpriteRenderer> waterImages=new List<SpriteRenderer>(); readonly List<Vector3> waterOrigins=new List<Vector3>();
     readonly Dictionary<string,Sprite> sprites=new Dictionary<string,Sprite>();
+    readonly Dictionary<string,AudioClip> naxiWordVoiceClips=new Dictionary<string,AudioClip>();
+    readonly HashSet<string> missingNaxiWordVoiceWarnings=new HashSet<string>();
     readonly Dictionary<string,TreeGlyphSet> treeGlyphSets=new Dictionary<string,TreeGlyphSet>();
     readonly List<EcologyParticle> fallingLeaves=new List<EcologyParticle>();
     readonly List<EcologyParticle> flowerTrail=new List<EcologyParticle>();
@@ -29,6 +31,8 @@ public partial class ObliqueForest : MonoBehaviour {
     public Vector2 PlayerHandAnchorNormalized=new Vector2(.72f,.39f);
     [Tooltip("Normalized grip point in axe_glyph.png, measured from its bottom-left. Keep aligned with the handle end if replacing the axe art.")]
     public Vector2 AxeGripAnchorNormalized=new Vector2(32f/256f,62f/256f);
+    [Header("Naxi word response audio")]
+    [Range(0f,1f)] public float NaxiWordVoiceVolume=.8f;
     int careCount,damageCount; float flourishAge=-1,ecologyVisual; int Balance { get { return careCount-damageCount; } }
     [Header("Whole-scene ecology atmosphere")]
     [Range(.3f,2f)] public float EcologyEffectStrength=1;
@@ -121,7 +125,7 @@ public partial class ObliqueForest : MonoBehaviour {
         FollowPlayerCamera(dt);UpdateForestPresentation(dt);
     }
     void Fade(Being b){var p=cam.WorldToScreenPoint(body.position+Vector3.up*.7f);var q=cam.WorldToScreenPoint(b.root.position+Vector3.up);bool blocks=b.root.position.z<Feet.z&&Mathf.Abs(p.x-q.x)<65&&Mathf.Abs(p.y-q.y)<140;var c=b.renderer.color;c.a=Mathf.MoveTowards(c.a,blocks?.22f:b.inkOpacity,Time.deltaTime*3);b.renderer.color=c;}
-    void Care(){Being nearest=NearestForestInteraction();if(nearest==null){Tell("Move closer to a plant or animal");return;}if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;RegisterCare();Tell("Replanted here");}else {GrowAround(nearest);}}}
+    void Care(){Being nearest=NearestForestInteraction();if(nearest==null){Tell("Move closer to a plant or animal");return;}if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;RegisterCare();PlayNaxiWordVoice("tree",nearest);Tell("Replanted here");}else {GrowAround(nearest);}}}
     bool FindLocal(Vector3 origin,float min,float max,int seed,bool animal,out Vector3 found){
         for(int i=0;i<48;i++){float angle=(seed*1.73f+i*2.39996f);float radius=Mathf.Lerp(min,max,(i%7)/6f);var p=origin+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius);
             if(Mathf.Abs(p.x)>ForestHalfWidth-1.2f||Mathf.Abs(p.z)>ForestHalfDepth-1.0f||River(p)||Mathf.Abs(p.x-RiverX(p.z))<1.35f)continue;
@@ -135,12 +139,12 @@ public partial class ObliqueForest : MonoBehaviour {
     void Feed(Being b){
         b.angry=false;b.health=3;EndAnimalVisit(b);b.migrationState=0;b.protectedUntil=clock+12;
         if(clock<b.careReady){Tell("Let this animal finish feeding");return;}
-        if(b.age<2){b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();Tell(b.age==2?"Grown up - next feeding brings a youngster":"Fed - growing bigger");return;}
+        if(b.age<2){b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);Tell(b.age==2?"Grown up - next feeding brings a youngster":"Fed - growing bigger");return;}
         int living=0;foreach(var a in animals)if(a.health>0)living++;
         if(living>=Mathf.Max(25,AnimalPopulationLimit)){Tell("The clearing is full of animals");return;}
         // Keep offspring close to the fed adult while retaining the usual local clearance checks.
         if(FindLocal(b.root.position,.7f,1.35f,animals.Count+b.speciesIndex*17,true,out var p)){
-            AddAnimal(p,b.speciesIndex);var child=animals[animals.Count-1];child.age=0;child.birth=.42f;child.art.localScale=child.initialScale*.42f;child.careReady=clock+1.5f;child.protectedUntil=clock+18;populationCapacity[child.populationRegion]++;b.careReady=clock+3;
+            AddAnimal(p,b.speciesIndex);var child=animals[animals.Count-1];child.age=0;child.birth=.42f;child.art.localScale=child.initialScale*.42f;child.careReady=clock+1.5f;child.protectedUntil=clock+18;populationCapacity[child.populationRegion]++;b.careReady=clock+3;PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);
             Tell("Fed - a new animal joins nearby");
         }else Tell("This spot is crowded - feed in an open area");
     }
@@ -148,7 +152,7 @@ public partial class ObliqueForest : MonoBehaviour {
         if(b.cultivated){Tell("Already tended - choose another tree");return;}
         if(clock<b.careReady){Tell("New plants are still growing");return;}int count=0;
         for(int i=0;i<4;i++)if(FindLocal(b.home,.75f,2.0f,plants.Count+i,false,out var p)){AddPlant(p,false,plants.Count);var sprout=plants[plants.Count-1];sprout.art.localScale=sprout.initialScale*.08f;sprout.renderer.color=new Color(1,1,1,.92f);count++;}
-        if(count>0){b.cultivated=true;b.growth++;if(b.targetScale<1)b.targetScale=Mathf.Min(1,b.targetScale+.22f);RegisterCare();b.careReady=clock+2;b.shake=.18f;Tell("New plants are growing around this tree");}else Tell("This patch is full - tend another tree");
+        if(count>0){b.cultivated=true;b.growth++;if(b.targetScale<1)b.targetScale=Mathf.Min(1,b.targetScale+.22f);RegisterCare();b.careReady=clock+2;b.shake=.18f;PlayNaxiWordVoice("tree",b);Tell("New plants are growing around this tree");}else Tell("This patch is full - tend another tree");
     }
     // Abstract ink particles, not Dongba characters. Textures are created once.
     Sprite MakeEcologyInk(bool falling){
@@ -186,6 +190,19 @@ public partial class ObliqueForest : MonoBehaviour {
     }
     Vector3 HandPosition(){return body.TransformPoint(PlayerHandLocalPosition());}
     void RegisterCare(){careCount++;}
+    void PlayNaxiWordVoice(string key,Being source){
+        if(!naxiWordVoiceClips.TryGetValue(key,out var clip)){
+            clip=Resources.Load<AudioClip>("Audio/NaxiWords/"+key);
+            naxiWordVoiceClips[key]=clip;
+        }
+        if(clip==null){if(missingNaxiWordVoiceWarnings.Add(key))Debug.LogWarning("Missing verified Naxi word recording at Resources/Audio/NaxiWords/"+key+".wav; action audio hook is ready, but no invented voice is played.");return;}
+        if(source==null||source.root==null)return;
+        var speaker=source.root.GetComponent<AudioSource>();
+        if(speaker==null)speaker=source.root.gameObject.AddComponent<AudioSource>();
+        speaker.playOnAwake=false;speaker.loop=false;speaker.spatialBlend=1f;speaker.dopplerLevel=0f;
+        speaker.rolloffMode=AudioRolloffMode.Linear;speaker.minDistance=1.1f;speaker.maxDistance=14f;
+        speaker.PlayOneShot(clip,NaxiWordVoiceVolume);
+    }
     void RegisterDamage(){damageCount++;}
     void ApplyEcologyHit(Being target){
         if(target.health<=0)return;
