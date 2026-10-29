@@ -5,6 +5,7 @@ This is a small, optional opening-story layer on top of the existing ecology loo
 ## Try it
 
 - Press **F5** to switch between Story Mode and Sandbox Mode.
+- Press **Esc** to quit the standalone build or stop Play Mode in the Unity Editor.
 - While Story Mode is on, the father marker follows behind the player.
 - Each existing damage event lowers the current ecology balance. At `StoryCaptureBalanceThreshold` (default `-10`), the father leaves to retrieve the lost axe; after a short beat he disappears and the `FatherCaptured` event fires.
 - Other story code can subscribe to `ObliqueForest.FatherCaptured` to begin the rescue section. No rescue puzzle or scene transition is included here.

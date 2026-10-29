@@ -120,7 +120,7 @@ public partial class ObliqueForest : MonoBehaviour {
     void AddPlant(Vector3 p,bool tree,int index){AddDictionaryPlant(p,tree,index);}
     void AddAnimal(Vector3 p,int species=-1){AddDictionaryAnimal(p,species);}
     bool Free(Vector3 p){if(Mathf.Abs(p.x)>ForestHalfWidth||Mathf.Abs(p.z)>ForestHalfDepth)return false;if(jumpAge<0&&River(p))return false;foreach(var b in plants)if(b.tree&&b.health>0){if(Vector3.Distance(p,b.home)<.50f)return false;}return true;}
-    void Update(){if(player==null)return;float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat;var kb=Keyboard.current;Vector3 move=Vector3.zero;if(kb!=null){if(kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0)jumpAge=0;if(!storyInputLocked&&(kb.jKey.wasPressedThisFrame||kb.enterKey.wasPressedThisFrame)&&attackAge<0){attackAge=0;hit=false;}if(!storyInputLocked&&kb.eKey.wasPressedThisFrame)Care();if(kb.rKey.wasPressedThisFrame){player.position=ForestSpawn;lastDryPosition=player.position;health=5;foreach(var b in animals)b.angry=false;}}
+    void Update(){if(player==null)return;float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat;var kb=Keyboard.current;if(kb!=null&&kb.escapeKey.wasPressedThisFrame){ExitPrototype();return;}Vector3 move=Vector3.zero;if(kb!=null){if(kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0)jumpAge=0;if(!storyInputLocked&&(kb.jKey.wasPressedThisFrame||kb.enterKey.wasPressedThisFrame)&&attackAge<0){attackAge=0;hit=false;}if(!storyInputLocked&&kb.eKey.wasPressedThisFrame)Care();if(kb.rKey.wasPressedThisFrame){player.position=ForestSpawn;lastDryPosition=player.position;health=5;foreach(var b in animals)b.angry=false;}}
         if(storyInputLocked)move=Vector3.zero;
         if(ecologyPreviewWalking)move=ecologyPreviewDirection;Vector3 previousFeet=Feet;move=Vector3.ClampMagnitude(move,1);if(move.sqrMagnitude>0){if(attackAge<0){heading=move;if(move.x!=0)facing=move.x>0?1:-1;}var p=Feet+move*4*dt;if(Free(p))player.position=p;}
         if(!River(Feet))lastDryPosition=Feet;
@@ -138,6 +138,13 @@ public partial class ObliqueForest : MonoBehaviour {
         UpdatePopulation(dt);UpdateEcologyParticles(dt);UpdateStoryFatherFollow(dt);
         for(int i=0;i<water.Count;i++)water[i].position=waterOrigins[i]+Vector3.right*(.06f*Mathf.Sin(clock*Mathf.PI*2/2.2f-i*.35f));
         FollowPlayerCamera(dt);UpdateForestPresentation(dt);
+    }
+    void ExitPrototype(){
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying=false;
+#else
+        Application.Quit();
+#endif
     }
     void Fade(Being b){var p=cam.WorldToScreenPoint(body.position+Vector3.up*.7f);var q=cam.WorldToScreenPoint(b.root.position+Vector3.up);bool blocks=b.root.position.z<Feet.z&&Mathf.Abs(p.x-q.x)<65&&Mathf.Abs(p.y-q.y)<140;var c=b.renderer.color;c.a=Mathf.MoveTowards(c.a,blocks?.22f:b.inkOpacity,Time.deltaTime*3);b.renderer.color=c;}
     void Care(){Being nearest=NearestForestInteraction();if(nearest==null){Tell("Move closer to a plant or animal");return;}if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;RegisterCare();PlayNaxiWordVoice("tree",nearest);Tell("Replanted here");}else {GrowAround(nearest);}}}
