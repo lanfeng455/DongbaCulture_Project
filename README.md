@@ -14,7 +14,7 @@
 2. 使用团队指定的 **Unity 6000.3.12f1**，安装 Windows Build Support。
 3. 打开 `Assets/DongbaPrototype/ObliqueForest.unity`，或菜单 `Dongba Prototype > Open Current Forest`，再点击 Play。
 
-WASD / 方向键移动，Space 跳跃，J / Enter 挥斧，E 照料、喂养或补种，R 恢复角色位置和血量。
+WASD / 方向键移动，Space 跳跃，J / Enter 挥斧，E 照料、喂养或补种，R 从开局重新开始当前世界。
 
 菜单 `Dongba Prototype > Build Current Forest (Windows x64)` 输出到 `Builds/Windows/ForestPrototype/ForestPrototype.exe`，不要求队友具有固定盘符。旧横版和旧构建菜单在 Legacy 下，不代表当前版本。
 

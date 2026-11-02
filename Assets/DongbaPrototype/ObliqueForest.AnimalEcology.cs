@@ -8,9 +8,13 @@ public partial class ObliqueForest {
     // Existing migrationState: 0 roaming, 1 departing, 2 outside activity, 3 returning.
     [Header("Animal ecology response")]
     public float FriendlyRadius=11f;
-    public int MaxFriendlyAnimals=4;
+    [Range(1,6)] public int MaxFriendlyAnimals=6;
     public float FriendlyApproachSpeed=2.2f, FriendlyCatchupSpeed=4.3f;
-    bool friendlyWeather; float friendlyTransition,nextVisitAt;
+    [Header("Severe-ecology flight")]
+    [Range(.25f,.9f)] public float SevereEcologyFleeLevel=.55f;
+    [Range(2.5f,8f)] public float PlayerApproachFleeRadius=5.5f;
+    [Range(2f,6f)] public float PanickedAnimalFleeSpeed=3.6f;
+    bool friendlyWeather; float friendlyTransition,nextVisitAt,nextProximityFleeCheckAt; int friendlyVisitSequence; float nextFriendlyRotationAt;
     int migrationSequence,departuresCompleted,returnsStarted,visitsStarted,visibleHideErrors,visibleSpawnErrors;
     const float NavCell=.6f; const int NavW=151,NavH=71,NavN=NavW*NavH;
     readonly bool[] navWalk=new bool[NavN],navClosed=new bool[NavN];
@@ -81,9 +85,13 @@ public partial class ObliqueForest {
     }
     bool AnimalSegmentClear(Being b,Vector3 start,Vector3 end){int steps=Mathf.Max(1,Mathf.CeilToInt(Vector3.Distance(start,end)/.12f));for(int i=1;i<=steps;i++)if(!ClearAnimalStep(Vector3.Lerp(start,end,(float)i/steps),b))return false;return true;}
     bool HasAnimalRoute(Being b){return b.route!=null&&b.routeIndex<b.route.Count;}
-    void EndAnimalVisit(Being b){b.follow=0;b.socialReadyAt=clock+10+Mathf.Repeat(b.phase,5);b.navRefresh=clock+.3f;if(b.route!=null)b.route.Clear();}
+    void EndAnimalVisit(Being b){b.follow=0;b.visitOrder=0;b.socialReadyAt=clock+10+Mathf.Repeat(b.phase,5);b.navRefresh=clock+.3f;if(b.route!=null)b.route.Clear();}
+    void SendFriendlyAnimalHome(Being b){
+        EndAnimalVisit(b);b.migrationState=3;b.fleeing=false;b.navRefresh=clock+.05f;
+        if(!PlanAnimalRoute(b,b.home)){b.migrationState=0;b.socialReadyAt=clock+5;}
+    }
     bool TryFriendlyDestination(Being b,out Vector3 goal){
-        for(int i=0;i<12;i++){float a=b.phase*1.37f+i*2.39996f;float r=1.4f+Mathf.Repeat(b.phase*.37f+i*.41f,1.0f);goal=Feet+new Vector3(Mathf.Cos(a)*r,0,Mathf.Sin(a)*r);
+        for(int i=0;i<32;i++){float a=b.phase*1.37f+i*2.39996f;float r=1.6f+Mathf.Repeat(b.phase*.37f+i*.41f,1.8f);goal=Feet+new Vector3(Mathf.Cos(a)*r,0,Mathf.Sin(a)*r);
             if(!ClearAnimalStep(goal,b))continue;bool spaced=true;foreach(var other in animals)if(other!=b&&other.follow>0&&Vector3.Distance(goal,Feet+other.socialOffset)<1.35f){spaced=false;break;}if(spaced)return true;
         }goal=Vector3.zero;return false;
     }
@@ -91,59 +99,86 @@ public partial class ObliqueForest {
         bool requested=friendlyWeather?Balance>FlourishThreshold-3:Balance>=FlourishThreshold;
         if(requested!=friendlyWeather){friendlyTransition+=dt;if(friendlyTransition>2){friendlyWeather=requested;friendlyTransition=0;}}else friendlyTransition=0;
         if(clock>=nextVisitAt){nextVisitAt=clock+.65f+Mathf.Repeat(migrationSequence*.71f,.55f);int participants=0;foreach(var a in animals)if(a.follow>0)participants++;
-            int limit=Mathf.Clamp(3+(Balance-FlourishThreshold)/6,1,MaxFriendlyAnimals);
-            if(friendlyWeather&&participants<limit){Being choice=null;float best=FriendlyRadius;
+            int limit=Mathf.Clamp(MaxFriendlyAnimals,1,6);
+            if(friendlyWeather&&participants>0&&participants>=limit&&clock>=nextFriendlyRotationAt){
+                // Keep a rotating group: when a new animal is attracted at capacity, the earliest
+                // arrival returns to its home range before the new one takes its place.
+                Being oldest=null;foreach(var a in animals)if(a.follow>0&&(oldest==null||a.visitOrder<oldest.visitOrder))oldest=a;
+                Being next=null;float best=FriendlyRadius;foreach(var a in animals){float d=Vector3.Distance(a.root.position,Feet);if(a.health<=0||a.migrationState!=0||a.angry||a.age<2||a.follow>0||clock<a.socialReadyAt||clock<a.protectedUntil||clock<a.careReady)continue;if(d<best){best=d;next=a;}}
+                if(oldest!=null&&next!=null){if(TryFriendlyDestination(next,out var goal)&&PlanAnimalRoute(next,goal)){SendFriendlyAnimalHome(oldest);nextFriendlyRotationAt=clock+8f;next.socialOffset=goal-Feet;next.follow=1;next.visitOrder=++friendlyVisitSequence;next.navRefresh=clock+.4f;visitsStarted++;}else next.socialReadyAt=clock+5;}
+            }else if(friendlyWeather&&participants<limit){Being choice=null;float best=FriendlyRadius;
                 foreach(var a in animals){float d=Vector3.Distance(a.root.position,Feet);if(a.health<=0||a.migrationState!=0||a.angry||a.age<2||a.follow>0||clock<a.socialReadyAt||clock<a.protectedUntil||clock<a.careReady)continue;if(d<best){best=d;choice=a;}}
-                if(choice!=null){if(TryFriendlyDestination(choice,out var goal)&&PlanAnimalRoute(choice,goal)){choice.socialOffset=goal-Feet;choice.follow=20+Mathf.Repeat(choice.phase,6);choice.navRefresh=clock+.4f;visitsStarted++;}else choice.socialReadyAt=clock+5;}
+                if(choice!=null){if(TryFriendlyDestination(choice,out var goal)&&PlanAnimalRoute(choice,goal)){choice.socialOffset=goal-Feet;choice.follow=1;choice.visitOrder=++friendlyVisitSequence;choice.navRefresh=clock+.4f;visitsStarted++;}else choice.socialReadyAt=clock+5;}
             }
             if(!friendlyWeather){foreach(var a in animals)if(a.follow>0){EndAnimalVisit(a);break;}}
         }
-        if(clock<populationCheckAt)return;populationCheckAt=clock+2.6f+Mathf.Repeat(migrationSequence++*.73f,1.2f);
+        // In a severely damaged forest, nearby adults react to the player's approach immediately.
+        // Only one animal starts fleeing per short interval, and it uses the existing obstacle-aware
+        // route to leave the camera before being hidden.
+        if(clock>=nextProximityFleeCheckAt){nextProximityFleeCheckAt=clock+.32f;TryStartProximityFlee();}
+        if(clock<populationCheckAt)return;populationCheckAt=clock+Mathf.Lerp(2.6f,.65f,Mathf.Clamp01(-ecologyVisual))+Mathf.Repeat(migrationSequence++*.73f,.25f);
         float decline=Mathf.Clamp01(-ecologyVisual);Being departure=null,returner=null;float bestDeparture=float.NegativeInfinity,bestReturn=float.PositiveInfinity;int movingOut=0;
         foreach(var a in animals)if(a.migrationState==1)movingOut++;
         for(int region=0;region<populationRegionCount;region++){
             int current=0;foreach(var a in animals)if(a.health>0&&a.populationRegion==region&&a.migrationState!=1&&a.migrationState!=2)current++;
-            int target=Mathf.Max(populationCapacity[region]>0?1:0,Mathf.CeilToInt(populationCapacity[region]*Mathf.Lerp(1,.35f,decline)));
+            int target=Mathf.Max(populationCapacity[region]>0?1:0,Mathf.CeilToInt(populationCapacity[region]*Mathf.Lerp(1,.15f,decline)));
             foreach(var a in animals){if(a.health<=0||a.populationRegion!=region)continue;
                 if(decline>.16f&&current>target&&a.migrationState==0&&!a.angry&&a.age==2&&a.birth>.98f&&clock>=a.protectedUntil&&clock>=a.careReady&&clock>=a.migrationTimer){float score=30-Vector3.Distance(a.root.position,Feet);if(!AnimalOutsideViewAt(a,a.root.position))score+=20;if(score>bestDeparture){bestDeparture=score;departure=a;}}
                 if(current<target&&a.migrationState==2&&AnimalOutsideViewAt(a,a.root.position)&&ClearAnimalStep(a.root.position,a)){float d=Vector3.Distance(a.home,Feet);if(d<bestReturn){bestReturn=d;returner=a;}}
             }
         }
         // One global departure/return per tick: no simultaneous region-wide group turns.
-        if(departure!=null&&movingOut<3){EndAnimalVisit(departure);if(PlanAnimalRoute(departure,departure.home,true)){departure.migrationState=1;departure.navRefresh=clock+2;}else departure.migrationTimer=clock+5;}
+        if(departure!=null&&movingOut<5){EndAnimalVisit(departure);departure.fleeing=true;if(PlanAnimalRoute(departure,departure.home,true)){departure.migrationState=1;departure.navRefresh=clock+2;}else departure.migrationTimer=clock+5;}
         else if(returner!=null){if(PlanAnimalRoute(returner,returner.home)){if(!AnimalOutsideViewAt(returner,returner.root.position))visibleSpawnErrors++;returner.migrationState=3;returner.opacity=1;returner.root.gameObject.SetActive(true);returner.navRefresh=clock+2;returnsStarted++;}}
+    }
+    void TryStartProximityFlee(){
+        if(Mathf.Clamp01(-ecologyVisual)<SevereEcologyFleeLevel)return;
+        int movingOut=0;foreach(var a in animals)if(a.migrationState==1)movingOut++;
+        Being choice=null;float closest=PlayerApproachFleeRadius;
+        foreach(var a in animals){
+            if(a.health<=0||(a.migrationState!=0&&a.migrationState!=1)||a.angry||a.age<2||a.birth<.98f||clock<a.protectedUntil||clock<a.careReady)continue;
+            float distance=Vector3.Distance(a.root.position,Feet);
+            if(distance<closest){closest=distance;choice=a;}
+        }
+        if(choice==null)return;
+        if(choice.migrationState==1){choice.fleeing=true;choice.moveSpeed=Mathf.Max(choice.moveSpeed,.8f);return;}
+        if(movingOut>=5)return;
+        EndAnimalVisit(choice);
+        if(PlanAnimalRoute(choice,choice.home,true)){
+            choice.fleeing=true;choice.migrationState=1;choice.navRefresh=clock+.05f;
+        }else choice.migrationTimer=clock+.7f;
     }
     void UpdateAnimalEcology(Being b,float dt,float hop){
         if(b.health<=0||b.migrationState==2)return;
         b.birth=Mathf.MoveTowards(b.birth,b.age==0?.42f:b.age==1?.7f:1,dt*.65f);b.art.localScale=b.initialScale*b.birth;b.cooldown-=dt;
-        if(b.angry){if(b.follow>0||b.migrationState!=0){EndAnimalVisit(b);b.migrationState=0;}b.socialReadyAt=clock+20;}
-        if(b.follow>0){b.follow=Mathf.Max(0,b.follow-dt);if(b.follow==0||Vector3.Distance(Feet,b.root.position)>FriendlyRadius+3)EndAnimalVisit(b);}
-        if(b.migrationState==1&&ecologyVisual>=-.1f){b.migrationState=3;if(b.route!=null)b.route.Clear();b.navRefresh=clock;}
+        if(b.angry){if(b.follow>0||b.migrationState!=0){EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;}b.socialReadyAt=clock+20;}
+        if(b.follow>0){if(friendlyWeather)b.follow=1;else if(b.visitOrder==0){b.follow=Mathf.Max(0,b.follow-dt);if(b.follow==0||Vector3.Distance(Feet,b.root.position)>FriendlyRadius+3)EndAnimalVisit(b);}}
+        if(b.migrationState==1&&ecologyVisual>=-.1f){b.migrationState=3;b.fleeing=false;if(b.route!=null)b.route.Clear();b.navRefresh=clock;}
         if(clock>=b.navRefresh){
             b.navRefresh=clock+2.2f+Mathf.Repeat(b.phase,.8f);
             if(b.migrationState==1){if(!HasAnimalRoute(b))PlanAnimalRoute(b,b.home,true);}
             else if(b.migrationState==3){if(!HasAnimalRoute(b))PlanAnimalRoute(b,b.home);}
             else if(b.angry){PlanAnimalRoute(b,Feet);b.navRefresh=clock+.8f;}
             else if(b.follow>0){b.navRefresh=clock+.4f+Mathf.Repeat(b.phase,.2f);var goal=Feet+b.socialOffset+new Vector3(Mathf.Sin(clock*.67f+b.phase)*.24f,0,Mathf.Cos(clock*.43f+b.phase)*.20f);
-                if(!ClearAnimalStep(goal,b)){if(!TryFriendlyDestination(b,out goal)){EndAnimalVisit(b);return;}b.socialOffset=goal-Feet;}
+                if(!ClearAnimalStep(goal,b)){if(!TryFriendlyDestination(b,out goal)){b.navRefresh=clock+.35f;goal=b.root.position;}b.socialOffset=goal-Feet;}
                 if(Vector3.Distance(b.root.position,goal)>.18f)PlanAnimalRoute(b,goal);
             }else{Vector3 goal=b.home+new Vector3(Mathf.Sin(clock*.5f+b.phase)*.6f,0,Mathf.Cos(clock*.4f+b.phase)*.4f);PlanAnimalRoute(b,goal);}
         }
-        float speed=b.angry?1.8f:b.migrationState!=0?1.05f:b.follow>0?(Vector3.Distance(b.root.position,Feet+b.socialOffset)<.5f?.5f:Mathf.Lerp(FriendlyApproachSpeed,FriendlyCatchupSpeed,Mathf.InverseLerp(1.5f,4.5f,Vector3.Distance(b.root.position,Feet+b.socialOffset)))):.3f;
-        b.moveSpeed=Mathf.MoveTowards(b.moveSpeed,HasAnimalRoute(b)?speed:0,dt*(b.follow>0?2.5f:1.2f));
+        float speed=b.angry?1.8f:b.fleeing?PanickedAnimalFleeSpeed:b.migrationState!=0?1.05f:b.follow>0?(Vector3.Distance(b.root.position,Feet+b.socialOffset)<.5f?.5f:Mathf.Lerp(FriendlyApproachSpeed,FriendlyCatchupSpeed,Mathf.InverseLerp(1.5f,4.5f,Vector3.Distance(b.root.position,Feet+b.socialOffset)))):.3f;
+        b.moveSpeed=Mathf.MoveTowards(b.moveSpeed,HasAnimalRoute(b)?speed:0,dt*(b.fleeing?8f:b.follow>0?2.5f:1.2f));
         if(HasAnimalRoute(b)){
             Vector3 waypoint=b.route[b.routeIndex],delta=waypoint-b.root.position;
             if(delta.magnitude<.11f)b.routeIndex++;
             else {Vector3 next=Vector3.MoveTowards(b.root.position,waypoint,b.moveSpeed*Mathf.Min(dt,.1f));bool clear=ClearAnimalStep(next,b);
                 if(clear){Vector3 actual=next-b.root.position;b.root.position=next;b.blockedTime=0;if(Mathf.Abs(actual.x)>.0001f&&b.speciesIndex!=4)b.renderer.flipX=actual.x<0;}
-                else {b.blockedTime+=dt;if(b.blockedTime>1.3f){b.route.Clear();b.navRefresh=clock+.5f;if(b.follow>0)EndAnimalVisit(b);}}
+                else {b.blockedTime+=dt;if(b.blockedTime>1.3f){b.route.Clear();b.navRefresh=clock+.5f;if(b.follow>0){b.navRefresh=clock+.2f;Vector3 alternative;if(TryFriendlyDestination(b,out alternative))b.socialOffset=alternative-Feet;}}}
             }
         }
         if(b.migrationState==1&&!HasAnimalRoute(b)&&Vector3.Distance(b.root.position,b.navGoal)<.35f){
             if(AnimalOutsideViewAt(b,b.root.position)){b.migrationState=2;b.root.gameObject.SetActive(false);departuresCompleted++;return;}
             b.navRefresh=Mathf.Min(b.navRefresh,clock+.5f);
         }
-        if(b.migrationState==3&&!HasAnimalRoute(b)&&Vector3.Distance(b.root.position,b.home)<2){b.migrationState=0;b.socialReadyAt=clock+4;}
+        if(b.migrationState==3&&!HasAnimalRoute(b)&&Vector3.Distance(b.root.position,b.home)<2){b.migrationState=0;b.fleeing=false;b.socialReadyAt=clock+4;}
         b.art.localPosition=new Vector3(0,.025f*Mathf.Sin(clock*3+b.phase),0);b.renderer.color=AnimalEcologyTint();b.renderer.sortingOrder=100-Mathf.RoundToInt(b.root.position.z*10);
         if(b.angry&&Vector3.Distance(Feet,b.root.position)<.85f&&b.cooldown<=0&&damageCooldown<=0&&hop<.4f){health--;damageCooldown=1;b.cooldown=1.5f;Tell("The animal is defending itself");if(health<=0){player.position=ForestSpawn;lastDryPosition=player.position;health=5;b.angry=false;}}
     }
