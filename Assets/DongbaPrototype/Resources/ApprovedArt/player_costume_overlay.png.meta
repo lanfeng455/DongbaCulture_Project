@@ -1,0 +1,715 @@
+fileFormatVersion: 2
+guid: a057cc1437e20614fac17c88420850dc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 104135359887957196
+    second: player_costume_overlay_0
+  - first:
+      213: -5277318550582420084
+    second: player_costume_overlay_1
+  - first:
+      213: 4380745857017264018
+    second: player_costume_overlay_2
+  - first:
+      213: 1100485617077350544
+    second: player_costume_overlay_3
+  - first:
+      213: 7002767201145813750
+    second: player_costume_overlay_4
+  - first:
+      213: -3240553797268969482
+    second: player_costume_overlay_5
+  - first:
+      213: 92447055600119455
+    second: player_costume_overlay_6
+  - first:
+      213: 7429425647047994621
+    second: player_costume_overlay_7
+  - first:
+      213: -7896666797280597214
+    second: player_costume_overlay_8
+  - first:
+      213: -424237966167262611
+    second: player_costume_overlay_9
+  - first:
+      213: -4645816076448758213
+    second: player_costume_overlay_10
+  - first:
+      213: -5513508661865217953
+    second: player_costume_overlay_11
+  - first:
+      213: 2275539813308491763
+    second: player_costume_overlay_12
+  - first:
+      213: 6963073819715436799
+    second: player_costume_overlay_13
+  - first:
+      213: 2826029668361040951
+    second: player_costume_overlay_14
+  - first:
+      213: -5983508283550335153
+    second: player_costume_overlay_15
+  - first:
+      213: 4389477013935649145
+    second: player_costume_overlay_16
+  - first:
+      213: -9047177847137463594
+    second: player_costume_overlay_17
+  - first:
+      213: 2423995204358881305
+    second: player_costume_overlay_18
+  - first:
+      213: 7598131373491873802
+    second: player_costume_overlay_19
+  - first:
+      213: -3426973127894691613
+    second: player_costume_overlay_20
+  - first:
+      213: 2206618186762630493
+    second: player_costume_overlay_21
+  - first:
+      213: 2459421953026581576
+    second: player_costume_overlay_22
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: player_costume_overlay_0
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 98
+        width: 80
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cccddaede86f17100800000000000000
+      internalID: 104135359887957196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_1
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 88
+        width: 23
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8d94f91db233c6b0800000000000000
+      internalID: -5277318550582420084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_2
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 94
+        width: 23
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29737c295298bcc30800000000000000
+      internalID: 4380745857017264018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_3
+      rect:
+        serializedVersion: 2
+        x: 76
+        y: 92
+        width: 16
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 090725e86d5b54f00800000000000000
+      internalID: 1100485617077350544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_4
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 64
+        width: 33
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fa7d0dcaa3de2160800000000000000
+      internalID: 7002767201145813750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_5
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 85
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f76d369d7d3703d0800000000000000
+      internalID: -3240553797268969482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_6
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 56
+        width: 22
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9e63957b10784100800000000000000
+      internalID: 92447055600119455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_7
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 68
+        width: 21
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfce871634f9a1760800000000000000
+      internalID: 7429425647047994621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_8
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 46
+        width: 48
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22be77ed267696290800000000000000
+      internalID: -7896666797280597214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_9
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 58
+        width: 28
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6abd5641ddcc1af0800000000000000
+      internalID: -424237966167262611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_10
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 71
+        width: 18
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b36097f94eeb68fb0800000000000000
+      internalID: -4645816076448758213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_11
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 67
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f500c7775151c73b0800000000000000
+      internalID: -5513508661865217953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_12
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 34
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f7e2846767549f10800000000000000
+      internalID: 2275539813308491763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_13
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 29
+        width: 20
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff006f04fbec1a060800000000000000
+      internalID: 6963073819715436799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_14
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 30
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 734ff5ba203183720800000000000000
+      internalID: 2826029668361040951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_15
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 38
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4fff580bee46fca0800000000000000
+      internalID: -5983508283550335153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_16
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 37
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9717065761e8aec30800000000000000
+      internalID: 4389477013935649145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_17
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 13
+        width: 10
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d296999ea7f17280800000000000000
+      internalID: -9047177847137463594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_18
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 26
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 910cf05abc2c3a120800000000000000
+      internalID: 2423995204358881305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_19
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 14
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a08ebb14a3cf17960800000000000000
+      internalID: 7598131373491873802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_20
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 17
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e01709d812f070d0800000000000000
+      internalID: -3426973127894691613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_21
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 11
+        width: 27
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5537e8bc8b7f9e10800000000000000
+      internalID: 2206618186762630493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_costume_overlay_22
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 11
+        width: 14
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84462f65c3f912220800000000000000
+      internalID: 2459421953026581576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      player_costume_overlay_0: 104135359887957196
+      player_costume_overlay_1: -5277318550582420084
+      player_costume_overlay_10: -4645816076448758213
+      player_costume_overlay_11: -5513508661865217953
+      player_costume_overlay_12: 2275539813308491763
+      player_costume_overlay_13: 6963073819715436799
+      player_costume_overlay_14: 2826029668361040951
+      player_costume_overlay_15: -5983508283550335153
+      player_costume_overlay_16: 4389477013935649145
+      player_costume_overlay_17: -9047177847137463594
+      player_costume_overlay_18: 2423995204358881305
+      player_costume_overlay_19: 7598131373491873802
+      player_costume_overlay_2: 4380745857017264018
+      player_costume_overlay_20: -3426973127894691613
+      player_costume_overlay_21: 2206618186762630493
+      player_costume_overlay_22: 2459421953026581576
+      player_costume_overlay_3: 1100485617077350544
+      player_costume_overlay_4: 7002767201145813750
+      player_costume_overlay_5: -3240553797268969482
+      player_costume_overlay_6: 92447055600119455
+      player_costume_overlay_7: 7429425647047994621
+      player_costume_overlay_8: -7896666797280597214
+      player_costume_overlay_9: -424237966167262611
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
