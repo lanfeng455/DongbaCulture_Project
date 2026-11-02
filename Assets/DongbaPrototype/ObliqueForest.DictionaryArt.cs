@@ -53,7 +53,7 @@ public partial class ObliqueForest {
         b.renderer=b.art.GetComponent<SpriteRenderer>();b.renderer.color=Color.white;b.renderer.flipX=false;
         b.shadow=Billboard("Shadow",b.root,shadow,tree?1.1f:.3f,true);b.initialShadowScale=b.shadow.localScale;
         b.initialScale=b.art.localScale;b.fullGlyph=b.renderer.sprite;
-        if(tree){var set=TreeLayers(key,b.fullGlyph);b.renderer.sprite=set.trunk;b.leafImages=new SpriteRenderer[set.leaves.Length];b.greenLeafImages=new SpriteRenderer[set.leaves.Length];b.leafAmounts=new float[set.leaves.Length];for(int i=0;i<set.leaves.Length;i++){var leaf=new GameObject("Original tree foliage stroke / " + i).transform;leaf.SetParent(b.art,false);leaf.localPosition=Vector3.zero;leaf.localRotation=Quaternion.identity;leaf.localScale=Vector3.one;var image=leaf.gameObject.AddComponent<SpriteRenderer>();image.sprite=set.leaves[i];image.sharedMaterial=rootGrowthInk;image.sortingOrder=b.renderer.sortingOrder;image.color=Color.white;b.leafImages[i]=image;var green=new GameObject("Toned foliage overlay / " + i).transform;green.SetParent(b.art,false);green.localPosition=Vector3.zero;green.localRotation=Quaternion.identity;green.localScale=Vector3.one;var greenImage=green.gameObject.AddComponent<SpriteRenderer>();greenImage.sprite=set.greenLeaves[i];greenImage.sortingOrder=b.renderer.sortingOrder+1;greenImage.enabled=false;b.greenLeafImages[i]=greenImage;b.leafAmounts[i]=1;}var r=b.fullGlyph.rect;
+        if(tree){var set=TreeLayers(key,b.fullGlyph);b.renderer.sprite=set.trunk;b.leafImages=new SpriteRenderer[set.leaves.Length];b.greenLeafImages=new SpriteRenderer[set.leaves.Length];b.leafAmounts=new float[set.leaves.Length];b.leafHeight01=new float[set.leaves.Length];b.leafAttached=new bool[set.leaves.Length];float low=float.PositiveInfinity,high=float.NegativeInfinity;for(int i=0;i<set.pieceOffsets.Length;i++){low=Mathf.Min(low,set.pieceOffsets[i].y);high=Mathf.Max(high,set.pieceOffsets[i].y);}for(int i=0;i<set.leaves.Length;i++){var leaf=new GameObject("Original tree foliage stroke / " + i).transform;leaf.SetParent(b.art,false);leaf.localPosition=Vector3.zero;leaf.localRotation=Quaternion.identity;leaf.localScale=Vector3.one;var image=leaf.gameObject.AddComponent<SpriteRenderer>();image.sprite=set.leaves[i];image.sharedMaterial=rootGrowthInk;image.sortingOrder=b.renderer.sortingOrder;image.color=Color.white;b.leafImages[i]=image;var green=new GameObject("Toned foliage overlay / " + i).transform;green.SetParent(b.art,false);green.localPosition=Vector3.zero;green.localRotation=Quaternion.identity;green.localScale=Vector3.one;var greenImage=green.gameObject.AddComponent<SpriteRenderer>();greenImage.sprite=set.greenLeaves[i];greenImage.sortingOrder=b.renderer.sortingOrder+1;greenImage.enabled=false;b.greenLeafImages[i]=greenImage;b.leafAmounts[i]=1;b.leafAttached[i]=true;b.leafHeight01[i]=Mathf.InverseLerp(low,high,set.pieceOffsets[i].y);}var r=b.fullGlyph.rect;
             // The three dictionary trees have different root strokes. Use a wider base crop so none of those
             // lower strokes fall outside the stump, while stumpScale below keeps the same on-screen height.
             b.stumpGlyph=Sprite.Create(b.fullGlyph.texture,new Rect(r.x+r.width*.39f,r.y,r.width*.22f,r.height*.14f),new Vector2(.5f,0),100);b.stumpScale=.42f/b.stumpGlyph.bounds.size.y;}
@@ -91,7 +91,7 @@ public partial class ObliqueForest {
     void AddDictionaryAnimal(Vector3 p,int species=-1){
         if(species<0)species=animals.Count%AnimalKinds;
         string key="animal_"+species.ToString("00");
-        var b=new Being{home=p,animal=true,phase=animals.Count*1.7f,speciesIndex=species,populationRegion=PopulationRegion(p.x)};
+        var b=new Being{home=p,animal=true,health=2,phase=animals.Count*1.7f,speciesIndex=species,populationRegion=PopulationRegion(p.x)};
         b.root=new GameObject("Peaceful animal / "+dictionaryLabels[key]).transform;b.root.position=p;
         // Selectively boost fine, low-ink adult silhouettes while retaining the base size hierarchy.
         // Values scale uniformly so every source glyph keeps its original proportions.
@@ -104,6 +104,7 @@ public partial class ObliqueForest {
     }
 
     bool ClearAnimalStep(Vector3 p,Being moving=null){
+        if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<2.8f&&p.z>storyHome.position.z-.8f&&p.z<storyHome.position.z+6)return false;
         if(placingForestAnimals&&Vector3.Distance(p,ForestSpawn)<2.6f)return false;
         if(River(p)||Mathf.Abs(p.x)>ForestHalfWidth-1||Mathf.Abs(p.z)>ForestHalfDepth-.8f)return false;
         foreach(var plant in plants)if(Vector3.Distance(p,plant.home)<(plant.tree?1.0f:.42f))return false;
