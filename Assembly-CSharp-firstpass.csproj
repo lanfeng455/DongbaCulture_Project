@@ -471,9 +471,6 @@
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\PackageCache\com.unity.visualscripting@8bed5ad90189\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64\Runtime\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll</HintPath>
     </Reference>
@@ -485,6 +482,9 @@
     </Reference>
     <Reference Include="Unity.Android.Gradle">
       <HintPath>C:\UnityVersion\6000.3.12f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Gradle.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Xcode">
+      <HintPath>C:\UnityVersion\6000.3.12f1\Editor\Data\PlaybackEngines\MacStandaloneSupport\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\UnityVersion\6000.3.12f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>
@@ -882,14 +882,23 @@
     <Reference Include="Unity.2D.IK.Runtime">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.IK.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.ScriptableBuildPipeline">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.ScriptableBuildPipeline.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VisualScripting.SettingsProvider.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.VisualScripting.SettingsProvider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Animation.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.Animation.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Recorder.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Recorder.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.InternalAPIEditorBridge.001">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.001.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Splines.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Splines.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.2D.Editor.Overrides">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.RenderPipelines.Universal.2D.Editor.Overrides.dll</HintPath>
@@ -902,6 +911,9 @@
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Addressables">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Addressables.dll</HintPath>
     </Reference>
     <Reference Include="PPv2URPConverters">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\PPv2URPConverters.dll</HintPath>
@@ -921,11 +933,17 @@
     <Reference Include="Unity.VisualScripting.Shared.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.VisualScripting.Shared.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.ScriptableBuildPipeline.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.ScriptableBuildPipeline.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Searcher.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Searcher.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PlasticSCM.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Bindings.OpenImageIO.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Bindings.OpenImageIO.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Burst.Editor.dll</HintPath>
@@ -936,11 +954,20 @@
     <Reference Include="Unity.Mathematics.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Mathematics.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Cinemachine.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Cinemachine.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Recorder.Base">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Recorder.Base.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.UnifiedRayTracing.Runtime">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.UnifiedRayTracing.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Aseprite.Common">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.Aseprite.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Cinemachine">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Cinemachine.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
@@ -948,11 +975,11 @@
     <Reference Include="Unity.2D.Aseprite.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.Aseprite.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Recorder">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Recorder.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.2D.Psdimporter.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.Psdimporter.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="MCPForUnity.Runtime">
-      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\MCPForUnity.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Runtime">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
@@ -981,11 +1008,14 @@
     <Reference Include="Unity.2D.SpriteShape.Runtime">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.SpriteShape.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="UniTask.TextMeshPro">
-      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\UniTask.TextMeshPro.dll</HintPath>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.ResourceManager.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UniTask.TextMeshPro">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\UniTask.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Tilemap.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.2D.Tilemap.Editor.dll</HintPath>
@@ -999,11 +1029,11 @@
     <Reference Include="Unity.Collections">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Collections.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Profiling.Core">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Profiling.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.InputSystem.ForUI">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.InputSystem.ForUI.dll</HintPath>
-    </Reference>
-    <Reference Include="MCPForUnity.Editor">
-      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\MCPForUnity.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
@@ -1016,6 +1046,9 @@
     </Reference>
     <Reference Include="Unity.Mathematics">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="ByteDance.Trae.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\ByteDance.Trae.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Shaders">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Shaders.dll</HintPath>
@@ -1070,6 +1103,18 @@
     </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.InputSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Settings.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Settings.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Splines">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Splines.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Addressables.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.Addressables.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.AutoGroupGenerator.Editor">
+      <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\Unity.AutoGroupGenerator.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>C:\Unity Projects\DongbaCulture_Project\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
