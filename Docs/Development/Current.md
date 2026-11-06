@@ -50,3 +50,5 @@ Ecology-15 预览构建成功（0 errors），已运行并检查截图。EXE：F
 2026-11-02 最新试版：F:/DongbaBuilds/DongbaForest-HouseBoarInk-20261102/ForestPrototype.exe，房屋落地与赭红大野猪。
 
 2026-11-02 Git同步：当前版本包含父亲开场对话及狩猎AI、东西岸猎猪与找刀被捕流程、房屋及野猪场地、房屋墨色填充与底线拉直。详细实现及验证见 Story-Opening-20261101.md。最新本机运行包：F:/DongbaBuilds/DongbaForest-HouseBaseline-20261102/ForestPrototype.exe。代码、运行所需素材与.meta提交到 chore/forest-collaboration-20261027；不包含本机exe、录屏、整本字典或验证副本。队友需切换此分支并Pull。已通过结构和差异检查；独立6000.3.0b1副本已构建运行，团队6000.3.12f1干净克隆验证未完成。队友截图中的树木残缺问题尚未定位，本次同步不代表该问题已修复。
+
+2026-11-04 最新本机试版：火塘开场，父子左右站位，房屋缩小后移；细节与通过的实机回归见 Story-Opening-20261101.md。分享包F:/DongbaBuilds/DongbaForest-Hearth-Windows-20261104.zip。本轮新增改动尚未提交Git。

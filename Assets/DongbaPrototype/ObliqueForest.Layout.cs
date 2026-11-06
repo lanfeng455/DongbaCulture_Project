@@ -31,7 +31,8 @@ public partial class ObliqueForest {
         center.z=Mathf.Clamp(center.z,-ForestHalfDepth+visibleHalfDepth,ForestHalfDepth-visibleHalfDepth);
         if(StoryModeEnabled&&journeyStage==JourneyStage.Leaving)center.x=player.position.x;
         if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
-        float targetZoom=StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
+        if(StoryModeEnabled&&fatherIntroActive)center=HearthPosition+Vector3.forward*1.5f;
+        float targetZoom=StoryModeEnabled&&fatherIntroActive?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
         if(StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null)center=Vector3.Lerp(Feet,storyBoar.root.position,.3f);
         var goal=center+CameraOffset;
         cam.transform.position=dt>50?goal:Vector3.Lerp(cam.transform.position,goal,1-Mathf.Exp(-dt*5.5f));

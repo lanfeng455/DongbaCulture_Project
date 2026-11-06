@@ -17,6 +17,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(droppedKnife!=null){Destroy(droppedKnife.gameObject);droppedKnife=null;}
         journeyStage=StoryModeEnabled?JourneyStage.Hunting:JourneyStage.Off;fatherHuntTarget=null;fatherSwingAge=-1;fatherNextSwing=0;fatherSwingHit=false;fatherAIFacing=0;invitationAge=0;captureEventSent=false;returnWait=captureBeatAge=0;fatherJumpAge=-1;boarAidReady=0;boarStun=0;
         EnsureStoryHome();boarPassComplete=false;boarPassAge=0;fatherIntroActive=StoryModeEnabled;fatherIntroLine=0;if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
+        if(StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<3f){storyFatherRoot.position=FatherHomeStart;storyFather.home=FatherHomeStart;facing=-1;heading=Vector3.left;}
         if(StoryModeEnabled)Tell("Father: Gather wood and hunt with me in the western woods.");
     }
     void SpawnStoryBoar(){
@@ -82,8 +83,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     bool SpriteOutsideStoryView(SpriteRenderer r){var b=r.bounds;float minX=10,maxX=-10,minY=10,maxY=-10;for(int i=0;i<8;i++){var p=cam.WorldToViewportPoint(new Vector3((i&1)==0?b.min.x:b.max.x,(i&2)==0?b.min.y:b.max.y,(i&4)==0?b.min.z:b.max.z));minX=Mathf.Min(minX,p.x);maxX=Mathf.Max(maxX,p.x);minY=Mathf.Min(minY,p.y);maxY=Mathf.Max(maxY,p.y);}return maxX<-.12f||minX>1.12f||maxY<-.12f||minY>1.12f;}
 
     static readonly float[] FatherSteeringAngles={0,35,-35,70,-70,90,-90};
-    bool StoryFatherStepClear(Vector3 p){
-        if(storyHome!=null&&Mathf.Abs(p.x-storyHome.position.x)<1.7f&&Mathf.Abs(p.z-storyHome.position.z)<.65f)return false;
+    bool StoryFatherStepClear(Vector3 p){if(storyHearth!=null&&Mathf.Abs(p.x-HearthPosition.x)<.62f&&Mathf.Abs(p.z-HearthPosition.z)<.4f)return false;
+        if(storyHome!=null&&Mathf.Abs(p.x-storyHome.position.x)<1.2f&&Mathf.Abs(p.z-storyHome.position.z)<.65f)return false;
         if(River(p)||Mathf.Abs(p.x)>ForestHalfWidth-.8f||Mathf.Abs(p.z)>ForestHalfDepth-.8f)return false;
         foreach(var t in plants)if(t.tree&&t.health>0&&Vector3.Distance(t.home,p)<.8f)return false;
         foreach(var a in animals)if(a.health>0&&a.migrationState!=2&&Vector3.Distance(a.root.position,p)<.65f)return false;
