@@ -8,7 +8,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     JourneyStage journeyStage;Transform storyShu;bool shuPreviewCaptured; Vector3 captureCameraCenter;bool carryStarted;Vector3 carryOffset;
     Material storyBoarInk; Being storyBoar; Transform droppedKnife; Text journeyObjective;
     float fatherJumpAge=-1,boarAidReady,boarStun;Vector3 fatherJumpFrom,fatherJumpTo;
-    Vector3 knifeDropPoint;float returnWait,captureBeatAge;bool captureEventSent;
+    Vector3 knifeDropPoint;float returnWait,captureBeatAge;bool captureEventSent;bool shuConfrontationStarted,shuConfrontationFinished;
     static readonly Vector3 BoarClearing=new Vector3(23,0,0);
     static readonly Vector3 DeparturePoint=new Vector3(-7,0,0);
     void ResetStoryJourney(){
@@ -17,7 +17,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(storyShu!=null){Destroy(storyShu.gameObject);storyShu=null;}shuPreviewCaptured=false;carryStarted=false;
         if(storyBoar!=null){Destroy(storyBoar.root.gameObject);storyBoar=null;}
         if(droppedKnife!=null){Destroy(droppedKnife.gameObject);droppedKnife=null;}
-        journeyStage=StoryModeEnabled?JourneyStage.Hunting:JourneyStage.Off;fatherHuntTarget=null;fatherSwingAge=-1;fatherNextSwing=0;fatherSwingHit=false;fatherAIFacing=0;invitationAge=0;captureEventSent=false;returnWait=captureBeatAge=0;fatherJumpAge=-1;boarAidReady=0;boarStun=0;
+        journeyStage=StoryModeEnabled?JourneyStage.Hunting:JourneyStage.Off;fatherHuntTarget=null;fatherSwingAge=-1;fatherNextSwing=0;fatherSwingHit=false;fatherAIFacing=0;invitationAge=0;captureEventSent=false;shuConfrontationStarted=shuConfrontationFinished=false;returnWait=captureBeatAge=0;fatherJumpAge=-1;boarAidReady=0;boarStun=0;
         EnsureStoryHome();boarPassComplete=false;boarPassAge=0;fatherIntroActive=StoryModeEnabled;fatherIntroLine=0;if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
         if(StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<3f){storyFatherRoot.position=FatherHomeStart;storyFather.home=FatherHomeStart;facing=-1;heading=Vector3.left;}
         if(StoryModeEnabled)Tell("Father: Gather wood and hunt with me in the western woods.");
@@ -64,18 +64,31 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             return;
         }
         EnsureStoryShu();
-        if(captureBeatAge==0)captureCameraCenter=Vector3.Lerp(storyFatherRoot.position,storyShu.position,.5f);
-        captureBeatAge+=dt;Tell("Shu seizes Father and carries him away!");
-        var shuImage=storyShu.GetComponent<SpriteRenderer>();shuImage.color=Color.white;
+        if(!shuConfrontationStarted){
+            shuConfrontationStarted=true;captureCameraCenter=Vector3.Lerp(storyFatherRoot.position,storyShu.position,.5f);
+            fatherAIFacing=storyShu.position.x>=storyFatherRoot.position.x?1:-1;
+            BeginManualStoryDialogue(new[]{"Shu: Is this your knife?", "Father freezes, unable to answer.", "Shu: So it was you who killed my wild boar!"},()=>shuConfrontationFinished=true);
+            return;
+        }
+        if(!shuConfrontationFinished)return;
+        captureBeatAge+=dt;
+        var shuImage=storyShu.GetComponent<SpriteRenderer>();
+        if(captureBeatAge<.8f){
+            // A short anger beat separates the accusation from the abduction.
+            shuImage.color=Color.Lerp(Color.white,new Color(.68f,.20f,.13f),Mathf.Sin(captureBeatAge/.8f*Mathf.PI));
+            return;
+        }
+        shuImage.color=Color.white;Tell("Shu seizes Father and carries him away!");
+        float grabAge=captureBeatAge-.8f;
         if(droppedKnife!=null)droppedKnife.gameObject.SetActive(false);
-        if(captureBeatAge<.55f){storyFatherRoot.position=Vector3.Lerp(storyFatherRoot.position,storyShu.position+new Vector3(-.85f,0,0),1-Mathf.Exp(-dt*9));}
+        if(grabAge<.55f){storyFatherRoot.position=Vector3.Lerp(storyFatherRoot.position,storyShu.position+new Vector3(-.85f,0,0),1-Mathf.Exp(-dt*9));}
         else{
             if(!carryStarted){carryStarted=true;carryOffset=storyFatherRoot.position-storyShu.position;}
-            float speed=Mathf.Lerp(6,25,Mathf.SmoothStep(0,1,(captureBeatAge-.55f)/.65f));Vector3 travel=new Vector3(1,0,.18f).normalized*speed*dt;
+            float speed=Mathf.Lerp(6,25,Mathf.SmoothStep(0,1,(grabAge-.55f)/.65f));Vector3 travel=new Vector3(1,0,.18f).normalized*speed*dt;
             storyShu.position+=travel;storyFatherRoot.position=storyShu.position+carryOffset;
         }
         shuImage.sortingOrder=100-Mathf.RoundToInt(storyShu.position.z*10);storyFatherImage.color=Color.white;storyFatherImage.sortingOrder=shuImage.sortingOrder+1;
-        if(captureBeatAge>.7f&&!shuPreviewCaptured){shuPreviewCaptured=true;if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)CaptureSceneToTexture("Verification/story-journey/shu-capture.png");}
+        if(grabAge>.7f&&!shuPreviewCaptured){shuPreviewCaptured=true;if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)CaptureSceneToTexture("Verification/story-journey/shu-capture.png");}
         if(carryStarted&&SpriteOutsideStoryView(shuImage)&&SpriteOutsideStoryView(storyFatherImage)){
             storyShu.gameObject.SetActive(false);storyFatherRoot.gameObject.SetActive(false);journeyStage=JourneyStage.Captured;storyOpeningState=StoryOpeningState.Captured;
             if(!captureEventSent){captureEventSent=true;FatherCaptured?.Invoke();}BeginManualStoryDialogue(new[]{"Father has been taken by Shu."});

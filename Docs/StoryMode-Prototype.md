@@ -18,3 +18,5 @@ This is a small, optional opening-story layer on top of the existing ecology loo
 - The father uses the existing forest walk map and clearance checks. He does not cross the river or tree obstacles intentionally; if no route can be found, he waits and retries.
 
 2026-11-07 当前演示范围更新：高勒趣东行穿过森林，文字退为纸面，淡出后结束当前段落。暂不进入临时卷轴练习场，也不自动加载后续场景；R重开、F5切沙盒、Esc退出仍可用。
+
+2026-11-07 找刀对峙：父亲到东岸刀旁后停下，镜头取父亲与署的中点。按Enter逐句推进：署问‘这是你的刀吗？’→父亲愣住、无法回答→署指责‘就是你杀了我的野猪！’。以上为按用户要求撰写的游戏改编台词，非原经文引文；沿用当前英文字幕。最后一句确认后，署短暂转为暗红表现怒意，再沿原动画抓走父亲；刀在对峙时保留，抓走时隐藏。

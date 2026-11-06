@@ -31,7 +31,7 @@ public partial class ObliqueForest {
         center.x=Mathf.Clamp(center.x,-ForestHalfWidth+visibleHalfWidth,ForestHalfWidth-visibleHalfWidth);
         center.z=Mathf.Clamp(center.z,-ForestHalfDepth+visibleHalfDepth,ForestHalfDepth-visibleHalfDepth);
         if(StoryModeEnabled&&(journeyStage==JourneyStage.Leaving||journeyStage==JourneyStage.EastJourney||journeyStage==JourneyStage.ScrollTransition))center.x=player.position.x;
-        if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
+        if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=shuConfrontationStarted||captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
         if(StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization))center=HearthPosition+Vector3.forward*1.5f;
         float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
         if(StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null)center=Vector3.Lerp(Feet,storyBoar.root.position,.3f);
