@@ -31,13 +31,13 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void UpdateStoryJourney(float dt){
         if(!StoryModeEnabled)return;
         if(journeyStage==JourneyStage.Off)ResetStoryJourney();
-        if(fatherIntroActive)return;
+        if(fatherIntroActive||ManualStoryDialogueActive)return;
         if(UpdateAfterCaptureStory(dt))return;
         if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold){SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;boarPassStart=new Vector3(Mathf.Min(Feet.x-12,RiverX(0)-10),0,0);storyBoar.root.position=boarPassStart;Tell("A great boar bursts out of the western woods!");}
         if(journeyStage==JourneyStage.BoarPass){UpdateBoarPass(dt);return;}
         if(journeyStage==JourneyStage.Invitation){
             if(Vector3.Distance(storyFatherRoot.position,Feet)>2.2f)MoveStoryFatherToward(Feet,3f,dt);
-            else{invitationAge+=dt;Tell("Father: Did you see that boar? It crossed the river! Let us hunt it together.");if(invitationAge>2){journeyStage=JourneyStage.Boar;}}
+            else{BeginManualStoryDialogue(new[]{"Father: Did you see that boar? It crossed the river!", "Father: Let us hunt it together."},()=>journeyStage=JourneyStage.Boar);return;}
         }
         if(journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0){
             float distance=Vector3.Distance(Feet,storyBoar.root.position);
@@ -51,15 +51,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             var source=Get("father_knife");droppedKnife=Billboard("Lost father knife",null,source,.20f);droppedKnife.position=knifeDropPoint;
             droppedKnife.GetComponent<SpriteRenderer>().sortingOrder=100-Mathf.RoundToInt(knifeDropPoint.z*10);droppedKnife.gameObject.SetActive(false);
             if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
-            Tell("Father: We have enough. Let us cross back over the river and go home.");
+            BeginManualStoryDialogue(new[]{"Father: We have enough. Let us cross back over the river and go home."});return;
         }
         if(journeyStage==JourneyStage.Leaving&&Feet.x< -4&&storyFatherRoot.position.x<RiverX(storyFatherRoot.position.z)-1.05f&&Vector3.Distance(Feet,knifeDropPoint)>11){
             journeyStage=JourneyStage.ReturnForKnife;storyOpeningState=StoryOpeningState.CaptureBeat;returnWait=4.2f;
             droppedKnife.gameObject.SetActive(true);EnsureStoryShu();storyFather.route.Clear();storyFather.navRefresh=clock;
-            Tell("Father: Wait a moment...");
+            BeginManualStoryDialogue(new[]{"Father: Wait a moment...", "Father: My knife... I left it in the clearing.", "Father: Stay here. I will go back for it."},()=>returnWait=0);return;
         }
         if(journeyStage!=JourneyStage.ReturnForKnife)return;
-        returnWait-=dt;if(returnWait>2.8f){Tell("Father: Wait a moment...");return;}if(returnWait>1.2f){Tell("Father: My knife... I left it in the clearing.");return;}if(returnWait>0){Tell("Father: Stay here. I will go back for it.");return;}
         if(Vector3.Distance(storyFatherRoot.position,knifeDropPoint)>.9f&&captureBeatAge==0){
             MoveStoryFatherToward(knifeDropPoint,2.5f,dt);
             return;
@@ -79,7 +78,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(captureBeatAge>.7f&&!shuPreviewCaptured){shuPreviewCaptured=true;if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)CaptureSceneToTexture("Verification/story-journey/shu-capture.png");}
         if(carryStarted&&SpriteOutsideStoryView(shuImage)&&SpriteOutsideStoryView(storyFatherImage)){
             storyShu.gameObject.SetActive(false);storyFatherRoot.gameObject.SetActive(false);journeyStage=JourneyStage.Captured;storyOpeningState=StoryOpeningState.Captured;
-            if(!captureEventSent){captureEventSent=true;FatherCaptured?.Invoke();}Tell("Father has been taken by Shu. The rescue journey begins.");
+            if(!captureEventSent){captureEventSent=true;FatherCaptured?.Invoke();}BeginManualStoryDialogue(new[]{"Father has been taken by Shu."});
         }
     }
     void EnsureStoryShu(){if(storyShu!=null)return;storyShu=Billboard("Shu / dictionary PDF409 printed337",null,Get("shu_glyph"),2.6f);storyShu.position=knifeDropPoint+new Vector3(1.5f,0,.5f);var r=storyShu.GetComponent<SpriteRenderer>();r.color=Color.white;r.sortingOrder=100-Mathf.RoundToInt(storyShu.position.z*10);}
@@ -121,15 +120,15 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var fatherVictim=animals[1];int beforeFatherDamage=damageCount;ApplyFatherLightHit(fatherVictim);bool fatherFirst=fatherVictim.health==2;ApplyFatherLightHit(fatherVictim);bool fatherSecond=fatherVictim.health==1;ApplyFatherLightHit(fatherVictim);bool fatherThird=fatherVictim.health==1;ApplyFatherLightHit(fatherVictim);File.AppendAllText("Verification/story-journey/checks.txt","Father needs four strikes="+(fatherFirst&&fatherSecond&&fatherThird&&fatherVictim.health==0&&damageCount-beforeFatherDamage==2)+"\n");RestartRun();for(int intro=0;intro<3;intro++)AdvanceFatherIntro();
         var aiVictim=animals[2];foreach(var a in animals)a.protectedUntil=float.PositiveInfinity;aiVictim.protectedUntil=0;aiVictim.root.position=storyFatherRoot.position+Vector3.right*1.15f;float aiTime=0;bool sawBlade=false;while(aiTime<5){yield return null;aiTime+=Time.deltaTime;sawBlade|=storyFatherKnifeImage.enabled;}yield return new WaitForSeconds(.7f);File.AppendAllText("Verification/story-journey/checks.txt","Knife appears during attack and hides after="+(sawBlade&&!storyFatherKnifeImage.enabled)+"\n");File.AppendAllText("Verification/story-journey/checks.txt","Autonomous father selects swings and kills="+(aiVictim.health==0&&aiVictim.fatherHalfHits==4)+"; halfHits="+aiVictim.fatherHalfHits+"\n");RestartRun();for(int intro=0;intro<3;intro++)AdvanceFatherIntro();
         float rx=RiverX(0);storyFatherRoot.position=new Vector3(rx-1.4f,0,0);player.position=new Vector3(rx+4,0,0);yield return new WaitForSeconds(6);File.AppendAllText("Verification/story-journey/checks.txt","Father follows by jumping across river="+(storyFatherRoot.position.x>rx+1.05f)+"; father="+storyFatherRoot.position+"\n");RestartRun();for(int intro=0;intro<3;intro++)AdvanceFatherIntro();
-        while(Balance>StoryCaptureBalanceThreshold)RegisterDamage();float passWait=0;while(journeyStage!=JourneyStage.Boar&&passWait<20){passWait+=Time.deltaTime;yield return null;}File.AppendAllText("Verification/story-journey/checks.txt","Boar passed west to east before invitation="+boarPassComplete+"\n");
+        while(Balance>StoryCaptureBalanceThreshold)RegisterDamage();float passWait=0;while(journeyStage!=JourneyStage.Boar&&passWait<20){passWait+=Time.deltaTime;if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();yield return null;}File.AppendAllText("Verification/story-journey/checks.txt","Boar passed west to east before invitation="+boarPassComplete+"\n");
         File.AppendAllText("Verification/story-journey/checks.txt","Threshold spawns boar before capture="+(journeyStage==JourneyStage.Boar&&storyOpeningState==StoryOpeningState.Following)+"\n");
         player.position=BoarClearing+Vector3.left*1.8f;heading=Vector3.right;storyFatherRoot.position=BoarClearing+Vector3.back*2;yield return null;File.AppendAllText("Verification/story-journey/checks.txt","Father support creates opening="+(boarStun>0)+"\n");FollowPlayerCamera(100);CaptureSceneToTexture("Verification/story-journey/boar.png");
         for(int i=0;i<6;i++)StrikeStoryBoar();yield return null;
         File.AppendAllText("Verification/story-journey/checks.txt","Boar death unlocks departure="+(journeyStage==JourneyStage.Leaving)+"\n");
-        player.position=DeparturePoint;FollowPlayerCamera(100);float homeWait=0;while(journeyStage==JourneyStage.Leaving&&homeWait<30){homeWait+=Time.deltaTime;yield return null;}File.AppendAllText("Verification/story-journey/checks.txt","Father actually returns to west bank="+(storyFatherRoot.position.x<RiverX(storyFatherRoot.position.z)-1.05f)+"; wait="+homeWait+"\n");
+        player.position=DeparturePoint;FollowPlayerCamera(100);float homeWait=0;while(journeyStage==JourneyStage.Leaving&&homeWait<30){homeWait+=Time.deltaTime;if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();yield return null;}File.AppendAllText("Verification/story-journey/checks.txt","Father actually returns to west bank="+(storyFatherRoot.position.x<RiverX(storyFatherRoot.position.z)-1.05f)+"; wait="+homeWait+"\n");
         File.AppendAllText("Verification/story-journey/checks.txt","Departure triggers lost knife="+(journeyStage==JourneyStage.ReturnForKnife)+"\n");
         int events=0;FatherCaptured+=()=>events++;float elapsed=0;
-        while(journeyStage!=JourneyStage.Captured&&elapsed<45){elapsed+=Time.deltaTime;yield return null;}
+        while(journeyStage!=JourneyStage.Captured&&elapsed<45){elapsed+=Time.deltaTime;if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();yield return null;}
         yield return new WaitForSeconds(.15f);File.AppendAllText("Verification/story-journey/checks.txt","Father returns and captured="+(journeyStage==JourneyStage.Captured)+"; seconds="+elapsed+"; father="+storyFatherRoot.position+"; knife="+knifeDropPoint+"; route="+HasAnimalRoute(storyFather)+"; event="+events+"\n");CaptureSceneToTexture("Verification/story-journey/captured.png");
         RestartRun();File.AppendAllText("Verification/story-journey/checks.txt","Restart restores opening and hidden knife="+(journeyStage==JourneyStage.Hunting&&fatherIntroActive&&storyBoar==null&&droppedKnife==null&&!storyFatherKnifeImage.enabled)+"\n");Application.Quit();
     }

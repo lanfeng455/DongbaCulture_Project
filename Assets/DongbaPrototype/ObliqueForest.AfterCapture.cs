@@ -95,11 +95,11 @@ public partial class ObliqueForest {
             ((RectTransform)storyTimeSymbols.transform).anchoredPosition=new Vector2(0,dropY);
             storySkyRod.rectTransform.anchoredPosition=new Vector2(night?3.2f:-.2f,night?-4.8f:-21.2f);
             afterCaptureCaption.gameObject.SetActive(true);afterCaptureCaption.text="Gaolequ waits beside the hearth.\nThree days and three nights pass...";
-            if(waitingAge>=HearthHalfDaySeconds*6){journeyStage=JourneyStage.Realization;realizationAge=0;storyTimeSymbols.SetActive(false);}
+            if(waitingAge>=HearthHalfDaySeconds*6){journeyStage=JourneyStage.Realization;realizationAge=0;storyTimeSymbols.SetActive(false);BeginRealizationDialogue();}
         }else if(journeyStage==JourneyStage.Realization){
             realizationAge+=dt;nightAmount=Mathf.MoveTowards(nightAmount,0,dt/1.1f);storyCurtain=0;
             afterCaptureCaption.text="Father should have returned by now.\nSomething is wrong. I must go east and find him.";
-            if(realizationAge>=3.2f){journeyStage=JourneyStage.EastJourney;afterCaptureCaption.gameObject.SetActive(false);heading=Vector3.right;facing=1;EnsureEastPaperContinuation();Tell("Go east through the woods. Cross the river and keep walking.");}
+
         }else if(journeyStage==JourneyStage.EastJourney){
             nightAmount=Mathf.MoveTowards(nightAmount,0,dt);storyCurtain=0;
             eastPaperProgress=Mathf.SmoothStep(0,1,Mathf.InverseLerp(EastFadeStart,EastFadeEnd,Feet.x));

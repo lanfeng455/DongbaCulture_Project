@@ -149,7 +149,7 @@ public partial class ObliqueForest {
         }else choice.migrationTimer=clock+.7f;
     }
     void UpdateAnimalEcology(Being b,float dt,float hop){
-        if(b.health<=0||b.migrationState==2)return;
+        if(b.health<=0||b.migrationState==2||ManualStoryDialogueActive||fatherIntroActive)return;
         b.birth=Mathf.MoveTowards(b.birth,b.age==0?.42f:b.age==1?.7f:1,dt*.65f);b.art.localScale=b.initialScale*b.birth;b.cooldown-=dt;
         if(b.angry){if(b.follow>0||b.migrationState!=0){EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;}b.socialReadyAt=clock+20;}
         if(b.follow>0){if(friendlyWeather)b.follow=1;else if(b.visitOrder==0){b.follow=Mathf.Max(0,b.follow-dt);if(b.follow==0||Vector3.Distance(Feet,b.root.position)>FriendlyRadius+3)EndAnimalVisit(b);}}

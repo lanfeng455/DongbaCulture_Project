@@ -15,6 +15,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var dropped=new bool[6];var withdrawn=new bool[6];bool rodConnected=true;
         float timeout=0;bool dayShot=false,nightShot=false,realizationShot=false,standingDuringWait=true;var keyboard=Keyboard.current;if(keyboard==null)keyboard=InputSystem.AddDevice<Keyboard>();
         while(journeyStage!=JourneyStage.EastJourney&&timeout<30){
+            if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();
             if(journeyStage==JourneyStage.WaitingAtHearth){
                 standingDuringWait&=playerImage.enabled&&playerImage.sprite==Get("player_glyph");
                 int skyBeat=Mathf.Clamp(waitingBeat,0,5);float skyPhase=Mathf.Repeat(waitingAge,HearthHalfDaySeconds)/HearthHalfDaySeconds;float skyY=((RectTransform)storyTimeSymbols.transform).anchoredPosition.y;

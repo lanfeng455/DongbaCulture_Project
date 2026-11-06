@@ -49,7 +49,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void RefreshQuietHUD(){
         uiMode.text=StoryModeEnabled?"STORY MODE":"SANDBOX";
         for(int i=0;i<uiHealthPips.Length;i++)uiHealthPips[i].color=i<health?new Color(.57f,.20f,.14f,1):new Color(.37f,.30f,.21f,.22f);
-        bool dialogue=fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
+        bool dialogue=fatherIntroActive||ManualStoryDialogueActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
         uiHelpShortcut.SetActive(!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiHelpPanel.SetActive(uiHelpOpen&&!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiCoreHints.SetActive(clock<12&&!dialogue&&!uiHelpOpen&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);
         uiNoticePanel.SetActive(!dialogue&&hudNotice.text.Length>0);
         if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(StoryModeEnabled&&!dialogue&&journeyStage!=JourneyStage.ScrollTransition);
@@ -64,7 +64,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         QuietRule(panel,new Vector2(28,-21),new Vector2(30,2),uiAccent);
         speaker=UILabel("Speaker",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(71,-13),new Vector2(600,25),16,"");speaker.fontStyle=FontStyle.Bold;speaker.color=uiAccent;
         content=UILabel("Conversation",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(28,-49),new Vector2(944,68),25,"");content.lineSpacing=1.10f;
-        advance=UILabel("Continue hint",panel,new Vector2(1,0),new Vector2(1,0),new Vector2(-28,15),new Vector2(320,25),16,"E / ENTER   Continue");advance.alignment=TextAnchor.MiddleRight;advance.color=uiMuted;
+        advance=UILabel("Continue hint",panel,new Vector2(1,0),new Vector2(1,0),new Vector2(-28,15),new Vector2(320,25),16,"ENTER   Continue");advance.alignment=TextAnchor.MiddleRight;advance.color=uiMuted;
         progress=UILabel("Dialogue progress",panel,Vector2.zero,Vector2.zero,new Vector2(28,15),new Vector2(180,25),16,"");progress.color=uiMuted;return panel;
     }
     string QuietStoryObjective(){

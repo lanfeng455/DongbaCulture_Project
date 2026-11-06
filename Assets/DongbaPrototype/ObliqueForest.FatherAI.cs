@@ -2,7 +2,7 @@ using UnityEngine;using UnityEngine.UI;
 namespace DongbaPrototype {public partial class ObliqueForest {
     Being fatherHuntTarget;float fatherSwingAge=-1,fatherNextSwing,invitationAge;bool fatherSwingHit;int fatherAIFacing;Text boarMarker;
     bool UpdateFatherHuntAI(float dt){
-        fatherAIFacing=0;if(fatherIntroActive)return true;if(journeyStage!=JourneyStage.Hunting)return journeyStage==JourneyStage.Invitation||journeyStage==JourneyStage.BoarPass;
+        fatherAIFacing=0;if(fatherIntroActive||ManualStoryDialogueActive)return true;if(journeyStage!=JourneyStage.Hunting)return journeyStage==JourneyStage.Invitation||journeyStage==JourneyStage.BoarPass;
         if(Vector3.Distance(Feet,storyFatherRoot.position)>9||(Feet.x-RiverX(Feet.z))*(storyFatherRoot.position.x-RiverX(storyFatherRoot.position.z))<0){fatherHuntTarget=null;return false;}
         if(fatherHuntTarget==null||fatherHuntTarget.health<=0||fatherHuntTarget.migrationState!=0||Vector3.Distance(fatherHuntTarget.root.position,Feet)>9){fatherHuntTarget=null;float nearest=7;foreach(var a in animals){float d=Vector3.Distance(a.root.position,storyFatherRoot.position);if(a.health>0&&a.age==2&&a.migrationState==0&&clock>=a.protectedUntil&&d<nearest&&(a.root.position.x-RiverX(a.root.position.z))*(Feet.x-RiverX(Feet.z))>0){nearest=d;fatherHuntTarget=a;}}}
         if(fatherHuntTarget==null)return false;Vector3 delta=fatherHuntTarget.root.position-storyFatherRoot.position;fatherAIFacing=delta.x<0?-1:1;
