@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bf0059e45674f4382d6b1740aeaa10, type: 3}
+  m_Name: "\u9ED1+\u77F3"
+  m_EditorClassIdentifier: Assembly-CSharp::DongbaFusionRecipe
+  m_heldGlyph: "\u77F3"
+  m_targetGlyph: "\u9ED1"
+  m_outcome: 1
+  m_resultGlyph: "\u9ED1\u77F3"
+  m_resultSprite: {fileID: 21300000, guid: 35f4023ec2b2ac146b8b7cfeafa9770a, type: 3}
+  m_onFused:
+    m_PersistentCalls:
+      m_Calls: []

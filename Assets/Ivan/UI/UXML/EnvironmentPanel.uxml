@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <Style src="project://database/Assets/Ivan/UI/USS/EnvironmentPanel.uss"/>
+  <ui:VisualElement name="environment-panel" class="environment-panel">
+    <ui:Label text="环境控制" class="environment-panel__title"/>
+
+    <ui:Label text="天气" class="environment-panel__section"/>
+    <ui:VisualElement class="environment-panel__row">
+      <ui:Button name="weather-clear" text="晴" class="environment-panel__button"/>
+      <ui:Button name="weather-cloudy" text="多云" class="environment-panel__button"/>
+      <ui:Button name="weather-rain" text="雨/雪" class="environment-panel__button"/>
+    </ui:VisualElement>
+
+    <ui:Label text="时间" class="environment-panel__section"/>
+    <ui:VisualElement class="environment-panel__row">
+      <ui:Button name="time-day" text="白天" class="environment-panel__button"/>
+      <ui:Button name="time-night" text="夜晚" class="environment-panel__button"/>
+    </ui:VisualElement>
+
+    <ui:Label text="季节" class="environment-panel__section"/>
+    <ui:VisualElement class="environment-panel__row">
+      <ui:Button name="season-spring" text="春" class="environment-panel__button"/>
+      <ui:Button name="season-summer" text="夏" class="environment-panel__button"/>
+      <ui:Button name="season-autumn" text="秋" class="environment-panel__button"/>
+      <ui:Button name="season-winter" text="冬" class="environment-panel__button"/>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

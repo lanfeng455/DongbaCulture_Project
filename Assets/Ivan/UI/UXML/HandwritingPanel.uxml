@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <Style src="project://database/Assets/Ivan/UI/USS/HandwritingPanel.uss"/>
+  <ui:VisualElement name="handwriting-panel" class="handwriting-panel" style="display: none;">
+    <ui:Label text="东巴手写" class="handwriting-panel__title"/>
+    <ui:Label name="library-stats" text="模板库：0 字 / 0 样本" class="handwriting-panel__stats"/>
+
+    <ui:VisualElement class="handwriting-panel__row">
+      <ui:Button name="mode-recognize" text="识别" class="handwriting-panel__button handwriting-panel__button--active"/>
+      <ui:Button name="mode-record" text="录入" class="handwriting-panel__button"/>
+    </ui:VisualElement>
+
+    <ui:VisualElement name="canvas-host" class="handwriting-panel__canvas-host"/>
+
+    <ui:VisualElement class="handwriting-panel__row">
+      <ui:Button name="undo-button" text="撤销一笔" class="handwriting-panel__button"/>
+      <ui:Button name="clear-button" text="清除" class="handwriting-panel__button"/>
+      <ui:Button name="recognize-button" text="立即识别" class="handwriting-panel__button"/>
+    </ui:VisualElement>
+
+    <ui:VisualElement name="record-controls" class="handwriting-panel__record-controls" style="display: none;">
+      <ui:TextField name="glyph-name-field" label="字名" class="handwriting-panel__name-field"/>
+      <ui:VisualElement class="handwriting-panel__row">
+        <ui:Button name="save-sample-button" text="保存模板" class="handwriting-panel__button handwriting-panel__button--primary"/>
+        <ui:Button name="delete-glyph-button" text="删除该字" class="handwriting-panel__button"/>
+      </ui:VisualElement>
+      <ui:Label name="record-hint" text="写字 → 输名字 → 保存；同一个字写 3~5 遍识别更稳" class="handwriting-panel__hint"/>
+    </ui:VisualElement>
+
+    <ui:VisualElement name="recognize-controls" class="handwriting-panel__recognize-controls">
+      <ui:Label name="result-label" text="写字试试…" class="handwriting-panel__result"/>
+      <ui:Label text="抬笔停顿后自动识别" class="handwriting-panel__hint"/>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

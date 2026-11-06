@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Default Local Group
+  m_GUID: d83a0ea2ffdaace48b30446cfc2127d1
+  m_SerializeEntries:
+  - m_GUID: 04e49f29930b29240b27af60491ea1f7
+    m_Address: Assets/Ivan/Audio/BGM/Noon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 282dcc1060ec2c04ca9a3640e96768c0
+    m_Address: Assets/Ivan/Audio/BGM/Rainy Morning
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 330a2d4830ece7645897d35a4e0f3dd4
+    m_Address: Assets/Ivan/Audio/BGM/Rainy Night
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7a38b3bbb7bcbc14c9fa48807d46d213
+    m_Address: Assets/Ivan/Prefabs/Rooms/Room_B
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a93401304f9b59840aebeaa7c6dad21e
+    m_Address: Assets/Ivan/Audio/BGM/Rainy Noon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: abf1cc5850058f54c9a1a2d981f56661
+    m_Address: Assets/Ivan/Audio/BGM/Night
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c32e447dde135144eabf051627696115
+    m_Address: Assets/Ivan/Prefabs/Rooms/Room_A
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d1a91300b6ccfc24896bbf29ae802bb9
+    m_Address: Assets/Ivan/Audio/BGM/Morning
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 5e55e7f3d78d34b4397e285f6fde5134, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: a7560268bf60e6d4782c7546f19f6b0b, type: 2}
+    - {fileID: 11400000, guid: 410a5ae1ce9137946a2d2f08d9b5c096, type: 2}
