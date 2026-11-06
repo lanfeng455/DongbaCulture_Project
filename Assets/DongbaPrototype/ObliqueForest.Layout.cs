@@ -24,15 +24,16 @@ public partial class ObliqueForest {
     readonly int[] groveLayouts={0,5,10,3,8,1,6,11,4,9,2,7};
     void FollowPlayerCamera(float dt){
         if(player==null||cam==null)return;
+        if(InScrollWorld){cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,7f,1-Mathf.Exp(-dt*3));var scrollGoal=new Vector3(Mathf.Clamp(Feet.x,96,124),0,70)+CameraOffset;cam.transform.position=dt>50?scrollGoal:Vector3.Lerp(cam.transform.position,scrollGoal,1-Mathf.Exp(-dt*5.5f));return;}
         float visibleHalfWidth=cam.orthographicSize*cam.aspect;
         float visibleHalfDepth=cam.orthographicSize/Mathf.Max(.5f,Mathf.Abs(cam.transform.up.z));
         var center=player.position;
         center.x=Mathf.Clamp(center.x,-ForestHalfWidth+visibleHalfWidth,ForestHalfWidth-visibleHalfWidth);
         center.z=Mathf.Clamp(center.z,-ForestHalfDepth+visibleHalfDepth,ForestHalfDepth-visibleHalfDepth);
-        if(StoryModeEnabled&&journeyStage==JourneyStage.Leaving)center.x=player.position.x;
+        if(StoryModeEnabled&&(journeyStage==JourneyStage.Leaving||journeyStage==JourneyStage.EastJourney||journeyStage==JourneyStage.ScrollTransition))center.x=player.position.x;
         if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
-        if(StoryModeEnabled&&fatherIntroActive)center=HearthPosition+Vector3.forward*1.5f;
-        float targetZoom=StoryModeEnabled&&fatherIntroActive?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
+        if(StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization))center=HearthPosition+Vector3.forward*1.5f;
+        float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
         if(StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null)center=Vector3.Lerp(Feet,storyBoar.root.position,.3f);
         var goal=center+CameraOffset;
         cam.transform.position=dt>50?goal:Vector3.Lerp(cam.transform.position,goal,1-Mathf.Exp(-dt*5.5f));
@@ -118,10 +119,10 @@ public partial class ObliqueForest {
         for(int i=0;i<40;i++){float a=i*Mathf.PI*2/40;line.SetPosition(i,new Vector3(Mathf.Cos(a)*.55f,.09f,Mathf.Sin(a)*.43f));}UpdateForestPresentation(0);
     }
     void UpdateForestPresentation(float dt){
-        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
+        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=AfterCapturePeaceful?null:NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
         if(interactionTarget!=null){var b=interactionTarget;selectionRing.position=b.root.position;hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";hudPrompt.text=b.animal?(b.age<2?"E  Feed / grow":"E  Feed / new young"):b.health<=0?"E  Replant here":b.cultivated?"Already tended       J  Chop":"E  Tend       J  Chop";}
         if(displayedHealth!=health){displayedHealth=health;hudHealth.text="Health  "+new string('|',health);}hudNotice.text=noticeTime>0?notice:flourishAge>=0?"The forest is flourishing":"";
-        float bank=Feet.x-RiverX(Feet.z);hudArea.text=Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";
+        float bank=Feet.x-RiverX(Feet.z);hudArea.text=InScrollWorld?"Rescue scroll":Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";
     }
     Being NearestForestInteraction(){
         Being near=null;float best=1.8f*InteractionRange;foreach(var b in plants)if(b.tree){float d=Vector3.Distance(Feet,b.home);if(d<best){best=d;near=b;}}

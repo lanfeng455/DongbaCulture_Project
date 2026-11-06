@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 namespace DongbaPrototype {public partial class ObliqueForest {
-    enum JourneyStage { Off, Hunting, BoarPass, Invitation, Boar, Leaving, ReturnForKnife, Captured }
+    enum JourneyStage { Off, Hunting, BoarPass, Invitation, Boar, Leaving, ReturnForKnife, Captured, WaitingAtHearth, Realization, EastJourney, ScrollTransition, ScrollWalk }
     JourneyStage journeyStage;Transform storyShu;bool shuPreviewCaptured; Vector3 captureCameraCenter;bool carryStarted;Vector3 carryOffset;
     Material storyBoarInk; Being storyBoar; Transform droppedKnife; Text journeyObjective;
     float fatherJumpAge=-1,boarAidReady,boarStun;Vector3 fatherJumpFrom,fatherJumpTo;
@@ -12,6 +12,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly Vector3 BoarClearing=new Vector3(23,0,0);
     static readonly Vector3 DeparturePoint=new Vector3(-7,0,0);
     void ResetStoryJourney(){
+        bool returningFromScroll=scrollRelocated;ResetAfterCapture();if(returningFromScroll){player.position=ForestSpawn;lastDryPosition=ForestSpawn;jumpAge=attackAge=-1;FollowPlayerCamera(100);}
         if(storyShu!=null){Destroy(storyShu.gameObject);storyShu=null;}shuPreviewCaptured=false;carryStarted=false;
         if(storyBoar!=null){Destroy(storyBoar.root.gameObject);storyBoar=null;}
         if(droppedKnife!=null){Destroy(droppedKnife.gameObject);droppedKnife=null;}
@@ -30,6 +31,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(!StoryModeEnabled)return;
         if(journeyStage==JourneyStage.Off)ResetStoryJourney();
         if(fatherIntroActive)return;
+        if(UpdateAfterCaptureStory(dt))return;
         if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold){SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;boarPassStart=new Vector3(Mathf.Min(Feet.x-12,RiverX(0)-10),0,0);storyBoar.root.position=boarPassStart;Tell("A great boar bursts out of the western woods!");}
         if(journeyStage==JourneyStage.BoarPass){UpdateBoarPass(dt);return;}
         if(journeyStage==JourneyStage.Invitation){
@@ -109,7 +111,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void UpdateStoryObjectiveHUD(){
         if(journeyObjective==null&&forestCanvas!=null)journeyObjective=UILabel("Story objective",forestCanvas.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(33,-103),new Vector2(1250,54),20,"");
         if(journeyObjective==null)return;
-        string text=journeyStage==JourneyStage.Hunting?"STORY  Gather wood and hunt in the western woods  /  Forest balance "+Balance+" (threshold "+StoryCaptureBalanceThreshold+")":journeyStage==JourneyStage.BoarPass?"STORY  A boar races across the river!":journeyStage==JourneyStage.Invitation?"STORY  Father wants to speak about the boar":journeyStage==JourneyStage.Boar?"STORY  Hunt the great boar in the eastern clearing across the river  /  Distance "+Mathf.RoundToInt(Vector3.Distance(Feet,BoarClearing)):journeyStage==JourneyStage.Leaving?"STORY  Cross back to the western bank  /  Distance "+Mathf.RoundToInt(Vector3.Distance(Feet,DeparturePoint)):journeyStage==JourneyStage.ReturnForKnife?"STORY  Father crosses back east for his lost knife":journeyStage==JourneyStage.Captured?"STORY  Father was taken by Shu — rescue sequence handoff":"";
+        string text=journeyStage==JourneyStage.Hunting?"STORY  Gather wood and hunt in the western woods  /  Forest balance "+Balance+" (threshold "+StoryCaptureBalanceThreshold+")":journeyStage==JourneyStage.BoarPass?"STORY  A boar races across the river!":journeyStage==JourneyStage.Invitation?"STORY  Father wants to speak about the boar":journeyStage==JourneyStage.Boar?"STORY  Hunt the great boar in the eastern clearing across the river  /  Distance "+Mathf.RoundToInt(Vector3.Distance(Feet,BoarClearing)):journeyStage==JourneyStage.Leaving?"STORY  Cross back to the western bank  /  Distance "+Mathf.RoundToInt(Vector3.Distance(Feet,DeparturePoint)):journeyStage==JourneyStage.ReturnForKnife?"STORY  Father crosses back east for his lost knife":AfterCaptureObjective();
         journeyObjective.text=fatherIntroActive?"STORY  Speak with Father":StoryModeEnabled?text:"";DrawBoarTargetMarker();DrawFatherIntro();
     }
     IEnumerator CheckStoryJourney(){
