@@ -13,7 +13,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly Vector3 DeparturePoint=new Vector3(-7,0,0);
     void ResetStoryJourney(){
         ResetForestSubtitles();
-        bool returningFromScroll=scrollRelocated;ResetAfterCapture();if(returningFromScroll){player.position=ForestSpawn;lastDryPosition=ForestSpawn;jumpAge=attackAge=-1;FollowPlayerCamera(100);}
+        bool returningFromScroll=scrollRelocated||journeyStage==JourneyStage.ScrollTransition;ResetAfterCapture();if(returningFromScroll){player.position=ForestSpawn;lastDryPosition=ForestSpawn;jumpAge=attackAge=-1;FollowPlayerCamera(100);}
         if(storyShu!=null){Destroy(storyShu.gameObject);storyShu=null;}shuPreviewCaptured=false;carryStarted=false;
         if(storyBoar!=null){Destroy(storyBoar.root.gameObject);storyBoar=null;}
         if(droppedKnife!=null){Destroy(droppedKnife.gameObject);droppedKnife=null;}

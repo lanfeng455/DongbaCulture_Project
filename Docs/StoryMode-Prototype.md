@@ -16,3 +16,5 @@ This is a small, optional opening-story layer on top of the existing ecology loo
 - The lost-axe departure and capture are the game's adaptation of the source story. The current trigger threshold, follow behavior, timed capture beat, and event hook are prototype mechanics.
 - Story Mode starts disabled so the existing sandbox loop is unchanged. It can also be enabled in the component Inspector or with `--story-mode-preview` for a preview build.
 - The father uses the existing forest walk map and clearance checks. He does not cross the river or tree obstacles intentionally; if no route can be found, he waits and retries.
+
+2026-11-07 当前演示范围更新：高勒趣东行穿过森林，文字退为纸面，淡出后结束当前段落。暂不进入临时卷轴练习场，也不自动加载后续场景；R重开、F5切沙盒、Esc退出仍可用。
