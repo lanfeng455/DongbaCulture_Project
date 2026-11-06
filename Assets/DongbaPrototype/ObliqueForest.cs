@@ -94,6 +94,7 @@ public partial class ObliqueForest : MonoBehaviour {
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
         FollowPlayerCamera(100); SetupForestHUD();
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shared-subtitles-check")>=0)StartCoroutine(CheckSharedSubtitles());
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--boar-marker-check")>=0)StartCoroutine(CheckBoarMarker());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--ui-preview")>=0)StartCoroutine(CheckQuietUI());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)StartCoroutine(CheckStoryJourney());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--father-river-check")>=0)StartCoroutine(CheckFatherRiver());

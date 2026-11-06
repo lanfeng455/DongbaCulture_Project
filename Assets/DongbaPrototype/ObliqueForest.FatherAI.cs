@@ -15,8 +15,17 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void UpdateFatherKnifeAnimation(){if(storyFatherKnifeImage==null)return;if(fatherSwingAge>=0&&fatherHuntTarget==null){fatherSwingAge+=Time.deltaTime;if(fatherSwingAge>.6f)fatherSwingAge=-1;}storyFatherKnifeImage.enabled=StoryModeEnabled&&!fatherIntroActive&&journeyStage==JourneyStage.Hunting&&fatherSwingAge>=0;float angle=fatherSwingAge>=0?Mathf.Sin(fatherSwingAge/.6f*Mathf.PI)*-95:0;storyFatherKnifeImage.transform.localRotation=Quaternion.Euler(0,0,angle);}
     void DrawBoarTargetMarker(){
         EnsureQuietBoarMarker();
-        if(boarMarker==null)return;bool show=StoryModeEnabled&&journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0;uiBoarPlate.SetActive(show);if(!show)return;
-        Vector3 v=cam.WorldToViewportPoint(storyBoar.root.position+cam.transform.up*2.3f);var rect=(RectTransform)uiBoarPlate.transform;rect.anchorMin=rect.anchorMax=new Vector2(Mathf.Clamp(v.x,.13f,.87f),Mathf.Clamp(v.y,.20f,.77f));rect.anchoredPosition=Vector2.zero;
+        if(boarMarker==null)return;
+        bool show=StoryModeEnabled&&journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0&&storyBoar.root.gameObject.activeInHierarchy;
+        Vector3 v=Vector3.zero;
+        if(show){
+            Vector3 feet=cam.WorldToViewportPoint(storyBoar.root.position);
+            v=cam.WorldToViewportPoint(storyBoar.root.position+cam.transform.up*2.3f);
+            // A target label is not an off-screen waypoint. Never pin it to a screen edge.
+            show=feet.z>0&&feet.x>0&&feet.x<1&&feet.y>0&&feet.y<1&&v.z>0&&v.x>.06f&&v.x<.94f&&v.y>.07f&&v.y<.93f;
+        }
+        uiBoarPlate.SetActive(show);if(!show)return;
+        var rect=(RectTransform)uiBoarPlate.transform;rect.anchorMin=rect.anchorMax=new Vector2(v.x,v.y);rect.anchoredPosition=Vector2.zero;
         boarMarker.text="GREAT BOAR\n"+storyBoar.health+" / 6";
     }
 }}
