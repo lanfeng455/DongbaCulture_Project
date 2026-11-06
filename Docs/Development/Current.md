@@ -64,3 +64,5 @@ Ecology-15 预览构建成功（0 errors），已运行并检查截图。EXE：F
 2026-11-06 UI第一版：紧凑身份/生命墨点、H展开操作说明、短句剧情目标、统一交互纸签/对话/野猪标记；隐藏重复/无效提示。1280×720与1920×1080的10张UI实机截图与检查全部通过，后续剧情淡出20项回归通过。固定Builds/Current已更新，截图见Verification/ui-polish；详情UI-Polish-20261106.md。未commit/未push，依赖先前未提交剧情。
 
 2026-11-06 导入前备份：Health标签已替代Vitality并完成实机检查；火塘481f9cc、后续剧情aa52691、过河修复06891fa与新版UI按功能整理。当前代码备份点为backup/pre-import-20261106，分支chore/forest-collaboration-20261027；不合并origin/main新增1450562。详细范围与验证见PreImport-Backup-20261106.md。本记录更新此前“尚未提交”的阶段性状态。
+
+2026-11-06 共用字幕：本地合并组员 main（6421ea1），手动补入大号 TMP 字体并保留原 GUID，接入森林剧情。字体二进制忽略，说明见 Docs/SharedSubtitles.md。Windows 实机字幕12项及原有被抓后到卷轴流程检查通过；使用现有6000.3.0b1兼容验证工程，团队6000.3.12f1尚未验证。仅更新Builds/Current，无新增留档包；本次未推送。

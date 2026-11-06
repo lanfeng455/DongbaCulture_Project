@@ -105,6 +105,40 @@ public class DialogueDisplay : MonoBehaviour
     private int m_playbackGeneration;   // 播放代数：被新段打断的旧段收尾时，不得污染新段的 IsPlaying
 
     public bool IsPlaying => m_isPlaying;
+    private bool m_revealCurrentLine;
+    public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
+    public TMP_Text SubtitleText => m_text;
+    public void SetCharactersPerSecond(float speed) { m_charactersPerSecond = Mathf.Max(1, speed); }
+
+    // Adapters can reuse this display without replacing the scene's dialogue library.
+    public void PlayLine(string speaker, string content)
+    {
+        CancelPlayback();
+        m_playbackCts = new CancellationTokenSource();
+        int generation = ++m_playbackGeneration;
+        var entry = new DialogueLibrarySO.DialogueEntry { speaker = speaker, content = content };
+        _ = PlaySegmentAsync(new List<DialogueLibrarySO.DialogueEntry> { entry }, false, 0, m_playbackCts.Token, generation);
+    }
+
+    public bool CompleteCurrentLine()
+    {
+        if (!IsTyping) return false;
+        m_revealCurrentLine = true;
+        m_text.maxVisibleCharacters = m_text.textInfo.characterCount;
+        return true;
+    }
+
+    // Keep the default overlay for teammate scenes; the forest uses its existing capture camera.
+    public void SetRenderCamera(Camera camera)
+    {
+        EnsureUi();
+        m_canvas.renderMode = RenderMode.ScreenSpaceCamera;
+        m_canvas.worldCamera = camera;
+        m_canvas.planeDistance = Mathf.Max(camera.nearClipPlane + .1f, .8f);
+        m_canvas.sortingOrder = 1100;
+        Canvas.ForceUpdateCanvases();
+        ApplyLayout();
+    }
 
     // ------------------------------------------------------------------
     // Unity Events 入口
@@ -468,7 +502,9 @@ public class DialogueDisplay : MonoBehaviour
         }
 
         // 先把整行结构放进去（含富文本标签），但可见字符数为 0
+        m_revealCurrentLine = false;
         m_text.text = fullLine;
+        FitBackgroundToText(fullLine);
         m_text.maxVisibleCharacters = 0;
         m_text.ForceMeshUpdate();
 
@@ -484,6 +520,7 @@ public class DialogueDisplay : MonoBehaviour
 
         while (shown < totalVisible)
         {
+            if (m_revealCurrentLine) break;
             if (token.IsCancellationRequested)
             {
                 return;
@@ -725,6 +762,14 @@ public class DialogueDisplay : MonoBehaviour
             m_text.color = m_textColor;
             m_text.fontSize = m_fontSize;
         }
+    }
+
+    private void FitBackgroundToText(string text)
+    {
+        if (m_background == null || m_text == null) return;
+        float width = Mathf.Max(100, (m_canvas.transform as RectTransform).rect.width * m_widthRatio);
+        Vector2 preferred = m_text.GetPreferredValues(text, width - m_textPadding.x * 2, Mathf.Infinity);
+        m_background.rectTransform.sizeDelta = new Vector2(width, Mathf.Max(m_minHeightInPixels, preferred.y + m_textPadding.y * 2));
     }
 
     private TMP_FontAsset ResolveFont()
