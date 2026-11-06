@@ -14,9 +14,9 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void ApplyFatherLightHit(Being target){if(target==null||target.health<=0)return;target.fatherHalfHits++;target.angry=true;if(target.fatherHalfHits%2==0)ApplyEcologyHit(target);if(target.health<=0){target.root.gameObject.SetActive(false);fatherHuntTarget=null;}}
     void UpdateFatherKnifeAnimation(){if(storyFatherKnifeImage==null)return;if(fatherSwingAge>=0&&fatherHuntTarget==null){fatherSwingAge+=Time.deltaTime;if(fatherSwingAge>.6f)fatherSwingAge=-1;}storyFatherKnifeImage.enabled=StoryModeEnabled&&!fatherIntroActive&&journeyStage==JourneyStage.Hunting&&fatherSwingAge>=0;float angle=fatherSwingAge>=0?Mathf.Sin(fatherSwingAge/.6f*Mathf.PI)*-95:0;storyFatherKnifeImage.transform.localRotation=Quaternion.Euler(0,0,angle);}
     void DrawBoarTargetMarker(){
-        if(boarMarker==null&&forestCanvas!=null){boarMarker=UILabel("Great boar target",forestCanvas.transform,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(320,65),23,"");boarMarker.alignment=TextAnchor.MiddleCenter;boarMarker.color=new Color(.48f,.16f,.10f);}
-        if(boarMarker==null)return;bool show=StoryModeEnabled&&journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0;boarMarker.gameObject.SetActive(show);if(!show)return;
-        Vector3 v=cam.WorldToViewportPoint(storyBoar.root.position+cam.transform.up*2.3f);var rect=boarMarker.rectTransform;rect.anchorMin=rect.anchorMax=new Vector2(Mathf.Clamp(v.x,.13f,.87f),Mathf.Clamp(v.y,.20f,.77f));rect.anchoredPosition=Vector2.zero;
+        EnsureQuietBoarMarker();
+        if(boarMarker==null)return;bool show=StoryModeEnabled&&journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0;uiBoarPlate.SetActive(show);if(!show)return;
+        Vector3 v=cam.WorldToViewportPoint(storyBoar.root.position+cam.transform.up*2.3f);var rect=(RectTransform)uiBoarPlate.transform;rect.anchorMin=rect.anchorMax=new Vector2(Mathf.Clamp(v.x,.13f,.87f),Mathf.Clamp(v.y,.20f,.77f));rect.anchoredPosition=Vector2.zero;
         boarMarker.text="GREAT BOAR\n"+storyBoar.health+" / 6";
     }
 }}

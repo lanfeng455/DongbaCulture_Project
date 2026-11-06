@@ -109,10 +109,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         ApplyEcologyHit(storyBoar);storyBoar.angry=true;Tell("Great boar: "+storyBoar.health+" / 6");if(storyBoar.health<=0)storyBoar.root.gameObject.SetActive(false);
     }
     void UpdateStoryObjectiveHUD(){
-        if(journeyObjective==null&&forestCanvas!=null)journeyObjective=UILabel("Story objective",forestCanvas.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(33,-103),new Vector2(1250,54),20,"");
-        if(journeyObjective==null)return;
-        string text=journeyStage==JourneyStage.Hunting?"STORY  Gather wood and hunt in the western woods  /  Forest balance "+Balance+" (threshold "+StoryCaptureBalanceThreshold+")":journeyStage==JourneyStage.BoarPass?"STORY  A boar races across the river!":journeyStage==JourneyStage.Invitation?"STORY  Father wants to speak about the boar":journeyStage==JourneyStage.Boar?"STORY  Hunt the great boar in the eastern clearing across the river  /  Distance "+Mathf.RoundToInt(Vector3.Distance(Feet,BoarClearing)):journeyStage==JourneyStage.Leaving?"STORY  Cross back to the western bank  /  Distance "+Mathf.RoundToInt(Vector3.Distance(Feet,DeparturePoint)):journeyStage==JourneyStage.ReturnForKnife?"STORY  Father crosses back east for his lost knife":AfterCaptureObjective();
-        journeyObjective.text=fatherIntroActive?"STORY  Speak with Father":StoryModeEnabled?text:"";DrawBoarTargetMarker();DrawFatherIntro();
+        EnsureQuietObjective();if(journeyObjective==null)return;
+        journeyObjective.text=StoryModeEnabled?QuietStoryObjective():"";DrawBoarTargetMarker();DrawFatherIntro();
     }
     IEnumerator CheckStoryJourney(){
         yield return new WaitForSeconds(2);SetStoryModeEnabled(true);RestartRun();Directory.CreateDirectory("Verification/story-journey");StartCoroutine(RecordStoryCapture());

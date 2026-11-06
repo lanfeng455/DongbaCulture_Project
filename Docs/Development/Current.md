@@ -60,3 +60,7 @@ Ecology-15 预览构建成功（0 errors），已运行并检查截图。EXE：F
 2026-11-05 日月吊牌：深褐细杆从屏幕顶端带日月降下，轻微回弹、停留后收回，交替三轮；原字形不变、无底板。固定Builds/Current及实机录屏更新，20项检查True；详细记录见AfterCapture-20261105.md。未提交/未push（前置剧情仍未提交）。
 
 2026-11-05 父亲过河：修复找刀/狩猎分支跨河不抬起，以及切AI后跳跃停顿。跳跃每帧统一推进、LateUpdate统一呈现，步行检查沿途河面。专项七项True、完整故事回归通过，固定Builds/Current已更新。细节见FatherRiver-20261105.md；未commit/未push（依赖未提交剧情前置）。
+
+2026-11-06 UI第一版：紧凑身份/生命墨点、H展开操作说明、短句剧情目标、统一交互纸签/对话/野猪标记；隐藏重复/无效提示。1280×720与1920×1080的10张UI实机截图与检查全部通过，后续剧情淡出20项回归通过。固定Builds/Current已更新，截图见Verification/ui-polish；详情UI-Polish-20261106.md。未commit/未push，依赖先前未提交剧情。
+
+2026-11-06 导入前备份：Health标签已替代Vitality并完成实机检查；火塘481f9cc、后续剧情aa52691、过河修复06891fa与新版UI按功能整理。当前代码备份点为backup/pre-import-20261106，分支chore/forest-collaboration-20261027；不合并origin/main新增1450562。详细范围与验证见PreImport-Backup-20261106.md。本记录更新此前“尚未提交”的阶段性状态。
