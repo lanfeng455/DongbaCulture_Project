@@ -94,6 +94,7 @@ public partial class ObliqueForest : MonoBehaviour {
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
         FollowPlayerCamera(100); SetupForestHUD();
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)StartCoroutine(CheckStoryJourney());
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--father-river-check")>=0)StartCoroutine(CheckFatherRiver());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--after-capture-check")>=0)StartCoroutine(CheckAfterCapture());
         else if(Array.IndexOf(Environment.GetCommandLineArgs(),"--after-capture-preview")>=0)StartCoroutine(PreviewAfterCapture());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--area-layout-preview")>=0)StartCoroutine(CaptureStoryAreas());
@@ -423,21 +424,20 @@ public partial class ObliqueForest : MonoBehaviour {
         storyFatherKnifeImage.sprite=Sprite.Create(knifeTexture,new Rect(0,0,knifeTexture.width,knifeTexture.height),new Vector2(.20f,.42f),100);
         storyOpeningState=StoryOpeningState.Following;
     }
-    void LateUpdate(){UpdateAfterCapturePose();UpdateFatherKnifeAnimation();if(storyFatherArt!=null&&storyFatherImage!=null){var scale=storyFatherArt.localScale;scale.x=Mathf.Abs(scale.x)*(fatherIntroActive?1:journeyStage==JourneyStage.ReturnForKnife?(knifeDropPoint.x>=storyFatherRoot.position.x?1:-1):fatherAIFacing!=0?fatherAIFacing:facing);storyFatherArt.localScale=scale;}if(storyFatherKnifeImage!=null&&storyFatherImage!=null){storyFatherKnifeImage.color=storyFatherImage.color;storyFatherKnifeImage.sortingOrder=storyFatherImage.sortingOrder+1;}}
+    void LateUpdate(){UpdateAfterCapturePose();UpdateFatherVisualPose();UpdateFatherKnifeAnimation();if(storyFatherArt!=null&&storyFatherImage!=null){var scale=storyFatherArt.localScale;scale.x=Mathf.Abs(scale.x)*(fatherIntroActive?1:journeyStage==JourneyStage.ReturnForKnife?(knifeDropPoint.x>=storyFatherRoot.position.x?1:-1):fatherAIFacing!=0?fatherAIFacing:facing);storyFatherArt.localScale=scale;}if(storyFatherKnifeImage!=null&&storyFatherImage!=null){storyFatherKnifeImage.color=storyFatherImage.color;storyFatherKnifeImage.sortingOrder=storyFatherImage.sortingOrder+1;}}
     void SetStoryModeEnabled(bool enabled){
         StoryModeEnabled=enabled;
         if(enabled){if(storyFatherRoot==null)CreateStoryFather();else{storyFatherRoot.position=player.position+new Vector3(-1.25f,0,-.75f);storyFatherRoot.gameObject.SetActive(true);storyFatherImage.color=StoryFatherGlyph!=null?Color.white:new Color(.34f,.23f,.13f,.9f);storyFather.route.Clear();storyFather.navRefresh=clock;storyOpeningState=StoryOpeningState.Following;}Tell("Story Mode enabled — Father is following");}
         else{if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);storyOpeningState=StoryOpeningState.Off;Tell("Sandbox Mode enabled");}
         ResetStoryJourney();
     }
-    void UpdateStoryMode(float dt){UpdateStoryJourney(dt);}
+    void UpdateStoryMode(float dt){AdvanceFatherRiverJump(dt);UpdateStoryJourney(dt);}
     void UpdateStoryFatherFollow(float dt){
         if(!StoryModeEnabled||storyOpeningState!=StoryOpeningState.Following||storyFatherRoot==null)return;
         if(UpdateFatherHuntAI(dt))return;
         Vector3 back=heading.sqrMagnitude>.01f?-heading.normalized:Vector3.left;
         Vector3 goal=Feet+back*1.35f+new Vector3(0,0,-.18f);
         if(Vector3.Distance(storyFatherRoot.position,goal)>.35f)MoveStoryFatherToward(goal,2.7f,dt);
-        if(storyFatherImage!=null){storyFatherArt.localPosition=new Vector3(0,fatherJumpAge>=0?Mathf.Sin(fatherJumpAge/.85f*Mathf.PI)*1.45f:.02f*Mathf.Sin(clock*2.4f+storyFather.phase),0);storyFatherImage.sortingOrder=100-Mathf.RoundToInt(storyFatherRoot.position.z*10);}
     }
     void DrawStoryFatherPlaceholder(){
         if(!StoryModeEnabled||StoryFatherGlyph!=null||storyFatherRoot==null||!storyFatherRoot.gameObject.activeSelf)return;

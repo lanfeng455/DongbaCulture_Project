@@ -93,7 +93,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         return true;
     }
     void MoveStoryFatherToward(Vector3 goal,float speed,float dt){
-        if(fatherJumpAge>=0){fatherJumpAge+=dt;float t=Mathf.Clamp01(fatherJumpAge/.85f);storyFatherRoot.position=Vector3.Lerp(fatherJumpFrom,fatherJumpTo,t);if(t>=1){fatherJumpAge=-1;storyFatherArt.localPosition=Vector3.zero;}return;}
+        if(fatherJumpAge>=0)return; // The central tick completes a jump even if AI changes its goal.
         var start=storyFatherRoot.position;float river=RiverX(start.z);
         if((start.x-river)*(goal.x-RiverX(goal.z))<0){
             float sign=start.x<river?1:-1;var takeoff=new Vector3(river-sign*1.4f,0,start.z);var landing=new Vector3(river+sign*1.4f,0,start.z);
@@ -101,7 +101,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         Vector3 direction=goal-storyFatherRoot.position;direction.y=0;if(direction.magnitude<.15f)return;
         float step=Mathf.Min(direction.magnitude,speed*Mathf.Min(dt,.1f));
-        foreach(float angle in FatherSteeringAngles){Vector3 trial=storyFatherRoot.position+Quaternion.Euler(0,angle,0)*direction.normalized*step;if(StoryFatherStepClear(trial)){storyFatherRoot.position=trial;return;}}
+        foreach(float angle in FatherSteeringAngles){Vector3 trial=storyFatherRoot.position+Quaternion.Euler(0,angle,0)*direction.normalized*step;if(StoryFatherWalkingSegmentClear(storyFatherRoot.position,trial)){storyFatherRoot.position=trial;return;}}
     }
     void StrikeStoryBoar(){
         if(journeyStage!=JourneyStage.Boar||storyBoar==null||storyBoar.health<=0)return;
