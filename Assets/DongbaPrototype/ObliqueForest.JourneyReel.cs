@@ -12,7 +12,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(reelPlayerInk==null){reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetTexture("_PaperTex",paper);var size=playerImage.sprite.bounds.size;reelPlayerInk.SetVector("_GlyphSize",new Vector4(size.x,size.y,0,0));}reelPlayerInk.SetFloat("_Blend",blend);reelPlayerInk.SetFloat("_PaperDecline",groundMaterial.GetFloat("_Decline"));playerImage.sharedMaterial=reelPlayerInk;
         float originalHeight=playerImage.sprite.bounds.size.y*reelOriginalPlayerScale.y;
         float factor=(cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
-        body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend);
+        body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend)*reelActorScale;
         var view=cam.WorldToViewportPoint(player.position);var bottom=cam.ViewportToWorldPoint(new Vector3(view.x,.055f,cam.nearClipPlane+3f));
         float distance=Vector3.Distance(Feet,reelLastFeet);reelLastFeet=Feet;reelStepPhase+=distance*2.8f;
         reelWalkWeight=Mathf.Lerp(reelWalkWeight,distance>.001f?1:0,1-Mathf.Exp(-Time.deltaTime*8));
@@ -21,6 +21,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         body.position=Vector3.Lerp(player.position,bottom,blend)+cam.transform.up*(lift*blend);body.rotation=billboard*Quaternion.Euler(0,0,tilt);
     }
 
+    float reelActorScale=1;
+    public void SetReelActorScale(float value){reelActorScale=Mathf.Clamp(value,.15f,1);}
     float journeyReelFocus;
     public void SetReelTransitionFocus(float value){journeyReelFocus=value;}
     bool journeyReelPassedPortal;ReelPortalHost reelPortalHost;
@@ -30,7 +32,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         while(Balance>-10)RegisterDamage();if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);
         journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(28,0,0);FollowPlayerCamera(100);
     }
-    void ResetJourneyReel(){RestoreReelPlayer();journeyReelFocus=0;journeyReelPassedPortal=false;if(journeyReelGroup!=null)journeyReelGroup.alpha=0;}
+    void ResetJourneyReel(){reelActorScale=1;RestoreReelPlayer();journeyReelFocus=0;journeyReelPassedPortal=false;if(journeyReelGroup!=null)journeyReelGroup.alpha=0;}
     void EnsureJourneyReel(){
         if(journeyReelCanvas!=null)return;
         journeyReelData=JsonUtility.FromJson<JourneyReelLayout>(Resources.Load<TextAsset>("JourneyReel/timeline").text);
