@@ -12,18 +12,19 @@ void cutEdge(float2 p,float2 a,float2 b,inout float distance,inout float inside)
 float paperMask(float2 p){float d=10,inside=0;
 // One continuous cut around the whole actor; spaces between strokes stay paper.
 #define E(ax,ay,bx,by) cutEdge(p,float2(ax,ay),float2(bx,by),d,inside);
-E(.02,.98,.25,.96) E(.25,.96,.48,.82) E(.48,.82,.57,.66)
-E(.57,.66,.59,.51) E(.59,.51,.70,.43) E(.70,.43,.70,.29)
-E(.70,.29,.61,.29) E(.61,.29,.65,.01) E(.65,.01,.31,.01)
-E(.31,.01,.34,.29) E(.34,.29,.23,.29) E(.23,.29,.23,.44)
-E(.23,.44,.39,.50) E(.39,.50,.37,.62) E(.37,.62,.28,.73)
+E(.02,.98,.23,.948) E(.23,.948,.47,.80) E(.47,.80,.57,.66)
+E(.57,.66,.59,.51) E(.59,.51,.68,.42) E(.68,.42,.65,.32)
+E(.65,.32,.57,.31) E(.57,.31,.61,.015) E(.61,.015,.34,.02)
+E(.34,.02,.37,.30) E(.37,.30,.27,.33) E(.27,.33,.27,.41)
+E(.27,.41,.39,.50) E(.39,.50,.37,.62) E(.37,.62,.28,.73)
 E(.28,.73,.03,.87) E(.03,.87,.02,.98)
 #undef E
-float aa=max(fwidth(d),.0006);return smoothstep(-aa,aa,(inside*2-1)*d);}
+float aa=max(fwidth(d),.0006);return smoothstep(-aa,aa,(inside*2-1)*d+.0011*sin(p.x*313+p.y*187)*sin(p.y*279-p.x*91));}
 fixed4 frag(v2f i):SV_Target {
- fixed4 ink=tex2D(_MainTex,i.uv);float cut=paperMask(i.uv);float shadow=paperMask(i.uv+float2(-.012,.016))*.22;
+ fixed4 ink=tex2D(_MainTex,i.uv);float cut=paperMask(i.uv);float shadow=paperMask(i.uv+float2(-.015,.020))*.30;
  float paperAlpha=max(cut,ink.a);float a=lerp(ink.a,max(paperAlpha,shadow),_Blend);
- fixed3 sheet=lerp(fixed3(.94,.875,.75),tex2D(_PaperTex,i.uv*1.3).rgb,.22);
+ fixed3 sheet=lerp(fixed3(.34,.265,.17),tex2D(_PaperTex,i.uv*1.3).rgb*fixed3(.42,.35,.25),.40);
+ sheet+=.012*sin(i.uv.x*847+i.uv.y*53)*sin(i.uv.y*671);
  fixed3 surface=lerp(sheet,ink.rgb,ink.a);surface=lerp(fixed3(.20,.14,.08),surface,saturate(paperAlpha/max(a,.001)));
  return fixed4(lerp(ink.rgb,surface,_Blend)*i.color.rgb,a*i.color.a);
 }
