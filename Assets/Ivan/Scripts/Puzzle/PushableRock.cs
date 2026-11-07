@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Ivan.Diorama;
 
@@ -16,6 +17,11 @@ namespace Ivan.Puzzle
         [Tooltip("线性阻力，越大滑行距离越短")]
         [SerializeField] private float m_damping = 6f;
 
+        private SpriteRenderer m_spriteRenderer;
+        private Color m_oriColor;
+
+        [SerializeField] private Color m_pushColor;
+
         // 挂组件的瞬间（编辑器）就把刚体配好：关重力、锁 Y 与旋转。
         // 否则默认重力开着，一进 Play 石头就掉进虚空
         private void Reset()
@@ -26,6 +32,9 @@ namespace Ivan.Puzzle
         private void Awake()
         {
             PrepareBody();
+            
+            m_spriteRenderer = GetComponent<SpriteRenderer>();
+            m_oriColor = m_spriteRenderer.color;
 
             // 挡住玩家 + 挡住视线，两者用同一个占位尺寸
             var obstacle = GetComponent<DioramaObstacle>();
@@ -33,12 +42,42 @@ namespace Ivan.Puzzle
             {
                 obstacle = gameObject.AddComponent<DioramaObstacle>();
             }
+
+            obstacle.OnBeingPushed += PlaySound;
+            obstacle.OnBeingPushed += ChangeColorToPush;
+            obstacle.OnFinishPushed += ChangeColorToOri;
             obstacle.EnsureCollider();
 
             if (GetComponent<SightBlocker>() == null)
             {
                 gameObject.AddComponent<SightBlocker>();
             }
+        }
+
+        private void OnDestroy()
+        {
+            var obstacle = GetComponent<DioramaObstacle>();
+            if (obstacle != null)
+            {
+                obstacle.OnBeingPushed -= PlaySound;
+                obstacle.OnBeingPushed -= ChangeColorToPush;
+                obstacle.OnFinishPushed -= ChangeColorToOri;
+            }
+        }
+
+        private void PlaySound()
+        {
+            AudioManager.Instance.PlaySe("Assets/Ivan/Audio/SE/MoveStone");
+        }
+
+        private void ChangeColorToPush()
+        {
+            m_spriteRenderer.color = m_pushColor;
+        }
+
+        private void ChangeColorToOri()
+        {
+            m_spriteRenderer.color = m_oriColor;
         }
 
         // 本场景移动是纯平面（XZ）的：无重力、锁竖直位移与旋转，其余交给物理

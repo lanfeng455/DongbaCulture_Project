@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Ivan.Diorama
@@ -26,6 +27,19 @@ namespace Ivan.Diorama
         {
             Capsule,    // 圆形占位：石头、树、桩
             Box,        // 矩形占位：栅栏、墙、门
+        }
+
+        public event System.Action OnBeingPushed;
+        public event System.Action OnFinishPushed;
+        
+        private void OnCollisionEnter(Collision collision)
+        {
+            OnBeingPushed?.Invoke();
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            OnFinishPushed?.Invoke();
         }
 
         [Tooltip("碰撞体形状：Capsule 圆形占位（石头等），Box 矩形占位（栅栏、门等）")]

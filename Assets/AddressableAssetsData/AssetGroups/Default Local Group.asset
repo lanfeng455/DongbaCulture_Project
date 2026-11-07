@@ -30,8 +30,28 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3757493320815374d8a3fdfacab32f27
+    m_Address: Assets/Ivan/Audio/SE/buttonHover
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5594f3b945a0cf04d989d5b258e1def6
+    m_Address: Assets/Ivan/Audio/BGS/WindInCave.mp3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 67f0f0d1448738b459141c5b0c06d8b5
+    m_Address: Assets/Ivan/Audio/SE/MoveStone
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7a38b3bbb7bcbc14c9fa48807d46d213
     m_Address: Assets/Ivan/Prefabs/Rooms/Room_B
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 85a6d5daabde541479ef5122bb2cab1c
+    m_Address: Assets/Ivan/Audio/SE/SnakeHiss
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -52,6 +72,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d1a91300b6ccfc24896bbf29ae802bb9
     m_Address: Assets/Ivan/Audio/BGM/Morning
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: de75978fd4e21a04882912e3e6b15fbb
+    m_Address: Assets/Ivan/Audio/BGS/WaterFlow
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

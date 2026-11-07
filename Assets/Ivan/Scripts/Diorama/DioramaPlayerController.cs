@@ -32,9 +32,12 @@ namespace Ivan.Diorama
         [SerializeField] private WalkableArea m_walkableArea;
 
         [Header("河流")]
-        [Tooltip("是否把 DioramaRiver 的河带判定为不可行走。该判定是全局公式（x≈2 一条带），" +
-                 "卷轴场景并没有真的河，开启会在卷轴中段形成一道看不见的墙；只在需要跳河的场景勾选")]
+        [Tooltip("是否把河流视为不可行走。Painted River 组件摆放的河流会自动登记进判定；" +
+                 "跳跃可以越过河面")]
         [SerializeField] private bool m_riverBlocksMovement = false;
+        [Tooltip("是否同时启用组员原版的全局河带公式（x≈2 一条带）。卷轴场景没有那条河，" +
+                 "保持关闭，否则会在卷轴中段形成一道看不见的墙")]
+        [SerializeField] private bool m_useLegacyRiverCurve = false;
 
         [Header("碰撞")]
         [Tooltip("玩家胶囊碰撞体半径（米），控制离障碍物的最小距离")]
@@ -47,6 +50,9 @@ namespace Ivan.Diorama
         [SerializeField] private Transform m_axe;       // 斧头（body 的子物体）
         [Tooltip("跟随相机。留空表示由外部（如 Cinemachine）接管，本脚本不再移动相机")]
         [SerializeField] private Camera m_camera;
+        [Tooltip("相机是否跟随玩家的纵深（Z）？卷轴玩法只沿 X 卷动，关闭后 Z 锁定：" +
+                 "取相机在场景里摆好的初始 Z（进 Play 前把相机移到想要的 Z 即可）")]
+        [SerializeField] private bool m_cameraFollowsZ = false;
         [Tooltip("谜题交互（按 E 优先触发谜题交互，没有可交互目标才走喂食/补种）")]
         [SerializeField] private PuzzleInteractor m_puzzleInteractor;
 
@@ -58,6 +64,8 @@ namespace Ivan.Diorama
         private int m_facing = 1;
         private int m_stageFacing = 0;      // 演出朝向锁定：0 = 未锁定，±1 = StageActor 锁定的朝向
         private bool m_stageMovementLocked; // 演出移动锁：Story Sequence Player 演出期间禁止玩家移动
+        private float m_cameraBaseZ;        // Z 锁定时相机所在的 Z（取场景里相机的初始 Z）
+        private bool m_cameraBaseZCaptured;
 
         [Header("转身")]
         [Tooltip("左右转向时「压扁→翻面→弹回」的时长（秒）；0 = 立即翻转")]
@@ -415,14 +423,27 @@ namespace Ivan.Diorama
             // 相机跟随：保持组员原版的正交偏移 (0,17,-20)
             if (m_camera == null) return;
 
+            // 首次拿到相机时记下它在场景里的 Z，作为 Z 锁定值（编辑态想调构图就移动相机）
+            if (!m_cameraBaseZCaptured)
+            {
+                m_cameraBaseZ = m_camera.transform.position.z;
+                m_cameraBaseZCaptured = true;
+            }
+
             Vector3 target = transform.position + new Vector3(0f, 17f, -20f);
+            if (!m_cameraFollowsZ)
+            {
+                target.z = m_cameraBaseZ;   // 只沿 X 跟随，纵深锁死
+            }
             m_camera.transform.position = Vector3.Lerp(m_camera.transform.position, target, Time.deltaTime * 4f);
         }
 
-        // 河流公式与层级公式统一在 DioramaRiver 静态类（玩家/动物共用）
-        private static bool InRiver(Vector3 p)
+        // 河流判定与层级公式统一在 DioramaRiver 静态类（玩家/动物共用）。
+        // 组件河流（PaintedRiver）始终参与；组员的全局公式按开关启用
+        private bool InRiver(Vector3 p)
         {
-            return DioramaRiver.InRiver(p);
+            if (DioramaRiver.InPaintedRiver(p)) return true;
+            return m_useLegacyRiverCurve && DioramaRiver.InLegacyCurve(p);
         }
 
         // 左右转身过渡：压扁到 0 的瞬间换面，再弹回原宽。

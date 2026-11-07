@@ -198,6 +198,10 @@ namespace Ivan.Puzzle
                 m_state == SnakeState.Staring) return;
 
             m_state = SnakeState.Staring;
+            if (m_side == SnakeSide.White)
+            {
+                AudioManager.Instance.PlaySe("Assets/Ivan/Audio/SE/SnakeHiss");
+            }
             m_body.linearVelocity = Vector3.zero;
             m_body.isKinematic = true;
             SetColliderEnabled(true);
@@ -215,6 +219,10 @@ namespace Ivan.Puzzle
                 m_state == SnakeState.Blinded) return;
 
             m_state = SnakeState.Blinded;
+            if (m_side == SnakeSide.White)
+            {
+                AudioManager.Instance.PlaySe("Assets/Ivan/Audio/SE/buttonHover");
+            }
             m_body.isKinematic = false;
             m_body.mass = m_pushMass;
             m_body.linearDamping = m_pushDamping;

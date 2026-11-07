@@ -191,3 +191,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ivan.Puzzle.PushableRock
   m_mass: 3
   m_damping: 6
+  m_pushColor: {r: 1, g: 0.6901961, b: 0.03529412, a: 1}
