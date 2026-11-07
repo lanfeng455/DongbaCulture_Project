@@ -13,6 +13,7 @@ public class ReelPortalHost:MonoBehaviour {
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
     public bool InLevel {get;private set;} public bool IsBusy=>busy;
+    public float MaxReelUvError {get;private set;}
     public float LastPositionErrorPixels {get;private set;} public float LastHeightErrorPixels {get;private set;}
     void Awake(){
         DontDestroyOnLoad(gameObject);var go=new GameObject("Continuous actor handoff",typeof(RectTransform),typeof(Canvas));go.transform.SetParent(transform,false);
@@ -47,7 +48,7 @@ public class ReelPortalHost:MonoBehaviour {
         backdrop.texture=backgroundTexture;backdrop.uvRect=new Rect(0,0,1,1);backdrop.color=Color.white;fromActor.texture=fromTexture;fromActor.color=Color.white;toActor.color=Color.clear;
         Place(fromActor,ActorRect(camera,actor));Place(toActor,ActorRect(camera,actor));backdrop.gameObject.SetActive(true);fromActor.gameObject.SetActive(true);
     }
-    IEnumerator MatchActor(Rect start,Camera destinationCamera,SpriteRenderer destination){
+    IEnumerator MatchActor(Rect start,Camera destinationCamera,SpriteRenderer destination,bool outgoingReel){
         // Freeze actor world transforms. Only a real orthographic camera moves and zooms.
         var rigidbody=destination.GetComponentInParent<Rigidbody>();bool wasKinematic=rigidbody!=null&&rigidbody.isKinematic;
         var oldInterpolation=rigidbody!=null?rigidbody.interpolation:RigidbodyInterpolation.None;var oldDetection=rigidbody!=null?rigidbody.collisionDetectionMode:CollisionDetectionMode.Discrete;
@@ -68,11 +69,13 @@ public class ReelPortalHost:MonoBehaviour {
             destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease);
             destinationCamera.orthographicSize=Mathf.Lerp(initialZoom,nativeZoom,ease);
             current=ActorRect(destinationCamera,destination);Place(fromActor,current);Place(toActor,current);
-            // Both photographed worlds follow the same camera projection as the stationary actor.
+            // The reel is a fixed full-screen page: crossfade it without camera zoom.
+            // Only the actor and the diorama world follow the camera projection.
             float oldScale=initialZoom/destinationCamera.orthographicSize,newScale=nativeZoom/destinationCamera.orthographicSize;
             Vector2 oldCenter=current.center+(Vector2.one*.5f-start.center)*oldScale,newCenter=current.center+(Vector2.one*.5f-end.center)*newScale;
-            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
-            Place(destinationBackdrop,new Rect(0,0,1,1));destinationBackdrop.uvRect=new Rect(Vector2.one*.5f-newCenter/newScale,Vector2.one/newScale);
+            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=outgoingReel?new Rect(0,0,1,1):new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
+            Place(destinationBackdrop,new Rect(0,0,1,1));destinationBackdrop.uvRect=outgoingReel?new Rect(Vector2.one*.5f-newCenter/newScale,Vector2.one/newScale):new Rect(0,0,1,1);
+            Rect reelUv=outgoingReel?backdrop.uvRect:destinationBackdrop.uvRect;MaxReelUvError=Mathf.Max(MaxReelUvError,reelUv.position.magnitude+(reelUv.size-Vector2.one).magnitude);
             float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
             yield return null;
         }
@@ -83,7 +86,7 @@ public class ReelPortalHost:MonoBehaviour {
         destination.forceRenderingOff=false;HideOverlay();ReleaseTextures();
     }
     IEnumerator EnterRoutine(string scene){
-        busy=true;completed=false;restorationRequested=false;
+        busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;
         if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);resume?.Invoke();busy=false;yield break;}
         yield return new WaitForEndOfFrame(); // Capture after forest UI/ink fading has settled for this frame.
         var source=forest.ReelActorRenderer;var sourceCamera=forest.ReelViewCamera;var start=ActorRect(sourceCamera,source);BeginOverlay(sourceCamera,source);source.forceRenderingOff=true;
@@ -95,7 +98,7 @@ public class ReelPortalHost:MonoBehaviour {
         var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;if(controller!=null){controller.enabled=false;destinationCamera.transform.position=controller.transform.position+new Vector3(0,17,-20);}
         foreach(var root in level.GetRootGameObjects()){director=root.GetComponentInChildren<PuzzleDirectorBase>(true);if(director!=null)break;}
         if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
-        if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
+        if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination,true);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
         if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;
         while(!completed){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)Application.Quit();yield return null;}
         yield return new WaitForSecondsRealtime(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
@@ -103,7 +106,7 @@ public class ReelPortalHost:MonoBehaviour {
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         forest.SetReelActorScale(1);forest.SetReelTransitionFocus(0);resume?.Invoke();yield return null;yield return new WaitForEndOfFrame();
-        forest.enabled=false;yield return MatchActor(start,sourceCamera,source);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();
+        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();
     }
     void ReleaseTextures(){destinationBackdrop.texture=backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=destinationBackgroundTexture=fromTexture=toTexture=null;}
     // Bind only to the final rescue/death sequence, not ordinary puzzle completion.

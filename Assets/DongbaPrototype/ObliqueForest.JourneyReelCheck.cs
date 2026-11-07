@@ -38,6 +38,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             log.AppendLine("Return matches real actor within 2 pixels="+(reelPortalHost.LastPositionErrorPixels<2&&reelPortalHost.LastHeightErrorPixels<2)+"; position="+reelPortalHost.LastPositionErrorPixels+"; height="+reelPortalHost.LastHeightErrorPixels);
             log.AppendLine("Completion signal restores same forest and progress="+(!reelPortalHost.InLevel&&journeyStage==JourneyStage.EastJourney&&Vector3.Distance(feetBefore,Feet)<.01f&&journeyReelPassedPortal));
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));yield return new WaitForSeconds(1);InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+            log.AppendLine("Reel stays full-screen at fixed scale during both handoffs="+(reelPortalHost.MaxReelUvError<.0001f));
             log.AppendLine("Walking resumes without repeating portal="+(!reelPortalHost.IsBusy&&Feet.x>feetBefore.x+2));
         }
         RestartRun();yield return new WaitForEndOfFrame();log.AppendLine("Restart hides reel and resets checkpoint="+(!journeyReelPassedPortal&&journeyReelGroup.alpha==0&&fatherIntroActive));
