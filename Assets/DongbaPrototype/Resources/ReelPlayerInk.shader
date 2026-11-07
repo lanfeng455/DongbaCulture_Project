@@ -7,7 +7,7 @@ Pass {CGPROGRAM
 #include "UnityCG.cginc"
 sampler2D _MainTex,_PaperTex;float _Blend,_PaperDecline;float4 _MainTex_TexelSize,_GlyphSize;
 struct app {float4 vertex:POSITION;float2 uv:TEXCOORD0;fixed4 color:COLOR;};struct v2f {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;fixed4 color:COLOR;};
-v2f vert(app v){v2f o;float2 center=float2(0,_GlyphSize.y*.5);v.vertex.xy=(v.vertex.xy-center)*1.08+center;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=(v.uv-.5)*1.08+.5;o.color=v.color;return o;}
+v2f vert(app v){v2f o;float2 center=float2(0,_GlyphSize.y*.5);v.vertex.xy=(v.vertex.xy-center)*1.12+center;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=(v.uv-.5)*1.12+.5;o.color=v.color;return o;}
 void cutEdge(float2 p,float2 a,float2 b,inout float distance,inout float inside){float2 d=b-a;float t=saturate(dot(p-a,d)/max(dot(d,d),.00001));distance=min(distance,length(p-a-t*d));if((a.y>p.y)!=(b.y>p.y)){float x=(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x;if(p.x<x)inside=1-inside;}}
 float paperMask(float2 p){float d=10,inside=0;
 // Hand-cut outer edge with a narrow open notch between the legs.
@@ -48,11 +48,16 @@ float aa=max(fwidth(d),.0006);return smoothstep(-aa,aa,(inside*2-1)*d+.0011*sin(
 fixed4 glyph(float2 uv){float valid=step(0,uv.x)*step(uv.x,1)*step(0,uv.y)*step(uv.y,1);return tex2D(_MainTex,uv)*valid;}
 float wholePaper(float2 uv){float inkMargin=0;for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++)inkMargin=max(inkMargin,glyph(uv+float2(x,y)*_MainTex_TexelSize.xy*2.2).a);return max(paperMask(uv),smoothstep(.06,.18,inkMargin));}
 fixed4 frag(v2f i):SV_Target {
- fixed4 ink=glyph(i.uv);float cut=wholePaper(i.uv);float shadow=wholePaper(i.uv+float2(-.015,.020))*.30;
+ fixed4 ink=glyph(i.uv);float cut=wholePaper(i.uv);float2 shadowUV=i.uv+float2(-.020,.027);
+ float shadow=(wholePaper(shadowUV)*.50+wholePaper(shadowUV+float2(.006,.006))*.25+wholePaper(shadowUV-float2(.006,.006))*.25)*.40;
  float paperAlpha=max(cut,ink.a);float a=lerp(ink.a,max(paperAlpha,shadow),_Blend);
  // Sample exactly the original forest paper, including its ecological paper tint.
  fixed3 sheet=saturate(tex2D(_PaperTex,i.uv*1.3).rgb+_PaperDecline*(fixed3(.865,.867,.843)-fixed3(.945,.904,.811)));
- fixed3 surface=lerp(sheet,ink.rgb,ink.a);surface=lerp(fixed3(.20,.14,.08),surface,saturate(paperAlpha/max(a,.001)));
+ // A narrow lit upper edge and darker lower edge suggest the paper's thickness.
+ float litEdge=cut*(1-wholePaper(i.uv+float2(-.004,.006)));
+ float darkEdge=cut*(1-wholePaper(i.uv+float2(.004,-.006)));
+ sheet=saturate(sheet+litEdge*.07-darkEdge*.15);
+ fixed3 surface=lerp(sheet,ink.rgb,ink.a);surface=lerp(fixed3(.10,.07,.035),surface,saturate(paperAlpha/max(a,.001)));
  return fixed4(lerp(ink.rgb,surface,_Blend)*i.color.rgb,a*i.color.a);
 }
 ENDCG }
