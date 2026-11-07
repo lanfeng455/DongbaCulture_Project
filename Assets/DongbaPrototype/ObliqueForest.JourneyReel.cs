@@ -5,16 +5,20 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     [Serializable] class JourneyReelBeat {public int x,width;}
     [Serializable] class JourneyReelLayout {public int tileHeight,totalWidth;public JourneyReelBeat[] beats;}
     JourneyReelLayout journeyReelData;Canvas journeyReelCanvas;CanvasGroup journeyReelGroup;RectTransform journeyReelRoot;RawImage[] journeyReelPanels;int[] journeyReelIndices={-1,-1,-1};
-    Material reelPlayerInk,reelOriginalPlayerInk;Vector3 reelOriginalPlayerScale;bool reelPlayerStyled;
-    void RestoreReelPlayer(){if(!reelPlayerStyled)return;playerImage.sharedMaterial=reelOriginalPlayerInk;body.localScale=reelOriginalPlayerScale;body.localPosition=Vector3.zero;reelPlayerStyled=false;}
+    Material reelPlayerInk,reelOriginalPlayerInk;Vector3 reelOriginalPlayerScale;bool reelPlayerStyled;Vector3 reelLastFeet;float reelStepPhase,reelWalkWeight;
+    void RestoreReelPlayer(){if(!reelPlayerStyled)return;playerImage.sharedMaterial=reelOriginalPlayerInk;body.localScale=reelOriginalPlayerScale;body.localPosition=Vector3.zero;body.rotation=billboard;reelPlayerStyled=false;}
     void StyleReelPlayer(float blend){
-        if(!reelPlayerStyled){reelOriginalPlayerInk=playerImage.sharedMaterial;reelOriginalPlayerScale=body.localScale;reelPlayerStyled=true;}
-        if(reelPlayerInk==null){reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetTexture("_PaperTex",paper);}reelPlayerInk.SetFloat("_Blend",blend);reelPlayerInk.SetFloat("_PaperDecline",groundMaterial.GetFloat("_Decline"));playerImage.sharedMaterial=reelPlayerInk;
+        if(!reelPlayerStyled){reelOriginalPlayerInk=playerImage.sharedMaterial;reelOriginalPlayerScale=body.localScale;reelPlayerStyled=true;reelLastFeet=Feet;reelStepPhase=reelWalkWeight=0;}
+        if(reelPlayerInk==null){reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetTexture("_PaperTex",paper);var size=playerImage.sprite.bounds.size;reelPlayerInk.SetVector("_GlyphSize",new Vector4(size.x,size.y,0,0));}reelPlayerInk.SetFloat("_Blend",blend);reelPlayerInk.SetFloat("_PaperDecline",groundMaterial.GetFloat("_Decline"));playerImage.sharedMaterial=reelPlayerInk;
         float originalHeight=playerImage.sprite.bounds.size.y*reelOriginalPlayerScale.y;
         float factor=(cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
         body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend);
         var view=cam.WorldToViewportPoint(player.position);var bottom=cam.ViewportToWorldPoint(new Vector3(view.x,.055f,cam.nearClipPlane+3f));
-        body.position=Vector3.Lerp(player.position,bottom,blend);
+        float distance=Vector3.Distance(Feet,reelLastFeet);reelLastFeet=Feet;reelStepPhase+=distance*2.8f;
+        reelWalkWeight=Mathf.Lerp(reelWalkWeight,distance>.001f?1:0,1-Mathf.Exp(-Time.deltaTime*8));
+        float tilt=(Mathf.Sin(reelStepPhase)*1.25f*reelWalkWeight+Mathf.Sin(clock*2.1f)*.22f*(1-reelWalkWeight))*blend;
+        float lift=(Mathf.Abs(Mathf.Sin(reelStepPhase))*2.5f*reelWalkWeight+Mathf.Sin(clock*2.1f)*.5f*(1-reelWalkWeight))*cam.orthographicSize*2/Screen.height;
+        body.position=Vector3.Lerp(player.position,bottom,blend)+cam.transform.up*(lift*blend);body.rotation=billboard*Quaternion.Euler(0,0,tilt);
     }
 
     float journeyReelFocus;
