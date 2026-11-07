@@ -20,6 +20,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());
         log.AppendLine("Walking progressively reveals reel="+(blended&&third));log.AppendLine("First three pages reach real level="+reelPortalHost.InLevel);log.AppendLine("Reel textures above paper layer="+(journeyReelPanels[0].texture!=null&&journeyReelCanvas.sortingOrder>-100));
         if(reelPortalHost.InLevel){
+            log.AppendLine("Entry matches real actor within 2 pixels="+(reelPortalHost.LastPositionErrorPixels<2&&reelPortalHost.LastHeightErrorPixels<2)+"; position="+reelPortalHost.LastPositionErrorPixels+"; height="+reelPortalHost.LastHeightErrorPixels);
             yield return new WaitForSeconds(3);yield return new WaitForEndOfFrame();WriteJourneyFrame(folder+"/actual-level.png");yield return null;
             var director=FindFirstObjectByType<PuzzleDirectorBase>();log.AppendLine("Real puzzle and own subtitles active="+(director!=null&&DialogueDisplay.Instance!=null));
             var feetBefore=Feet;
@@ -27,6 +28,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             if(director!=null)typeof(PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);
             age=0;while(reelPortalHost.IsBusy&&age<20){age+=Time.unscaledDeltaTime;yield return null;}
             yield return new WaitForEndOfFrame();CaptureSceneToTexture(folder+"/returned-to-reel.png");
+            log.AppendLine("Return matches real actor within 2 pixels="+(reelPortalHost.LastPositionErrorPixels<2&&reelPortalHost.LastHeightErrorPixels<2)+"; position="+reelPortalHost.LastPositionErrorPixels+"; height="+reelPortalHost.LastHeightErrorPixels);
             log.AppendLine("Completion signal restores same forest and progress="+(!reelPortalHost.InLevel&&journeyStage==JourneyStage.EastJourney&&Vector3.Distance(feetBefore,Feet)<.01f&&journeyReelPassedPortal));
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));yield return new WaitForSeconds(1);InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
             log.AppendLine("Walking resumes without repeating portal="+(!reelPortalHost.IsBusy&&Feet.x>feetBefore.x+2));

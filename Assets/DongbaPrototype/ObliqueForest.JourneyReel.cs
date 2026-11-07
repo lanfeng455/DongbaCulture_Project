@@ -21,6 +21,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         body.position=Vector3.Lerp(player.position,bottom,blend)+cam.transform.up*(lift*blend);body.rotation=billboard*Quaternion.Euler(0,0,tilt);
     }
 
+    public SpriteRenderer ReelActorRenderer=>playerImage;
+    public Camera ReelViewCamera=>cam;
     float reelActorScale=1;
     public void SetReelActorScale(float value){reelActorScale=Mathf.Clamp(value,.15f,1);}
     float journeyReelFocus;
