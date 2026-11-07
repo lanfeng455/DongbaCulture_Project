@@ -168,9 +168,24 @@ namespace Ivan.Puzzle
             Color color = m_image.color;
             color.a = 0f;
             m_image.color = color;
-            m_image.DOFade(1f, duration);
+            FadeImage(1f, duration);
         }
 
+
+        // Tween only a scalar: precompiled DOTween Color plugins can reference
+        // Unity Color operators unavailable in another Unity 6 runtime.
+        private Tween m_imageFade;
+        private Tween FadeImage(float alpha, float duration)
+        {
+            m_imageFade?.Kill();
+            m_imageFade = DOTween.To(() => m_image.color.a, value =>
+            {
+                Color tint = m_image.color;
+                tint.a = value;
+                m_image.color = tint;
+            }, alpha, duration).SetTarget(m_image);
+            return m_imageFade;
+        }
 
         // 刚分开：可自由推动，头顶先不出文字
         public void EnterFree()
@@ -309,7 +324,7 @@ namespace Ivan.Puzzle
         {
             if (m_image != null)
             {
-                m_image.DOFade(0f, m_captureDuration)
+                FadeImage(0f, m_captureDuration)
                     .OnComplete(() => gameObject.SetActive(false));
             }
             else

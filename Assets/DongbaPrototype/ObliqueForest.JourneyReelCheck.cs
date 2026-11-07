@@ -23,6 +23,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             log.AppendLine("Entry matches real actor within 2 pixels="+(reelPortalHost.LastPositionErrorPixels<2&&reelPortalHost.LastHeightErrorPixels<2)+"; position="+reelPortalHost.LastPositionErrorPixels+"; height="+reelPortalHost.LastHeightErrorPixels);
             yield return new WaitForSeconds(3);yield return new WaitForEndOfFrame();WriteJourneyFrame(folder+"/actual-level.png");yield return null;
             var director=FindFirstObjectByType<PuzzleDirectorBase>();log.AppendLine("Real puzzle and own subtitles active="+(director!=null&&DialogueDisplay.Instance!=null));
+            if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--puzzle-art-check")>=0){yield return CheckPuzzleArt();yield break;}
             var feetBefore=Feet;
             // Integration-only simulation: emit the real completion event, not a claim of solving the puzzle.
             if(rescueEnding){

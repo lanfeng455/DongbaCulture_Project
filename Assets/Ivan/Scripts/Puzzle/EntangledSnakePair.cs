@@ -190,7 +190,12 @@ namespace Ivan.Puzzle
         private static void FadeOut(SpriteRenderer renderer)
         {
             if (renderer == null) return;
-            renderer.DOFade(0f, 0.25f);
+            DOTween.To(() => renderer.color.a, value =>
+            {
+                Color tint = renderer.color;
+                tint.a = value;
+                renderer.color = tint;
+            }, 0f, 0.25f).SetTarget(renderer);
         }
     }
 }
