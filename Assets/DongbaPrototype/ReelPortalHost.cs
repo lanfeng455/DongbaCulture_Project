@@ -60,14 +60,13 @@ public class ReelPortalHost:MonoBehaviour {
         Rect initial=ActorRect(destinationCamera,destination);
         destinationCamera.transform.position+=destinationCamera.transform.right*((initial.center.x-start.center.x)*2*initialZoom*destinationCamera.aspect)+destinationCamera.transform.up*((initial.center.y-start.center.y)*2*initialZoom);
         Vector3 initialPosition=destinationCamera.transform.position;
-        // Pan down to find the actor first, then pull back to the native gameplay framing.
-        Vector3 panPosition=initialPosition+destinationCamera.transform.right*((start.center.x-end.center.x)*2*initialZoom*destinationCamera.aspect)+destinationCamera.transform.up*((start.center.y-end.center.y)*2*initialZoom);
+        // A single continuous camera move changes position and lens together.
         float time=0;Rect current=start;
         while(time<1){
             time+=(Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime)/1.8f;
-            float pan=Mathf.SmoothStep(0,1,Mathf.Clamp01(time/.45f));float pullback=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.45f,1,time));
-            destinationCamera.transform.position=time<.45f?Vector3.Lerp(initialPosition,panPosition,pan):Vector3.Lerp(panPosition,nativePosition,pullback);
-            destinationCamera.orthographicSize=Mathf.Lerp(initialZoom,nativeZoom,pullback);
+            float u=Mathf.Clamp01(time);float ease=u*u*u*(u*(u*6-15)+10);
+            destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease);
+            destinationCamera.orthographicSize=Mathf.Lerp(initialZoom,nativeZoom,ease);
             current=ActorRect(destinationCamera,destination);Place(fromActor,current);Place(toActor,current);
             // Both photographed worlds follow the same camera projection as the stationary actor.
             float oldScale=initialZoom/destinationCamera.orthographicSize,newScale=nativeZoom/destinationCamera.orthographicSize;
