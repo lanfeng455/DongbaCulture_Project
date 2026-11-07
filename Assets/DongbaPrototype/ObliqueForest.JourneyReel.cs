@@ -9,7 +9,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void RestoreReelPlayer(){if(!reelPlayerStyled)return;playerImage.sharedMaterial=reelOriginalPlayerInk;body.localScale=reelOriginalPlayerScale;body.localPosition=Vector3.zero;reelPlayerStyled=false;}
     void StyleReelPlayer(float blend){
         if(!reelPlayerStyled){reelOriginalPlayerInk=playerImage.sharedMaterial;reelOriginalPlayerScale=body.localScale;reelPlayerStyled=true;}
-        if(reelPlayerInk==null)reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetFloat("_Blend",blend);playerImage.sharedMaterial=reelPlayerInk;
+        if(reelPlayerInk==null){reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetTexture("_PaperTex",paper);}reelPlayerInk.SetFloat("_Blend",blend);playerImage.sharedMaterial=reelPlayerInk;
         float originalHeight=playerImage.sprite.bounds.size.y*reelOriginalPlayerScale.y;
         float factor=(cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
         body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend);
