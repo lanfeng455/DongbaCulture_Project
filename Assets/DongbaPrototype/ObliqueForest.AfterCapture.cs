@@ -104,11 +104,9 @@ public partial class ObliqueForest {
             nightAmount=Mathf.MoveTowards(nightAmount,0,dt);storyCurtain=0;
             eastPaperProgress=Mathf.SmoothStep(0,1,Mathf.InverseLerp(EastFadeStart,EastFadeEnd,Feet.x));
             if(eastPaperProgress<=0){retreatSprites=null;retreatGraphics=null;retreatLines=null;}
-            if(Feet.x>=EastTransitionX){journeyStage=JourneyStage.ScrollTransition;scrollFadeAge=0;jumpAge=attackAge=-1;axe.gameObject.SetActive(false);}
+            // The source reel and its reviewed portal now control the handoff.
         }else if(journeyStage==JourneyStage.ScrollTransition){
-            // End this prototype at the cut; the teammate's rescue scene is not integrated yet.
-            scrollFadeAge=Mathf.Min(1,scrollFadeAge+dt);storyCurtain=Mathf.SmoothStep(0,1,scrollFadeAge);
-            if(scrollFadeAge>=1&&!scrollEntered){scrollEntered=true;RescueScrollEntered?.Invoke();}
+            storyCurtain=0; // ReelPortalHost owns the cross-scene paper fade.
         }
         storyNightShade.color=new Color(.10f,.16f,.27f,nightAmount*.56f);storyCurtainImage.color=new Color(.045f,.035f,.025f,storyCurtain);storyCurtainImage.transform.SetAsLastSibling();
         return true;

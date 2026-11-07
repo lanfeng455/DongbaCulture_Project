@@ -1,0 +1,111 @@
+{
+  "source": "User supplied Bianca_Dongba_Trimmed_Reel/Dongba_Trimmed_Reel",
+  "status": "Untranslated source photographs; provisional sequence; publication rights unverified",
+  "integration_mapping": "After first 3 images -> Beat_2_Cleansing_Impurity, user-approved technical prototype only",
+  "unchanged_image_hashes": [
+    {
+      "file": "page_01.png",
+      "sha256": "3cc9b0be8cfd159c03a849d87f6b1e1b2af3e4d1f135aa2be9c6fb2ef16ada83"
+    },
+    {
+      "file": "page_02.png",
+      "sha256": "e5ae55de2e6dae2d76bc06390e229a9dc9b6069af1f5534ad366f68138282268"
+    },
+    {
+      "file": "page_03.png",
+      "sha256": "4fdaef2672cd9c03d9209ee92afe1d7c7fac2a2efe85645e700bc5bcd06bbf77"
+    },
+    {
+      "file": "page_04.png",
+      "sha256": "de36458d9d89b7bf478f5a074433fece13d38a9e61740d95f6e90ef3883efd43"
+    },
+    {
+      "file": "page_05.png",
+      "sha256": "a9a8b934ad448faea0ff1ee2de335bd7323ea661a7e61160cd2db5d636c272b7"
+    },
+    {
+      "file": "page_06.png",
+      "sha256": "0004448c77f03c3dd636946875db624aa856de6201ca47eb48d45b7f88af22b8"
+    },
+    {
+      "file": "page_07.png",
+      "sha256": "e708be7b89bccea974592a7232f7c21577ecc62fa6a6e61fe2ecd90fbb6bc6e1"
+    },
+    {
+      "file": "page_08.png",
+      "sha256": "c49bbf2998a1e5cb0da2f1f9de9ecf06a27f0d9357a599d3cf6cba2b311f8f4a"
+    },
+    {
+      "file": "page_09.png",
+      "sha256": "aee6ea84bbdd9f50449dfb3f8b42205aebde47cb546a239f3f6e9d7f8ccbf308"
+    },
+    {
+      "file": "page_10.png",
+      "sha256": "467c6c8983948d2bd2f7b0432e87434b49ff38c78a3c72af74b9a99460348b82"
+    },
+    {
+      "file": "page_11.png",
+      "sha256": "33dde34a1902aff3af9d285de0cb23c7d17d2fa284fbe3c735701475200fccb4"
+    },
+    {
+      "file": "page_12.png",
+      "sha256": "eebd6f1d78fbc8fc050192ec05278eb31174da88d552f7e423cbf2119b350bce"
+    },
+    {
+      "file": "page_13.png",
+      "sha256": "3dea31a441435f07f58b14001c30a386e7c92d62648a3d636a276d912cd6ef13"
+    },
+    {
+      "file": "page_14.png",
+      "sha256": "e349f55326434696d178cb7fc5675d4f8147468e059de113c1a2813a7edeed63"
+    },
+    {
+      "file": "page_15.png",
+      "sha256": "2f14646cb7f73d6e1dcc79d36dd46f273f8beb2421ec433c302551d6cf76f1f9"
+    },
+    {
+      "file": "page_16.png",
+      "sha256": "0b9dcb4fd05ca98f088ce18fecdf7b06b1c73792ad885dda4b02c4fc7d6014f9"
+    },
+    {
+      "file": "page_17.png",
+      "sha256": "abc5cb4e33023a13bbac4171be8362d4f39aba088ce91c8bd4020f11e1af9cb0"
+    },
+    {
+      "file": "page_18.png",
+      "sha256": "d7124e14a59e44d1cc27d55768c67d066f9c2a07e2af969f581061524ec53a2c"
+    },
+    {
+      "file": "page_19.png",
+      "sha256": "7af7c98e6c2375450c0e435f345778e8bc9ebb37aa080df7bcea08d9c3f9742a"
+    },
+    {
+      "file": "page_20.png",
+      "sha256": "d9b1f34374582a5f14603c73a9400252ba3554c016c653c967b408b53510ff01"
+    },
+    {
+      "file": "page_21.png",
+      "sha256": "7aaccf62e93e4954ae06053caf3baaab0af4fa613c93caf118c349be1748c7e9"
+    },
+    {
+      "file": "page_22.png",
+      "sha256": "f270e13e800ef3eff50bfd18d17e6714222a08496a51eac57fbd82fc98383b11"
+    },
+    {
+      "file": "page_23.png",
+      "sha256": "dcee69fd6ab78af9ca20cbcaff302358f5835e3f212d5957dc9d06bc4aefcf82"
+    },
+    {
+      "file": "page_24.png",
+      "sha256": "a9f4da5c3e8701ff052052fc191ac90792a0deeb1dbb7eda59af92bfd6173523"
+    },
+    {
+      "file": "page_25.png",
+      "sha256": "19cc357edb83e12f602da0592ed879fc5a6b727702c029bdcd3c27acb7363b34"
+    },
+    {
+      "file": "page_26.png",
+      "sha256": "95569f6b3c0d769d206f228a601cd4aed0ffd9867bb6bc7a509de6c47fa7eb99"
+    }
+  ]
+}

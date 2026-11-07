@@ -105,6 +105,9 @@ public class DialogueDisplay : MonoBehaviour
     private int m_playbackGeneration;   // 播放代数：被新段打断的旧段收尾时，不得污染新段的 IsPlaying
 
     public bool IsPlaying => m_isPlaying;
+    public void ReleaseForSceneHandoff(){if(Instance==this)Instance=null;}
+    public void RestoreAfterSceneHandoff(){Instance=this;HideDialogue();}
+
     private bool m_revealCurrentLine;
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
     public TMP_Text SubtitleText => m_text;
