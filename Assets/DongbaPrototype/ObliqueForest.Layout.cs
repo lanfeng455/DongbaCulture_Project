@@ -24,14 +24,16 @@ public partial class ObliqueForest {
     readonly int[] groveLayouts={0,5,10,3,8,1,6,11,4,9,2,7};
     void FollowPlayerCamera(float dt){
         if(player==null||cam==null)return;
+        if(InScrollWorld){cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,7f,1-Mathf.Exp(-dt*3));var scrollGoal=new Vector3(Mathf.Clamp(Feet.x,96,124),0,70)+CameraOffset;cam.transform.position=dt>50?scrollGoal:Vector3.Lerp(cam.transform.position,scrollGoal,1-Mathf.Exp(-dt*5.5f));return;}
         float visibleHalfWidth=cam.orthographicSize*cam.aspect;
         float visibleHalfDepth=cam.orthographicSize/Mathf.Max(.5f,Mathf.Abs(cam.transform.up.z));
         var center=player.position;
         center.x=Mathf.Clamp(center.x,-ForestHalfWidth+visibleHalfWidth,ForestHalfWidth-visibleHalfWidth);
         center.z=Mathf.Clamp(center.z,-ForestHalfDepth+visibleHalfDepth,ForestHalfDepth-visibleHalfDepth);
-        if(StoryModeEnabled&&journeyStage==JourneyStage.Leaving)center.x=player.position.x;
-        if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
-        float targetZoom=StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
+        if(StoryModeEnabled&&(journeyStage==JourneyStage.Leaving||journeyStage==JourneyStage.EastJourney||journeyStage==JourneyStage.ScrollTransition))center.x=player.position.x;
+        if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=shuConfrontationStarted||captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
+        if(StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization))center=HearthPosition+Vector3.forward*1.5f;
+        float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
         if(StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null)center=Vector3.Lerp(Feet,storyBoar.root.position,.3f);
         var goal=center+CameraOffset;
         cam.transform.position=dt>50?goal:Vector3.Lerp(cam.transform.position,goal,1-Mathf.Exp(-dt*5.5f));
@@ -102,25 +104,19 @@ public partial class ObliqueForest {
         foreach(var other in animals)if(other!=moving&&other.health>0&&other.migrationState!=2){var size=other.renderer.sprite.bounds.size;if(ink.Overlaps(ProjectedInkRect(other.root.position,size.x*other.art.localScale.x,size.y*other.art.localScale.y)))return false;}return true;
     }
     RectTransform UIBlock(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size){var t=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();t.SetParent(parent,false);t.anchorMin=t.anchorMax=anchor;t.pivot=pivot;t.anchoredPosition=pos;t.sizeDelta=size;return t;}
-    Text UILabel(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size,int fontSize,string content){var r=UIBlock(name,parent,anchor,pivot,pos,size);var label=r.gameObject.AddComponent<Text>();label.font=forestFont;label.fontSize=fontSize;label.color=uiInk;label.text=content;label.raycastTarget=false;label.supportRichText=false;return label;}
+    Text UILabel(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size,int fontSize,string content){var r=UIBlock(name,parent,anchor,pivot,pos,size);var label=r.gameObject.AddComponent<Text>();label.font=forestFont;label.fontSize=fontSize;label.color=uiInk;label.text=content;label.raycastTarget=false;label.supportRichText=false;label.resizeTextForBestFit=false;label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;return label;}
     void SetupForestHUD(){
         forestFont=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");var go=new GameObject("Forest HUD / fixed safe margins",typeof(RectTransform));forestCanvas=go.AddComponent<Canvas>();forestCanvas.renderMode=RenderMode.ScreenSpaceCamera;forestCanvas.worldCamera=cam;forestCanvas.planeDistance=1;forestCanvas.sortingOrder=1000;
         var scaler=go.AddComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1600,900);scaler.matchWidthOrHeight=.5f;
-        UILabel("Project name",go.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(32,-24),new Vector2(600,35),25,"DONGBA / THE LIVING SCRIPT");
-        UILabel("Controls",go.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(33,-65),new Vector2(1500,26),17,"WASD / arrows  move     Space  jump     J / Enter  axe     E  care / feed     R  restart world     F5  story / sandbox     Esc  quit");
-        hudArea=UILabel("Location",go.transform,new Vector2(1,1),new Vector2(1,1),new Vector2(-32,-28),new Vector2(365,35),21,"");hudArea.alignment=TextAnchor.UpperRight;
-        hudHealth=UILabel("Health",go.transform,Vector2.zero,Vector2.zero,new Vector2(33,28),new Vector2(230,30),19,"");hudNotice=UILabel("Feedback",go.transform,Vector2.zero,Vector2.zero,new Vector2(33,64),new Vector2(700,35),18,"");
-        var card=UIBlock("Interaction card",go.transform,new Vector2(1,0),new Vector2(1,0),new Vector2(-32,26),new Vector2(405,92));promptPanel=card.gameObject;var bg=card.gameObject.AddComponent<Image>();bg.color=new Color(.95f,.91f,.82f,.94f);bg.raycastTarget=false;
-        var rule=UIBlock("Fine ink rule",card,new Vector2(0,1),new Vector2(0,1),new Vector2(0,0),new Vector2(405,2));rule.gameObject.AddComponent<Image>().color=new Color(.44f,.32f,.20f,.43f);
-        hudPromptTitle=UILabel("Target name",card,new Vector2(0,1),new Vector2(0,1),new Vector2(18,-12),new Vector2(370,29),21,"");hudPrompt=UILabel("Action",card,new Vector2(0,1),new Vector2(0,1),new Vector2(18,-50),new Vector2(370,30),18,"");
+        BuildQuietForestHUD(go);
         var ring=new GameObject("Nearby interaction / non-script ink ring");selectionRing=ring.transform;var line=ring.AddComponent<LineRenderer>();line.sharedMaterial=Mat(Color.white);line.useWorldSpace=false;line.loop=true;line.positionCount=40;line.widthMultiplier=.022f;line.startColor=line.endColor=new Color(.44f,.28f,.13f,.50f);line.sortingOrder=-59;
         for(int i=0;i<40;i++){float a=i*Mathf.PI*2/40;line.SetPosition(i,new Vector3(Mathf.Cos(a)*.55f,.09f,Mathf.Sin(a)*.43f));}UpdateForestPresentation(0);
     }
     void UpdateForestPresentation(float dt){
-        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
-        if(interactionTarget!=null){var b=interactionTarget;selectionRing.position=b.root.position;hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";hudPrompt.text=b.animal?(b.age<2?"E  Feed / grow":"E  Feed / new young"):b.health<=0?"E  Replant here":b.cultivated?"Already tended       J  Chop":"E  Tend       J  Chop";}
-        if(displayedHealth!=health){displayedHealth=health;hudHealth.text="Health  "+new string('|',health);}hudNotice.text=noticeTime>0?notice:flourishAge>=0?"The forest is flourishing":"";
-        float bank=Feet.x-RiverX(Feet.z);hudArea.text=Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";
+        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=(RestorationArrivalLocked||AfterCapturePeaceful||fatherIntroActive||storyOpeningState==StoryOpeningState.CaptureBeat)?null:NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
+        if(interactionTarget!=null){var b=interactionTarget;selectionRing.position=b.root.position;hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";hudPrompt.text=b.animal?(b.age<2?"<b>E</b>   Feed to grow\n<b>J</b>   Attack":"<b>E</b>   Feed / new young\n<b>J</b>   Attack"):b.health<=0?"<b>E</b>   Replant here":b.cultivated?"Tended once\n<b>J</b>   Chop":"<b>E</b>   Tend\n<b>J</b>   Chop";}
+        if(displayedHealth!=health){displayedHealth=health;hudHealth.text="Health";}hudNotice.text=noticeTime>0?notice:flourishAge>=0?"The forest is flourishing":"";
+        float bank=Feet.x-RiverX(Feet.z);hudArea.text=InScrollWorld?"Rescue scroll":Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";RefreshQuietHUD();
     }
     Being NearestForestInteraction(){
         Being near=null;float best=1.8f*InteractionRange;foreach(var b in plants)if(b.tree){float d=Vector3.Distance(Feet,b.home);if(d<best){best=d;near=b;}}

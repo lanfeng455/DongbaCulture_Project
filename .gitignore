@@ -36,3 +36,6 @@
 Thumbs.db
 /Recordings
 *.md
+
+# Shared manually: 131 MB TMP atlas. Keep its .meta tracked.
+/Assets/Resources/Fonts/NotoSerifCJKsc-Black SDF.asset

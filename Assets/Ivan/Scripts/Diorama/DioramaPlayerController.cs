@@ -56,6 +56,7 @@ namespace Ivan.Diorama
         [Tooltip("谜题交互（按 E 优先触发谜题交互，没有可交互目标才走喂食/补种）")]
         [SerializeField] private PuzzleInteractor m_puzzleInteractor;
 
+        public SpriteRenderer BodyRenderer=>m_bodyImage;
         private SpriteRenderer m_bodyImage;
         private SpriteRenderer m_axeImage;
         private Vector3 m_lastDryPosition;

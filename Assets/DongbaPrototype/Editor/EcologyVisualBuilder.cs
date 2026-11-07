@@ -12,6 +12,7 @@ public static class EcologyVisualBuilder {
     }
     [MenuItem("Dongba Prototype/Build Current Forest (Windows x64)")]
     public static void Build() {
+        JourneyReelBuildPreparation.Prepare();
         const string destination = "Builds/Windows/ForestPrototype";
         Directory.CreateDirectory(destination);
         Directory.CreateDirectory("Verification/current-build");
@@ -37,7 +38,7 @@ public static class EcologyVisualBuilder {
             importer.SaveAndReimport();
         }
         var result = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-            scenes = new[] { "Assets/DongbaPrototype/ObliqueForest.unity" },
+            scenes = new[] { "Assets/DongbaPrototype/ObliqueForest.unity", "Assets/Ivan/Scenes/Beat_2_Cleansing_Impurity.unity" },
             locationPathName = destination + "/ForestPrototype.exe",
             target = BuildTarget.StandaloneWindows64,
             options = BuildOptions.None
