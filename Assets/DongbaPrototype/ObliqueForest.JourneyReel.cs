@@ -6,8 +6,17 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     [Serializable] class JourneyReelLayout {public int tileHeight,totalWidth;public JourneyReelBeat[] beats;}
     JourneyReelLayout journeyReelData;Canvas journeyReelCanvas;CanvasGroup journeyReelGroup;RectTransform journeyReelRoot;RawImage[] journeyReelPanels;int[] journeyReelIndices={-1,-1,-1};
     Material reelPlayerInk,reelOriginalPlayerInk;Vector3 reelOriginalPlayerScale;bool reelPlayerStyled;
-    void RestoreReelPlayer(){if(!reelPlayerStyled)return;playerImage.sharedMaterial=reelOriginalPlayerInk;body.localScale=reelOriginalPlayerScale;reelPlayerStyled=false;}
-    void StyleReelPlayer(float blend){if(!reelPlayerStyled){reelOriginalPlayerInk=playerImage.sharedMaterial;reelOriginalPlayerScale=body.localScale;reelPlayerStyled=true;}if(reelPlayerInk==null)reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetFloat("_Blend",blend);playerImage.sharedMaterial=reelPlayerInk;body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,1.22f,blend);}
+    void RestoreReelPlayer(){if(!reelPlayerStyled)return;playerImage.sharedMaterial=reelOriginalPlayerInk;body.localScale=reelOriginalPlayerScale;body.localPosition=Vector3.zero;reelPlayerStyled=false;}
+    void StyleReelPlayer(float blend){
+        if(!reelPlayerStyled){reelOriginalPlayerInk=playerImage.sharedMaterial;reelOriginalPlayerScale=body.localScale;reelPlayerStyled=true;}
+        if(reelPlayerInk==null)reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetFloat("_Blend",blend);playerImage.sharedMaterial=reelPlayerInk;
+        float originalHeight=playerImage.sprite.bounds.size.y*reelOriginalPlayerScale.y;
+        float factor=(cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
+        body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend);
+        var view=cam.WorldToViewportPoint(player.position);var bottom=cam.ViewportToWorldPoint(new Vector3(view.x,.055f,cam.nearClipPlane+3f));
+        body.position=Vector3.Lerp(player.position,bottom,blend);
+    }
+
     float journeyReelFocus;
     public void SetReelTransitionFocus(float value){journeyReelFocus=value;}
     bool journeyReelPassedPortal;ReelPortalHost reelPortalHost;
