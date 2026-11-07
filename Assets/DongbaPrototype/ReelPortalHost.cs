@@ -9,19 +9,21 @@ using Ivan.Puzzle;
 using Ivan.Diorama;
 namespace DongbaPrototype {
 public class ReelPortalHost:MonoBehaviour {
-    bool busy,completed;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
+    Material snapshotMaterial;bool busy,completed;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
-    RawImage backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,fromTexture,toTexture;
+    RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
     public bool InLevel {get;private set;} public bool IsBusy=>busy;
     public float LastPositionErrorPixels {get;private set;} public float LastHeightErrorPixels {get;private set;}
     void Awake(){
         DontDestroyOnLoad(gameObject);var go=new GameObject("Continuous actor handoff",typeof(RectTransform),typeof(Canvas));go.transform.SetParent(transform,false);
         overlay=go.GetComponent<Canvas>();overlay.renderMode=RenderMode.ScreenSpaceOverlay;overlay.sortingOrder=31000;
+        destinationBackdrop=Image("Incoming world / camera projection");destinationBackdrop.transform.SetAsFirstSibling();
         backdrop=Image("Previous world");var rect=backdrop.rectTransform;rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=rect.offsetMax=Vector2.zero;
+        snapshotMaterial=new Material(Resources.Load<Shader>("ReelSnapshotFade"));backdrop.material=destinationBackdrop.material=snapshotMaterial;
         fromActor=Image("Same actor / outgoing appearance");toActor=Image("Same actor / incoming appearance");HideOverlay();
     }
     RawImage Image(string name){var go=new GameObject(name,typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));go.transform.SetParent(overlay.transform,false);var image=go.GetComponent<RawImage>();image.raycastTarget=false;return image;}
-    void HideOverlay(){backdrop.gameObject.SetActive(false);fromActor.gameObject.SetActive(false);toActor.gameObject.SetActive(false);}
+    void HideOverlay(){destinationBackdrop.gameObject.SetActive(false);backdrop.gameObject.SetActive(false);fromActor.gameObject.SetActive(false);toActor.gameObject.SetActive(false);}
     public void Enter(ObliqueForest source,string scene,Action onReturn){if(busy)return;forest=source;resume=onReturn;StartCoroutine(EnterRoutine(scene));}
     // Project the real, transformed sprite quad, including the capture's transparent margin.
     static Rect ActorRect(Camera camera,SpriteRenderer actor){
@@ -31,7 +33,7 @@ public class ReelPortalHost:MonoBehaviour {
     }
     static void Place(RawImage image,Rect view){var rect=image.rectTransform;rect.anchorMin=view.min;rect.anchorMax=view.max;rect.offsetMin=rect.offsetMax=Vector2.zero;}
     static RenderTexture Background(Camera camera,SpriteRenderer actor){
-        var rt=new RenderTexture(Screen.width,Screen.height,24);bool hidden=actor.forceRenderingOff;actor.forceRenderingOff=true;var previous=camera.targetTexture;camera.targetTexture=rt;camera.Render();camera.targetTexture=previous;actor.forceRenderingOff=hidden;return rt;
+        var rt=new RenderTexture(Screen.width,Screen.height,24);rt.wrapMode=TextureWrapMode.Clamp;bool hidden=actor.forceRenderingOff;actor.forceRenderingOff=true;var previous=camera.targetTexture;camera.targetTexture=rt;camera.Render();camera.targetTexture=previous;actor.forceRenderingOff=hidden;return rt;
     }
     static RenderTexture Portrait(Camera view,SpriteRenderer actor){
         var go=new GameObject("Temporary actor capture");var copy=go.AddComponent<SpriteRenderer>();copy.sprite=actor.sprite;copy.sharedMaterial=actor.sharedMaterial;copy.color=actor.color;copy.flipX=actor.flipX;copy.flipY=actor.flipY;
@@ -42,21 +44,43 @@ public class ReelPortalHost:MonoBehaviour {
     }
     void BeginOverlay(Camera camera,SpriteRenderer actor){
         HideOverlay();ReleaseTextures();backgroundTexture=Background(camera,actor);fromTexture=Portrait(camera,actor);
-        backdrop.texture=backgroundTexture;backdrop.color=Color.white;fromActor.texture=fromTexture;fromActor.color=Color.white;toActor.color=Color.clear;
+        backdrop.texture=backgroundTexture;backdrop.uvRect=new Rect(0,0,1,1);backdrop.color=Color.white;fromActor.texture=fromTexture;fromActor.color=Color.white;toActor.color=Color.clear;
         Place(fromActor,ActorRect(camera,actor));Place(toActor,ActorRect(camera,actor));backdrop.gameObject.SetActive(true);fromActor.gameObject.SetActive(true);
     }
     IEnumerator MatchActor(Rect start,Camera destinationCamera,SpriteRenderer destination){
+        // Freeze actor world transforms. Only a real orthographic camera moves and zooms.
+        var rigidbody=destination.GetComponentInParent<Rigidbody>();bool wasKinematic=rigidbody!=null&&rigidbody.isKinematic;
+        var oldInterpolation=rigidbody!=null?rigidbody.interpolation:RigidbodyInterpolation.None;var oldDetection=rigidbody!=null?rigidbody.collisionDetectionMode:CollisionDetectionMode.Discrete;
+        if(rigidbody!=null){if(!wasKinematic){rigidbody.linearVelocity=Vector3.zero;rigidbody.angularVelocity=Vector3.zero;}var held=rigidbody.transform.position;rigidbody.interpolation=RigidbodyInterpolation.None;rigidbody.collisionDetectionMode=CollisionDetectionMode.Discrete;rigidbody.isKinematic=true;rigidbody.position=held;}
+        Vector3 nativePosition=destinationCamera.transform.position;float nativeZoom=destinationCamera.orthographicSize;
+        Rect end=ActorRect(destinationCamera,destination);
+        destinationBackgroundTexture=Background(destinationCamera,destination);destinationBackdrop.texture=destinationBackgroundTexture;destinationBackdrop.color=Color.white;destinationBackdrop.gameObject.SetActive(true);
         toTexture=Portrait(destinationCamera,destination);toActor.texture=toTexture;toActor.gameObject.SetActive(true);destination.forceRenderingOff=true;
+        float initialZoom=nativeZoom*end.height/Mathf.Max(.01f,start.height);destinationCamera.orthographicSize=initialZoom;
+        Rect initial=ActorRect(destinationCamera,destination);
+        destinationCamera.transform.position+=destinationCamera.transform.right*((initial.center.x-start.center.x)*2*initialZoom*destinationCamera.aspect)+destinationCamera.transform.up*((initial.center.y-start.center.y)*2*initialZoom);
+        Vector3 initialPosition=destinationCamera.transform.position;
+        // Pan down to find the actor first, then pull back to the native gameplay framing.
+        Vector3 panPosition=initialPosition+destinationCamera.transform.right*((start.center.x-end.center.x)*2*initialZoom*destinationCamera.aspect)+destinationCamera.transform.up*((start.center.y-end.center.y)*2*initialZoom);
         float time=0;Rect current=start;
         while(time<1){
-            time+=(Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime)/1.35f;float t=Mathf.SmoothStep(0,1,time);Rect end=ActorRect(destinationCamera,destination);
-            current=new Rect(Vector2.Lerp(start.position,end.position,t),Vector2.Lerp(start.size,end.size,t));Place(fromActor,current);Place(toActor,current);
-            // One moving rectangle throughout; only its paper appearance dissolves near arrival.
-            float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.45f,1,t));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
+            time+=(Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime)/1.8f;
+            float pan=Mathf.SmoothStep(0,1,Mathf.Clamp01(time/.45f));float pullback=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.45f,1,time));
+            destinationCamera.transform.position=time<.45f?Vector3.Lerp(initialPosition,panPosition,pan):Vector3.Lerp(panPosition,nativePosition,pullback);
+            destinationCamera.orthographicSize=Mathf.Lerp(initialZoom,nativeZoom,pullback);
+            current=ActorRect(destinationCamera,destination);Place(fromActor,current);Place(toActor,current);
+            // Both photographed worlds follow the same camera projection as the stationary actor.
+            float oldScale=initialZoom/destinationCamera.orthographicSize,newScale=nativeZoom/destinationCamera.orthographicSize;
+            Vector2 oldCenter=current.center+(Vector2.one*.5f-start.center)*oldScale,newCenter=current.center+(Vector2.one*.5f-end.center)*newScale;
+            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
+            Place(destinationBackdrop,new Rect(0,0,1,1));destinationBackdrop.uvRect=new Rect(Vector2.one*.5f-newCenter/newScale,Vector2.one/newScale);
+            float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
             yield return null;
         }
+        destinationCamera.transform.position=nativePosition;destinationCamera.orthographicSize=nativeZoom;
         Rect actual=ActorRect(destinationCamera,destination);Place(fromActor,actual);Place(toActor,actual);
         LastPositionErrorPixels=Vector2.Scale(current.center-actual.center,new Vector2(Screen.width,Screen.height)).magnitude;LastHeightErrorPixels=Mathf.Abs(current.height-actual.height)*Screen.height;
+        if(rigidbody!=null){rigidbody.isKinematic=wasKinematic;rigidbody.collisionDetectionMode=oldDetection;rigidbody.interpolation=oldInterpolation;}
         destination.forceRenderingOff=false;HideOverlay();ReleaseTextures();
     }
     IEnumerator EnterRoutine(string scene){
@@ -69,20 +93,20 @@ public class ReelPortalHost:MonoBehaviour {
         var load=SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);while(!load.isDone)yield return null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
         var controller=FindFirstObjectByType<DioramaPlayerController>();if(controller!=null)controller.SetStageMovementLock(true);
         yield return null;yield return new WaitForEndOfFrame();
-        var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;
+        var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;if(controller!=null){controller.enabled=false;destinationCamera.transform.position=controller.transform.position+new Vector3(0,17,-20);}
         foreach(var root in level.GetRootGameObjects()){director=root.GetComponentInChildren<PuzzleDirectorBase>(true);if(director!=null)break;}
         if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
         if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
-        if(controller!=null)controller.SetStageMovementLock(false);InLevel=true;
+        if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;
         while(!completed){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)Application.Quit();yield return null;}
-        yield return new WaitForSecondsRealtime(1);if(controller!=null)controller.SetStageMovementLock(true);
+        yield return new WaitForSecondsRealtime(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
         start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;if(director!=null)director.PuzzleCompleted-=OnCompleted;
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         forest.SetReelActorScale(1);forest.SetReelTransitionFocus(0);resume?.Invoke();yield return null;yield return new WaitForEndOfFrame();
-        yield return MatchActor(start,sourceCamera,source);InLevel=false;busy=false;
+        forest.enabled=false;yield return MatchActor(start,sourceCamera,source);forest.enabled=true;InLevel=false;busy=false;
     }
-    void ReleaseTextures(){backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=fromTexture=toTexture=null;}
+    void ReleaseTextures(){destinationBackdrop.texture=backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=destinationBackgroundTexture=fromTexture=toTexture=null;}
     void OnCompleted(){completed=true;}
-    void OnDestroy(){ReleaseTextures();}
+    void OnDestroy(){ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
 }}
