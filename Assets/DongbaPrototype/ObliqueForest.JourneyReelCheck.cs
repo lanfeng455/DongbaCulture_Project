@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.LowLevel;
 using Ivan.Puzzle;
 namespace DongbaPrototype {public partial class ObliqueForest {
     IEnumerator CheckJourneyReel(){
-        string folder=Path.GetFullPath("Verification/journey-reel");Directory.CreateDirectory(folder);var log=new StringBuilder();bool record=System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--reel-record")>=0;if(record){Time.captureFramerate=30;reelCheckRecording=true;reelPortalHost.StartCoroutine(RecordJourneyReel(folder));}
+        bool rescueEnding=System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--rescue-ending-check")>=0;string folder=Path.GetFullPath(rescueEnding?"Verification/rescue-ending-handoff":"Verification/journey-reel");Directory.CreateDirectory(folder);var log=new StringBuilder();bool record=System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--reel-record")>=0;if(record){Time.captureFramerate=30;reelCheckRecording=true;reelPortalHost.StartCoroutine(RecordJourneyReel(folder));}
         yield return new WaitForSeconds(1);SetStoryModeEnabled(true);RestartRun();fatherIntroActive=false;journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(30,0,0);FollowPlayerCamera(100);
         var keyboard=Keyboard.current;if(keyboard==null)keyboard=InputSystem.AddDevice<Keyboard>();bool blended=false,third=false;float age=0;
         while(!reelPortalHost.InLevel&&age<35){
@@ -25,6 +25,13 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             var director=FindFirstObjectByType<PuzzleDirectorBase>();log.AppendLine("Real puzzle and own subtitles active="+(director!=null&&DialogueDisplay.Instance!=null));
             var feetBefore=Feet;
             // Integration-only simulation: emit the real completion event, not a claim of solving the puzzle.
+            if(rescueEnding){
+                reelPortalHost.ReturnToForestForRestoration();age=0;while(reelPortalHost.IsBusy&&age<20){age+=Time.unscaledDeltaTime;yield return null;}
+                log.AppendLine("Final rescue callback enters restoration="+IsRestorationEnding);
+                log.AppendLine("Father remains absent after final return="+!storyFatherRoot.gameObject.activeSelf);
+                log.AppendLine("Forest scene and controls restored="+(gameObject.activeInHierarchy&&enabled));
+                File.WriteAllText(folder+"/checks.txt",log.ToString());Application.Quit();yield break;
+            }
             if(director!=null)typeof(PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);
             age=0;while(reelPortalHost.IsBusy&&age<20){age+=Time.unscaledDeltaTime;yield return null;}
             yield return new WaitForEndOfFrame();CaptureSceneToTexture(folder+"/returned-to-reel.png");

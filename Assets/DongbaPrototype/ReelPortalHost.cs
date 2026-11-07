@@ -9,7 +9,7 @@ using Ivan.Puzzle;
 using Ivan.Diorama;
 namespace DongbaPrototype {
 public class ReelPortalHost:MonoBehaviour {
-    Material snapshotMaterial;bool busy,completed;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
+    Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
     public bool InLevel {get;private set;} public bool IsBusy=>busy;
@@ -83,7 +83,7 @@ public class ReelPortalHost:MonoBehaviour {
         destination.forceRenderingOff=false;HideOverlay();ReleaseTextures();
     }
     IEnumerator EnterRoutine(string scene){
-        busy=true;completed=false;
+        busy=true;completed=false;restorationRequested=false;
         if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);resume?.Invoke();busy=false;yield break;}
         yield return new WaitForEndOfFrame(); // Capture after forest UI/ink fading has settled for this frame.
         var source=forest.ReelActorRenderer;var sourceCamera=forest.ReelViewCamera;var start=ActorRect(sourceCamera,source);BeginOverlay(sourceCamera,source);source.forceRenderingOff=true;
@@ -103,9 +103,11 @@ public class ReelPortalHost:MonoBehaviour {
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         forest.SetReelActorScale(1);forest.SetReelTransitionFocus(0);resume?.Invoke();yield return null;yield return new WaitForEndOfFrame();
-        forest.enabled=false;yield return MatchActor(start,sourceCamera,source);forest.enabled=true;InLevel=false;busy=false;
+        forest.enabled=false;yield return MatchActor(start,sourceCamera,source);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();
     }
     void ReleaseTextures(){destinationBackdrop.texture=backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=destinationBackgroundTexture=fromTexture=toTexture=null;}
+    // Bind only to the final rescue/death sequence, not ordinary puzzle completion.
+    public void ReturnToForestForRestoration(){if(!InLevel)return;restorationRequested=true;completed=true;}
     void OnCompleted(){completed=true;}
     void OnDestroy(){ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
 }}

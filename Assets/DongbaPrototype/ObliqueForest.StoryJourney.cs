@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 namespace DongbaPrototype {public partial class ObliqueForest {
-    enum JourneyStage { Off, Hunting, BoarPass, Invitation, Boar, Leaving, ReturnForKnife, Captured, WaitingAtHearth, Realization, EastJourney, ScrollTransition, ScrollWalk }
+    enum JourneyStage { Off, Hunting, BoarPass, Invitation, Boar, Leaving, ReturnForKnife, Captured, WaitingAtHearth, Realization, EastJourney, ScrollTransition, ScrollWalk, RestorationArrival, RestorationPlay, RestorationComplete }
     JourneyStage journeyStage;Transform storyShu;bool shuPreviewCaptured; Vector3 captureCameraCenter;bool carryStarted;Vector3 carryOffset;
     Material storyBoarInk; Being storyBoar; Transform droppedKnife; Text journeyObjective;
     float fatherJumpAge=-1,boarAidReady,boarStun;Vector3 fatherJumpFrom,fatherJumpTo;
@@ -12,7 +12,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly Vector3 BoarClearing=new Vector3(23,0,0);
     static readonly Vector3 DeparturePoint=new Vector3(-7,0,0);
     void ResetStoryJourney(){
-        ResetJourneyReel();ResetForestSubtitles();
+        ResetRestorationEnding();ResetJourneyReel();ResetForestSubtitles();
         bool returningFromScroll=scrollRelocated||journeyStage==JourneyStage.ScrollTransition;ResetAfterCapture();if(returningFromScroll){player.position=ForestSpawn;lastDryPosition=ForestSpawn;jumpAge=attackAge=-1;FollowPlayerCamera(100);}
         if(storyShu!=null){Destroy(storyShu.gameObject);storyShu=null;}shuPreviewCaptured=false;carryStarted=false;
         if(storyBoar!=null){Destroy(storyBoar.root.gameObject);storyBoar=null;}
@@ -32,6 +32,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(!StoryModeEnabled)return;
         if(journeyStage==JourneyStage.Off)ResetStoryJourney();
         if(fatherIntroActive||ManualStoryDialogueActive)return;
+        if(UpdateRestorationEnding(dt))return;
         if(UpdateAfterCaptureStory(dt))return;
         if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold){SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;boarPassStart=new Vector3(Mathf.Min(Feet.x-12,RiverX(0)-10),0,0);storyBoar.root.position=boarPassStart;Tell("A great boar bursts out of the western woods!");}
         if(journeyStage==JourneyStage.BoarPass){UpdateBoarPass(dt);return;}
