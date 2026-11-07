@@ -97,6 +97,7 @@ public partial class ObliqueForest : MonoBehaviour {
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--boar-marker-check")>=0)StartCoroutine(CheckBoarMarker());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shu-confrontation-check")>=0)StartCoroutine(CheckShuConfrontation());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--reel-preview")>=0)StartCoroutine(PreviewJourneyReel());
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--animal-circle-check")>=0)StartCoroutine(CheckAnimalCircle());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--restoration-preview")>=0)StartCoroutine(PreviewRestorationEnding());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--restoration-check")>=0)StartCoroutine(CheckRestorationEnding());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--journey-reel-check")>=0){reelPortalHost=new GameObject("Reel handoff test host").AddComponent<ReelPortalHost>();reelPortalHost.StartCoroutine(CheckJourneyReel());}
