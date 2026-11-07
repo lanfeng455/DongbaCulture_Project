@@ -14,7 +14,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         while(!reelPortalHost.InLevel&&age<35){
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));
             if(Feet.x>34&&!blended){yield return new WaitForEndOfFrame();CaptureSceneToTexture(folder+"/forest-to-reel.png");blended=true;}
-            if(Feet.x>65&&!third){yield return new WaitForEndOfFrame();CaptureSceneToTexture(folder+"/third-page.png");third=true;}
+            if(journeyReelData!=null&&Feet.x>JourneyReelStart+journeyReelData.beats[2].x/JourneyReelPixelsPerUnit&&!third){yield return new WaitForEndOfFrame();CaptureSceneToTexture(folder+"/third-page.png");third=true;}
             age+=Time.unscaledDeltaTime;yield return null;
         }
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());
@@ -44,7 +44,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void WriteJourneyFrame(string path){var rt=new RenderTexture(1280,720,24);var output=new Texture2D(1280,720,TextureFormat.RGB24,false);RenderJourneyFrame(rt,output);File.WriteAllBytes(path,output.EncodeToPNG());rt.Release();Destroy(rt);Destroy(output);}
     bool reelCheckRecording;
     IEnumerator RecordJourneyReel(string folder){
-        Directory.CreateDirectory(folder+"/frames");int frame=0;var rt=new RenderTexture(960,540,24);var output=new Texture2D(960,540,TextureFormat.RGB24,false);
+        Directory.CreateDirectory(folder+"/frames");int frame=0;var rt=new RenderTexture(Screen.width,Screen.height,24);var output=new Texture2D(Screen.width,Screen.height,TextureFormat.RGB24,false);
         while(reelCheckRecording&&frame<1500){
             yield return new WaitForEndOfFrame();RenderJourneyFrame(rt,output);File.WriteAllBytes(folder+"/frames/"+(frame++).ToString("D4")+".png",output.EncodeToPNG());
         }
