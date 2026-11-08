@@ -22,7 +22,16 @@ public partial class ObliqueForest {
     TreeGlyphSet TreeLayers(string key,Sprite source){
         if(treeGlyphSets.TryGetValue(key,out var cached))return cached;
         var set=new TreeGlyphSet();set.trunk=Resources.Load<Sprite>("EcologyTreeV2/"+key+"_trunk");if(set.trunk==null)throw new InvalidOperationException("Missing derived source tree trunk layer: "+key);
-        for(int i=0;i<6;i++){set.leaves[i]=Resources.Load<Sprite>("EcologyTreeV2/"+key+"_leaf_"+i);set.greenLeaves[i]=set.leaves[i];if(set.leaves[i]==null||set.greenLeaves[i]==null)throw new InvalidOperationException("Missing derived source foliage layer: "+key+" / "+i);}
+        for(int i=0;i<6;i++){
+            // 必须用贴图导入时生成的 Sprite（Tight 网格），不能用 Sprite.Create 出来的 FullRect 全画布 sprite。
+            // 六个叶层的 FullRect sprite 网格完全一样、材质又是同一个共享实例，渲染器会被合批成一批，
+            // 整批只绑定其中一张 _MainTex —— 结果是六层都画同一根笔触（树只剩树干 + 一根弧线），
+            // 而合批里的“第一张”随相机移动变化，那根笔触就忽隐忽现。Tight 网格让每层网格各不相同，
+            // 就不会被错误合批，六层各自采样自己的贴图。
+            var leafSprite=Resources.Load<Sprite>("EcologyTreeV2/"+key+"_leaf_"+i);
+            if(leafSprite==null)throw new InvalidOperationException("Missing derived source foliage layer: "+key+" / "+i);
+            set.leaves[i]=leafSprite;set.greenLeaves[i]=leafSprite;
+        }
         if(pieceCatalog==null)pieceCatalog=JsonUtility.FromJson<PieceCatalog>(Resources.Load<TextAsset>("EcologyTreeV2/pieces").text);
         for(int i=0;i<6;i++){set.pieces[i]=Resources.Load<Sprite>("EcologyTreeV2/"+key+"_leaf_"+i+"_piece");foreach(var p in pieceCatalog.pieces)if(p.key==key+"_leaf_"+i)set.pieceOffsets[i]=new Vector3(p.x,p.y,0);}
         treeGlyphSets.Add(key,set);return set;
@@ -53,7 +62,7 @@ public partial class ObliqueForest {
         b.renderer=b.art.GetComponent<SpriteRenderer>();b.renderer.color=Color.white;b.renderer.flipX=false;
         b.shadow=Billboard("Shadow",b.root,shadow,tree?1.1f:.3f,true);b.initialShadowScale=b.shadow.localScale;
         b.initialScale=b.art.localScale;b.fullGlyph=b.renderer.sprite;
-        if(tree){var set=TreeLayers(key,b.fullGlyph);b.renderer.sprite=set.trunk;b.leafImages=new SpriteRenderer[set.leaves.Length];b.greenLeafImages=new SpriteRenderer[set.leaves.Length];b.leafAmounts=new float[set.leaves.Length];b.leafHeight01=new float[set.leaves.Length];b.leafAttached=new bool[set.leaves.Length];float low=float.PositiveInfinity,high=float.NegativeInfinity;for(int i=0;i<set.pieceOffsets.Length;i++){low=Mathf.Min(low,set.pieceOffsets[i].y);high=Mathf.Max(high,set.pieceOffsets[i].y);}for(int i=0;i<set.leaves.Length;i++){var leaf=new GameObject("Original tree foliage stroke / " + i).transform;leaf.SetParent(b.art,false);leaf.localPosition=Vector3.zero;leaf.localRotation=Quaternion.identity;leaf.localScale=Vector3.one;var image=leaf.gameObject.AddComponent<SpriteRenderer>();image.sprite=set.leaves[i];image.sharedMaterial=rootGrowthInk;image.sortingOrder=b.renderer.sortingOrder;image.color=Color.white;b.leafImages[i]=image;var green=new GameObject("Toned foliage overlay / " + i).transform;green.SetParent(b.art,false);green.localPosition=Vector3.zero;green.localRotation=Quaternion.identity;green.localScale=Vector3.one;var greenImage=green.gameObject.AddComponent<SpriteRenderer>();greenImage.sprite=set.greenLeaves[i];greenImage.sortingOrder=b.renderer.sortingOrder+1;greenImage.enabled=false;b.greenLeafImages[i]=greenImage;b.leafAmounts[i]=1;b.leafAttached[i]=true;b.leafHeight01[i]=Mathf.InverseLerp(low,high,set.pieceOffsets[i].y);}var r=b.fullGlyph.rect;
+        if(tree){var set=TreeLayers(key,b.fullGlyph);b.renderer.sprite=set.trunk;b.leafImages=new SpriteRenderer[set.leaves.Length];b.greenLeafImages=new SpriteRenderer[set.leaves.Length];b.leafAmounts=new float[set.leaves.Length];b.leafHeight01=new float[set.leaves.Length];b.leafAttached=new bool[set.leaves.Length];float low=float.PositiveInfinity,high=float.NegativeInfinity;for(int i=0;i<set.pieceOffsets.Length;i++){low=Mathf.Min(low,set.pieceOffsets[i].y);high=Mathf.Max(high,set.pieceOffsets[i].y);}for(int i=0;i<set.leaves.Length;i++){var leaf=new GameObject("Original tree foliage stroke / " + i).transform;leaf.SetParent(b.art,false);leaf.localPosition=Vector3.zero;leaf.localRotation=Quaternion.identity;leaf.localScale=Vector3.one;var image=leaf.gameObject.AddComponent<SpriteRenderer>();image.sprite=set.leaves[i];image.sharedMaterial=rootGrowthInk;image.sortingOrder=b.renderer.sortingOrder+i+1;image.color=Color.white;b.leafImages[i]=image;var green=new GameObject("Toned foliage overlay / " + i).transform;green.SetParent(b.art,false);green.localPosition=Vector3.zero;green.localRotation=Quaternion.identity;green.localScale=Vector3.one;var greenImage=green.gameObject.AddComponent<SpriteRenderer>();greenImage.sprite=set.greenLeaves[i];greenImage.sortingOrder=b.renderer.sortingOrder+1;greenImage.enabled=false;b.greenLeafImages[i]=greenImage;b.leafAmounts[i]=1;b.leafAttached[i]=true;b.leafHeight01[i]=Mathf.InverseLerp(low,high,set.pieceOffsets[i].y);}var r=b.fullGlyph.rect;
             // The three dictionary trees have different root strokes. Use a wider base crop so none of those
             // lower strokes fall outside the stump, while stumpScale below keeps the same on-screen height.
             b.stumpGlyph=Sprite.Create(b.fullGlyph.texture,new Rect(r.x+r.width*.39f,r.y,r.width*.22f,r.height*.14f),new Vector2(.5f,0),100);b.stumpScale=.42f/b.stumpGlyph.bounds.size.y;}
@@ -83,7 +92,7 @@ public partial class ObliqueForest {
             var p=center+new Vector3((mark.x-342)*unit,0,(390-mark.y)*unit/cam.transform.up.z);
             var anchor=new GameObject("Ground decoration (not a Dongba character)").transform;anchor.position=p;
             var art=Billboard("Ground strokes",anchor,dictionarySprites[mark.key],Mathf.Max(.015f,mark.height*unit));
-            art.GetComponent<SpriteRenderer>().sortingOrder=98-Mathf.RoundToInt(p.z*10);
+            art.GetComponent<SpriteRenderer>().sortingOrder=GroundDepthOrder(p.z);
         }
         // Each large tree now owns a centered ground range instead of an offset cluster wash.
     }

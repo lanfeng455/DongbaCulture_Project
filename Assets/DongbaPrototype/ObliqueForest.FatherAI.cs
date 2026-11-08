@@ -9,7 +9,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(delta.magnitude>1.4f)MoveStoryFatherToward(fatherHuntTarget.root.position,2.8f,dt);
         else if(fatherSwingAge<0&&clock>=fatherNextSwing){fatherSwingAge=0;fatherSwingHit=false;fatherNextSwing=clock+1;}
         if(fatherSwingAge>=0){fatherSwingAge+=dt;if(fatherSwingAge>=.25f&&!fatherSwingHit){fatherSwingHit=true;if(delta.magnitude<1.9f)ApplyFatherLightHit(fatherHuntTarget);}if(fatherSwingAge>.6f)fatherSwingAge=-1;}
-        storyFatherImage.sortingOrder=100-Mathf.RoundToInt(storyFatherRoot.position.z*10);return true;
+        storyFatherImage.sortingOrder=DepthOrder(storyFatherRoot.position.z);return true;
     }
     void ApplyFatherLightHit(Being target){if(target==null||target.health<=0)return;target.fatherHalfHits++;target.angry=true;if(target.fatherHalfHits%2==0)ApplyEcologyHit(target);if(target.health<=0){target.root.gameObject.SetActive(false);fatherHuntTarget=null;}}
     void UpdateFatherKnifeAnimation(){if(storyFatherKnifeImage==null)return;if(fatherSwingAge>=0&&fatherHuntTarget==null){fatherSwingAge+=Time.deltaTime;if(fatherSwingAge>.6f)fatherSwingAge=-1;}storyFatherKnifeImage.enabled=StoryModeEnabled&&!fatherIntroActive&&journeyStage==JourneyStage.Hunting&&fatherSwingAge>=0;float angle=fatherSwingAge>=0?Mathf.Sin(fatherSwingAge/.6f*Mathf.PI)*-95:0;storyFatherKnifeImage.transform.localRotation=Quaternion.Euler(0,0,angle);}

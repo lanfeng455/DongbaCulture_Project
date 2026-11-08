@@ -144,7 +144,7 @@ public partial class ObliqueForest {
     void EnsureScrollWorld(){
         if(scrollWorld!=null){scrollWorld.SetActive(true);return;}scrollWorld=new GameObject("Playable rescue scroll staging area / puzzle scene integration pending");
         var ground=GameObject.CreatePrimitive(PrimitiveType.Plane);ground.name="Scroll paper ground";ground.transform.SetParent(scrollWorld.transform);ground.transform.position=new Vector3(108,-.015f,70);ground.transform.localScale=new Vector3(6,1,3);var material=new Material(groundMaterial);material.SetFloat("_Decline",0);ground.GetComponent<Renderer>().sharedMaterial=material;ground.GetComponent<Renderer>().sortingOrder=-10000;
-        for(int i=0;i<6;i++){var tree=Billboard("Existing dictionary tree on scroll",scrollWorld.transform,dictionarySprites["plant_"+(i%3).ToString("00")],2.8f+(i%2)*.3f);tree.position=new Vector3(99+i*4.5f,0,70+(i%2==0?5:-5));tree.GetComponent<SpriteRenderer>().sortingOrder=100-Mathf.RoundToInt(tree.position.z*10);}
+        for(int i=0;i<6;i++){var tree=Billboard("Existing dictionary tree on scroll",scrollWorld.transform,dictionarySprites["plant_"+(i%3).ToString("00")],2.8f+(i%2)*.3f);tree.position=new Vector3(99+i*4.5f,0,70+(i%2==0?5:-5));tree.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(tree.position.z);}
     }
     string AfterCaptureObjective(){
         if(journeyStage==JourneyStage.Captured||journeyStage==JourneyStage.WaitingAtHearth)return "STORY  Waiting for Father — three days and three nights";

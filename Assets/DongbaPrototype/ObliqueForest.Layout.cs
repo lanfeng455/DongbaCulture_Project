@@ -91,7 +91,7 @@ public partial class ObliqueForest {
         float a=(float)rng.NextDouble()*Mathf.PI*2,r=.8f+(float)rng.NextDouble()*1.4f;var p=center+new Vector3(Mathf.Cos(a)*r,0,Mathf.Sin(a)*r);if(River(p)||InClearing(p))return;
         float markHeight=.16f+(float)rng.NextDouble()*.12f;if(mark.key=="mark_00")return; // Preserve placement RNG, omit oversized horizontal decoration.
         var root=new GameObject("Dictionary ground strokes / source mark").transform;root.position=p;var art=Billboard("Small ground strokes",root,dictionarySprites[mark.key],markHeight);
-        var image=art.GetComponent<SpriteRenderer>();image.color=new Color(1,1,1,.72f);image.sortingOrder=98-Mathf.RoundToInt(p.z*10);
+        var image=art.GetComponent<SpriteRenderer>();image.color=new Color(1,1,1,.72f);image.sortingOrder=GroundDepthOrder(p.z);
     }
     void PlaceForestAnimals(){
         Vector3[] spots={new Vector3(-32,0,-.2f),new Vector3(-33.8f,0,.9f),new Vector3(-30.6f,0,1.2f),new Vector3(-19,0,-1.1f),new Vector3(-20.6f,0,.3f),new Vector3(-17.2f,0,.6f),new Vector3(-8,0,-3f),new Vector3(-9.3f,0,-1.7f),new Vector3(-7,0,4.2f),new Vector3(-9,0,4.7f),new Vector3(8,0,-3.6f),new Vector3(9.5f,0,-2.6f),new Vector3(7,0,-1.4f),new Vector3(8,0,4f),new Vector3(9.4f,0,3.1f),new Vector3(6.5f,0,2.6f),new Vector3(11,0,-2),new Vector3(12.5f,0,1),new Vector3(13.5f,0,3.8f),new Vector3(32,0,-.8f),new Vector3(33.5f,0,.4f),new Vector3(-38,0,0),new Vector3(-37,0,-1.8f),new Vector3(38,0,.2f),new Vector3(37,0,-1.7f)};
@@ -106,7 +106,10 @@ public partial class ObliqueForest {
     RectTransform UIBlock(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size){var t=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();t.SetParent(parent,false);t.anchorMin=t.anchorMax=anchor;t.pivot=pivot;t.anchoredPosition=pos;t.sizeDelta=size;return t;}
     Text UILabel(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size,int fontSize,string content){var r=UIBlock(name,parent,anchor,pivot,pos,size);var label=r.gameObject.AddComponent<Text>();label.font=forestFont;label.fontSize=fontSize;label.color=uiInk;label.text=content;label.raycastTarget=false;label.supportRichText=false;label.resizeTextForBestFit=false;label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;return label;}
     void SetupForestHUD(){
-        forestFont=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");var go=new GameObject("Forest HUD / fixed safe margins",typeof(RectTransform));forestCanvas=go.AddComponent<Canvas>();forestCanvas.renderMode=RenderMode.ScreenSpaceCamera;forestCanvas.worldCamera=cam;forestCanvas.planeDistance=1;forestCanvas.sortingOrder=1000;
+        forestFont=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");var go=new GameObject("Forest HUD / fixed safe margins",typeof(RectTransform));forestCanvas=go.AddComponent<Canvas>();forestCanvas.renderMode=RenderMode.ScreenSpaceCamera;forestCanvas.worldCamera=cam;forestCanvas.planeDistance=1;
+        // HUD 必须画在所有森林物件之上。DepthOrder 基准为 20000，最远树（z≈-21）的叶层最高约 28407；
+        // 这里取基准 + 10000 作为 HUD 排序，预留足够余量，避免树冠/动物/父亲等透明物体盖住对话框与血条。
+        forestCanvas.sortingOrder=k_DepthOrderBase+10000;
         var scaler=go.AddComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1600,900);scaler.matchWidthOrHeight=.5f;
         BuildQuietForestHUD(go);
         var ring=new GameObject("Nearby interaction / non-script ink ring");selectionRing=ring.transform;var line=ring.AddComponent<LineRenderer>();line.sharedMaterial=Mat(Color.white);line.useWorldSpace=false;line.loop=true;line.positionCount=40;line.widthMultiplier=.022f;line.startColor=line.endColor=new Color(.44f,.28f,.13f,.50f);line.sortingOrder=-59;

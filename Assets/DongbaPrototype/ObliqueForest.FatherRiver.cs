@@ -13,7 +13,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(storyFatherArt==null||storyFatherImage==null||!storyFatherRoot.gameObject.activeInHierarchy)return;
         float lift=fatherJumpAge>=0?Mathf.Sin(fatherJumpAge/FatherRiverJumpDuration*Mathf.PI)*1.45f:carryStarted?0:.02f*Mathf.Sin(clock*2.4f+storyFather.phase);
         storyFatherArt.localPosition=Vector3.up*lift;
-        if(!carryStarted)storyFatherImage.sortingOrder=100-Mathf.RoundToInt(storyFatherRoot.position.z*10);
+        if(!carryStarted)storyFatherImage.sortingOrder=DepthOrder(storyFatherRoot.position.z);
     }
     bool StoryFatherWalkingSegmentClear(Vector3 from,Vector3 to){
         int samples=Mathf.Max(1,Mathf.CeilToInt(Vector3.Distance(from,to)/.1f));

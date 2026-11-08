@@ -181,7 +181,7 @@ public partial class ObliqueForest {
             b.navRefresh=Mathf.Min(b.navRefresh,clock+.5f);
         }
         if(b.migrationState==3&&!HasAnimalRoute(b)&&Vector3.Distance(b.root.position,b.home)<2){b.migrationState=0;b.fleeing=false;b.socialReadyAt=clock+4;}
-        b.art.localPosition=new Vector3(0,.025f*Mathf.Sin(clock*3+b.phase),0);b.renderer.color=AnimalEcologyTint();b.renderer.sortingOrder=100-Mathf.RoundToInt(b.root.position.z*10);
+        b.art.localPosition=new Vector3(0,.025f*Mathf.Sin(clock*3+b.phase),0);b.renderer.color=AnimalEcologyTint();b.renderer.sortingOrder=DepthOrder(b.root.position.z);
         if(b.angry&&Vector3.Distance(Feet,b.root.position)<.85f&&b.cooldown<=0&&damageCooldown<=0&&hop<.4f){health--;damageCooldown=1;b.cooldown=1.5f;Tell("The animal is defending itself");if(health<=0){player.position=ForestSpawn;lastDryPosition=player.position;health=5;b.angry=false;}}
     }
 }

@@ -134,6 +134,15 @@ public partial class ObliqueForest : MonoBehaviour {
         for(int i=0;i<=segments;i++){float z=-20+i*.25f;for(int j=0;j<rows;j++){float u=(j-3)/3f;verts[i*rows+j]=new Vector3(RiverX(z)+u*1.35f,.015f,z);colors[i*rows+j]=new Color(.39f,.59f,.64f,(1-Mathf.Abs(u))*.28f);if(i<segments&&j<rows-1){int a=i*rows+j;tris[k++]=a;tris[k++]=a+rows;tris[k++]=a+1;tris[k++]=a+1;tris[k++]=a+rows;tris[k++]=a+rows+1;}}}
         var mesh=new Mesh();mesh.vertices=verts;mesh.colors=colors;mesh.triangles=tris;mesh.RecalculateNormals();var river=new GameObject("Stationary river wash / full map");river.AddComponent<MeshFilter>().mesh=mesh;river.AddComponent<MeshRenderer>().material=Mat(Color.white);river.GetComponent<MeshRenderer>().sortingOrder=-90;
     }
+    // 2.5D 深度排序：以 0.02 米为一个 z 桶，每桶独占 8 个 sortingOrder 槽位。
+    // 槽 0 = 树/物件本体，1~6 = 六层树冠笔触，7 = 落叶与斧头等最上层特效。
+    // 旧写法 100-RoundToInt(z*10) 只有 0.1 米分辨率，相距不到 0.7 米的两棵树会共用并交错 order；
+    // 透明渲染同 order 时按到相机距离排序，相机一移动就整块翻面，树冠因此忽隐忽现、碎成几块。
+    const int k_DepthOrderBase=20000;
+    const float k_DepthOrderBucketMeters=.02f;
+    const int k_DepthOrderStride=8;
+    int DepthOrder(float z){return k_DepthOrderBase-Mathf.RoundToInt(z/k_DepthOrderBucketMeters)*k_DepthOrderStride;}
+    int GroundDepthOrder(float z){return DepthOrder(z)-1;}
     float RiverX(float z){return 2+Mathf.Sin(z*.18f)*2.05f;} bool River(Vector3 p){return Mathf.Abs(p.x-RiverX(p.z))<1.05f;}
     void AddPlant(Vector3 p,bool tree,int index){AddDictionaryPlant(p,tree,index);}
     void AddAnimal(Vector3 p,int species=-1){AddDictionaryAnimal(p,species);}
@@ -149,9 +158,9 @@ public partial class ObliqueForest : MonoBehaviour {
         if(attackAge>=0){attackAge+=dt;axe.gameObject.SetActive(true);axe.localPosition=Vector3.zero;float swing=attackAge<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,attackAge/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(attackAge-.16f)/.3f));axe.localRotation=Quaternion.Euler(0,0,facing*swing);var axeScale=axe.localScale;axeScale.x=Mathf.Abs(axeScale.x)*facing;axe.localScale=axeScale;if(attackAge>.25f&&!hit){hit=true;StrikeTrees();StrikeStoryBoar();foreach(var b in animals){Vector3 d=b.root.position-Feet;if(b.health>0&&d.magnitude<2&&Vector3.Dot(d.normalized,heading)>.15f){ApplyEcologyHit(b);b.angry=true;var p=b.root.position+heading*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);}}}if(attackAge>.62f){attackAge=-1;axe.gameObject.SetActive(false);}}
         foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;
             if(b.tree){bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
-            b.renderer.sortingOrder=100-Mathf.RoundToInt(b.home.z*10);if(!b.tree)Fade(b);
+            b.renderer.sortingOrder=DepthOrder(b.home.z);if(!b.tree)Fade(b);
         }
-        playerImage.sortingOrder=100-Mathf.RoundToInt(Feet.z*10);axe.GetComponent<SpriteRenderer>().sortingOrder=playerImage.sortingOrder+1;
+        playerImage.sortingOrder=DepthOrder(Feet.z);axe.GetComponent<SpriteRenderer>().sortingOrder=playerImage.sortingOrder+k_DepthOrderStride-1;
         if(!tonePreviewFreezeAnimals&&!AfterCapturePeaceful)foreach(var b in animals)UpdateAnimalEcology(b,dt,hop);
         UpdatePopulation(dt);UpdateEcologyParticles(dt);UpdateStoryFatherFollow(dt);
         for(int i=0;i<water.Count;i++)water[i].position=waterOrigins[i]+Vector3.right*(.06f*Mathf.Sin(clock*Mathf.PI*2/2.2f-i*.35f));
@@ -328,7 +337,9 @@ public partial class ObliqueForest : MonoBehaviour {
             float scale=Mathf.Lerp(.035f,1,growth);
             image.transform.localPosition=anchor*(1-scale);
             image.transform.localScale=new Vector3(scale,scale,1);
-            image.sortingOrder=tree.renderer.sortingOrder;
+            // 树干与叶层原本共用同一个 sortingOrder 且位置完全共面，透明渲染在相机移动时排序会翻转，
+            // 表现为整块枝叶忽隐忽现；给每层叶稳定递增的 order，保证叶层始终画在树干之上。
+            image.sortingOrder=tree.renderer.sortingOrder+i+1;
             image.color=new Color(1,1,1,cutFade*tree.inkOpacity);image.enabled=amount>.001f&&cutFade>0;
             tree.greenLeafImages[i].enabled=false;
         }
@@ -345,7 +356,7 @@ public partial class ObliqueForest : MonoBehaviour {
     }
     void SpawnFallingLeaf(Being tree,int group){
         EcologyParticle p=null;for(int i=0;i<fallingLeaves.Count;i++)if(!fallingLeaves[i].transform.gameObject.activeSelf){p=fallingLeaves[i];break;}if(p==null)return;
-        var layers=treeGlyphSets[tree.glyphKey];p.renderer.sprite=layers.pieces[group];p.renderer.enabled=true;p.renderer.color=Color.white;p.renderer.sortingOrder=tree.renderer.sortingOrder+1;
+        var layers=treeGlyphSets[tree.glyphKey];p.renderer.sprite=layers.pieces[group];p.renderer.enabled=true;p.renderer.color=Color.white;p.renderer.sortingOrder=tree.renderer.sortingOrder+7;
         p.transform.position=tree.art.TransformPoint(layers.pieceOffsets[group]);p.initialRotation=tree.art.rotation;p.transform.rotation=p.initialRotation;p.transform.localScale=tree.art.lossyScale;p.age=0;p.duration=1.25f+(group%3)*.12f;p.spin=(group%2==0?1:-1)*(42f+group*7f);
         p.velocity=Vector3.down*(.30f+(group%3)*.08f)+cam.transform.right*((group%2==0?1:-1)*(.18f+(group%3)*.04f));p.transform.gameObject.SetActive(true);
     }
@@ -380,7 +391,7 @@ public partial class ObliqueForest : MonoBehaviour {
     static float FlowerScatter(int index,int salt){unchecked{uint h=(uint)(index*374761393+salt*668265263);h=(h^(h>>13))*1274126177u;return (h&65535)/65535f;}}
     void SpawnFlower(Vector3 groundPosition){
         EcologyParticle p=null;for(int i=0;i<flowerTrail.Count;i++)if(!flowerTrail[i].transform.gameObject.activeSelf){p=flowerTrail[i];break;}if(p==null)return;
-        p.renderer.sprite=flowerGlyph;p.renderer.enabled=true;p.renderer.color=new Color(.82f,.34f,.49f,0);p.renderer.sortingOrder=98-Mathf.RoundToInt(groundPosition.z*10);
+        p.renderer.sprite=flowerGlyph;p.renderer.enabled=true;p.renderer.color=new Color(.82f,.34f,.49f,0);p.renderer.sortingOrder=GroundDepthOrder(groundPosition.z);
         p.transform.position=new Vector3(groundPosition.x,.035f,groundPosition.z);p.transform.rotation=billboard;p.transform.localScale=Vector3.zero;p.scale=(.85f*.25f)/Mathf.Max(.001f,flowerGlyph.bounds.size.y);p.age=0;p.duration=2f;p.inkOpacity=FlowerInkOpacity();p.transform.gameObject.SetActive(true);flowerMarksSpawned++;
     }
     Vector3 PreviewWalkDirection(){
@@ -425,7 +436,7 @@ public partial class ObliqueForest : MonoBehaviour {
         storyFatherArt=Billboard(StoryFatherGlyph!=null?"Father glyph (user supplied)":"Father placeholder marker - not a Dongba glyph",storyFatherRoot,glyph,height);
         storyFatherImage=storyFatherArt.GetComponent<SpriteRenderer>();storyFather.renderer=storyFatherImage;storyFather.art=storyFatherArt;
         storyFather.initialScale=storyFatherArt.localScale;storyFatherImage.color=StoryFatherGlyph!=null?Color.white:new Color(.34f,.23f,.13f,.9f);
-        storyFatherImage.sortingOrder=100-Mathf.RoundToInt(storyFatherRoot.position.z*10);
+        storyFatherImage.sortingOrder=DepthOrder(storyFatherRoot.position.z);
         var knifeTexture=Resources.Load<Texture2D>("ApprovedArt/father_knife");
         var knifeObject=new GameObject("Father knife - user dictionary crop").transform;knifeObject.SetParent(storyFatherArt,false);
         knifeObject.localPosition=new Vector3(glyph.bounds.size.x*(.84f-.5f),glyph.bounds.size.y*.37f,-.001f);knifeObject.localScale=Vector3.one*(glyph.bounds.size.y/(knifeTexture.height/100f)*.135f);

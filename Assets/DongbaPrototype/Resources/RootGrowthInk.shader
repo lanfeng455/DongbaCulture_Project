@@ -4,8 +4,15 @@ SubShader { Tags {"Queue"="Transparent" "RenderType"="Transparent" "CanUseSprite
 Pass { CGPROGRAM
 #pragma vertex vert
 #pragma fragment frag
+#pragma target 3.0
 #include "UnityCG.cginc"
-sampler2D _MainTex; float _Growth; fixed4 _Green;
+// 材质参数放进 UnityPerMaterial：让这个 shader 兼容 SRP Batcher。
+// 不写 CBUFFER 时 URP 会走非批处理器的旧路径，多个“同材质 + 同网格”的 SpriteRenderer
+// 会被并到一批、整批只取一张 _MainTex，六层树冠笔触就都画成同一根。
+CBUFFER_START(UnityPerMaterial)
+float _Growth; fixed4 _Green;
+CBUFFER_END
+sampler2D _MainTex;
 struct app {float4 vertex:POSITION;float2 uv:TEXCOORD0;fixed4 color:COLOR;};
 struct v2f {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;fixed4 color:COLOR;};
 v2f vert(app v){v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;o.color=v.color;return o;}

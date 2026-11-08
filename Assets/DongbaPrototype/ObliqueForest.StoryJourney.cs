@@ -50,7 +50,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health<=0){
             journeyStage=JourneyStage.Leaving;knifeDropPoint=storyBoar.root.position;
             var source=Get("father_knife");droppedKnife=Billboard("Lost father knife",null,source,.20f);droppedKnife.position=knifeDropPoint;
-            droppedKnife.GetComponent<SpriteRenderer>().sortingOrder=100-Mathf.RoundToInt(knifeDropPoint.z*10);droppedKnife.gameObject.SetActive(false);
+            droppedKnife.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(knifeDropPoint.z);droppedKnife.gameObject.SetActive(false);
             if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
             BeginManualStoryDialogue(new[]{"Father: We have enough. Let us cross back over the river and go home."});return;
         }
@@ -88,14 +88,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             float speed=Mathf.Lerp(6,25,Mathf.SmoothStep(0,1,(grabAge-.55f)/.65f));Vector3 travel=new Vector3(1,0,.18f).normalized*speed*dt;
             storyShu.position+=travel;storyFatherRoot.position=storyShu.position+carryOffset;
         }
-        shuImage.sortingOrder=100-Mathf.RoundToInt(storyShu.position.z*10);storyFatherImage.color=Color.white;storyFatherImage.sortingOrder=shuImage.sortingOrder+1;
+        shuImage.sortingOrder=DepthOrder(storyShu.position.z);storyFatherImage.color=Color.white;storyFatherImage.sortingOrder=shuImage.sortingOrder+k_DepthOrderStride-1;
         if(grabAge>.7f&&!shuPreviewCaptured){shuPreviewCaptured=true;if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)CaptureSceneToTexture("Verification/story-journey/shu-capture.png");}
         if(carryStarted&&SpriteOutsideStoryView(shuImage)&&SpriteOutsideStoryView(storyFatherImage)){
             storyShu.gameObject.SetActive(false);storyFatherRoot.gameObject.SetActive(false);journeyStage=JourneyStage.Captured;storyOpeningState=StoryOpeningState.Captured;
             if(!captureEventSent){captureEventSent=true;FatherCaptured?.Invoke();}BeginManualStoryDialogue(new[]{"Father has been taken by Shu."});
         }
     }
-    void EnsureStoryShu(){if(storyShu!=null)return;storyShu=Billboard("Shu / dictionary PDF409 printed337",null,Get("shu_glyph"),2.6f);storyShu.position=knifeDropPoint+new Vector3(1.5f,0,.5f);var r=storyShu.GetComponent<SpriteRenderer>();r.color=Color.white;r.sortingOrder=100-Mathf.RoundToInt(storyShu.position.z*10);}
+    void EnsureStoryShu(){if(storyShu!=null)return;storyShu=Billboard("Shu / dictionary PDF409 printed337",null,Get("shu_glyph"),2.6f);storyShu.position=knifeDropPoint+new Vector3(1.5f,0,.5f);var r=storyShu.GetComponent<SpriteRenderer>();r.color=Color.white;r.sortingOrder=DepthOrder(storyShu.position.z);}
     bool SpriteOutsideStoryView(SpriteRenderer r){var b=r.bounds;float minX=10,maxX=-10,minY=10,maxY=-10;for(int i=0;i<8;i++){var p=cam.WorldToViewportPoint(new Vector3((i&1)==0?b.min.x:b.max.x,(i&2)==0?b.min.y:b.max.y,(i&4)==0?b.min.z:b.max.z));minX=Mathf.Min(minX,p.x);maxX=Mathf.Max(maxX,p.x);minY=Mathf.Min(minY,p.y);maxY=Mathf.Max(maxY,p.y);}return maxX<-.12f||minX>1.12f||maxY<-.12f||minY>1.12f;}
 
     static readonly float[] FatherSteeringAngles={0,35,-35,70,-70,90,-90};
