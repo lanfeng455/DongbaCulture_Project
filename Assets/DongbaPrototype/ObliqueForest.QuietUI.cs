@@ -49,7 +49,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void RefreshQuietHUD(){
         uiMode.text=StoryModeEnabled?"STORY MODE":"SANDBOX";
         for(int i=0;i<uiHealthPips.Length;i++)uiHealthPips[i].color=i<health?new Color(.57f,.20f,.14f,1):new Color(.37f,.30f,.21f,.22f);
-        bool dialogue=RestorationArrivalLocked||fatherIntroActive||ManualStoryDialogueActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
+        bool dialogue=(NarrativePreview&&StoryModeEnabled&&(NarrativeInputLocked||journeyStage==JourneyStage.ReturnForKnife))||RestorationArrivalLocked||fatherIntroActive||ManualStoryDialogueActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
         uiHelpShortcut.SetActive(!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiHelpPanel.SetActive(uiHelpOpen&&!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiCoreHints.SetActive(clock<12&&!dialogue&&!uiHelpOpen&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);
         uiNoticePanel.SetActive(!dialogue&&hudNotice.text.Length>0);
         if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(StoryModeEnabled&&!dialogue&&journeyStage!=JourneyStage.ScrollTransition);

@@ -40,7 +40,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }tree.targetScale=Mathf.MoveTowards(tree.targetScale,1,dt/14f);if(tree.targetScale>=.85f)grown++;}
         if(clock>=restorationWildlifeAt){restorationWildlifeAt=clock+(TryRestoreWildlife(grown)?12:3);}
         if(journeyStage==JourneyStage.RestorationPlay&&restorationReplanted.Count>=2&&grown>=2&&Balance>=FlourishThreshold&&ecologyVisual>.8f){
-            journeyStage=JourneyStage.RestorationComplete;BeginManualStoryDialogue(new[]{"Gaolequ: I will keep caring for this forest."});ForestRestorationCompleted?.Invoke();
+            journeyStage=JourneyStage.RestorationComplete;if(NarrativePreview)BeginNarrativeClosing();else BeginManualStoryDialogue(new[]{"Gaolequ: I will keep caring for this forest."});ForestRestorationCompleted?.Invoke();
         }
         return true;
     }
