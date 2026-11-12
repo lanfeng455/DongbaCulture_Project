@@ -78,7 +78,7 @@ public class ReelPortalHost:MonoBehaviour {
         float time=0;Rect current=start;
         while(time<1){
             float dt=Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime;
-            time+=dt/1.8f;
+            time+=dt/(outgoingReel?2.8f:1.8f);
             Vector3 travel=outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero;
             if(outgoingReel)EntryTravel=travel.magnitude;
             float u=Mathf.Clamp01(time);float ease=u*u*u*(u*(u*6-15)+10);
@@ -93,7 +93,7 @@ public class ReelPortalHost:MonoBehaviour {
             Place(destinationBackdrop,new Rect(0,0,1,1));destinationBackdrop.uvRect=outgoingReel?new Rect(Vector2.one*.5f-newCenter/newScale,Vector2.one/newScale):new Rect(0,0,1,1);
             Rect reelUv=outgoingReel?backdrop.uvRect:destinationBackdrop.uvRect;MaxReelUvError=Mathf.Max(MaxReelUvError,(reelUv.size-Vector2.one).magnitude);
             if(outgoingReel){reelScroll+=WalkInput()*dt*.055f;WalkPaper(dt,1-ease);}
-            float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
+            float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(outgoingReel?.45f:.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
             yield return null;
         }
         destinationCamera.transform.position=nativePosition+(outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero);destinationCamera.orthographicSize=nativeZoom;
