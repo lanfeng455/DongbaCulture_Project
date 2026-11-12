@@ -9,6 +9,16 @@ using Ivan.Puzzle;
 using Ivan.Diorama;
 namespace DongbaPrototype {
 public class ReelPortalHost:MonoBehaviour {
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void OpenRequestedPreview(){
+        if(SceneManager.GetActiveScene().name!="Title")return;
+        foreach(var arg in Environment.GetCommandLineArgs())if(arg.StartsWith("--")&&(arg.EndsWith("-check")||arg.EndsWith("-preview")||arg.EndsWith("-capture"))){SceneManager.LoadScene("ObliqueForest");break;}
+    }
+    AsyncOperation preload; string preloadedScene; float walkingPhase, reelScroll;
+    public float EntryTravel {get;private set;}
+    public void Prepare(string scene){if(preload!=null||busy||!Application.CanStreamedLevelBeLoaded(scene))return;preloadedScene=scene;preload=SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);preload.allowSceneActivation=false;}
+    static float WalkInput(){var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
+    void WalkPaper(float dt,float weight){walkingPhase+=dt*Mathf.Abs(WalkInput())*11.2f;float angle=Mathf.Sin(walkingPhase)*1.25f*weight;fromActor.rectTransform.localRotation=Quaternion.Euler(0,0,angle);}
     Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
@@ -49,13 +59,16 @@ public class ReelPortalHost:MonoBehaviour {
         Place(fromActor,ActorRect(camera,actor));Place(toActor,ActorRect(camera,actor));backdrop.gameObject.SetActive(true);fromActor.gameObject.SetActive(true);
     }
     IEnumerator MatchActor(Rect start,Camera destinationCamera,SpriteRenderer destination,bool outgoingReel){
-        // Freeze actor world transforms. Only a real orthographic camera moves and zooms.
+        // On entry the real movement/collision motor stays live; only camera ownership changes.
         var rigidbody=destination.GetComponentInParent<Rigidbody>();bool wasKinematic=rigidbody!=null&&rigidbody.isKinematic;
         var oldInterpolation=rigidbody!=null?rigidbody.interpolation:RigidbodyInterpolation.None;var oldDetection=rigidbody!=null?rigidbody.collisionDetectionMode:CollisionDetectionMode.Discrete;
-        if(rigidbody!=null){if(!wasKinematic){rigidbody.linearVelocity=Vector3.zero;rigidbody.angularVelocity=Vector3.zero;}var held=rigidbody.transform.position;rigidbody.interpolation=RigidbodyInterpolation.None;rigidbody.collisionDetectionMode=CollisionDetectionMode.Discrete;rigidbody.isKinematic=true;rigidbody.position=held;}
+        if(rigidbody!=null&&!outgoingReel){if(!wasKinematic){rigidbody.linearVelocity=Vector3.zero;rigidbody.angularVelocity=Vector3.zero;}var held=rigidbody.transform.position;rigidbody.interpolation=RigidbodyInterpolation.None;rigidbody.collisionDetectionMode=CollisionDetectionMode.Discrete;rigidbody.isKinematic=true;rigidbody.position=held;}
+        var controller=destination.GetComponentInParent<DioramaPlayerController>();
+        Vector3 entryFeet=controller!=null?controller.transform.position:destination.transform.position;
+        if(outgoingReel&&controller!=null){controller.CameraHandoff=true;controller.enabled=true;controller.SetStageMovementLock(false);}
         Vector3 nativePosition=destinationCamera.transform.position;float nativeZoom=destinationCamera.orthographicSize;
         Rect end=ActorRect(destinationCamera,destination);
-        destinationBackgroundTexture=Background(destinationCamera,destination);destinationBackdrop.texture=destinationBackgroundTexture;destinationBackdrop.color=Color.white;destinationBackdrop.gameObject.SetActive(true);
+        destinationBackgroundTexture=Background(destinationCamera,destination);destinationBackdrop.texture=destinationBackgroundTexture;destinationBackdrop.color=Color.white;destinationBackdrop.gameObject.SetActive(!outgoingReel);
         toTexture=Portrait(destinationCamera,destination);toActor.texture=toTexture;toActor.gameObject.SetActive(true);destination.forceRenderingOff=true;
         float initialZoom=nativeZoom*end.height/Mathf.Max(.01f,start.height);destinationCamera.orthographicSize=initialZoom;
         Rect initial=ActorRect(destinationCamera,destination);
@@ -64,35 +77,42 @@ public class ReelPortalHost:MonoBehaviour {
         // A single continuous camera move changes position and lens together.
         float time=0;Rect current=start;
         while(time<1){
-            time+=(Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime)/1.8f;
+            float dt=Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime;
+            time+=dt/1.8f;
+            Vector3 travel=outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero;
+            if(outgoingReel)EntryTravel=travel.magnitude;
             float u=Mathf.Clamp01(time);float ease=u*u*u*(u*(u*6-15)+10);
-            destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease);
+            destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease)+travel;
             destinationCamera.orthographicSize=Mathf.Lerp(initialZoom,nativeZoom,ease);
             current=ActorRect(destinationCamera,destination);Place(fromActor,current);Place(toActor,current);
             // The reel is a fixed full-screen page: crossfade it without camera zoom.
             // Only the actor and the diorama world follow the camera projection.
             float oldScale=initialZoom/destinationCamera.orthographicSize,newScale=nativeZoom/destinationCamera.orthographicSize;
             Vector2 oldCenter=current.center+(Vector2.one*.5f-start.center)*oldScale,newCenter=current.center+(Vector2.one*.5f-end.center)*newScale;
-            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=outgoingReel?new Rect(0,0,1,1):new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
+            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=outgoingReel?new Rect(reelScroll,0,1,1):new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
             Place(destinationBackdrop,new Rect(0,0,1,1));destinationBackdrop.uvRect=outgoingReel?new Rect(Vector2.one*.5f-newCenter/newScale,Vector2.one/newScale):new Rect(0,0,1,1);
-            Rect reelUv=outgoingReel?backdrop.uvRect:destinationBackdrop.uvRect;MaxReelUvError=Mathf.Max(MaxReelUvError,reelUv.position.magnitude+(reelUv.size-Vector2.one).magnitude);
+            Rect reelUv=outgoingReel?backdrop.uvRect:destinationBackdrop.uvRect;MaxReelUvError=Mathf.Max(MaxReelUvError,(reelUv.size-Vector2.one).magnitude);
+            if(outgoingReel){reelScroll+=WalkInput()*dt*.055f;WalkPaper(dt,1-ease);}
             float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
             yield return null;
         }
-        destinationCamera.transform.position=nativePosition;destinationCamera.orthographicSize=nativeZoom;
+        destinationCamera.transform.position=nativePosition+(outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero);destinationCamera.orthographicSize=nativeZoom;
         Rect actual=ActorRect(destinationCamera,destination);Place(fromActor,actual);Place(toActor,actual);
         LastPositionErrorPixels=Vector2.Scale(current.center-actual.center,new Vector2(Screen.width,Screen.height)).magnitude;LastHeightErrorPixels=Mathf.Abs(current.height-actual.height)*Screen.height;
-        if(rigidbody!=null){rigidbody.isKinematic=wasKinematic;rigidbody.collisionDetectionMode=oldDetection;rigidbody.interpolation=oldInterpolation;}
+        if(outgoingReel&&controller!=null)controller.CameraHandoff=false;
+        fromActor.rectTransform.localRotation=Quaternion.identity;
+        if(rigidbody!=null&&!outgoingReel){rigidbody.isKinematic=wasKinematic;rigidbody.collisionDetectionMode=oldDetection;rigidbody.interpolation=oldInterpolation;}
         destination.forceRenderingOff=false;HideOverlay();ReleaseTextures();
     }
     IEnumerator EnterRoutine(string scene){
-        busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;
+        busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;EntryTravel=0;reelScroll=0;
         if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);resume?.Invoke();busy=false;yield break;}
         yield return new WaitForEndOfFrame(); // Capture after forest UI/ink fading has settled for this frame.
         var source=forest.ReelActorRenderer;var sourceCamera=forest.ReelViewCamera;var start=ActorRect(sourceCamera,source);BeginOverlay(sourceCamera,source);source.forceRenderingOff=true;
         forestScene=forest.gameObject.scene;forestDialogue=DialogueDisplay.Instance;if(forestDialogue!=null){forestDialogue.HideDialogue();forestDialogue.ReleaseForSceneHandoff();}
         hiddenRoots.Clear();foreach(var root in forestScene.GetRootGameObjects())if(root.activeSelf){hiddenRoots.Add(root);root.SetActive(false);}
-        var load=SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);while(!load.isDone)yield return null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
+        var load=preload!=null&&preloadedScene==scene?preload:SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);load.allowSceneActivation=true;
+        while(!load.isDone){float dt=Time.unscaledDeltaTime;reelScroll+=WalkInput()*dt*.055f;backdrop.uvRect=new Rect(reelScroll,0,1,1);WalkPaper(dt,1);yield return null;}preload=null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
         var controller=FindFirstObjectByType<DioramaPlayerController>();if(controller!=null)controller.SetStageMovementLock(true);
         yield return null;yield return new WaitForEndOfFrame();
         var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;if(controller!=null){controller.enabled=false;destinationCamera.transform.position=controller.transform.position+new Vector3(0,17,-20);}

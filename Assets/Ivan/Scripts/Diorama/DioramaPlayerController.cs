@@ -56,6 +56,8 @@ namespace Ivan.Diorama
         [Tooltip("谜题交互（按 E 优先触发谜题交互，没有可交互目标才走喂食/补种）")]
         [SerializeField] private PuzzleInteractor m_puzzleInteractor;
 
+        // The handoff owns the lens, but leaves the existing movement/collision motor running.
+        public bool CameraHandoff { get; set; }
         public SpriteRenderer BodyRenderer=>m_bodyImage;
         private SpriteRenderer m_bodyImage;
         private SpriteRenderer m_axeImage;
@@ -222,7 +224,7 @@ namespace Ivan.Diorama
             }
             move = Vector3.ClampMagnitude(move, 1f);
 
-            if (kb != null)
+            if (kb != null && !CameraHandoff)
             {
                 if (kb.spaceKey.wasPressedThisFrame && m_jumpAge < 0)
                 {
@@ -421,7 +423,7 @@ namespace Ivan.Diorama
         private void LateUpdate()
         {
             // 相机跟随：保持组员原版的正交偏移 (0,17,-20)
-            if (m_camera == null) return;
+            if (m_camera == null || CameraHandoff) return;
 
             // 首次拿到相机时记下它在场景里的 Z，作为 Z 锁定值（编辑态想调构图就移动相机）
             if (!m_cameraBaseZCaptured)

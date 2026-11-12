@@ -20,6 +20,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());
         log.AppendLine("Walking progressively reveals reel="+(blended&&third));log.AppendLine("First three pages reach real level="+reelPortalHost.InLevel);log.AppendLine("Reel textures above paper layer="+(journeyReelPanels[0].texture!=null&&journeyReelCanvas.sortingOrder>-100));
         if(reelPortalHost.InLevel){
+            log.AppendLine("Held walk moves real puzzle actor during entry="+(reelPortalHost.EntryTravel>1)+"; meters="+reelPortalHost.EntryTravel);
             log.AppendLine("Entry matches real actor within 2 pixels="+(reelPortalHost.LastPositionErrorPixels<2&&reelPortalHost.LastHeightErrorPixels<2)+"; position="+reelPortalHost.LastPositionErrorPixels+"; height="+reelPortalHost.LastHeightErrorPixels);
             yield return new WaitForSeconds(3);yield return new WaitForEndOfFrame();WriteJourneyFrame(folder+"/actual-level.png");yield return null;
             var director=FindFirstObjectByType<PuzzleDirectorBase>();log.AppendLine("Real puzzle and own subtitles active="+(director!=null&&DialogueDisplay.Instance!=null));
