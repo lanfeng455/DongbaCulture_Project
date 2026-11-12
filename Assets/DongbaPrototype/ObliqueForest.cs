@@ -440,7 +440,7 @@ public partial class ObliqueForest : MonoBehaviour {
         var knifeTexture=Resources.Load<Texture2D>("ApprovedArt/father_knife");
         var knifeObject=new GameObject("Father knife - user dictionary crop").transform;knifeObject.SetParent(storyFatherArt,false);
         knifeObject.localPosition=new Vector3(glyph.bounds.size.x*(.84f-.5f),glyph.bounds.size.y*.37f,-.001f);knifeObject.localScale=Vector3.one*(glyph.bounds.size.y/(knifeTexture.height/100f)*.135f);
-        storyFatherKnifeImage=knifeObject.gameObject.AddComponent<SpriteRenderer>();
+        storyFatherKnifeImage=knifeObject.gameObject.AddComponent<SpriteRenderer>();storyFatherKnifeImage.sharedMaterial=FatherKnifeInk;
         storyFatherKnifeImage.sprite=Sprite.Create(knifeTexture,new Rect(0,0,knifeTexture.width,knifeTexture.height),new Vector2(.20f,.42f),100);
         storyOpeningState=StoryOpeningState.Following;
     }

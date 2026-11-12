@@ -6,6 +6,8 @@ using UnityEngine.UI;
 namespace DongbaPrototype {public partial class ObliqueForest {
     enum JourneyStage { Off, Hunting, BoarPass, Invitation, Boar, Leaving, ReturnForKnife, Captured, WaitingAtHearth, Realization, EastJourney, ScrollTransition, ScrollWalk, RestorationArrival, RestorationPlay, RestorationComplete }
     JourneyStage journeyStage;Transform storyShu;bool shuPreviewCaptured; Vector3 captureCameraCenter;bool carryStarted;Vector3 carryOffset;
+    Material fatherKnifeInk;
+    Material FatherKnifeInk {get {if(fatherKnifeInk==null)fatherKnifeInk=new Material(Resources.Load<Shader>("KnifeBloodInk"));return fatherKnifeInk;}}
     Material storyBoarInk; Being storyBoar; Transform droppedKnife; Text journeyObjective;
     float fatherJumpAge=-1,boarAidReady,boarStun;Vector3 fatherJumpFrom,fatherJumpTo;
     Vector3 knifeDropPoint;float returnWait,captureBeatAge;bool captureEventSent;bool shuConfrontationStarted,shuConfrontationFinished;
@@ -49,7 +51,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         if(journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health<=0){
             journeyStage=JourneyStage.Leaving;knifeDropPoint=storyBoar.root.position;
-            var source=Get("father_knife");droppedKnife=Billboard("Lost father knife",null,source,.20f);droppedKnife.position=knifeDropPoint;
+            var source=Get("father_knife");droppedKnife=Billboard("Lost father knife",null,source,.20f);droppedKnife.position=knifeDropPoint;droppedKnife.GetComponent<SpriteRenderer>().sharedMaterial=FatherKnifeInk;
             droppedKnife.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(knifeDropPoint.z);droppedKnife.gameObject.SetActive(false);
             if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
             BeginManualStoryDialogue(new[]{"Father: We have enough. Let us cross back over the river and go home."});return;
