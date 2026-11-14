@@ -35,9 +35,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             return true;
         }
         int grown=0;
-        foreach(var tree in restorationStumps)if(tree.health>0){if(restorationReplanted.Add(tree)&&Vector3.Distance(Feet,tree.home)<.7f){
-            for(int i=0;i<24;i++){float angle=i*2.39996f;var step=tree.home+new Vector3(Mathf.Cos(angle)*.85f,0,Mathf.Sin(angle)*.85f);if(Free(step)){player.position=step;lastDryPosition=step;break;}}
-        }tree.targetScale=Mathf.MoveTowards(tree.targetScale,1,dt/14f);if(tree.targetScale>=.85f)grown++;}
+        foreach(var tree in restorationStumps)if(tree.health>0){restorationReplanted.Add(tree);if(tree.targetScale>=.85f)grown++;}
         if(clock>=restorationWildlifeAt){restorationWildlifeAt=clock+(TryRestoreWildlife(grown)?12:3);}
         if(journeyStage==JourneyStage.RestorationPlay&&restorationReplanted.Count>=2&&grown>=2&&Balance>=FlourishThreshold&&ecologyVisual>.8f){
             journeyStage=JourneyStage.RestorationComplete;if(NarrativePreview)BeginNarrativeClosing();else BeginManualStoryDialogue(new[]{"Gaolequ: I will keep caring for this forest."});ForestRestorationCompleted?.Invoke();

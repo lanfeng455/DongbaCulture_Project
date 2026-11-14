@@ -11,6 +11,8 @@ public partial class ObliqueForest : MonoBehaviour {
     class EcologyParticle { public Transform transform; public SpriteRenderer renderer; public float age,duration,spin,scale,inkOpacity; public Vector3 velocity; public Quaternion initialRotation; public bool flower; }
     readonly List<Being> plants=new List<Being>(),animals=new List<Being>();
     int initialPlantCount,initialAnimalCount;
+    readonly List<Vector3> initialAnimalHomes=new List<Vector3>();
+    [Range(4f,45f)] public float ReplantedTreeGrowSeconds=14f;
     readonly List<SpriteRenderer> riverWashImages=new List<SpriteRenderer>();
     readonly List<Transform> water=new List<Transform>(); readonly List<SpriteRenderer> waterImages=new List<SpriteRenderer>(); readonly List<Vector3> waterOrigins=new List<Vector3>();
     readonly Dictionary<string,Sprite> sprites=new Dictionary<string,Sprite>();
@@ -82,7 +84,8 @@ public partial class ObliqueForest : MonoBehaviour {
         ComposeForest();EnsureStoryHome();
         var layout=new System.Random(148);
         PlaceForestAnimals();
-        initialPlantCount=plants.Count;initialAnimalCount=animals.Count;PrepareAxeContact();
+        initialPlantCount=plants.Count;initialAnimalCount=animals.Count;
+        foreach(var animal in animals)initialAnimalHomes.Add(animal.home);PrepareAxeContact();
         if(StoryModeEnabled){CreateStoryFather();ResetStoryJourney();}
         for(int i=0;i<161;i++){
             float z=-20+i*.25f+((float)layout.NextDouble()-.5f)*.24f;
@@ -95,6 +98,7 @@ public partial class ObliqueForest : MonoBehaviour {
         var floor=GameObject.Find("Stationary paper ground");if(floor!=null)floor.transform.localScale=new Vector3(9.2f,1,4.2f);
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
         FollowPlayerCamera(100); SetupForestHUD();
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--feature-audit-check")>=0)StartCoroutine(CheckFeatureAudit());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shared-subtitles-check")>=0)StartCoroutine(CheckSharedSubtitles());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--boar-marker-check")>=0)StartCoroutine(CheckBoarMarker());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shu-confrontation-check")>=0)StartCoroutine(CheckShuConfrontation());
@@ -159,7 +163,7 @@ public partial class ObliqueForest : MonoBehaviour {
         hand.localPosition=PlayerHandLocalPosition();
         UpdateAxeAttack(dt);
         foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;
-            if(b.tree){bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
+            if(b.tree){if(b.health>0&&b.targetScale<1)b.targetScale=Mathf.MoveTowards(b.targetScale,1,.65f*dt/Mathf.Max(4,ReplantedTreeGrowSeconds));bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
             b.renderer.sortingOrder=DepthOrder(b.home.z);if(!b.tree)Fade(b);
         }
         playerImage.sortingOrder=DepthOrder(Feet.z);axe.GetComponent<SpriteRenderer>().sortingOrder=playerImage.sortingOrder+k_DepthOrderStride-1;
@@ -178,8 +182,8 @@ public partial class ObliqueForest : MonoBehaviour {
             if(b.tree){b.renderer.sharedMaterial=rootGrowthInk;for(int i=0;i<b.leafImages.Length;i++){b.leafAmounts[i]=1;b.leafAttached[i]=true;b.leafImages[i].transform.localPosition=Vector3.zero;b.leafImages[i].transform.localScale=Vector3.one;b.leafImages[i].enabled=true;b.leafImages[i].color=Color.white;b.greenLeafImages[i].enabled=false;}if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}
             if(b.groundRange!=null){b.groundRangeVitality=1;b.groundRangeProperties.SetFloat("_Vitality",1);b.groundRange.SetPropertyBlock(b.groundRangeProperties);}
         }
-        foreach(var b in animals){
-            b.root.position=b.home;b.root.gameObject.SetActive(true);b.health=2;b.fatherHalfHits=0;b.age=2;b.birth=1;b.angry=false;b.fleeing=false;b.follow=0;b.visitOrder=0;b.migrationState=0;b.careReady=0;b.protectedUntil=0;b.socialReadyAt=0;b.cooldown=0;b.moveSpeed=0;b.blockedTime=0;b.migrationTimer=0;b.opacity=1;b.navRefresh=0;b.routeIndex=0;b.proximityFleeUntil=b.nextProximityFleeAt=0;
+        for(int initial=0;initial<animals.Count;initial++){
+            var b=animals[initial];b.home=initialAnimalHomes[initial];b.root.position=b.home;b.root.gameObject.SetActive(true);b.health=2;b.fatherHalfHits=0;b.age=2;b.birth=1;b.angry=false;b.fleeing=false;b.follow=0;b.visitOrder=0;b.migrationState=0;b.careReady=0;b.protectedUntil=0;b.socialReadyAt=0;b.cooldown=0;b.moveSpeed=0;b.blockedTime=0;b.migrationTimer=0;b.opacity=1;b.navRefresh=0;b.routeIndex=0;b.proximityFleeUntil=b.nextProximityFleeAt=0;
             if(b.route!=null)b.route.Clear();b.navGoal=b.home;b.art.localPosition=Vector3.zero;b.art.localScale=b.initialScale;b.renderer.color=Color.white;b.renderer.flipX=false;
         }
         foreach(var p in flowerTrail)if(p.transform!=null)p.transform.gameObject.SetActive(false);
@@ -204,7 +208,18 @@ public partial class ObliqueForest : MonoBehaviour {
 #endif
     }
     void Fade(Being b){var p=cam.WorldToScreenPoint(body.position+Vector3.up*.7f);var q=cam.WorldToScreenPoint(b.root.position+Vector3.up);bool blocks=b.root.position.z<Feet.z&&Mathf.Abs(p.x-q.x)<65&&Mathf.Abs(p.y-q.y)<140;var c=b.renderer.color;c.a=Mathf.MoveTowards(c.a,blocks?.22f:b.inkOpacity,Time.deltaTime*3);b.renderer.color=c;}
-    void Care(){Being nearest=NearestForestInteraction();if(nearest==null){Tell("Move closer to a plant or animal");return;}if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;RegisterCare();PlayNaxiWordVoice("tree",nearest);Tell("Replanted here");}else {GrowAround(nearest);}}}
+    void ClearReplantedFooting(Being tree){
+        // A stump can be stood on. Reinstating its trunk collider must not trap the
+        // player inside it; use the same small clearance step in every game mode.
+        if(Vector3.Distance(Feet,tree.home)>=.55f)return;
+        Vector3 away=Feet-tree.home;if(away.sqrMagnitude<.001f)away=-heading;away.y=0;
+        for(int i=0;i<24;i++){
+            float angle=(i%2==0?1:-1)*((i+1)/2)*15;
+            Vector3 step=tree.home+Quaternion.Euler(0,angle,0)*away.normalized*.65f;
+            if(Free(step)){player.position=step;lastDryPosition=step;return;}
+        }
+    }
+    void Care(){Being nearest=NearestForestInteraction();if(nearest==null){Tell("Move closer to a plant or animal");return;}if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayNaxiWordVoice("tree",nearest);Tell("Replanted here");}else {GrowAround(nearest);}}}
     bool FindLocal(Vector3 origin,float min,float max,int seed,bool animal,out Vector3 found){
         for(int i=0;i<48;i++){float angle=(seed*1.73f+i*2.39996f);float radius=Mathf.Lerp(min,max,(i%7)/6f);var p=origin+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius);
             if(Mathf.Abs(p.x)>ForestHalfWidth-1.2f||Mathf.Abs(p.z)>ForestHalfDepth-1.0f||River(p)||Mathf.Abs(p.x-RiverX(p.z))<1.35f)continue;
@@ -294,7 +309,7 @@ public partial class ObliqueForest : MonoBehaviour {
         yield return null;
         var log=new System.Text.StringBuilder();
         foreach(bool isAnimal in new[]{false,true}){
-            var target=new Being{tree=!isAnimal,animal=isAnimal,health=isAnimal?2:3};int start=damageCount;
+            var target=isAnimal?animals[0]:plants.Find(b=>b.tree);target.health=isAnimal?2:3;int start=damageCount;
             ApplyEcologyHit(target);log.AppendLine((isAnimal?"Animal":"Tree")+" first hit: "+(damageCount-start));
             ApplyEcologyHit(target);log.AppendLine("Second hit: "+(damageCount-start));
             ApplyEcologyHit(target);log.AppendLine("Death/felling: "+(damageCount-start));
