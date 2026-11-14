@@ -179,7 +179,14 @@ namespace Ivan.Diorama
         [ContextMenu("从地面重新计算活动边界")]
         public void DeriveBoundsFromGround()
         {
-            var ground = GameObject.Find("Stationary paper ground");
+            // Additive preloading keeps the forest alive: only use this scene's ground.
+            GameObject ground = null;
+            foreach (var root in gameObject.scene.GetRootGameObjects())
+            {
+                foreach (var item in root.GetComponentsInChildren<Transform>(true))
+                    if (item.name == "Stationary paper ground") { ground = item.gameObject; break; }
+                if (ground != null) break;
+            }
             if (ground == null)
             {
                 Debug.LogWarning("[DioramaPlayerController] 场景里找不到 Stationary paper ground，" +

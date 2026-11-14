@@ -1,22 +1,19 @@
-# Story Mode opening prototype
+# Current Story Mode integration
 
-This is a small, optional opening-story layer on top of the existing ecology loop. It does not replace Sandbox Mode or add a second ecology counter.
+Updated 2026-11-14. This document describes the current oblique forest, not the retired side-scrolling prototype.
 
-## Try it
+The opening starts beside the house and hearth with Gaolequ and his father. Enter advances the opening dialogue before the father begins hunting. The father's verified dictionary glyph and knife replace the earlier placeholder. The knife appears only during his attacks. The father uses river jump logic, not unrestricted walking across water.
 
-- Press **F5** to switch between Story Mode and Sandbox Mode.
-- Press **Esc** to quit the standalone build or stop Play Mode in the Unity Editor.
-- While Story Mode is on, the father marker follows behind the player.
-- Each existing damage event lowers the current ecology balance. At `StoryCaptureBalanceThreshold` (default `-10`), the father leaves to retrieve the lost axe; after a short beat he disappears and the `FatherCaptured` event fires.
-- Other story code can subscribe to `ObliqueForest.FatherCaptured` to begin the rescue section. No rescue puzzle or scene transition is included here.
+Tree felling and animal deaths use the shared ecology balance. At the story threshold (default -10), the great boar crosses west to east. The father invites Gaolequ to hunt it on the east bank. After the hunt they return west; the father notices his missing knife and returns east alone. Shu confronts him beside the bloodstained knife. The father's silence is acted without a descriptive subtitle. After the accusation Shu carries him out of the camera view.
 
-## Content and limits
+Gaolequ stands beside the hearth for six day/night beats. The hanging sun/moon arrives before the light changes. The player then walks east: the forest clears to paper, which blends into the manuscript reel. After the first three panels the existing Beat_2_Cleansing_Impurity scene opens. Completing this puzzle returns to the reel at the same position.
 
-- The father sprite is intentionally a clearly tagged temporary marker. Assign a verified sprite to `StoryFatherGlyph` after the user supplies it; the marker is not a Dongba pictograph.
-- The lost-axe departure and capture are the game's adaptation of the source story. The current trigger threshold, follow behavior, timed capture beat, and event hook are prototype mechanics.
-- Story Mode starts disabled so the existing sandbox loop is unchanged. It can also be enabled in the component Inspector or with `--story-mode-preview` for a preview build.
-- The father uses the existing forest walk map and clearance checks. He does not cross the river or tree obstacles intentionally; if no route can be found, he waits and retries.
+The team confirmed on 2026-11-14 that further puzzle chapters follow. Do not treat this first puzzle as the final rescue. Later panel-to-scene mappings and the actual final rescue/death event are not yet supplied. Bind that final event to ReelPortalHost.ReturnToForestForRestoration() when available.
 
-2026-11-07 当前演示范围更新：高勒趣东行穿过森林，文字退为纸面，淡出后结束当前段落。暂不进入临时卷轴练习场，也不自动加载后续场景；R重开、F5切沙盒、Esc退出仍可用。
+The restoration chapter is playable through Start-Restoration-Preview.bat. Its ordinary entry retains actual forest damage; only the preview shortcut constructs a damaged test clearing. Gaolequ returns without his father and replants the original stumps. Tree growth and care support recovery, gradual wildlife return, and flourishing. This chapter is implemented but is not automatically substituted for the missing intervening chapters.
 
-2026-11-07 找刀对峙：父亲到东岸刀旁后停下，镜头取父亲与署的中点。按Enter逐句推进：署问‘这是你的刀吗？’→父亲愣住、无法回答→署指责‘就是你杀了我的野猪！’。以上为按用户要求撰写的游戏改编台词，非原经文引文；沿用当前英文字幕。最后一句确认后，署短暂转为暗红表现怒意，再沿原动画抓走父亲；刀在对峙时保留，抓走时隐藏。
+Controls: WASD/arrows move, Space jumps, J or Enter attacks outside dialogue, E cares/feeds/replants, Enter advances dialogue, R restarts the world, F5 switches forest story/sandbox, H shows controls, Esc exits. R and Esc also work in the connected puzzle and its camera handoff.
+
+A narrative-preview flag enables optional pacing/camera experiments. The corrected subtitle-only dialogue behavior applies with or without that flag. The entire storyline is a game adaptation, not a verbatim authoritative scripture translation.
+
+Verified Naxi word recordings still need to be provided. Successful replanting and animal care already have audio hooks; generic action sound effects must not be presented as Naxi pronunciation.

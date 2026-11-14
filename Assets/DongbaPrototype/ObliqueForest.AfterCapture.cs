@@ -62,6 +62,7 @@ public partial class ObliqueForest {
         if(playerImage!=null)playerImage.enabled=true;
     }
     void BeginHearthWaiting(){
+        PrepareJourneyDestination();
         journeyStage=JourneyStage.WaitingAtHearth;waitingAge=0;waitingBeat=-1;waitingBeatsShown=0;
         player.position=ForestSpawn;lastDryPosition=Feet;heading=Vector3.right;facing=1;jumpAge=attackAge=-1;axe.gameObject.SetActive(false);body.localPosition=Vector3.zero;
         foreach(var animal in animals)animal.angry=false;
@@ -119,12 +120,12 @@ public partial class ObliqueForest {
     }
     void CacheRetreatInk(){
         var all=FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None);
-        var selected=new System.Collections.Generic.List<SpriteRenderer>();foreach(var image in all)if(!image.transform.IsChildOf(player))selected.Add(image);
+        var selected=new System.Collections.Generic.List<SpriteRenderer>();foreach(var image in all)if(image.gameObject.scene==gameObject.scene&&!image.transform.IsChildOf(player))selected.Add(image);
         retreatSprites=selected.ToArray();retreatSpriteAlpha=new float[retreatSprites.Length];
         var graphics=forestCanvas.GetComponentsInChildren<Graphic>(true);var selectedUI=new System.Collections.Generic.List<Graphic>();
         foreach(var graphic in graphics)if(graphic!=storyCurtainImage&&graphic!=storyNightShade)selectedUI.Add(graphic);
         retreatGraphics=selectedUI.ToArray();retreatGraphicAlpha=new float[retreatGraphics.Length];
-        retreatLines=FindObjectsByType<LineRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None);retreatLineStart=new Color[retreatLines.Length];retreatLineEnd=new Color[retreatLines.Length];
+        retreatLines=System.Array.FindAll(FindObjectsByType<LineRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None),line=>line.gameObject.scene==gameObject.scene);retreatLineStart=new Color[retreatLines.Length];retreatLineEnd=new Color[retreatLines.Length];
     }
     // Undo only our last-frame multiplier before gameplay updates its own colors, preventing cumulative fading.
     void RestoreJourneyInk(){

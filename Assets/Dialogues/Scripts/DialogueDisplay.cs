@@ -106,7 +106,7 @@ public class DialogueDisplay : MonoBehaviour
 
     public bool IsPlaying => m_isPlaying;
     public void ReleaseForSceneHandoff(){if(Instance==this)Instance=null;}
-    public void RestoreAfterSceneHandoff(){Instance=this;HideDialogue();}
+    public void RestoreAfterSceneHandoff(bool hide=true){Instance=this;if(hide)HideDialogue();}
 
     private bool m_revealCurrentLine;
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;

@@ -12,7 +12,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         PrepareAfterCapturePreview();
         File.WriteAllText("Verification/after-capture/checks.txt","Test starts at completed capture; prior hunt/capture covered by story-journey regression.\n");
         bool lightingOnly=System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--hearth-lighting-only")>=0;
-        if(!lightingOnly){Time.captureFramerate=30;StartCoroutine(RecordAfterCapture());}
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--after-capture-record")>=0){Time.captureFramerate=30;StartCoroutine(RecordAfterCapture());}
         bool lightWaitsForProp=true,lightFinishesBeforeRetraction=true;var settledLightChecks=new bool[6];var finishedLightChecks=new bool[6];
         var timingShots=new bool[4];float maxWaitingDisplacement=0;
         var dropped=new bool[6];var withdrawn=new bool[6];bool rodConnected=true;
@@ -55,7 +55,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             Application.Quit();yield break;
         }
         Vector3 before=Feet;yield return new WaitForSeconds(.7f);File.AppendAllText("Verification/after-capture/checks.txt","East journey waits for player input="+(Vector3.Distance(before,Feet)<.02f&&journeyStage==JourneyStage.EastJourney)+"\n");
-        float travel=0;bool jumped=false,retreatShot=false,blankShot=false,blankClean=false;int entries=0;RescueScrollEntered+=()=>entries++;
+        float travel=0;bool jumped=false,retreatShot=false,blankShot=false,blankClean=false;
         while(!scrollEntered&&travel<30){
             KeyboardState keys;
             if(Feet.z<-.15f&&!InScrollWorld)keys=new KeyboardState(Key.W);
@@ -70,13 +70,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
                 InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;var stopped=Feet;yield return new WaitForSeconds(.45f);
                 File.AppendAllText("Verification/after-capture/checks.txt","Blank paper still waits for movement="+(journeyStage==JourneyStage.EastJourney&&Vector3.Distance(stopped,Feet)<.02f)+"\n");
             }
+            if(blankShot)break; // ReelPortalHost owns the subsequent level handoff; its own test survives scene parking.
             travel+=Time.deltaTime;yield return null;
         }
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
-        yield return new WaitForSeconds(2);CaptureSceneToTexture("Verification/after-capture/transition-end.png");
-        File.AppendAllText("Verification/after-capture/checks.txt","Forest fades and blank paper contains only player="+(retreatShot&&blankShot&&blankClean)+"\nKeyboard east walk reaches final cut="+(journeyStage==JourneyStage.ScrollTransition&&storyCurtain==1)+"\nNo temporary scroll scene created="+(scrollWorld==null&&!scrollFrame.activeSelf&&!scrollRelocated)+"\nSingle handoff="+(entries==1)+"\nJumped across river="+jumped+"\n");
-        var endPosition=Feet;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));yield return new WaitForSeconds(.5f);InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
-        File.AppendAllText("Verification/after-capture/checks.txt","Cut holds without gameplay or reappearing scene="+(storyCurtain==1&&Vector3.Distance(Feet,endPosition)<.01f&&scrollWorld==null)+"\n");
+        yield return new WaitForSeconds(.2f);CaptureSceneToTexture("Verification/after-capture/forest-to-reel.png");
+        File.AppendAllText("Verification/after-capture/checks.txt","Forest ink fully retreats beneath reel="+(retreatShot&&blankShot&&blankClean)+"\nEast walk reveals reel before checkpoint="+(journeyStage==JourneyStage.EastJourney&&journeyReelGroup!=null&&journeyReelGroup.alpha>.95f)+"\nNo obsolete temporary scroll world created="+(scrollWorld==null&&!scrollFrame.activeSelf&&!scrollRelocated)+"\nJumped across river="+jumped+"\n");
+        var endPosition=Feet;yield return new WaitForSeconds(.5f);
+        File.AppendAllText("Verification/after-capture/checks.txt","Releasing input pauses walking on reel="+(Vector3.Distance(Feet,endPosition)<.01f)+"\n");
         afterCapturePreviewDone=true;yield return new WaitForEndOfFrame();SetStoryModeEnabled(false);yield return null;
         File.AppendAllText("Verification/after-capture/checks.txt","Switching from scroll to Sandbox returns to forest="+(!StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<.1f&&!InScrollWorld&&!scrollFrame.activeSelf)+"\n");
         SetStoryModeEnabled(true);RestartRun();yield return null;

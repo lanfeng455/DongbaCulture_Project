@@ -200,6 +200,7 @@ public partial class ObliqueForest : MonoBehaviour {
         if(storyFatherRoot!=null){storyOpeningState=StoryModeEnabled?StoryOpeningState.Following:StoryOpeningState.Off;storyCaptureTimer=0;storyDepartureTarget=Vector3.zero;storyFather.route.Clear();storyFather.navRefresh=0;storyFather.blockedTime=0;storyFather.home=ForestSpawn+new Vector3(-1.25f,0,-.75f);storyFatherRoot.position=storyFather.home;storyFatherRoot.gameObject.SetActive(StoryModeEnabled);if(storyFatherImage!=null)storyFatherImage.color=StoryFatherGlyph!=null?Color.white:new Color(.34f,.23f,.13f,.9f);}
         ResetStoryJourney();if(rootGrowthInk!=null)rootGrowthInk.SetFloat("_Growth",0);UpdateFlourish(0);FollowPlayerCamera(100);Tell("The world has returned to its beginning");
     }
+    public void RestartFromPortal(){enabled=true;playerImage.forceRenderingOff=false;RestartRun();}
     void ExitPrototype(){
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying=false;
