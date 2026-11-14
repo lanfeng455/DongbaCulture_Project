@@ -85,7 +85,8 @@ public partial class ObliqueForest {
             bool night=(beat&1)==1;
             float daylightPhase=Mathf.Repeat(waitingAge,HearthHalfDaySeconds)/HearthHalfDaySeconds;
             float previousLight=beat==0?0:night?0:1;
-            nightAmount=Mathf.Lerp(previousLight,night?1:0,Mathf.SmoothStep(0,1,Mathf.InverseLerp(.10f,.45f,daylightPhase)));
+            // Let the prop finish its descent (.28) and settle before it changes the light.
+            nightAmount=Mathf.Lerp(previousLight,night?1:0,Mathf.SmoothStep(0,1,Mathf.InverseLerp(.34f,.68f,daylightPhase)));
             storyTimeSymbols.SetActive(true);storySunImage.gameObject.SetActive(!night);storyMoonImage.gameObject.SetActive(night);
             storySunImage.color=storyMoonImage.color=new Color(1,1,1,.92f);
             float dropY;

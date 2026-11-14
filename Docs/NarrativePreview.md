@@ -19,3 +19,6 @@
 验证使用6000.3.0b1兼容工程，未声称验证团队指定的6000.3.12f1。叙事节奏检查用剧情阶段布置夹具验证，结尾拉远的夹具不代表完整生态游玩；另外通过真实 Care 与原生态计分的恢复回归检查验证补种、生长、繁盛、动物返回和重置。报告在 Verification/narrative-preview/checks.txt、Verification/restoration-ending/checks.txt。
 
 本功能仅提交对应的新增模块、故事钩子、镜头/UI条件及测试。之前卷轴转场等未提交修改继续保留，不混入本功能提交。预览构建包含当时整个工作区的实际状态。
+
+2026-11-14 昼夜时序修正：日月先落稳再改变画面亮度。每段2.4秒，前28%落下，34%开始变色，68%完成，72%开始收回；三天三夜的总时长不变。Start-DayNight-Preview.bat 可直接预览。
+定向实机检查参数：--after-capture-check --hearth-lighting-only。检查六段日月的先后顺序、落下/收回、等待期间锁定移动和重置；不以此宣称验证卷轴或全部剧情。报告及日月变色前后截图位于 Verification/after-capture。
