@@ -22,7 +22,6 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         journeyStage=StoryModeEnabled?JourneyStage.Hunting:JourneyStage.Off;fatherHuntTarget=null;fatherSwingAge=-1;fatherNextSwing=0;fatherSwingHit=false;fatherAIFacing=0;invitationAge=0;captureEventSent=false;shuConfrontationStarted=shuConfrontationFinished=false;returnWait=captureBeatAge=0;fatherJumpAge=-1;boarAidReady=0;boarStun=0;
         EnsureStoryHome();boarPassComplete=false;boarPassAge=0;fatherIntroActive=StoryModeEnabled;fatherIntroLine=0;if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
         if(StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<3f){storyFatherRoot.position=FatherHomeStart;storyFather.home=FatherHomeStart;facing=-1;heading=Vector3.left;}
-        if(StoryModeEnabled)Tell("Father: Gather wood and hunt with me in the western woods.");
     }
     void SpawnStoryBoar(){
         AddDictionaryAnimal(BoarClearing,9);storyBoar=animals[animals.Count-1];animals.RemoveAt(animals.Count-1);
@@ -37,17 +36,17 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(fatherIntroActive||ManualStoryDialogueActive)return;
         if(UpdateRestorationEnding(dt))return;
         if(UpdateAfterCaptureStory(dt))return;
-        if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold){SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;boarPassStart=new Vector3(Mathf.Min(Feet.x-12,RiverX(0)-10),0,0);storyBoar.root.position=boarPassStart;Tell("A great boar bursts out of the western woods!");}
+        if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold){SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;boarPassStart=new Vector3(Mathf.Min(Feet.x-12,RiverX(0)-10),0,0);storyBoar.root.position=boarPassStart;}
         if(journeyStage==JourneyStage.BoarPass){UpdateBoarPass(dt);return;}
         if(journeyStage==JourneyStage.Invitation){
             if(Vector3.Distance(storyFatherRoot.position,Feet)>2.2f)MoveStoryFatherToward(Feet,3f,dt);
-            else{BeginManualStoryDialogue(new[]{"Father: Did you see that boar? It crossed the river!", "Father: Let us hunt it together."},()=>journeyStage=JourneyStage.Boar);return;}
+            else{BeginManualStoryDialogue(HuntInvitationLines,()=>journeyStage=JourneyStage.Boar);return;}
         }
         if(journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0){
             float distance=Vector3.Distance(Feet,storyBoar.root.position);
             if(distance<7)storyBoar.angry=true;
             boarStun=Mathf.Max(0,boarStun-dt);
-            if(storyFatherRoot!=null&&Vector3.Distance(storyFatherRoot.position,storyBoar.root.position)<5&&clock>=boarAidReady&&distance<6){boarAidReady=clock+7;boarStun=1.6f;Tell("Father: I have its attention — strike now!");}
+            if(storyFatherRoot!=null&&Vector3.Distance(storyFatherRoot.position,storyBoar.root.position)<5&&clock>=boarAidReady&&distance<6){boarAidReady=clock+7;boarStun=1.6f;Tell(BoarAidLine);}
             if(storyBoar.angry&&boarStun<=0)UpdateAnimalEcology(storyBoar,dt,jumpAge<0?0:1);
         }
         if(journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health<=0){
@@ -55,13 +54,13 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             var source=Get("father_knife");droppedKnife=Billboard("Lost father knife",null,source,.20f);droppedKnife.position=knifeDropPoint;droppedKnife.GetComponent<SpriteRenderer>().sharedMaterial=FatherKnifeInk;
             droppedKnife.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(knifeDropPoint.z);droppedKnife.gameObject.SetActive(false);
             if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
-            BeginManualStoryDialogue(new[]{"Father: We have enough. Let us cross back over the river and go home."});return;
+            BeginManualStoryDialogue(HomewardLines);return;
         }
         if(journeyStage==JourneyStage.Leaving&&Feet.x< -4&&storyFatherRoot.position.x<RiverX(storyFatherRoot.position.z)-1.05f&&Vector3.Distance(Feet,knifeDropPoint)>11){
             journeyStage=JourneyStage.ReturnForKnife;storyOpeningState=StoryOpeningState.CaptureBeat;returnWait=4.2f;
             droppedKnife.gameObject.SetActive(true);EnsureStoryShu();storyFather.route.Clear();storyFather.navRefresh=clock;
             if(NarrativePreview){BeginMissingKnifeBeat();return;}
-            BeginManualStoryDialogue(new[]{"Father: Wait a moment...", "Father: My knife... I left it in the clearing.", "Father: Stay here. I will go back for it."},()=>returnWait=0);return;
+            BeginManualStoryDialogue(MissingKnifeWithoutPauseLines,()=>returnWait=0);return;
         }
         if(journeyStage!=JourneyStage.ReturnForKnife)return;
         if(Vector3.Distance(storyFatherRoot.position,knifeDropPoint)>.9f&&captureBeatAge==0){

@@ -31,14 +31,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(!IsRestorationEnding)return false;
         if(journeyStage==JourneyStage.RestorationArrival){
             restorationAge+=dt;storyCurtain=1-Mathf.SmoothStep(0,1,restorationAge/1.2f);storyCurtainImage.color=new Color(.045f,.035f,.025f,storyCurtain);storyCurtainImage.transform.SetAsLastSibling();
-            if(restorationAge>3){BeginManualStoryDialogue(new[]{"After the rescue, Gaolequ's father did not survive.","Gaolequ: We took from this place without care.","Gaolequ: I will begin again, by planting and caring for it."},()=>journeyStage=JourneyStage.RestorationPlay);}
+            if(restorationAge>3){BeginManualStoryDialogue(RestorationArrivalLines,()=>journeyStage=JourneyStage.RestorationPlay);}
             return true;
         }
         int grown=0;
         foreach(var tree in restorationStumps)if(tree.health>0){restorationReplanted.Add(tree);if(tree.targetScale>=.85f)grown++;}
         if(clock>=restorationWildlifeAt){restorationWildlifeAt=clock+(TryRestoreWildlife(grown)?12:3);}
         if(journeyStage==JourneyStage.RestorationPlay&&restorationReplanted.Count>=2&&grown>=2&&Balance>=FlourishThreshold&&ecologyVisual>.8f){
-            journeyStage=JourneyStage.RestorationComplete;if(NarrativePreview)BeginNarrativeClosing();else BeginManualStoryDialogue(new[]{"Gaolequ: I will keep caring for this forest."});ForestRestorationCompleted?.Invoke();
+            journeyStage=JourneyStage.RestorationComplete;if(NarrativePreview)BeginNarrativeClosing();else BeginManualStoryDialogue(new[]{RestorationClosingLine()});ForestRestorationCompleted?.Invoke();
         }
         return true;
     }

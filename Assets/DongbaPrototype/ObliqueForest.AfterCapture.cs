@@ -96,11 +96,11 @@ public partial class ObliqueForest {
             else dropY=Mathf.Lerp(-140,140,Mathf.SmoothStep(0,1,(daylightPhase-.72f)/.28f));
             ((RectTransform)storyTimeSymbols.transform).anchoredPosition=new Vector2(0,dropY);
             storySkyRod.rectTransform.anchoredPosition=new Vector2(night?3.2f:-.2f,night?-4.8f:-21.2f);
-            afterCaptureCaption.gameObject.SetActive(true);afterCaptureCaption.text="Gaolequ waits beside the hearth.\nThree days and three nights pass...";
+            afterCaptureCaption.gameObject.SetActive(true);afterCaptureCaption.text=WaitingNarration;
             if(waitingAge>=HearthHalfDaySeconds*6){journeyStage=JourneyStage.Realization;realizationAge=0;storyTimeSymbols.SetActive(false);BeginRealizationDialogue();}
         }else if(journeyStage==JourneyStage.Realization){
             realizationAge+=dt;nightAmount=Mathf.MoveTowards(nightAmount,0,dt/1.1f);storyCurtain=0;
-            afterCaptureCaption.text="Father should have returned by now.\nSomething is wrong. I must go east and find him.";
+            afterCaptureCaption.text=RealizationLines[0].Substring("Gaolequ: ".Length)+"\n"+RealizationLines[1].Substring("Gaolequ: ".Length);
 
         }else if(journeyStage==JourneyStage.EastJourney){
             nightAmount=Mathf.MoveTowards(nightAmount,0,dt);storyCurtain=0;

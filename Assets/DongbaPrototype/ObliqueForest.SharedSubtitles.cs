@@ -11,7 +11,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(forestSubtitles!=null)return;
         forestSubtitles=DialogueDisplay.Instance;
         if(forestSubtitles==null)forestSubtitles=new GameObject("Shared team story subtitles").AddComponent<DialogueDisplay>();
-        forestSubtitles.SetRenderCamera(cam);forestSubtitles.SetCharactersPerSecond(ForestSubtitleCharactersPerSecond);
+        // Keep dialogue above the forest HUD and the 20000-based sprite depth range.
+        forestSubtitles.SetRenderCamera(cam,forestCanvas.sortingOrder+10);forestSubtitles.SetCharactersPerSecond(ForestSubtitleCharactersPerSecond);
         forestSubtitleAdvance=UILabel("Shared subtitle advance hint",forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,22),new Vector2(600,30),18,"ENTER   Continue");forestSubtitleAdvance.alignment=TextAnchor.MiddleCenter;forestSubtitleAdvance.color=uiMuted;
     }
     bool TryCompleteForestSubtitle(){return UseSharedSubtitles&&forestSubtitles!=null&&forestSubtitles.CompleteCurrentLine();}

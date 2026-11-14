@@ -13,22 +13,22 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void ResetNarrativePreview(){narrativeBeat=NarrativeBeat.None;narrativeBeatAge=0;narrativeClosingDialogue=false;if(storyFatherArt!=null)storyFatherArt.rotation=billboard;}
     void StartNarrativeBeat(NarrativeBeat beat){narrativeBeat=beat;narrativeBeatAge=0;notice="";noticeTime=0;}
     void BeginMissingKnifeBeat(){StartNarrativeBeat(NarrativeBeat.MissingKnife);}
-    void BeginNarrativeConfrontation(){BeginManualStoryDialogue(new[]{"Shu: Is this your knife?"},()=>StartNarrativeBeat(NarrativeBeat.Silence));}
+    void BeginNarrativeConfrontation(){BeginManualStoryDialogue(ShuQuestionLines,()=>StartNarrativeBeat(NarrativeBeat.Silence));}
     void BeginNarrativeClosing(){StartNarrativeBeat(NarrativeBeat.RenewedForest);}
     bool UpdateNarrativeBeat(float dt){
         if(narrativeBeat==NarrativeBeat.None)return false;
         narrativeBeatAge+=dt;
         switch(narrativeBeat){
             case NarrativeBeat.MissingKnife:
-                if(narrativeBeatAge>=1.8f){narrativeBeat=NarrativeBeat.None;BeginManualStoryDialogue(new[]{"Father: My knife... I left it in the clearing.","Father: Wait here. I will be right back."},()=>StartNarrativeBeat(NarrativeBeat.Depart));}break;
+                if(narrativeBeatAge>=1.8f){narrativeBeat=NarrativeBeat.None;BeginManualStoryDialogue(MissingKnifeLines,()=>StartNarrativeBeat(NarrativeBeat.Depart));}break;
             case NarrativeBeat.Depart:
                 if(narrativeBeatAge>=.65f){returnWait=0;narrativeBeat=NarrativeBeat.None;}break;
             case NarrativeBeat.Silence:
-                if(narrativeBeatAge>=1.35f){narrativeBeat=NarrativeBeat.None;BeginManualStoryDialogue(new[]{"Shu: So it was you who killed my wild boar!"},()=>shuConfrontationFinished=true);}break;
+                if(narrativeBeatAge>=1.35f){narrativeBeat=NarrativeBeat.None;BeginManualStoryDialogue(ShuAccusationLines,()=>shuConfrontationFinished=true);}break;
             case NarrativeBeat.EmptyClearing:
                 if(narrativeBeatAge>=1.8f)narrativeBeat=NarrativeBeat.None;break;
             case NarrativeBeat.RenewedForest:
-                if(narrativeBeatAge>=5.5f){narrativeBeat=NarrativeBeat.None;narrativeClosingDialogue=true;BeginManualStoryDialogue(new[]{"Gaolequ: This time, I will care for what grows here."},()=>narrativeClosingDialogue=false);}break;
+                if(narrativeBeatAge>=5.5f){narrativeBeat=NarrativeBeat.None;narrativeClosingDialogue=true;BeginManualStoryDialogue(new[]{RestorationClosingLine()},()=>narrativeClosingDialogue=false);}break;
         }
         return true;
     }
@@ -74,10 +74,12 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         age=0;while(journeyStage!=JourneyStage.Captured&&age<15){age+=Time.deltaTime;yield return null;}
         log.AppendLine("Abduction leaves an empty shot="+(journeyStage==JourneyStage.Captured&&narrativeBeat==NarrativeBeat.EmptyClearing&&!ManualStoryDialogueActive));CaptureSceneToTexture(folder+"/empty-clearing.png");
         // Closing shot fixture only; ecological scoring/growth is checked separately.
-        RestartRun();fatherIntroActive=false;ResetForestSubtitles();journeyStage=JourneyStage.RestorationComplete;storyOpeningState=StoryOpeningState.Off;storyFatherRoot.gameObject.SetActive(false);restorationClearing=Feet;float startZoom=cam.orthographicSize;BeginNarrativeClosing();
+        RestartRun();fatherIntroActive=false;ResetForestSubtitles();journeyStage=JourneyStage.RestorationComplete;storyOpeningState=StoryOpeningState.Off;storyFatherRoot.gameObject.SetActive(false);restorationClearing=Feet;float startZoom=cam.orthographicSize;tonePreviewFreezeAnimals=true;foreach(var a in animals)a.root.gameObject.SetActive(false);BeginNarrativeClosing();
         yield return new WaitForSeconds(3);log.AppendLine("Closing view widens while controls are held="+(cam.orthographicSize>startZoom+1&&NarrativeInputLocked));CaptureSceneToTexture(folder+"/closing-camera.png");
-        yield return new WaitForSeconds(3);log.AppendLine("Closing line waits for player="+(ManualStoryDialogueActive&&narrativeClosingDialogue));AdvanceManualStoryDialogue();yield return null;
-        log.AppendLine("Closing returns control="+!NarrativeInputLocked);RestartRun();log.AppendLine("Restart clears preview beats="+(narrativeBeat==NarrativeBeat.None&&!narrativeClosingDialogue));
+        yield return new WaitForSeconds(3);log.AppendLine("Closing line waits for player="+(ManualStoryDialogueActive&&narrativeClosingDialogue));log.AppendLine("Empty clearing does not claim animals returned="+(manualStoryLines!=null&&manualStoryLines[0]=="Gaolequ: I'll come back tomorrow."));CaptureSceneToTexture(folder+"/closing-empty.png");AdvanceManualStoryDialogue();yield return null;
+        log.AppendLine("Closing returns control="+!NarrativeInputLocked);
+        var returned=animals[0];returned.root.position=Feet+Vector3.right*2;returned.root.gameObject.SetActive(true);returned.health=2;returned.migrationState=0;BeginNarrativeClosing();
+        yield return new WaitForSeconds(6);log.AppendLine("Visible returning animal receives personal greeting="+(manualStoryLines!=null&&manualStoryLines[0]=="Gaolequ: You're back."));CaptureSceneToTexture(folder+"/closing-returned.png");AdvanceManualStoryDialogue();RestartRun();log.AppendLine("Restart clears preview beats="+(narrativeBeat==NarrativeBeat.None&&!narrativeClosingDialogue));
         File.WriteAllText(folder+"/checks.txt",log.ToString());Application.Quit();
     }
 }}

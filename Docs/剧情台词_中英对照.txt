@@ -1,0 +1,68 @@
+﻿2026-11-14 台词调整
+
+按现有游戏情节改写，不作为原经文译文。游戏仍显示英文；中文用于团队讨论。
+台词统一在 Assets/DongbaPrototype/ObliqueForest.StoryLines.cs 修改。普通模式和叙事预览共用这份文案，停顿、逐句回车和事件顺序保留。方向、按键和操作说明继续放在 HUD。
+
+火塘旁
+父亲：走吧，高勒趣。进林子打猎，再带些木头回来。
+Father: Come on, Gaolequ. Let's hunt, and bring back some wood.
+高勒趣：我准备好了，父亲。
+Gaolequ: I'm ready, Father.
+父亲：跟紧我，我们不会走太远。
+Father: Stay close. We won't go far.
+
+看到野猪
+父亲：看见那头野猪没有？这么大一头！
+Father: Did you see the size of that boar?
+父亲：它往河对岸去了。咱们跟上！
+Father: It's gone across the river. Come on!
+战斗呼喊：我来引住它！
+Father: I'll keep it busy!
+
+准备回家
+父亲：够了，回家吧。
+Father: That's enough. Let's go home.
+
+刀不见了
+普通版本先有一句“等等……”；叙事预览用现有停顿表达。
+Father: Wait a moment...
+父亲：我的刀……怕是落在刚才那边了。
+Father: My knife... I must have left it back there.
+父亲：你在这儿等我，很快就回来。
+Father: Wait here. I'll be right back.
+
+署的对峙
+署：这是你的刀？
+Shu: Is this your knife?
+父亲沉默，用已有动作和停顿呈现，不加描述字幕。
+署：原来是你杀了我的野猪！
+Shu: So it was you who killed my wild boar!
+
+等待与出发
+旁白：三天三夜过去了。
+Three days and three nights pass.
+高勒趣：他说很快就回来的……
+Gaolequ: He said he'd be right back...
+高勒趣：我得去找他。
+Gaolequ: I have to find him.
+
+回到森林
+旁白：父亲终究没能活着回来。高勒趣独自回到了这片树林。
+His father never made it home alive. Gaolequ returned to the forest alone.
+高勒趣：这些树……都是我们砍的。
+Gaolequ: These trees... we cut them down.
+高勒趣：先把树种回来吧。
+Gaolequ: I'll plant trees here again.
+
+恢复后的结尾
+镜头附近已经看见活着的动物：
+高勒趣：你们回来了。
+Gaolequ: You're back.
+动物还没走回来时：
+高勒趣：明天，我再来看看。
+Gaolequ: I'll come back tomorrow.
+两句都只作故事结尾，不新增每日任务，也不改变恢复、繁盛或动物回归的规则。
+
+删除了重复弹出的“开始行动”“野猪从西边出现”“过河并持续往东走”等临时描述。保留必要的目标 UI，避免角色反复念操作指南。
+
+验证：已在 Windows 运行，开场、逐句回车、找刀对峙、等待后出发及森林恢复结尾三组检查通过；同时修复前景树枝遮住字幕的问题。玩法时序不变。

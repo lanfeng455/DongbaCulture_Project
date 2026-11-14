@@ -132,13 +132,13 @@ public class DialogueDisplay : MonoBehaviour
     }
 
     // Keep the default overlay for teammate scenes; the forest uses its existing capture camera.
-    public void SetRenderCamera(Camera camera)
+    public void SetRenderCamera(Camera camera, int sortingOrder = 1100)
     {
         EnsureUi();
         m_canvas.renderMode = RenderMode.ScreenSpaceCamera;
         m_canvas.worldCamera = camera;
         m_canvas.planeDistance = Mathf.Max(camera.nearClipPlane + .1f, .8f);
-        m_canvas.sortingOrder = 1100;
+        m_canvas.sortingOrder = sortingOrder;
         Canvas.ForceUpdateCanvases();
         ApplyLayout();
     }

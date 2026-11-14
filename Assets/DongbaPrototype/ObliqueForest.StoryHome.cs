@@ -14,6 +14,6 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         float x=storyBoar.root.position.x,river=RiverX(storyBoar.root.position.z);float jump=Mathf.Abs(x-river)<1.5f?Mathf.Sin(Mathf.Clamp01((x-river+1.5f)/3)*Mathf.PI)*1.15f:0;
         storyBoar.art.localPosition=Vector3.up*(jump+.035f*Mathf.Sin(boarPassAge*24));storyBoar.renderer.flipX=false;storyBoar.renderer.sortingOrder=DepthOrder(storyBoar.root.position.z);
         if(boarPassAge>1.1f&&!boarPassComplete&&Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0&&!System.IO.File.Exists("Verification/story-journey/boar-pass.png"))CaptureSceneToTexture("Verification/story-journey/boar-pass.png");
-        if(Vector3.Distance(storyBoar.root.position,BoarClearing)<.1f){storyBoar.art.localPosition=Vector3.zero;boarPassComplete=true;journeyStage=JourneyStage.Invitation;Tell("Father: Did you see that boar? Come here a moment.");}
+        if(Vector3.Distance(storyBoar.root.position,BoarClearing)<.1f){storyBoar.art.localPosition=Vector3.zero;boarPassComplete=true;journeyStage=JourneyStage.Invitation;}
     }
 }}
