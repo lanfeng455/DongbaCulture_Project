@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 namespace DongbaPrototype {
 public partial class ObliqueForest : MonoBehaviour {
-    class Being { public SpriteRenderer groundRange; public MaterialPropertyBlock groundRangeProperties; public float groundRangeVitality=1; public Sprite fullGlyph,stumpGlyph; public Transform root,art,shadow; public SpriteRenderer renderer; public SpriteRenderer[] leafImages,greenLeafImages; public float[] leafAmounts,leafHeight01; public bool[] leafAttached; public Vector3 home; public string glyphKey; public float phase,inkOpacity=1,stumpScale,opacity=1,migrationTimer; public bool animal,angry,tree,cultivated,fleeing; public int fatherHalfHits; public int age=2,speciesIndex,clusterIndex,populationRegion,migrationState,visitOrder; public float fall,shake,follow,careReady,birth=1,targetScale=1; public Vector3 initialScale,initialShadowScale; public int health=3,growth; public float cooldown,protectedUntil,socialReadyAt,navRefresh,moveSpeed,blockedTime; public Vector3 navGoal,socialOffset; public List<Vector3> route; public int routeIndex; }
+    class Being { public SpriteRenderer groundRange; public MaterialPropertyBlock groundRangeProperties; public float groundRangeVitality=1; public Sprite fullGlyph,stumpGlyph; public Transform root,art,shadow; public SpriteRenderer renderer; public SpriteRenderer[] leafImages,greenLeafImages; public float[] leafAmounts,leafHeight01; public bool[] leafAttached; public Vector3 home; public string glyphKey; public float phase,inkOpacity=1,stumpScale,opacity=1,migrationTimer; public bool animal,angry,tree,cultivated,fleeing; public int fatherHalfHits; public int age=2,speciesIndex,clusterIndex,populationRegion,migrationState,visitOrder; public float fall,shake,follow,careReady,birth=1,targetScale=1; public Vector3 initialScale,initialShadowScale; public int health=3,growth; public float proximityFleeUntil,nextProximityFleeAt; public float cooldown,protectedUntil,socialReadyAt,navRefresh,moveSpeed,blockedTime; public Vector3 navGoal,socialOffset; public List<Vector3> route; public int routeIndex; }
     class TreeGlyphSet { public Sprite trunk; public Sprite[] leaves=new Sprite[6],greenLeaves=new Sprite[6],pieces=new Sprite[6]; public Vector3[] pieceOffsets=new Vector3[6]; }
     class EcologyParticle { public Transform transform; public SpriteRenderer renderer; public float age,duration,spin,scale,inkOpacity; public Vector3 velocity; public Quaternion initialRotation; public bool flower; }
     readonly List<Being> plants=new List<Being>(),animals=new List<Being>();
@@ -179,7 +179,7 @@ public partial class ObliqueForest : MonoBehaviour {
             if(b.groundRange!=null){b.groundRangeVitality=1;b.groundRangeProperties.SetFloat("_Vitality",1);b.groundRange.SetPropertyBlock(b.groundRangeProperties);}
         }
         foreach(var b in animals){
-            b.root.position=b.home;b.root.gameObject.SetActive(true);b.health=2;b.fatherHalfHits=0;b.age=2;b.birth=1;b.angry=false;b.fleeing=false;b.follow=0;b.visitOrder=0;b.migrationState=0;b.careReady=0;b.protectedUntil=0;b.socialReadyAt=0;b.cooldown=0;b.moveSpeed=0;b.blockedTime=0;b.migrationTimer=0;b.opacity=1;b.navRefresh=0;b.routeIndex=0;
+            b.root.position=b.home;b.root.gameObject.SetActive(true);b.health=2;b.fatherHalfHits=0;b.age=2;b.birth=1;b.angry=false;b.fleeing=false;b.follow=0;b.visitOrder=0;b.migrationState=0;b.careReady=0;b.protectedUntil=0;b.socialReadyAt=0;b.cooldown=0;b.moveSpeed=0;b.blockedTime=0;b.migrationTimer=0;b.opacity=1;b.navRefresh=0;b.routeIndex=0;b.proximityFleeUntil=b.nextProximityFleeAt=0;
             if(b.route!=null)b.route.Clear();b.navGoal=b.home;b.art.localPosition=Vector3.zero;b.art.localScale=b.initialScale;b.renderer.color=Color.white;b.renderer.flipX=false;
         }
         foreach(var p in flowerTrail)if(p.transform!=null)p.transform.gameObject.SetActive(false);
@@ -216,7 +216,7 @@ public partial class ObliqueForest : MonoBehaviour {
     }
     [Min(25)] public int AnimalPopulationLimit=64;
     void Feed(Being b){
-        b.angry=false;b.health=2;b.fatherHalfHits=0;EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;b.protectedUntil=clock+12;
+        b.angry=false;b.health=2;b.fatherHalfHits=0;EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;b.protectedUntil=clock+12;b.socialReadyAt=clock+1.5f;
         if(clock<b.careReady){Tell("Let this animal finish feeding");return;}
         if(b.age<2){b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);Tell(b.age==2?"Grown up - next feeding brings a youngster":"Fed - growing bigger");return;}
         int living=0;foreach(var a in animals)if(a.health>0)living++;
