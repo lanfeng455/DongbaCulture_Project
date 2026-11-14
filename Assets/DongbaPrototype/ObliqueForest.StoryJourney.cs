@@ -33,7 +33,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void UpdateStoryJourney(float dt){
         if(!StoryModeEnabled)return;
         if(journeyStage==JourneyStage.Off)ResetStoryJourney();
-        if(NarrativePreview&&UpdateNarrativeBeat(dt))return;
+        if(UpdateNarrativeBeat(dt))return;
         if(fatherIntroActive||ManualStoryDialogueActive)return;
         if(UpdateRestorationEnding(dt))return;
         if(UpdateAfterCaptureStory(dt))return;
@@ -72,8 +72,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(!shuConfrontationStarted){
             shuConfrontationStarted=true;captureCameraCenter=Vector3.Lerp(storyFatherRoot.position,storyShu.position,.5f);
             fatherAIFacing=storyShu.position.x>=storyFatherRoot.position.x?1:-1;
-            if(NarrativePreview){BeginNarrativeConfrontation();return;}
-            BeginManualStoryDialogue(new[]{"Shu: Is this your knife?", "Father freezes, unable to answer.", "Shu: So it was you who killed my wild boar!"},()=>shuConfrontationFinished=true);
+            BeginNarrativeConfrontation();
             return;
         }
         if(!shuConfrontationFinished)return;
@@ -84,7 +83,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             shuImage.color=Color.Lerp(Color.white,new Color(.68f,.20f,.13f),Mathf.Sin(captureBeatAge/.8f*Mathf.PI));
             return;
         }
-        shuImage.color=Color.white;if(!NarrativePreview)Tell("Shu seizes Father and carries him away!");
+        shuImage.color=Color.white;
         float grabAge=captureBeatAge-.8f;
         if(droppedKnife!=null)droppedKnife.gameObject.SetActive(false);
         if(grabAge<.55f){storyFatherRoot.position=Vector3.Lerp(storyFatherRoot.position,storyShu.position+new Vector3(-.85f,0,0),1-Mathf.Exp(-dt*9));}
@@ -97,7 +96,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(grabAge>.7f&&!shuPreviewCaptured){shuPreviewCaptured=true;if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)CaptureSceneToTexture("Verification/story-journey/shu-capture.png");}
         if(carryStarted&&SpriteOutsideStoryView(shuImage)&&SpriteOutsideStoryView(storyFatherImage)){
             storyShu.gameObject.SetActive(false);storyFatherRoot.gameObject.SetActive(false);journeyStage=JourneyStage.Captured;storyOpeningState=StoryOpeningState.Captured;
-            if(!captureEventSent){captureEventSent=true;FatherCaptured?.Invoke();}if(NarrativePreview)StartNarrativeBeat(NarrativeBeat.EmptyClearing);else BeginManualStoryDialogue(new[]{"Father has been taken by Shu."});
+            if(!captureEventSent){captureEventSent=true;FatherCaptured?.Invoke();}StartNarrativeBeat(NarrativeBeat.EmptyClearing);
         }
     }
     void EnsureStoryShu(){if(storyShu!=null)return;storyShu=Billboard("Shu / dictionary PDF409 printed337",null,Get("shu_glyph"),2.6f);storyShu.position=knifeDropPoint+new Vector3(1.5f,0,.5f);var r=storyShu.GetComponent<SpriteRenderer>();r.color=Color.white;r.sortingOrder=DepthOrder(storyShu.position.z);}

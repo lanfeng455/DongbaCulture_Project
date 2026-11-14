@@ -14,9 +14,9 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var blood=knifeGroundBlood.GetComponent<SpriteRenderer>();log.AppendLine("Ground blood visible with correct scale="+(blood.enabled&&blood.sharedMaterial.shader.isSupported&&blood.bounds.size.x>.9f)+"; bounds="+blood.bounds+"; alpha="+blood.color.a);
         var fatherStart=storyFatherRoot.position;
         log.AppendLine("Question waits for Enter="+(ManualStoryDialogueActive&&manualStoryIndex==0&&shuConfrontationStarted&&!shuConfrontationFinished&&captureBeatAge==0));CaptureSceneToTexture(folder+"/question.png");
-        yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(2);
-        log.AppendLine("Father freezes before accusation="+(ManualStoryDialogueActive&&manualStoryIndex==1&&Vector3.Distance(fatherStart,storyFatherRoot.position)<.01f));CaptureSceneToTexture(folder+"/silence.png");
-        yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(2);log.AppendLine("Accusation waits before anger="+(ManualStoryDialogueActive&&manualStoryIndex==2&&!carryStarted&&captureBeatAge==0));CaptureSceneToTexture(folder+"/accusation.png");
+        yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(.5f);
+        log.AppendLine("Father freezes without descriptive subtitle="+(!ManualStoryDialogueActive&&narrativeBeat==NarrativeBeat.Silence&&Vector3.Distance(fatherStart,storyFatherRoot.position)<.01f));CaptureSceneToTexture(folder+"/silence.png");
+        yield return new WaitForSeconds(1.5f);log.AppendLine("Accusation waits before anger="+(ManualStoryDialogueActive&&!carryStarted&&captureBeatAge==0));CaptureSceneToTexture(folder+"/accusation.png");
         yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(.35f);log.AppendLine("Anger begins after final Enter="+(shuConfrontationFinished&&!ManualStoryDialogueActive&&!carryStarted&&captureBeatAge>0&&captureBeatAge<.8f));CaptureSceneToTexture(folder+"/anger.png");
         float elapsed=0;while(journeyStage!=JourneyStage.Captured&&elapsed<10){elapsed+=Time.deltaTime;yield return null;}
         log.AppendLine("Father and Shu carried off screen="+(journeyStage==JourneyStage.Captured&&!storyFatherRoot.gameObject.activeSelf&&!storyShu.gameObject.activeSelf));
