@@ -122,11 +122,6 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         float step=Mathf.Min(direction.magnitude,speed*Mathf.Min(dt,.1f));
         foreach(float angle in FatherSteeringAngles){Vector3 trial=storyFatherRoot.position+Quaternion.Euler(0,angle,0)*direction.normalized*step;if(StoryFatherWalkingSegmentClear(storyFatherRoot.position,trial)){storyFatherRoot.position=trial;return;}}
     }
-    void StrikeStoryBoar(){
-        if(journeyStage!=JourneyStage.Boar||storyBoar==null||storyBoar.health<=0)return;
-        Vector3 d=storyBoar.root.position-Feet;if(d.magnitude>=2.8f||Vector3.Dot(d.normalized,heading)<=.15f)return;
-        ApplyEcologyHit(storyBoar);storyBoar.angry=true;Tell("Great boar: "+storyBoar.health+" / 6");if(storyBoar.health<=0)storyBoar.root.gameObject.SetActive(false);
-    }
     void UpdateStoryObjectiveHUD(){
         EnsureQuietObjective();if(journeyObjective==null)return;
         journeyObjective.text=StoryModeEnabled?QuietStoryObjective():"";DrawBoarTargetMarker();DrawFatherIntro();
@@ -142,7 +137,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         while(Balance>StoryCaptureBalanceThreshold)RegisterDamage();float passWait=0;while(journeyStage!=JourneyStage.Boar&&passWait<20){passWait+=Time.deltaTime;if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();yield return null;}File.AppendAllText("Verification/story-journey/checks.txt","Boar passed west to east before invitation="+boarPassComplete+"\n");
         File.AppendAllText("Verification/story-journey/checks.txt","Threshold spawns boar before capture="+(journeyStage==JourneyStage.Boar&&storyOpeningState==StoryOpeningState.Following)+"\n");
         player.position=BoarClearing+Vector3.left*1.8f;heading=Vector3.right;storyFatherRoot.position=BoarClearing+Vector3.back*2;yield return null;File.AppendAllText("Verification/story-journey/checks.txt","Father support creates opening="+(boarStun>0)+"\n");FollowPlayerCamera(100);CaptureSceneToTexture("Verification/story-journey/boar.png");
-        for(int i=0;i<6;i++)StrikeStoryBoar();yield return null;
+        for(int i=0;i<6;i++)ApplyEcologyHit(storyBoar);yield return null;
         File.AppendAllText("Verification/story-journey/checks.txt","Boar death unlocks departure="+(journeyStage==JourneyStage.Leaving)+"\n");
         player.position=DeparturePoint;FollowPlayerCamera(100);float homeWait=0;while(journeyStage==JourneyStage.Leaving&&homeWait<30){homeWait+=Time.deltaTime;if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();yield return null;}File.AppendAllText("Verification/story-journey/checks.txt","Father actually returns to west bank="+(storyFatherRoot.position.x<RiverX(storyFatherRoot.position.z)-1.05f)+"; wait="+homeWait+"\n");
         File.AppendAllText("Verification/story-journey/checks.txt","Departure triggers lost knife="+(journeyStage==JourneyStage.ReturnForKnife)+"\n");
