@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace DongbaPrototype {
 public partial class ObliqueForest {
+    [System.NonSerialized] public bool XRTrackingControlsCamera;
+    [System.NonSerialized] public float XRArtworkScale = 1f;
     [Header("Forest scale and interaction")]
     [Range(.8f,1.25f)] public float ForestTreeScale=.8f;
     [Range(.8f,1.4f)] public float InteractionRange=1;
@@ -23,6 +25,7 @@ public partial class ObliqueForest {
     bool placingForestAnimals;
     readonly int[] groveLayouts={0,5,10,3,8,1,6,11,4,9,2,7};
     void FollowPlayerCamera(float dt){
+        if(XRTrackingControlsCamera)return;
         if(player==null||cam==null)return;
         if(InScrollWorld){cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,7f,1-Mathf.Exp(-dt*3));var scrollGoal=new Vector3(Mathf.Clamp(Feet.x,96,124),0,70)+CameraOffset;cam.transform.position=dt>50?scrollGoal:Vector3.Lerp(cam.transform.position,scrollGoal,1-Mathf.Exp(-dt*5.5f));return;}
         float visibleHalfWidth=cam.orthographicSize*cam.aspect;

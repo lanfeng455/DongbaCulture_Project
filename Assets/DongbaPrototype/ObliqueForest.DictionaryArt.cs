@@ -39,6 +39,7 @@ public partial class ObliqueForest {
             sprite.name=entry.label;dictionarySprites.Add(entry.key,sprite);dictionaryLabels.Add(entry.key,entry.label);
         }
     }
+    public Sprite GetPicoOpeningGlyph(string key){return dictionarySprites.TryGetValue(key,out var sprite)?sprite:null;}
 
     Being AddDictionaryPlant(Vector3 position,bool tree,int index,string key=null,float height=-1){
         int clusterIndex=Mathf.Abs(index)%glyphCatalog.clusters.Length;
