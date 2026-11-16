@@ -36,7 +36,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(fatherIntroActive||ManualStoryDialogueActive)return;
         if(UpdateRestorationEnding(dt))return;
         if(UpdateAfterCaptureStory(dt))return;
-        if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold){SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;boarPassStart=new Vector3(Mathf.Min(Feet.x-12,RiverX(0)-10),0,0);storyBoar.root.position=boarPassStart;}
+        if(journeyStage==JourneyStage.Hunting&&Balance<=StoryCaptureBalanceThreshold)BeginBoarPass();
         if(journeyStage==JourneyStage.BoarPass){UpdateBoarPass(dt);return;}
         if(journeyStage==JourneyStage.Invitation){
             if(Vector3.Distance(storyFatherRoot.position,Feet)>2.2f)MoveStoryFatherToward(Feet,3f,dt);

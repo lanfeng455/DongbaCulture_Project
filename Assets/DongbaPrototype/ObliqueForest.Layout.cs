@@ -34,9 +34,11 @@ public partial class ObliqueForest {
         if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=shuConfrontationStarted||captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
         if(StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization))center=HearthPosition+Vector3.forward*1.5f;
         float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;NarrativeCamera(ref center,ref targetZoom);cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
-        if(StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null)center=Vector3.Lerp(Feet,storyBoar.root.position,.3f);
+        bool boarShot=StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null;
+        if(boarShot)center=ClampBoarViewToPaper(new Vector3(boarPassMoving?Mathf.Max(boarPassView.x,storyBoar.root.position.x):boarPassView.x,0,0));
         var goal=center+CameraOffset;
         cam.transform.position=dt>50?goal:Vector3.Lerp(cam.transform.position,goal,1-Mathf.Exp(-dt*5.5f));
+        if(boarShot)cam.transform.position=ClampBoarViewToPaper(cam.transform.position-CameraOffset)+CameraOffset;
     }
     bool InClearing(Vector3 p){
         Vector2 q=new Vector2(p.x,p.z);
