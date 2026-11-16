@@ -12,17 +12,24 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         string report=folder+"/checks.txt";File.WriteAllText(report,"");bool passed=true;
         System.Action<string,bool> check=(name,ok)=>{passed&=ok;File.AppendAllText(report,name+"="+ok+"\n");};
         bool hadPreference=PlayerPrefs.HasKey(DongbaLanguage.PreferenceKey);int previousPreference=PlayerPrefs.GetInt(DongbaLanguage.PreferenceKey,0);var previousLocale=DongbaLanguage.Current;
+        var storyLines=FatherIntroLines.Concat(HuntInvitationLines).Concat(HomewardLines).Concat(MissingKnifeWithoutPauseLines)
+            .Concat(ShuQuestionLines).Concat(ShuAccusationLines).Concat(RealizationLines).Concat(RestorationArrivalLines)
+            .Concat(new[]{WaitingNarration,BoarAidLine,"Gaolequ: You're back.","Gaolequ: I'll come back tomorrow."});
+        check("Every forest dialogue has both languages",storyLines.All(line=>{
+            SplitStoryLine(line,out var speaker,out var content);
+            return DongbaLanguage.Entries.Any(e=>e.en==content&&!string.IsNullOrWhiteSpace(e.zh));
+        }));
         yield return new WaitForSeconds(1);DongbaLanguage.Set(DongbaLocale.English,false);SetStoryModeEnabled(true);RestartRun();yield return new WaitForEndOfFrame();
-        check("English opening rendered",forestSubtitles.SubtitleText.text.Contains("Come on, Gaolequ"));
+        check("English opening rendered",forestSubtitles.SubtitleText.text.Contains("Bring your axe, Gaolequ"));
         DongbaLanguageCapture.Write(cam,folder+"/opening-en.png");
         var position=Feet;int balance=Balance;yield return PressStoryKey(Key.F8);
-        check("F8 changes current opening to Chinese",DongbaLanguage.Chinese&&forestSubtitles.SubtitleText.text.Contains("走吧，高勒趣"));
+        check("F8 changes current opening to Chinese",DongbaLanguage.Chinese&&forestSubtitles.SubtitleText.text.Contains("把斧子带上，高勒趣"));
         check("Switch does not advance or attack",fatherIntroLine==0&&fatherIntroActive&&attackAge<0&&Balance==balance&&Vector3.Distance(position,Feet)<.001f);
         Canvas.ForceUpdateCanvases();File.AppendAllText(report,"Chinese HUD values: "+hudHealth.text+" / "+forestSubtitleAdvance.text+" / "+uiMode.text+"\n");
         check("Chinese HUD and continue hint",hudHealth.text=="生命"&&forestSubtitleAdvance.text=="回车   继续"&&uiMode.text=="故事模式");
         DongbaLanguageCapture.Write(cam,folder+"/opening-zh.png");
-        yield return PressStoryKey(Key.Enter);check("Enter advances exactly once in Chinese",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains("我准备好了"));
-        yield return PressStoryKey(Key.F8);check("Back to English keeps the same line",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains("I'm ready, Father."));
+        yield return PressStoryKey(Key.Enter);check("Enter advances exactly once in Chinese",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains("今天要走多远"));
+        yield return PressStoryKey(Key.F8);check("Back to English keeps the same line",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains("How far are we going today?"));
         // Exercise the real clickable rectangle, not a direct call to Set.
         var mouse=Mouse.current;if(mouse==null)mouse=InputSystem.AddDevice<Mouse>();
         Vector2 click=RectTransformUtility.WorldToScreenPoint(null,DongbaLanguageSwitch.Instance.HitRect.position+new Vector3(-70,-15));
@@ -36,7 +43,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var tree=plants.Find(t=>t.tree);player.position=tree.home+Vector3.right;FollowPlayerCamera(100);yield return new WaitForEndOfFrame();
         check("Interaction label translated",hudPromptTitle.text=="树木"&&hudPrompt.text.Contains("照料"));
         DongbaLanguageCapture.Write(cam,folder+"/interaction-zh.png");
-        yield return PressStoryKey(Key.R);yield return new WaitForEndOfFrame();check("R reset retains language",DongbaLanguage.Chinese&&fatherIntroLine==0&&forestSubtitles.SubtitleText.text.Contains("走吧"));
+        yield return PressStoryKey(Key.R);yield return new WaitForEndOfFrame();check("R reset retains language",DongbaLanguage.Chinese&&fatherIntroLine==0&&forestSubtitles.SubtitleText.text.Contains("把斧子带上"));
         SetStoryModeEnabled(false);yield return null;yield return new WaitForEndOfFrame();Canvas.ForceUpdateCanvases();File.AppendAllText(report,"Sandbox label: "+uiMode.text+"\n");check("Sandbox keeps Chinese",DongbaLanguage.Chinese&&uiMode.text=="沙盒模式");
         // Translate the active shared typewriter without replaying its sequence or losing letters.
         const string line="高勒趣，把“白石”砌在高处，组成<color=#FFDC88>神位</color>。";

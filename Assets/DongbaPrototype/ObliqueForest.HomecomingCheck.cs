@@ -32,8 +32,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         Vector3 held=Feet;yield return PressStoryKey(Key.D);check("Home hold keeps movement locked",Vector3.Distance(held,Feet)<.001f);
         yield return new WaitForSeconds(2.5f);
         check("Damage survey leads to two short lines",ManualStoryDialogueActive&&manualStoryLines.Length==2&&manualStoryLines[0]==RestorationArrivalLines[1]);
-        DongbaLanguage.Set(DongbaLocale.English,false);yield return null;check("Return dialogue switches language in place",forestSubtitles.SubtitleText.text.Contains("These trees"));
-        DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return PressStoryKey(Key.Enter);yield return PressStoryKey(Key.Enter);
+        DongbaLanguage.Set(DongbaLocale.English,false);yield return null;check("Return dialogue switches language in place",forestSubtitles.SubtitleText.text.Contains("Back then, I thought"));
+        DongbaLanguageCapture.Write(cam,folder+"/return-dialogue-en.png");
+        DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return null;DongbaLanguageCapture.Write(cam,folder+"/return-dialogue-zh.png");
+        yield return PressStoryKey(Key.Enter);yield return PressStoryKey(Key.Enter);
         check("Return hands back control",journeyStage==JourneyStage.RestorationPlay&&!ManualStoryDialogueActive);
         player.position=trees[0].home;interactionTarget=null;int careBefore=careCount;Care();
         check("Replant retains footing and starts small",trees[0].health>0&&trees[0].targetScale==.35f&&careCount==careBefore+1&&Free(Feet));

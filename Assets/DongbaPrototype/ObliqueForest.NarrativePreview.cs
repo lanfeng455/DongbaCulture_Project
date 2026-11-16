@@ -84,8 +84,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         yield return new WaitForSeconds(1);StageNarrativeCapture();string folder="Verification/narrative-preview";Directory.CreateDirectory(folder);var log=new StringBuilder();
         yield return null;var fatherStart=storyFatherRoot.position;yield return new WaitForSeconds(.8f);
         log.AppendLine("Lost knife pauses before dialogue="+(narrativeBeat==NarrativeBeat.MissingKnife&&!ManualStoryDialogueActive&&Vector3.Distance(fatherStart,storyFatherRoot.position)<.02f));CaptureSceneToTexture(folder+"/missing-knife.png");
-        yield return new WaitForSeconds(1.3f);log.AppendLine("Lost knife dialogue waits for Enter="+(ManualStoryDialogueActive&&manualStoryLines.Length==2));
-        AdvanceManualStoryDialogue();AdvanceManualStoryDialogue();yield return new WaitForSeconds(.3f);log.AppendLine("Father pauses before departure="+(narrativeBeat==NarrativeBeat.Depart));
+        yield return new WaitForSeconds(1.3f);log.AppendLine("Lost knife dialogue waits for Enter="+(ManualStoryDialogueActive&&manualStoryLines.Length==MissingKnifeLines.Length));
+        for(int i=0;i<MissingKnifeLines.Length;i++)AdvanceManualStoryDialogue();yield return new WaitForSeconds(.3f);log.AppendLine("Father pauses before departure="+(narrativeBeat==NarrativeBeat.Depart));
         float age=0;while(!shuConfrontationStarted&&age<50){age+=Time.deltaTime;yield return null;}
         log.AppendLine("Father reaches east-bank confrontation="+shuConfrontationStarted);
         if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();yield return new WaitForSeconds(.6f);

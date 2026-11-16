@@ -18,12 +18,16 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         journeyStage=JourneyStage.Invitation;storyFatherRoot.position=Feet+Vector3.left;yield return null;yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(3);log.AppendLine("Invitation waits for Enter="+(ManualStoryDialogueActive&&journeyStage==JourneyStage.Invitation));
         yield return PressStoryKey(Key.Enter);log.AppendLine("Invitation second line stays locked="+(ManualStoryDialogueActive&&manualStoryIndex==1&&attackAge<0));
+        yield return PressStoryKey(Key.Enter);log.AppendLine("Invitation final reply still waits="+(ManualStoryDialogueActive&&manualStoryIndex==2&&journeyStage==JourneyStage.Invitation&&attackAge<0));
         yield return PressStoryKey(Key.Enter);log.AppendLine("Invitation completes into hunt="+(!ManualStoryDialogueActive&&journeyStage==JourneyStage.Boar&&attackAge<0));
         // Stage the return dialogue at the real west-bank trigger.
         knifeDropPoint=BoarClearing;player.position=new Vector3(-7,0,0);storyFatherRoot.position=Feet+Vector3.left;journeyStage=JourneyStage.Leaving;
         droppedKnife=Billboard("Check knife",null,Get("father_knife"),.2f);droppedKnife.position=knifeDropPoint;droppedKnife.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(knifeDropPoint.z);yield return null;yield return new WaitForEndOfFrame();var fatherStart=storyFatherRoot.position;
         yield return new WaitForSeconds(5);log.AppendLine("Knife dialogue never advances on timer="+(ManualStoryDialogueActive&&manualStoryIndex==0&&Vector3.Distance(fatherStart,storyFatherRoot.position)<.01f));
-        yield return PressStoryKey(Key.Enter);yield return PressStoryKey(Key.Enter);log.AppendLine("Knife third line shown before departure="+(ManualStoryDialogueActive&&manualStoryIndex==2));CaptureSceneToTexture(folder+"/knife.png");
+        int sonReply=System.Array.FindIndex(manualStoryLines,line=>line.StartsWith("Gaolequ:"));
+        for(int i=0;i<sonReply;i++)yield return PressStoryKey(Key.Enter);
+        log.AppendLine("Son offers to accompany father before departure="+(sonReply>=0&&ManualStoryDialogueActive&&manualStoryIndex==sonReply&&Vector3.Distance(fatherStart,storyFatherRoot.position)<.01f));CaptureSceneToTexture(folder+"/son-offer.png");
+        yield return PressStoryKey(Key.Enter);log.AppendLine("Father final reply shown before departure="+(ManualStoryDialogueActive&&manualStoryIndex==manualStoryLines.Length-1&&Vector3.Distance(fatherStart,storyFatherRoot.position)<.01f));CaptureSceneToTexture(folder+"/knife.png");
         yield return PressStoryKey(Key.Enter);log.AppendLine("Knife dialogue releases father="+!ManualStoryDialogueActive);
         RestartRun();fatherIntroActive=false;journeyStage=JourneyStage.Realization;EnsureAfterCapturePresentation();afterCaptureCaption.gameObject.SetActive(true);BeginRealizationDialogue();yield return new WaitForSeconds(4);
         log.AppendLine("Realization does not auto depart="+(journeyStage==JourneyStage.Realization&&ManualStoryDialogueActive));CaptureSceneToTexture(folder+"/realization.png");

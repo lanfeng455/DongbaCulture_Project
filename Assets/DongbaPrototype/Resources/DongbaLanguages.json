@@ -35,28 +35,48 @@
     },
     {
       "id": "forest.story.00",
-      "en": "Come on, Gaolequ. Let's hunt, and bring back some wood.",
-      "zh": "走吧，高勒趣。进林子打猎，再带些木头回来。"
+      "en": "Bring your axe, Gaolequ. Let's head into the forest.",
+      "zh": "把斧子带上，高勒趣。跟我进林子。",
+      "aliases": [
+        "Come on, Gaolequ. Let's hunt, and bring back some wood.",
+        "走吧，高勒趣。进林子打猎，再带些木头回来。"
+      ]
     },
     {
       "id": "forest.story.01",
-      "en": "I'm ready, Father.",
-      "zh": "我准备好了，父亲。"
+      "en": "How far are we going today?",
+      "zh": "今天要走多远？",
+      "aliases": [
+        "I'm ready, Father.",
+        "我准备好了，父亲。"
+      ]
     },
     {
       "id": "forest.story.02",
-      "en": "Stay close. We won't go far.",
-      "zh": "跟紧我，我们不会走太远。"
+      "en": "Not far. We'll be home before dark.",
+      "zh": "就在近处。天黑前回来。",
+      "aliases": [
+        "Stay close. We won't go far.",
+        "跟紧我，我们不会走太远。"
+      ]
     },
     {
       "id": "forest.story.03",
-      "en": "Did you see the size of that boar?",
-      "zh": "看见那头野猪没有？这么大一头！"
+      "en": "It's across the river... Are we still going after it?",
+      "zh": "它过河了……还追吗？",
+      "aliases": [
+        "Did you see the size of that boar?",
+        "看见那头野猪没有？这么大一头！"
+      ]
     },
     {
       "id": "forest.story.04",
-      "en": "It's gone across the river. Come on!",
-      "zh": "它往河对岸去了。咱们跟上！"
+      "en": "We can't let one that big get away.",
+      "zh": "这么大一头，不能就这么放跑了。",
+      "aliases": [
+        "It's gone across the river. Come on!",
+        "它往河对岸去了。咱们跟上！"
+      ]
     },
     {
       "id": "forest.story.05",
@@ -65,8 +85,12 @@
     },
     {
       "id": "forest.story.06",
-      "en": "That's enough. Let's go home.",
-      "zh": "够了，回家吧。"
+      "en": "That's enough for today. Let's go home.",
+      "zh": "今天够了。走，回家。",
+      "aliases": [
+        "That's enough. Let's go home.",
+        "够了，回家吧。"
+      ]
     },
     {
       "id": "forest.story.07",
@@ -75,13 +99,21 @@
     },
     {
       "id": "forest.story.08",
-      "en": "My knife... I must have left it back there.",
-      "zh": "我的刀……怕是落在刚才那边了。"
+      "en": "My knife... I left it across the river.",
+      "zh": "我的刀……落在河那边了。",
+      "aliases": [
+        "My knife... I must have left it back there.",
+        "我的刀……怕是落在刚才那边了。"
+      ]
     },
     {
       "id": "forest.story.09",
-      "en": "Wait here. I'll be right back.",
-      "zh": "你在这儿等我，很快就回来。"
+      "en": "No, wait here. I'll get it and come straight back.",
+      "zh": "不用，你在这儿等着。拿了刀我就回来。",
+      "aliases": [
+        "Wait here. I'll be right back.",
+        "你在这儿等我，很快就回来。"
+      ]
     },
     {
       "id": "forest.story.10",
@@ -100,13 +132,21 @@
     },
     {
       "id": "forest.story.13",
-      "en": "He said he'd be right back...",
-      "zh": "他说很快就回来的……"
+      "en": "He said he'd come straight back...",
+      "zh": "他说拿了刀就回来的……",
+      "aliases": [
+        "He said he'd be right back...",
+        "他说很快就回来的……"
+      ]
     },
     {
       "id": "forest.story.14",
-      "en": "I have to find him.",
-      "zh": "我得去找他。"
+      "en": "I can't keep waiting. I have to find him.",
+      "zh": "我不能再等了。我得去找他。",
+      "aliases": [
+        "I have to find him.",
+        "我得去找他。"
+      ]
     },
     {
       "id": "forest.story.15",
@@ -115,13 +155,21 @@
     },
     {
       "id": "forest.story.16",
-      "en": "These trees... we cut them down.",
-      "zh": "这些树……都是我们砍的。"
+      "en": "Back then, I thought the forest would never run out.",
+      "zh": "那时候，总觉得林子里的东西取不完。",
+      "aliases": [
+        "These trees... we cut them down.",
+        "这些树……都是我们砍的。"
+      ]
     },
     {
       "id": "forest.story.17",
-      "en": "I'll plant trees here again.",
-      "zh": "先把树种回来吧。"
+      "en": "I'll start by bringing the trees back.",
+      "zh": "先让这里再长出树来吧。",
+      "aliases": [
+        "I'll plant trees here again.",
+        "先把树种回来吧。"
+      ]
     },
     {
       "id": "forest.story.18",
@@ -667,6 +715,16 @@
       "id": "forest.story.care",
       "en": "I'll care for this forest.",
       "zh": "我会好好照料这片树林。"
+    },
+    {
+      "id": "forest.story.boar.follow",
+      "en": "Come on. Stay with me.",
+      "zh": "走，跟上我。"
+    },
+    {
+      "id": "forest.story.knife.offer",
+      "en": "I'll come with you.",
+      "zh": "我跟你回去。"
     }
   ]
 }
