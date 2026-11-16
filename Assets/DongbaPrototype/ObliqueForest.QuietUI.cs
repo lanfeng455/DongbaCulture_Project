@@ -38,11 +38,11 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         hudPrompt=UILabel("Available actions",card,new Vector2(0,1),new Vector2(0,1),new Vector2(34,-55),new Vector2(274,63),19,"");hudPrompt.supportRichText=true;hudPrompt.lineSpacing=1.15f;
         var toggle=UIBlock("Controls shortcut paper",go.transform,Vector2.zero,Vector2.zero,new Vector2(24,24),new Vector2(150,42));uiHelpShortcut=toggle.gameObject;QuietPaper(toggle,.87f);var help=UILabel("Controls shortcut",toggle,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(130,28),18,"H   Controls");help.alignment=TextAnchor.MiddleCenter;
         var hints=UIBlock("First steps hint",go.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,24),new Vector2(610,42));uiCoreHints=hints.gameObject;QuietPaper(hints,.84f);var hintText=UILabel("Core keys",hints,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(582,28),18,"WASD  Move     SPACE  Jump     E  Care     J  Axe");hintText.alignment=TextAnchor.MiddleCenter;
-        var controls=UIBlock("Expanded controls",go.transform,Vector2.zero,Vector2.zero,new Vector2(24,78),new Vector2(350,326));uiHelpPanel=controls.gameObject;QuietPaper(controls,.98f);
+        var controls=UIBlock("Expanded controls",go.transform,Vector2.zero,Vector2.zero,new Vector2(24,78),new Vector2(350,370));uiHelpPanel=controls.gameObject;QuietPaper(controls,.98f);
         var controlTitle=UILabel("Help title",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-18),new Vector2(302,35),25,"Controls");controlTitle.font=uiHeadingFont;
         QuietRule(controls,new Vector2(24,-61),new Vector2(302,1),new Color(.40f,.29f,.18f,.2f));
-        var keys=UILabel("Keys",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-79),new Vector2(146,234),18,"WASD / Arrows\nSpace\nJ / Enter\nE\nR\nF5\nEsc\nH");keys.lineSpacing=1.23f;keys.fontStyle=FontStyle.Bold;
-        var actions=UILabel("Key actions",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(176,-79),new Vector2(150,234),18,"Move\nJump\nAxe\nCare / feed\nRestart\nStory / sandbox\nQuit\nClose controls");actions.lineSpacing=1.23f;
+        var keys=UILabel("Keys",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-79),new Vector2(146,274),18,"WASD / Arrows\nSpace\nJ / Enter\nE\nR\nF5\nEsc\nH");keys.lineSpacing=1.23f;keys.fontStyle=FontStyle.Bold;
+        var actions=UILabel("Key actions",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(176,-79),new Vector2(150,274),18,"Move\nJump\nAxe\nCare / feed\nRestart\nStory / sandbox\nQuit\nClose controls");actions.lineSpacing=1.23f;
         uiHelpPanel.SetActive(false);uiNoticePanel.SetActive(false);
     }
     void HandleQuietHUDInput(Keyboard keyboard){if(keyboard!=null&&keyboard.hKey.wasPressedThisFrame)uiHelpOpen=!uiHelpOpen;}

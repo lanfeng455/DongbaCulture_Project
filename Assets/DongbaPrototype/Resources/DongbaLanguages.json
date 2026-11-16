@@ -1,0 +1,662 @@
+{
+  "entries": [
+    {
+      "id": "speaker.father",
+      "en": "Father",
+      "zh": "父亲"
+    },
+    {
+      "id": "speaker.gaolequ",
+      "en": "Gaolequ",
+      "zh": "高勒趣",
+      "aliases": [
+        "Gao"
+      ]
+    },
+    {
+      "id": "speaker.shu",
+      "en": "Shu",
+      "zh": "署"
+    },
+    {
+      "id": "speaker.fox",
+      "en": "Fox",
+      "zh": "狐狸"
+    },
+    {
+      "id": "speaker.snakes",
+      "en": "Snakes",
+      "zh": "蛇"
+    },
+    {
+      "id": "speaker.father.upper",
+      "en": "FATHER",
+      "zh": "父亲"
+    },
+    {
+      "id": "forest.story.00",
+      "en": "Come on, Gaolequ. Let's hunt, and bring back some wood.",
+      "zh": "走吧，高勒趣。进林子打猎，再带些木头回来。"
+    },
+    {
+      "id": "forest.story.01",
+      "en": "I'm ready, Father.",
+      "zh": "我准备好了，父亲。"
+    },
+    {
+      "id": "forest.story.02",
+      "en": "Stay close. We won't go far.",
+      "zh": "跟紧我，我们不会走太远。"
+    },
+    {
+      "id": "forest.story.03",
+      "en": "Did you see the size of that boar?",
+      "zh": "看见那头野猪没有？这么大一头！"
+    },
+    {
+      "id": "forest.story.04",
+      "en": "It's gone across the river. Come on!",
+      "zh": "它往河对岸去了。咱们跟上！"
+    },
+    {
+      "id": "forest.story.05",
+      "en": "I'll keep it busy!",
+      "zh": "我来引住它！"
+    },
+    {
+      "id": "forest.story.06",
+      "en": "That's enough. Let's go home.",
+      "zh": "够了，回家吧。"
+    },
+    {
+      "id": "forest.story.07",
+      "en": "Wait a moment...",
+      "zh": "等等……"
+    },
+    {
+      "id": "forest.story.08",
+      "en": "My knife... I must have left it back there.",
+      "zh": "我的刀……怕是落在刚才那边了。"
+    },
+    {
+      "id": "forest.story.09",
+      "en": "Wait here. I'll be right back.",
+      "zh": "你在这儿等我，很快就回来。"
+    },
+    {
+      "id": "forest.story.10",
+      "en": "Is this your knife?",
+      "zh": "这是你的刀？"
+    },
+    {
+      "id": "forest.story.11",
+      "en": "So it was you who killed my wild boar!",
+      "zh": "原来是你杀了我的野猪！"
+    },
+    {
+      "id": "forest.story.12",
+      "en": "Three days and three nights pass.",
+      "zh": "三天三夜过去了。"
+    },
+    {
+      "id": "forest.story.13",
+      "en": "He said he'd be right back...",
+      "zh": "他说很快就回来的……"
+    },
+    {
+      "id": "forest.story.14",
+      "en": "I have to find him.",
+      "zh": "我得去找他。"
+    },
+    {
+      "id": "forest.story.15",
+      "en": "His father never made it home alive. Gaolequ returned to the forest alone.",
+      "zh": "父亲终究没能活着回来。高勒趣独自回到了这片树林。"
+    },
+    {
+      "id": "forest.story.16",
+      "en": "These trees... we cut them down.",
+      "zh": "这些树……都是我们砍的。"
+    },
+    {
+      "id": "forest.story.17",
+      "en": "I'll plant trees here again.",
+      "zh": "先把树种回来吧。"
+    },
+    {
+      "id": "forest.story.18",
+      "en": "You're back.",
+      "zh": "你们回来了。"
+    },
+    {
+      "id": "forest.story.19",
+      "en": "I'll come back tomorrow.",
+      "zh": "明天，我再来看看。"
+    },
+    {
+      "id": "forest.call.boar",
+      "en": "Father: I'll keep it busy!",
+      "zh": "父亲：我来引住它！"
+    },
+    {
+      "id": "ui.000",
+      "en": "START",
+      "zh": "开始"
+    },
+    {
+      "id": "ui.001",
+      "en": "MINI GAME Ver. 0.0.1",
+      "zh": "概念演示 · 0.0.1"
+    },
+    {
+      "id": "ui.002",
+      "en": "Health",
+      "zh": "生命"
+    },
+    {
+      "id": "ui.003",
+      "en": "Health  |||||",
+      "zh": "生命  |||||"
+    },
+    {
+      "id": "ui.004",
+      "en": "STORY MODE",
+      "zh": "故事模式"
+    },
+    {
+      "id": "ui.005",
+      "en": "SANDBOX",
+      "zh": "沙盒模式"
+    },
+    {
+      "id": "ui.006",
+      "en": "H   Controls",
+      "zh": "H   操作说明"
+    },
+    {
+      "id": "ui.007",
+      "en": "Controls",
+      "zh": "操作说明"
+    },
+    {
+      "id": "ui.008",
+      "en": "ENTER   Continue",
+      "zh": "回车   继续"
+    },
+    {
+      "id": "ui.009",
+      "en": "WASD  Move     SPACE  Jump     E  Care     J  Axe",
+      "zh": "WASD  移动     空格  跳跃     E  照料     J  挥斧"
+    },
+    {
+      "id": "ui.010",
+      "en": "WASD / Arrows\nSpace\nJ / Enter\nE\nR\nF5\nEsc\nH",
+      "zh": "WASD / 方向键\n空格\nJ / 回车\nE\nR\nF5\nEsc\nH"
+    },
+    {
+      "id": "ui.011",
+      "en": "Move\nJump\nAxe\nCare / feed\nRestart\nStory / sandbox\nQuit\nClose controls",
+      "zh": "移动\n跳跃\n挥斧\n照料 / 喂养\n重新开始\n故事 / 沙盒\n退出\n收起说明"
+    },
+    {
+      "id": "ui.012",
+      "en": "Young animal",
+      "zh": "幼兽"
+    },
+    {
+      "id": "ui.013",
+      "en": "Forest animal",
+      "zh": "林中动物"
+    },
+    {
+      "id": "ui.014",
+      "en": "Tree stump",
+      "zh": "树桩"
+    },
+    {
+      "id": "ui.015",
+      "en": "Forest tree",
+      "zh": "树木"
+    },
+    {
+      "id": "ui.016",
+      "en": "<b>E</b>   Feed to grow\n<b>J</b>   Attack",
+      "zh": "<b>E</b>   喂养长大\n<b>J</b>   攻击"
+    },
+    {
+      "id": "ui.017",
+      "en": "<b>E</b>   Feed / new young\n<b>J</b>   Attack",
+      "zh": "<b>E</b>   喂养 / 繁殖\n<b>J</b>   攻击"
+    },
+    {
+      "id": "ui.018",
+      "en": "<b>E</b>   Replant here",
+      "zh": "<b>E</b>   原地补种"
+    },
+    {
+      "id": "ui.019",
+      "en": "Tended once\n<b>J</b>   Chop",
+      "zh": "已照料过\n<b>J</b>   砍伐"
+    },
+    {
+      "id": "ui.020",
+      "en": "<b>E</b>   Tend\n<b>J</b>   Chop",
+      "zh": "<b>E</b>   照料\n<b>J</b>   砍伐"
+    },
+    {
+      "id": "ui.021",
+      "en": "The forest is flourishing",
+      "zh": "森林正渐渐繁盛"
+    },
+    {
+      "id": "ui.022",
+      "en": "Rescue scroll",
+      "zh": "救父卷轴"
+    },
+    {
+      "id": "ui.023",
+      "en": "Western woods",
+      "zh": "西侧树林"
+    },
+    {
+      "id": "ui.024",
+      "en": "Eastern woods",
+      "zh": "东侧树林"
+    },
+    {
+      "id": "ui.025",
+      "en": "Riverbank",
+      "zh": "河岸"
+    },
+    {
+      "id": "ui.026",
+      "en": "Northern woods",
+      "zh": "北侧树林"
+    },
+    {
+      "id": "ui.027",
+      "en": "Southern woods",
+      "zh": "南侧树林"
+    },
+    {
+      "id": "ui.028",
+      "en": "Open woodland",
+      "zh": "林间空地"
+    },
+    {
+      "id": "ui.029",
+      "en": "Hunt with Father\nExplore the western woods.",
+      "zh": "与父亲一同狩猎\n探索西侧树林。"
+    },
+    {
+      "id": "ui.030",
+      "en": "A great boar crosses the river.",
+      "zh": "一头大野猪奔向河对岸。"
+    },
+    {
+      "id": "ui.031",
+      "en": "Return to Father\nHe wants to speak about the boar.",
+      "zh": "回到父亲身边\n他想和你说说那头野猪。"
+    },
+    {
+      "id": "ui.032",
+      "en": "Hunt the great boar\nCross the river to the eastern clearing.",
+      "zh": "猎捕大野猪\n过河前往东侧空地。"
+    },
+    {
+      "id": "ui.033",
+      "en": "Head home together\nCross back to the western bank.",
+      "zh": "一起回家\n过河返回西岸。"
+    },
+    {
+      "id": "ui.034",
+      "en": "Wait for Father\nHe has gone back for his knife.",
+      "zh": "等父亲回来\n他回去找刀了。"
+    },
+    {
+      "id": "ui.035",
+      "en": "Father has been taken.",
+      "zh": "父亲被带走了。"
+    },
+    {
+      "id": "ui.036",
+      "en": "Find Father\nFollow the woods eastward.",
+      "zh": "寻找父亲\n沿树林向东走。"
+    },
+    {
+      "id": "ui.037",
+      "en": "The rescue journey\nContinue east within the scroll.",
+      "zh": "救父之旅\n沿卷轴继续向东。"
+    },
+    {
+      "id": "ui.038",
+      "en": "Back to the clearing",
+      "zh": "回到林间空地"
+    },
+    {
+      "id": "ui.039",
+      "en": "The forest is renewed\nYou can keep caring for it.",
+      "zh": "森林重获生机\n你仍可以继续照料它。"
+    },
+    {
+      "id": "ui.040",
+      "en": "Restore the clearing\nE  Replant the stumps.",
+      "zh": "恢复这片树林\nE  在树桩处补种。"
+    },
+    {
+      "id": "ui.041",
+      "en": "Let the forest recover\nReplant and tend the trees.",
+      "zh": "让森林慢慢恢复\n补种并照料树木。"
+    },
+    {
+      "id": "ui.042",
+      "en": "Life is returning\nCare for plants and animals.",
+      "zh": "生机正在回来\n照料植物与动物。"
+    },
+    {
+      "id": "ui.043",
+      "en": "GREAT BOAR",
+      "zh": "大野猪"
+    },
+    {
+      "id": "ui.044",
+      "en": "Great boar",
+      "zh": "大野猪"
+    },
+    {
+      "id": "ui.045",
+      "en": "Felled - E to replant",
+      "zh": "树已砍倒 · E 补种"
+    },
+    {
+      "id": "ui.046",
+      "en": "Axe struck the trunk",
+      "zh": "斧头击中树干"
+    },
+    {
+      "id": "ui.047",
+      "en": "The animal is defending itself",
+      "zh": "动物正在反击"
+    },
+    {
+      "id": "ui.048",
+      "en": "Back to the riverbank",
+      "zh": "已回到河岸"
+    },
+    {
+      "id": "ui.049",
+      "en": "The world has returned to its beginning",
+      "zh": "已从头重新开始"
+    },
+    {
+      "id": "ui.050",
+      "en": "Move closer to a plant or animal",
+      "zh": "请靠近树木或动物"
+    },
+    {
+      "id": "ui.051",
+      "en": "Replanted here",
+      "zh": "已在原处补种"
+    },
+    {
+      "id": "ui.052",
+      "en": "Let this animal finish feeding",
+      "zh": "等它吃完再喂吧"
+    },
+    {
+      "id": "ui.053",
+      "en": "Grown up - next feeding brings a youngster",
+      "zh": "已经长大，再次喂养可繁殖幼兽"
+    },
+    {
+      "id": "ui.054",
+      "en": "Fed - growing bigger",
+      "zh": "喂养成功，正在长大"
+    },
+    {
+      "id": "ui.055",
+      "en": "The clearing is full of animals",
+      "zh": "这片空地的动物已经够多了"
+    },
+    {
+      "id": "ui.056",
+      "en": "Fed - a new animal joins nearby",
+      "zh": "喂养成功，幼兽在旁边出生了"
+    },
+    {
+      "id": "ui.057",
+      "en": "This spot is crowded - feed in an open area",
+      "zh": "这里太挤了，请到开阔处喂养"
+    },
+    {
+      "id": "ui.058",
+      "en": "Already tended - choose another tree",
+      "zh": "这棵树已照料过，请选择其他树"
+    },
+    {
+      "id": "ui.059",
+      "en": "New plants are still growing",
+      "zh": "周围的新植物还在生长"
+    },
+    {
+      "id": "ui.060",
+      "en": "New plants are growing around this tree",
+      "zh": "新植物正在这棵树周围生长"
+    },
+    {
+      "id": "ui.061",
+      "en": "This patch is full - tend another tree",
+      "zh": "这里已经长满了，请照料其他树"
+    },
+    {
+      "id": "ui.062",
+      "en": "Story Mode enabled — Father is following",
+      "zh": "已进入故事模式，父亲与你同行"
+    },
+    {
+      "id": "ui.063",
+      "en": "Sandbox Mode enabled",
+      "zh": "已进入沙盒模式"
+    },
+    {
+      "id": "puzzle.intro.0",
+      "en": "This is “stone”. It is blocking the <color=#FFDC88>spring on the high ground</color>.",
+      "zh": "这就是“石”。它堵住了<color=#FFDC88>高处的泉眼</color>。"
+    },
+    {
+      "id": "puzzle.intro.1",
+      "en": "Gaolequ, place “white stone” on the high ground to form the <color=#FFDC88>spirit seat</color>.",
+      "zh": "高勒趣，把“白石”砌在高处，组成<color=#FFDC88>神位</color>。"
+    },
+    {
+      "id": "puzzle.intro.2",
+      "en": "High ground is “white”; low ground is “black”.",
+      "zh": "高处为“白”，低处为“黑”。"
+    },
+    {
+      "id": "puzzle.intro.3",
+      "en": "I need to turn “stone” into “white stone” before I can place it on the spirit seat.",
+      "zh": "需要把“石”变成“白石”，才能够放到神位上。"
+    },
+    {
+      "id": "puzzle.intro.4",
+      "en": "This is not enough “white stone” to build the spirit seat.",
+      "zh": "如果需要构建神位，这点“白石”可不行。"
+    },
+    {
+      "id": "puzzle.intro.5",
+      "en": "I should look elsewhere for more materials.",
+      "zh": "去别的地方再找找材料吧。"
+    },
+    {
+      "id": "puzzle.intro.6",
+      "en": "These do not seem to form a meaningful combination.",
+      "zh": "似乎无法组成合理的含义。"
+    },
+    {
+      "id": "puzzle.intro.7",
+      "en": "The spirit seat is ready. Now…",
+      "zh": "神位已成，接下来……"
+    },
+    {
+      "id": "puzzle.level0.0",
+      "en": "My father, you had been caught by the God <color=#FFDC88>Shu</color>.",
+      "zh": "父亲，你被<color=#FFDC88>署神</color>抓走了。"
+    },
+    {
+      "id": "puzzle.level0.3",
+      "en": "My father, how can I find your trace?",
+      "zh": "父亲，我该去哪里寻找你的踪迹？"
+    },
+    {
+      "id": "puzzle.level0.7",
+      "en": "Your father is <color=#FFDC88>Egaole</color>, right?",
+      "zh": "你的父亲，是<color=#FFDC88>Egaole</color>，对吗？"
+    },
+    {
+      "id": "puzzle.level0.11",
+      "en": "And you, you are <color=#FFDC88>Gaolequ</color>.",
+      "zh": "而你，就是<color=#FFDC88>高勒趣</color>。"
+    },
+    {
+      "id": "puzzle.level0.12",
+      "en": "Exactly. Dear fox, how do you know us?",
+      "zh": "是的。狐狸，你怎么会认识我们？"
+    },
+    {
+      "id": "puzzle.level0.14",
+      "en": "Gao, the damage you two have caused to nature was so much!",
+      "zh": "高勒趣，你们父子给自然造成了太多伤害！"
+    },
+    {
+      "id": "puzzle.level0.15",
+      "en": "You even violated the contract and captured the wild boar of the God Shu!",
+      "zh": "你们甚至违背约定，猎杀了署神的野猪！"
+    },
+    {
+      "id": "puzzle.level0.16",
+      "en": "Well...but I don't think Shu has the right to catch my father.",
+      "zh": "可是……我不觉得署有权抓走我的父亲。"
+    },
+    {
+      "id": "puzzle.level0.18",
+      "en": "Gao, your father is imprisoned on <color=#9876C5>the fifth hill</color>, and <color=#FFDC88>this</color> is the first one.",
+      "zh": "高勒趣，你父亲被关在<color=#9876C5>第五座山</color>上，而<color=#FFDC88>这里</color>才是第一座。"
+    },
+    {
+      "id": "puzzle.level0.21",
+      "en": "To <color=#6AADFF>reconcile</color> rather than continue to destroy nature, otherwise you will also fall into the same fate.",
+      "zh": "去<color=#6AADFF>和解</color>，别再破坏自然，否则你也会落得同样的下场。"
+    },
+    {
+      "id": "puzzle.level0.24",
+      "en": "It disappered…",
+      "zh": "它消失了……"
+    },
+    {
+      "id": "puzzle.level0.25",
+      "en": "My father often said that, the south slope is sunny, the north valley is shady.",
+      "zh": "父亲常说，南坡向阳，北谷背阴。"
+    },
+    {
+      "id": "puzzle.level0.26",
+      "en": "And all white things go up, all black things go down, that's the rule.",
+      "zh": "白的归于高处，黑的归于低处，这是规矩。"
+    },
+    {
+      "id": "puzzle.level0.27",
+      "en": "The snakes are twisting with each other, I can't pass through this way…",
+      "zh": "两条蛇缠在一起，挡住了去路……"
+    },
+    {
+      "id": "puzzle.level0.28",
+      "en": "Hey, could you please…",
+      "zh": "那个，能不能请你们……"
+    },
+    {
+      "id": "puzzle.level0.29",
+      "en": "Hiss…hiss…",
+      "zh": "嘶……嘶……"
+    },
+    {
+      "id": "puzzle.level0.30",
+      "en": "Aha, thanks.",
+      "zh": "啊，谢谢。"
+    },
+    {
+      "id": "puzzle.level0.31",
+      "en": "Well…the stones seem to be the next trouble.",
+      "zh": "看来……接下来要想办法搬开这些石头了。"
+    },
+    {
+      "id": "puzzle.level0.34",
+      "en": "Hiss…hiss…",
+      "zh": "嘶……嘶……"
+    },
+    {
+      "id": "puzzle.level0.35",
+      "en": "If I go to resolve the dispute between these two snakes first, will I also find another way?",
+      "zh": "如果先解开这两条蛇之间的纠缠，是不是就能找到另一条路？"
+    },
+    {
+      "id": "puzzle.level0.36",
+      "en": "Maybe…the fox is right.",
+      "zh": "也许……狐狸说得对。"
+    },
+    {
+      "id": "puzzle.level0.37",
+      "en": "This is the southern cave.",
+      "zh": "这是南边的洞穴。"
+    },
+    {
+      "id": "puzzle.level0.38",
+      "en": "This is the northern cave.",
+      "zh": "这是北边的洞穴。"
+    },
+    {
+      "id": "puzzle.level0.39",
+      "en": "So many rocks, I'm definitely reaching the peak.",
+      "zh": "石头越来越多，应该快到山顶了。"
+    },
+    {
+      "id": "puzzle.term.stone",
+      "en": "Stone",
+      "zh": "石"
+    },
+    {
+      "id": "puzzle.term.white_stone",
+      "en": "White stone",
+      "zh": "白石"
+    },
+    {
+      "id": "puzzle.term.black_stone",
+      "en": "Black stone",
+      "zh": "黑石"
+    },
+    {
+      "id": "puzzle.term.white",
+      "en": "White",
+      "zh": "白"
+    },
+    {
+      "id": "puzzle.term.black",
+      "en": "Black",
+      "zh": "黑"
+    },
+    {
+      "id": "puzzle.term.water",
+      "en": "Water",
+      "zh": "水"
+    },
+    {
+      "id": "puzzle.term.mountain",
+      "en": "Mountain",
+      "zh": "山"
+    },
+    {
+      "id": "puzzle.term.spirit_seat",
+      "en": "Spirit seat",
+      "zh": "神位"
+    }
+  ]
+}

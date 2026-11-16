@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 using Ivan.Scroll;
+using DongbaPrototype;
 
 // 对话显示：场景级单例，负责把 DialogueLibrarySO 里的某段对话
 // 用打字机效果呈现到一个极简字幕条上。
@@ -108,6 +109,7 @@ public class DialogueDisplay : MonoBehaviour
     public void ReleaseForSceneHandoff(){if(Instance==this)Instance=null;}
     public void RestoreAfterSceneHandoff(bool hide=true){Instance=this;if(hide)HideDialogue();}
 
+    private DialogueLibrarySO.DialogueEntry m_visibleEntry;
     private bool m_revealCurrentLine;
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
     public TMP_Text SubtitleText => m_text;
@@ -308,6 +310,7 @@ public class DialogueDisplay : MonoBehaviour
     public void HideDialogue()
     {
         CancelPlayback();
+        m_visibleEntry = null;
         SetVisible(false);
     }
 
@@ -330,6 +333,7 @@ public class DialogueDisplay : MonoBehaviour
             return;
         }
         Instance = this;
+        DongbaLanguage.Changed += RefreshLanguage;
 
         EnsureUi();
         // 初始化必须立即隐藏：走渐变会在场景启动瞬间闪一帧全亮字幕条
@@ -338,6 +342,7 @@ public class DialogueDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
+        DongbaLanguage.Changed -= RefreshLanguage;
         CancelPlayback();
         m_fadeCts?.Cancel();
         m_fadeCts?.Dispose();
@@ -374,12 +379,14 @@ public class DialogueDisplay : MonoBehaviour
                 // 演出指令行（Content 以 @ 开头）：不进字幕，转给舞台执行
                 if (StageCommandParser.TryParse(entry.content, out StageCommand command))
                 {
+                    m_visibleEntry = null;
                     SetVisible(false);
                     await ExecuteStageCommandAsync(command, entry.speaker, token);
                     continue;
                 }
 
                 SetVisible(true);
+                m_visibleEntry = entry;
                 string line = FormatLine(entry);
                 await TypeLineAsync(line, token);
 
@@ -540,7 +547,8 @@ public class DialogueDisplay : MonoBehaviour
             await Awaitable.NextFrameAsync(token);
         }
 
-        m_text.maxVisibleCharacters = totalVisible;
+        // A language switch can change the length while this typewriter is awaiting a frame.
+        m_text.maxVisibleCharacters = m_text.textInfo.characterCount;
     }
 
     // 格式化为 "说话人：内容"；没说话人就是纯内容（旁白）
@@ -548,11 +556,23 @@ public class DialogueDisplay : MonoBehaviour
     {
         if (string.IsNullOrEmpty(entry.speaker))
         {
-            return entry.content ?? string.Empty;
+            return DongbaLanguage.Text(entry.content);
         }
 
         string speakerHex = ColorUtility.ToHtmlStringRGB(m_speakerColor);
-        return $"<color=#{speakerHex}>{entry.speaker}</color>：{entry.content}";
+        string separator = DongbaLanguage.Chinese ? "：" : ": ";
+        return $"<color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color>{separator}{DongbaLanguage.Text(entry.content)}";
+    }
+
+    // Re-render the current line in place. Never restart a segment or replay @ actor commands.
+    private void RefreshLanguage()
+    {
+        if (m_visibleEntry == null || m_text == null) return;
+        m_text.text = FormatLine(m_visibleEntry);
+        FitBackgroundToText(m_text.text);
+        m_text.ForceMeshUpdate();
+        m_revealCurrentLine = true;
+        m_text.maxVisibleCharacters = m_text.textInfo.characterCount;
     }
 
     private void CancelPlayback()
@@ -790,6 +810,9 @@ public class DialogueDisplay : MonoBehaviour
         {
             return m_fontAsset;
         }
+
+        if (Application.isPlaying && DongbaLanguage.ChineseSubtitleFont != null)
+            return DongbaLanguage.ChineseSubtitleFont;
 
         try
         {

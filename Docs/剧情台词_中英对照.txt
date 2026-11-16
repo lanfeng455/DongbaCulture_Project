@@ -1,7 +1,7 @@
 ﻿2026-11-14 台词调整
 
-按现有游戏情节改写，不作为原经文译文。游戏仍显示英文；中文用于团队讨论。
-台词统一在 Assets/DongbaPrototype/ObliqueForest.StoryLines.cs 修改。普通模式和叙事预览共用这份文案，停顿、逐句回车和事件顺序保留。方向、按键和操作说明继续放在 HUD。
+按现有游戏情节改写，不作为原经文译文。游戏现支持中文 / English 切换；中文与英文均已接入实机字幕。
+森林原始台词在 Assets/DongbaPrototype/ObliqueForest.StoryLines.cs；中英对应在 Assets/DongbaPrototype/Resources/DongbaLanguages.json。修改原句时请同步对应表。普通模式和叙事预览共用这份文案，停顿、逐句回车和事件顺序保留。方向、按键和操作说明继续放在 HUD。
 
 火塘旁
 父亲：走吧，高勒趣。进林子打猎，再带些木头回来。
