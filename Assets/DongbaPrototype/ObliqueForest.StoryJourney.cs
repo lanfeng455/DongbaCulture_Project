@@ -59,6 +59,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(journeyStage==JourneyStage.Leaving&&Feet.x< -4&&storyFatherRoot.position.x<RiverX(storyFatherRoot.position.z)-1.05f&&Vector3.Distance(Feet,knifeDropPoint)>11){
             journeyStage=JourneyStage.ReturnForKnife;storyOpeningState=StoryOpeningState.CaptureBeat;returnWait=4.2f;
             droppedKnife.gameObject.SetActive(true);EnsureStoryShu();storyFather.route.Clear();storyFather.navRefresh=clock;
+            if(BeginForestDialogueGraph(ForestDialogueGraph.Entry.MissingKnife))return;
             if(NarrativePreview){BeginMissingKnifeBeat();return;}
             BeginManualStoryDialogue(MissingKnifeWithoutPauseLines,()=>returnWait=0);return;
         }

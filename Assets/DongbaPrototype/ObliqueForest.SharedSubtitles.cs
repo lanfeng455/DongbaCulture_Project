@@ -37,7 +37,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(content.Length>0){
             if(uiNoticePanel!=null)uiNoticePanel.SetActive(false);
             string key=speaker+"\n"+content;
-            if(forestSubtitleKey!=key){forestSubtitleKey=key;forestSubtitles.PlayLine(speaker,content);if(fatherIntroActive||ManualStoryDialogueActive||actionAside)forestSubtitles.CompleteCurrentLine();}
+            if(forestSubtitleKey!=key){forestSubtitleKey=key;
+                if(forestGraphLine!=null&&ManualStoryDialogueActive)forestSubtitles.PlayBilingualLine(forestGraphLine.speaker,forestGraphLine.en,forestGraphLine.zh);
+                else forestSubtitles.PlayLine(speaker,content);
+                if(fatherIntroActive||ManualStoryDialogueActive||actionAside)forestSubtitles.CompleteCurrentLine();}
         }else if(forestSubtitleKey!=null){forestSubtitleKey=null;forestSubtitles.HideDialogue();}
     }
 }}

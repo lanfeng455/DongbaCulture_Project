@@ -1,0 +1,239 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 475c422c2c8b4b33be17206000dbb78a, type: 3}
+  m_Name: ForestCaptureGraph
+  m_EditorClassIdentifier:
+  nodes:
+  - id: "knife_start"
+    title: "发现丢刀"
+    kind: 0
+    position: {x: 0, y: 0}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "父子返回西岸、发现刀留在东岸时由游戏触发。"
+    next: "knife_branch"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_branch"
+    title: "版本条件"
+    kind: 4
+    position: {x: 280, y: 0}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "是：叙事预览版先用动作停顿。否：普通版先说“等等”。"
+    next: "knife_pause"
+    otherwise: "knife_moment"
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_pause"
+    title: "父亲发现丢刀"
+    kind: 2
+    position: {x: 560, y: -80}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: "knife_line"
+    otherwise: ""
+    seconds: 1.8
+    cue: 1
+    action: 0
+  - id: "knife_moment"
+    title: "等等"
+    kind: 1
+    position: {x: 560, y: 120}
+    entry: 0
+    speaker: "Father"
+    zh: "等等……"
+    en: "Wait a moment..."
+    note: ""
+    next: "knife_line"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_line"
+    title: "刀留在东岸"
+    kind: 1
+    position: {x: 840, y: 20}
+    entry: 0
+    speaker: "Father"
+    zh: "我的刀……落在河那边了。"
+    en: "My knife... I left it across the river."
+    note: ""
+    next: "knife_offer"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_offer"
+    title: "儿子想同行"
+    kind: 1
+    position: {x: 840, y: 310}
+    entry: 0
+    speaker: "Gaolequ"
+    zh: "我跟你回去。"
+    en: "I'll come with you."
+    note: ""
+    next: "knife_reply"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_reply"
+    title: "父亲让儿子等候"
+    kind: 1
+    position: {x: 560, y: 310}
+    entry: 0
+    speaker: "Father"
+    zh: "不用，你在这儿等着。拿了刀我就回来。"
+    en: "No, wait here. I'll get it and come straight back."
+    note: ""
+    next: "knife_depart"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_depart"
+    title: "准备返回"
+    kind: 2
+    position: {x: 280, y: 310}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: "knife_event"
+    otherwise: ""
+    seconds: 0.65
+    cue: 3
+    action: 0
+  - id: "knife_event"
+    title: "父亲出发"
+    kind: 3
+    position: {x: 0, y: 310}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "执行已有找刀行动，过河仍按原来的跳跃和寻路规则。"
+    next: "knife_end"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "knife_end"
+    title: "交还剧情控制"
+    kind: 5
+    position: {x: 0, y: 500}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: ""
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "shu_start"
+    title: "到达掉刀处"
+    kind: 0
+    position: {x: 0, y: 850}
+    entry: 1
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "父亲到达刀旁、镜头转向署时触发。"
+    next: "shu_question"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "shu_question"
+    title: "署的质问"
+    kind: 1
+    position: {x: 280, y: 850}
+    entry: 0
+    speaker: "Shu"
+    zh: "这是你的刀？"
+    en: "Is this your knife?"
+    note: ""
+    next: "shu_silence"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "shu_silence"
+    title: "父亲愣住"
+    kind: 2
+    position: {x: 560, y: 850}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "等待节点，没有额外解释字幕。"
+    next: "shu_accusation"
+    otherwise: ""
+    seconds: 1.35
+    cue: 2
+    action: 0
+  - id: "shu_accusation"
+    title: "署的愤怒"
+    kind: 1
+    position: {x: 560, y: 1080}
+    entry: 0
+    speaker: "Shu"
+    zh: "原来是你杀了我的野猪！"
+    en: "So it was you who killed my wild boar!"
+    note: ""
+    next: "shu_event"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: "shu_event"
+    title: "抓走父亲"
+    kind: 3
+    position: {x: 280, y: 1080}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "触发已有发怒、抓取、向东带走的演出。"
+    next: "shu_end"
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 1
+  - id: "shu_end"
+    title: "继续三天三夜"
+    kind: 5
+    position: {x: 0, y: 1080}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: ""
+    otherwise: ""
+    seconds: 1
+    cue: 0
+    action: 0

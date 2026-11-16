@@ -9,13 +9,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     bool NarrativePreview {get {if(!narrativePreviewEnabled.HasValue)narrativePreviewEnabled=Array.IndexOf(Environment.GetCommandLineArgs(),"--narrative-preview")>=0||File.Exists(Path.Combine(Application.dataPath,"../narrative-preview.flag"));return narrativePreviewEnabled.Value;}}
     enum NarrativeBeat {None,MissingKnife,Depart,Silence,EmptyClearing,AwaitWildlife,RenewedForest}
     NarrativeBeat narrativeBeat;float narrativeBeatAge;bool narrativeClosingDialogue;
-    bool NarrativeInputLocked=>((narrativeBeat!=NarrativeBeat.None&&narrativeBeat!=NarrativeBeat.AwaitWildlife)||narrativeClosingDialogue);
-    void ResetNarrativePreview(){narrativeBeat=NarrativeBeat.None;narrativeBeatAge=0;narrativeClosingDialogue=false;if(storyFatherArt!=null)storyFatherArt.rotation=billboard;}
+    bool NarrativeInputLocked=>(GraphRunning||(narrativeBeat!=NarrativeBeat.None&&narrativeBeat!=NarrativeBeat.AwaitWildlife)||narrativeClosingDialogue);
+    void ResetNarrativePreview(){ResetDialogueGraph();narrativeBeat=NarrativeBeat.None;narrativeBeatAge=0;narrativeClosingDialogue=false;if(storyFatherArt!=null)storyFatherArt.rotation=billboard;}
     void StartNarrativeBeat(NarrativeBeat beat){narrativeBeat=beat;narrativeBeatAge=0;notice="";noticeTime=0;}
-    void BeginMissingKnifeBeat(){StartNarrativeBeat(NarrativeBeat.MissingKnife);}
-    void BeginNarrativeConfrontation(){BeginManualStoryDialogue(ShuQuestionLines,()=>StartNarrativeBeat(NarrativeBeat.Silence));}
+    void BeginMissingKnifeBeat(){if(!BeginForestDialogueGraph(ForestDialogueGraph.Entry.MissingKnife))StartNarrativeBeat(NarrativeBeat.MissingKnife);}
+    void BeginNarrativeConfrontation(){if(!BeginForestDialogueGraph(ForestDialogueGraph.Entry.ShuConfrontation))BeginManualStoryDialogue(ShuQuestionLines,()=>StartNarrativeBeat(NarrativeBeat.Silence));}
     void BeginNarrativeClosing(){StartNarrativeBeat(NarrativeBeat.AwaitWildlife);}
     bool UpdateNarrativeBeat(float dt){
+        if(UpdateForestDialogueGraph(dt))return true;
         if(narrativeBeat==NarrativeBeat.None)return false;
         narrativeBeatAge+=dt;
         switch(narrativeBeat){

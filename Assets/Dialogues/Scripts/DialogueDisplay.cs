@@ -133,6 +133,15 @@ public class DialogueDisplay : MonoBehaviour
         return true;
     }
 
+    public void PlayBilingualLine(string speaker, string english, string chinese)
+    {
+        CancelPlayback();
+        m_playbackCts = new CancellationTokenSource();
+        int generation = ++m_playbackGeneration;
+        var entry = new DialogueLibrarySO.DialogueEntry { speaker = speaker, content = english, chineseContent = chinese };
+        _ = PlaySegmentAsync(new List<DialogueLibrarySO.DialogueEntry> { entry }, false, 0, m_playbackCts.Token, generation);
+    }
+
     // Keep the default overlay for teammate scenes; the forest uses its existing capture camera.
     public void SetRenderCamera(Camera camera, int sortingOrder = 1100)
     {
@@ -554,14 +563,16 @@ public class DialogueDisplay : MonoBehaviour
     // 格式化为 "说话人：内容"；没说话人就是纯内容（旁白）
     private string FormatLine(DialogueLibrarySO.DialogueEntry entry)
     {
+        string content = string.IsNullOrEmpty(entry.chineseContent) ? DongbaLanguage.Text(entry.content)
+            : (DongbaLanguage.Chinese ? entry.chineseContent : entry.content);
         if (string.IsNullOrEmpty(entry.speaker))
         {
-            return DongbaLanguage.Text(entry.content);
+            return content;
         }
 
         string speakerHex = ColorUtility.ToHtmlStringRGB(m_speakerColor);
         string separator = DongbaLanguage.Chinese ? "：" : ": ";
-        return $"<color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color>{separator}{DongbaLanguage.Text(entry.content)}";
+        return $"<color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color>{separator}{content}";
     }
 
     // Re-render the current line in place. Never restart a segment or replay @ actor commands.

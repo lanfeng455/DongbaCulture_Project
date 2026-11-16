@@ -8,7 +8,9 @@
 内容覆盖火塘出发、追猪、助战、归途、丢刀、署的质问、三天三夜、东行及最终返乡。备注说明触发和分支，不是字幕：丢刀前的“等等……”只在非叙事预览模式使用；返乡按有无树桩选择不同对白；两句结尾按附近是否有可见动物二选一。首个解谜结束仍返回卷轴，不会直接播放最终返乡。本表不包含队友解谜段和UI操作提示。
 
 本表现在的作用是对照、修改台词和交接。修改Excel不会自动改变游戏。
-森林段的实际台词来自 Assets/DongbaPrototype/ObliqueForest.StoryLines.cs 和 ObliqueForest.RestorationEnding.cs，中英映射来自 Assets/DongbaPrototype/Resources/DongbaLanguages.json。表内只取当前en、zh，不取旧译文aliases。
-队友现有的导入工具是CSV转DialogueLibrary，需要在Unity中手动同步；它读取单个Content列，不直接读取本表的中文、English两列，也不负责改写森林代码。后续若接入统一表格，需要增加双语同步和稳定台词ID映射。此次没有改动运行时台词、触发条件或导入工具。
+整理时森林段的实际台词来自 Assets/DongbaPrototype/ObliqueForest.StoryLines.cs 和 ObliqueForest.RestorationEnding.cs，中英映射来自 Assets/DongbaPrototype/Resources/DongbaLanguages.json。表内只取当时en、zh，不取旧译文aliases。
+队友现有的导入工具是CSV转DialogueLibrary，需要在Unity中手动同步；它读取单个Content列，不直接读取本表的中文、English两列，也不负责改写森林代码。
+
+后续更新：已加入剧情节点工具，“发现丢刀／署的对峙”两段的6条台词（含普通版“等等”）现在优先从 Resources/ForestCaptureGraph.asset 读取。初始文字与此表一致，之后在节点中修改不会回写Excel。其余段落仍用原代码和语言表。使用方法见 Docs/DialogueGraph.txt。
 
 整理时已逐条核对24条双语正文、说话人、分支说明与索引，渲染检查全部表格。原Level 0.xlsx保持不变。本次仅修改文档，未运行Unity、未生成构建包、未push。

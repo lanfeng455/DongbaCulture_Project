@@ -24,6 +24,9 @@ public class DialogueLibrarySO : ScriptableObject
         [TextArea(1, 4)]
         public string content;
 
+        // Optional direct bilingual source (node editor). Legacy CSV entries stay unchanged.
+        [TextArea(1, 4)] public string chineseContent;
+
         [Tooltip("策划/翻译备注，不进游戏")]
         public string note;
     }
