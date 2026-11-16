@@ -657,6 +657,16 @@
       "id": "puzzle.term.spirit_seat",
       "en": "Spirit seat",
       "zh": "神位"
+    },
+    {
+      "id": "forest.story.quiet",
+      "en": "It's so quiet here.",
+      "zh": "这里怎么这么安静……"
+    },
+    {
+      "id": "forest.story.care",
+      "en": "I'll care for this forest.",
+      "zh": "我会好好照料这片树林。"
     }
   ]
 }

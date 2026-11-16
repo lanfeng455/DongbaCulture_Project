@@ -98,6 +98,7 @@ public partial class ObliqueForest : MonoBehaviour {
         var floor=GameObject.Find("Stationary paper ground");if(floor!=null)floor.transform.localScale=new Vector3(9.2f,1,4.2f);
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
         FollowPlayerCamera(100); SetupForestHUD();
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--homecoming-check")>=0)StartCoroutine(CheckHomecoming());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--feature-audit-check")>=0)StartCoroutine(CheckFeatureAudit());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shared-subtitles-check")>=0)StartCoroutine(CheckSharedSubtitles());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--boar-marker-check")>=0)StartCoroutine(CheckBoarMarker());
@@ -164,7 +165,7 @@ public partial class ObliqueForest : MonoBehaviour {
         UpdateAxeAttack(dt);
         foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;
             if(b.tree){if(b.health>0&&b.targetScale<1)b.targetScale=Mathf.MoveTowards(b.targetScale,1,.65f*dt/Mathf.Max(4,ReplantedTreeGrowSeconds));bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
-            b.renderer.sortingOrder=DepthOrder(b.home.z);if(!b.tree)Fade(b);
+            b.renderer.sortingOrder=DepthOrder(b.home.z);if(!b.tree)Fade(b);UpdateCarePlantMoment(b);
         }
         playerImage.sortingOrder=DepthOrder(Feet.z);axe.GetComponent<SpriteRenderer>().sortingOrder=playerImage.sortingOrder+k_DepthOrderStride-1;
         if(!tonePreviewFreezeAnimals&&!AfterCapturePeaceful)foreach(var b in animals)UpdateAnimalEcology(b,dt,hop);
@@ -173,7 +174,7 @@ public partial class ObliqueForest : MonoBehaviour {
         FollowPlayerCamera(dt);UpdateForestPresentation(dt);
     }
     void RestartRun(){
-        interactionTarget=null;ecologyPreviewWalking=false;tonePreviewFreezeAnimals=false;
+        ResetForestDetails();interactionTarget=null;ecologyPreviewWalking=false;tonePreviewFreezeAnimals=false;
         for(int i=plants.Count-1;i>=initialPlantCount;i--){if(plants[i].root!=null)Destroy(plants[i].root.gameObject);plants.RemoveAt(i);}
         for(int i=animals.Count-1;i>=initialAnimalCount;i--){if(animals[i].root!=null)Destroy(animals[i].root.gameObject);animals.RemoveAt(i);}
         foreach(var b in plants){
@@ -232,22 +233,21 @@ public partial class ObliqueForest : MonoBehaviour {
     }
     [Min(25)] public int AnimalPopulationLimit=64;
     void Feed(Being b){
-        b.angry=false;b.health=2;b.fatherHalfHits=0;EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;b.protectedUntil=clock+12;b.socialReadyAt=clock+1.5f;
         if(clock<b.careReady){Tell("Let this animal finish feeding");return;}
-        if(b.age<2){b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);Tell(b.age==2?"Grown up - next feeding brings a youngster":"Fed - growing bigger");return;}
+        if(b.age<2){BeginFeedingResponse(b);b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);Tell(b.age==2?"Grown up - next feeding brings a youngster":"Fed - growing bigger");return;}
         int living=0;foreach(var a in animals)if(a.health>0)living++;
         if(living>=Mathf.Max(25,AnimalPopulationLimit)){Tell("The clearing is full of animals");return;}
         // Keep offspring close to the fed adult while retaining the usual local clearance checks.
         if(FindLocal(b.root.position,.7f,1.35f,animals.Count+b.speciesIndex*17,true,out var p)){
-            AddAnimal(p,b.speciesIndex);var child=animals[animals.Count-1];child.age=0;child.birth=.42f;child.art.localScale=child.initialScale*.42f;child.careReady=clock+1.5f;child.protectedUntil=clock+18;populationCapacity[child.populationRegion]++;b.careReady=clock+3;PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);
+            BeginFeedingResponse(b);AddAnimal(p,b.speciesIndex);var child=animals[animals.Count-1];child.age=0;child.birth=.42f;child.art.localScale=child.initialScale*.42f;child.careReady=clock+1.5f;child.protectedUntil=clock+18;populationCapacity[child.populationRegion]++;b.careReady=clock+3;PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);
             Tell("Fed - a new animal joins nearby");
         }else Tell("This spot is crowded - feed in an open area");
     }
     void GrowAround(Being b){
         if(b.cultivated){Tell("Already tended - choose another tree");return;}
         if(clock<b.careReady){Tell("New plants are still growing");return;}int count=0;
-        for(int i=0;i<4;i++)if(FindLocal(b.home,.75f,2.0f,plants.Count+i,false,out var p)){AddPlant(p,false,plants.Count);var sprout=plants[plants.Count-1];sprout.art.localScale=sprout.initialScale*.08f;sprout.renderer.color=new Color(1,1,1,.92f);count++;}
-        if(count>0){b.cultivated=true;b.growth++;if(b.targetScale<1)b.targetScale=Mathf.Min(1,b.targetScale+.22f);RegisterCare();b.careReady=clock+2;b.shake=.18f;PlayNaxiWordVoice("tree",b);Tell("New plants are growing around this tree");}else Tell("This patch is full - tend another tree");
+        for(int i=0;i<4;i++)if(FindLocal(b.home,.75f,2.0f,plants.Count+i,false,out var p)){AddPlant(p,false,plants.Count);var sprout=plants[plants.Count-1];sprout.art.localScale=sprout.initialScale*.08f;sprout.renderer.color=new Color(1,1,1,.92f);BeginSproutReveal(sprout,count);count++;}
+        if(count>0){b.cultivated=true;b.growth++;if(b.targetScale<1)b.targetScale=Mathf.Min(1,b.targetScale+.22f);RegisterCare();b.careReady=clock+2;b.shake=.045f;PlayNaxiWordVoice("tree",b);Tell("New plants are growing around this tree");}else Tell("This patch is full - tend another tree");
     }
     // Abstract ink particles, not Dongba characters. Textures are created once.
     Sprite MakeEcologyInk(bool falling){

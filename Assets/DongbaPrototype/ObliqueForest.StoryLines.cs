@@ -30,13 +30,16 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         "Gaolequ: I'll plant trees here again."
     };
     string RestorationClosingLine(){
+        return RestorationAnimalInShot()?"Gaolequ: You're back.":"Gaolequ: I'll come back tomorrow.";
+    }
+    bool RestorationAnimalInShot(){
         // Let the line address what is actually in the shot. Wildlife returns gradually;
         // completing restoration must not claim that an animal has arrived off camera.
         foreach(var animal in animals){
             if(animal.health<=0||!animal.root.gameObject.activeInHierarchy||animal.migrationState==2||UnityEngine.Vector3.Distance(Feet,animal.root.position)>12)continue;
             var point=cam.WorldToViewportPoint(animal.renderer.bounds.center);
-            if(point.z>0&&point.x>.05f&&point.x<.95f&&point.y>.05f&&point.y<.95f)return "Gaolequ: You're back.";
+            if(point.z>0&&point.x>.05f&&point.x<.95f&&point.y>.05f&&point.y<.95f)return true;
         }
-        return "Gaolequ: I'll come back tomorrow.";
+        return false;
     }
 }}

@@ -32,6 +32,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(afterCaptureCaption!=null)afterCaptureCaption.enabled=false;
         if(storyCaptionPaper!=null)storyCaptionPaper.gameObject.SetActive(false);
         forestSubtitleAdvance.gameObject.SetActive(StoryModeEnabled&&(fatherIntroActive||ManualStoryDialogueActive));
+        forestSubtitleAdvance.color=Color.Lerp(uiMuted,new Color(.95f,.91f,.82f),Mathf.SmoothStep(0,1,storyCurtain));
         if(content.Length>0){
             if(uiNoticePanel!=null)uiNoticePanel.SetActive(false);
             string key=speaker+"\n"+content;

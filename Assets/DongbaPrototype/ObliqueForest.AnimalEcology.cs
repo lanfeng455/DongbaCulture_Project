@@ -145,7 +145,7 @@ public partial class ObliqueForest {
     }
     void UpdateAnimalEcology(Being b,float dt,float hop){
         if(b.health<=0||b.migrationState==2||ManualStoryDialogueActive||fatherIntroActive)return;
-        b.birth=Mathf.MoveTowards(b.birth,b.age==0?.42f:b.age==1?.7f:1,dt*.65f);b.art.localScale=b.initialScale*b.birth;b.cooldown-=dt;
+        bool feeding=FeedingResponseActive(b);if(!feeding)b.birth=Mathf.MoveTowards(b.birth,b.age==0?.42f:b.age==1?.7f:1,dt*.65f);b.art.localScale=b.initialScale*b.birth;b.cooldown-=dt;
         if(b.angry){b.proximityFleeUntil=0;b.fleeing=false;if(b.follow>0||b.migrationState!=0){EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;}b.socialReadyAt=clock+20;}
         if(b.follow>0){if(friendlyWeather)b.follow=1;else if(b.visitOrder>0){if(clock>=friendlyReleaseAt+Mathf.Repeat(b.phase,.8f))SendFriendlyAnimalHome(b);}else{b.follow=Mathf.Max(0,b.follow-dt);if(b.follow==0||Vector3.Distance(Feet,b.root.position)>FriendlyRadius+3)EndAnimalVisit(b);}}
         if(b.migrationState==1&&ecologyVisual>=-.1f){b.migrationState=3;b.fleeing=false;b.proximityFleeUntil=0;if(b.route!=null)b.route.Clear();b.navRefresh=clock;}
@@ -158,10 +158,10 @@ public partial class ObliqueForest {
             else if(b.follow>0&&!circleAnimals.Contains(b)){b.navRefresh=clock+.4f+Mathf.Repeat(b.phase,.2f);var goal=Feet+b.socialOffset+new Vector3(Mathf.Sin(clock*.67f+b.phase)*.24f,0,Mathf.Cos(clock*.43f+b.phase)*.20f);
                 if(!CircleStepClear(goal,b)){if(!TryFriendlyDestination(b,out goal)){b.navRefresh=clock+.35f;goal=b.root.position;}b.socialOffset=goal-Feet;}
                 if(Vector3.Distance(b.root.position,goal)>.18f)PlanFriendlyRoute(b,goal);
-            }else if(b.follow<=0){Vector3 goal=b.home+new Vector3(Mathf.Sin(clock*.5f+b.phase)*.6f,0,Mathf.Cos(clock*.4f+b.phase)*.4f);PlanAnimalRoute(b,goal);}
+            }else if(b.follow<=0)PlanQuietAnimalRoam(b);
         }
         UpdateCircleDestination(b);
-        float speed=b.angry?1.8f:b.fleeing?PanickedAnimalFleeSpeed:b.migrationState!=0?1.05f:b.follow>0?(circleAnimals.Contains(b)?FriendlyApproachSpeed:Vector3.Distance(b.root.position,Feet+b.socialOffset)<.5f?.5f:Mathf.Lerp(FriendlyApproachSpeed,FriendlyCatchupSpeed,Mathf.InverseLerp(1.5f,4.5f,Vector3.Distance(b.root.position,Feet+b.socialOffset)))):.3f;
+        float speed=feeding?0:b.angry?1.8f:b.fleeing?PanickedAnimalFleeSpeed:b.migrationState!=0?1.05f:b.follow>0?(circleAnimals.Contains(b)?FriendlyApproachSpeed:Vector3.Distance(b.root.position,Feet+b.socialOffset)<.5f?.5f:Mathf.Lerp(FriendlyApproachSpeed,FriendlyCatchupSpeed,Mathf.InverseLerp(1.5f,4.5f,Vector3.Distance(b.root.position,Feet+b.socialOffset)))):QuietAnimalSpeed(b);
         b.moveSpeed=Mathf.MoveTowards(b.moveSpeed,HasAnimalRoute(b)?speed:0,dt*(b.fleeing?8f:b.follow>0?2.5f:1.2f));
         if(HasAnimalRoute(b)){
             Vector3 waypoint=b.route[b.routeIndex],delta=waypoint-b.root.position;
@@ -176,7 +176,7 @@ public partial class ObliqueForest {
             b.navRefresh=Mathf.Min(b.navRefresh,clock+.5f);
         }
         if(b.migrationState==3&&!HasAnimalRoute(b)&&Vector3.Distance(b.root.position,b.home)<2){b.migrationState=0;b.fleeing=false;b.socialReadyAt=clock+4;}
-        b.art.localPosition=new Vector3(0,.025f*Mathf.Sin(clock*3+b.phase),0);b.renderer.color=AnimalEcologyTint();b.renderer.sortingOrder=DepthOrder(b.root.position.z);
+        b.art.localPosition=new Vector3(0,.025f*Mathf.Sin(clock*3+b.phase),0);b.renderer.color=AnimalEcologyTint();b.renderer.sortingOrder=DepthOrder(b.root.position.z);ApplyFeedingPose(b);
         if(b.angry&&Vector3.Distance(Feet,b.root.position)<.85f&&b.cooldown<=0&&damageCooldown<=0&&hop<.4f){health--;damageCooldown=1;b.cooldown=1.5f;Tell("The animal is defending itself");if(health<=0){player.position=ForestSpawn;lastDryPosition=player.position;health=5;b.angry=false;}}
     }
 }

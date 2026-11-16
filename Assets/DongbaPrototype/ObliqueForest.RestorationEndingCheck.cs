@@ -10,7 +10,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         Vector3 arrival=Feet;int damage=damageCount;yield return new WaitForSeconds(3.5f);CaptureSceneToTexture(folder+"/return-to-clearing.png");
         log.AppendLine("Return keeps actual damage and stumps="+(damageCount==damage&&restorationStumps.Count>=2&&Balance<0));
         log.AppendLine("Father absent and return dialogue waits="+(!storyFatherRoot.gameObject.activeSelf&&ManualStoryDialogueActive&&journeyStage==JourneyStage.RestorationArrival));
-        for(int i=0;i<3;i++)yield return PressStoryKey(Key.Enter);
+        if(NarrativePreview){yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(4.7f);}
+        for(int i=0;i<(NarrativePreview?2:3);i++)yield return PressStoryKey(Key.Enter);
         log.AppendLine("Enter unlocks restoration play="+(journeyStage==JourneyStage.RestorationPlay&&!ManualStoryDialogueActive));
         int restored=0;foreach(var tree in new List<Being>(restorationStumps)){
             player.position=tree.home;interactionTarget=null;int before=careCount;Care();if(tree.health>0&&careCount==before+1)restored++;
@@ -26,7 +27,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         int grown=0;foreach(var tree in restorationStumps)if(tree.health>0&&tree.targetScale>.85f)grown++;
         log.AppendLine("Replanted trees gradually grow="+(grown>=2));
         log.AppendLine("Flourishing completes chapter without recapture="+(journeyStage==JourneyStage.RestorationComplete&&!storyFatherRoot.gameObject.activeSelf));
-        if(NarrativePreview){float closingWait=0;while(!narrativeClosingDialogue&&closingWait<8){closingWait+=Time.deltaTime;yield return null;}yield return new WaitForSeconds(1.5f);CaptureSceneToTexture(folder+"/narrative-closing.png");}
+        if(NarrativePreview){float closingWait=0;while(!narrativeClosingDialogue&&closingWait<29){closingWait+=Time.deltaTime;yield return null;}yield return new WaitForSeconds(1.5f);CaptureSceneToTexture(folder+"/narrative-closing.png");}
         yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(12);CaptureSceneToTexture(folder+"/renewed-clearing.png");
         int live=0;float wildlifeWait=0;
         while(live==0&&wildlifeWait<30){

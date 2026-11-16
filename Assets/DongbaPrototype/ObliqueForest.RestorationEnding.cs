@@ -6,16 +6,18 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     readonly List<Being> restorationStumps=new List<Being>();
     readonly HashSet<Being> restorationReplanted=new HashSet<Being>();
     float restorationAge,restorationWildlifeAt;Vector3 restorationClearing;int restorationSeeded;
+    bool restorationHomeHold;float restorationSurveyAge;
+    int RestorationRequiredReplants=>Mathf.Min(2,restorationStumps.Count);
     string restorationReturnCheck="not requested";
     bool IsRestorationEnding=>StoryModeEnabled&&(journeyStage==JourneyStage.RestorationArrival||journeyStage==JourneyStage.RestorationPlay||journeyStage==JourneyStage.RestorationComplete);
     bool RestorationArrivalLocked=>StoryModeEnabled&&journeyStage==JourneyStage.RestorationArrival;
     public event Action ForestRestorationCompleted;
-    void ResetRestorationEnding(){restorationStumps.Clear();restorationReplanted.Clear();restorationAge=0;restorationSeeded=0;}
+    void ResetRestorationEnding(){restorationStumps.Clear();restorationReplanted.Clear();restorationAge=0;restorationSeeded=0;restorationHomeHold=false;restorationSurveyAge=0;}
     // Call after the final rescue sequence has returned control to the forest scene.
     // This deliberately does not reset the player's earlier ecological damage.
     public void BeginRestorationEnding(){
         if(IsRestorationEnding)return;
-        StoryModeEnabled=true;if(storyFatherRoot==null)CreateStoryFather();ResetJourneyReel();ResetForestSubtitles();ResetAfterCapture();ResetRestorationEnding();EnsureAfterCapturePresentation();
+        StoryModeEnabled=true;if(storyFatherRoot==null)CreateStoryFather();ResetJourneyReel();ResetForestSubtitles();ResetAfterCapture();ResetNarrativePreview();ResetRestorationEnding();EnsureAfterCapturePresentation();
         fatherIntroActive=false;fatherHuntTarget=null;fatherSwingAge=-1;fatherJumpAge=-1;storyOpeningState=StoryOpeningState.Off;
         if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
         if(storyShu!=null)storyShu.gameObject.SetActive(false);if(storyBoar!=null)storyBoar.root.gameObject.SetActive(false);if(droppedKnife!=null)droppedKnife.gameObject.SetActive(false);
@@ -23,28 +25,47 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         foreach(var tree in plants)if(tree.tree&&tree.health<=0){restorationStumps.Add(tree);float d=Vector3.Distance(tree.home,ForestSpawn);if(d<distance){distance=d;closest=tree;}}
         restorationClearing=closest!=null?closest.home:ForestSpawn+Vector3.left*4;
         Vector3 arrival=ForestSpawn;for(int i=0;i<24;i++){float angle=i*2.39996f;var candidate=restorationClearing+new Vector3(Mathf.Cos(angle)*2.2f,0,Mathf.Sin(angle)*2.2f);if(candidate.x<RiverX(candidate.z)-2&&Free(candidate)){arrival=candidate;break;}}
+        if(NarrativePreview)arrival=ForestSpawn;
         player.position=arrival;lastDryPosition=arrival;jumpAge=attackAge=-1;axe.gameObject.SetActive(false);body.localPosition=Vector3.zero;playerImage.forceRenderingOff=false;
-        facing=1;heading=Vector3.right;journeyStage=JourneyStage.RestorationArrival;restorationWildlifeAt=clock+5;notice="";noticeTime=0;
+        facing=NarrativePreview?-1:1;heading=Vector3.right*facing;journeyStage=JourneyStage.RestorationArrival;restorationWildlifeAt=clock+5;notice="";noticeTime=0;
+        restorationHomeHold=NarrativePreview;
         storyCurtain=1;storyCurtainImage.color=new Color(.045f,.035f,.025f,1);FollowPlayerCamera(100);
+        if(NarrativePreview){
+            EnsureForestSubtitles();forestSubtitleAdvance.transform.SetAsLastSibling();
+            BeginManualStoryDialogue(new[]{RestorationArrivalLines[0]});
+        }
     }
     bool UpdateRestorationEnding(float dt){
         if(!IsRestorationEnding)return false;
         if(journeyStage==JourneyStage.RestorationArrival){
             restorationAge+=dt;storyCurtain=1-Mathf.SmoothStep(0,1,restorationAge/1.2f);storyCurtainImage.color=new Color(.045f,.035f,.025f,storyCurtain);storyCurtainImage.transform.SetAsLastSibling();
-            if(restorationAge>3){BeginManualStoryDialogue(RestorationArrivalLines,()=>journeyStage=JourneyStage.RestorationPlay);}
+            if(NarrativePreview){
+                // After the transition narration: reveal the identical home shot, then leave
+                // the father's empty place readable for two seconds before surveying the damage.
+                if(restorationAge>=3.2f){restorationHomeHold=false;restorationSurveyAge+=dt;}
+                if(restorationSurveyAge>=1.15f){
+                    facing=restorationClearing.x<Feet.x?-1:1;heading=Vector3.right*facing;
+                    var lines=restorationStumps.Count>0?new[]{RestorationArrivalLines[1],RestorationArrivalLines[2]}:
+                        new[]{"Gaolequ: It's so quiet here.","Gaolequ: I'll care for this forest."};
+                    BeginManualStoryDialogue(lines,()=>journeyStage=JourneyStage.RestorationPlay);
+                }
+            }else if(restorationAge>3){
+                var lines=restorationStumps.Count>0?RestorationArrivalLines:new[]{RestorationArrivalLines[0],"Gaolequ: It's so quiet here.","Gaolequ: I'll care for this forest."};
+                BeginManualStoryDialogue(lines,()=>journeyStage=JourneyStage.RestorationPlay);
+            }
             return true;
         }
         int grown=0;
         foreach(var tree in restorationStumps)if(tree.health>0){restorationReplanted.Add(tree);if(tree.targetScale>=.85f)grown++;}
         if(clock>=restorationWildlifeAt){restorationWildlifeAt=clock+(TryRestoreWildlife(grown)?12:3);}
-        if(journeyStage==JourneyStage.RestorationPlay&&restorationReplanted.Count>=2&&grown>=2&&Balance>=FlourishThreshold&&ecologyVisual>.8f){
+        if(journeyStage==JourneyStage.RestorationPlay&&restorationReplanted.Count>=RestorationRequiredReplants&&grown>=RestorationRequiredReplants&&Balance>=FlourishThreshold&&ecologyVisual>.8f){
             journeyStage=JourneyStage.RestorationComplete;if(NarrativePreview)BeginNarrativeClosing();else BeginManualStoryDialogue(new[]{RestorationClosingLine()});ForestRestorationCompleted?.Invoke();
         }
         return true;
     }
     bool TryRestoreWildlife(int grown){
         restorationReturnCheck="eligibility: grown="+grown+", balance="+Balance+", guided="+restorationSeeded;
-        if(grown<2||Balance<0||restorationSeeded>=2||animals.Count==0)return false;
+        if(grown<RestorationRequiredReplants||Balance<0||restorationSeeded>=2||animals.Count==0)return false;
         int local=0,living=0;Being returning=null,template=null;
         foreach(var a in animals)if(a.health>0){living++;if(template==null)template=a;
             if(a.migrationState!=2&&Vector3.Distance(a.root.position,restorationClearing)<15)local++;
@@ -93,7 +114,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     string RestorationObjective(){
         if(journeyStage==JourneyStage.RestorationArrival)return "Back to the clearing";
         if(journeyStage==JourneyStage.RestorationComplete)return "The forest is renewed\nYou can keep caring for it.";
-        if(restorationReplanted.Count<2)return "Restore the clearing\nE  Replant the stumps.";
+        if(restorationReplanted.Count<RestorationRequiredReplants)return "Restore the clearing\nE  Replant the stumps.";
         if(Balance<0)return "Let the forest recover\nReplant and tend the trees.";
         return "Life is returning\nCare for plants and animals.";
     }
