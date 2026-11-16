@@ -1,14 +1,14 @@
-2026-11-16 森林段 script
+2026-11-16 森林段现有台词
 
-文件：outputs/forest-script-20261116/Forest Script.xlsx。
-沿用队友 Level 0.xlsx 的 Index / Speaker / Content / Note 四列；English、中文两张表的索引逐行对应。Speaker沿用Gao代表高勒趣，另用Father、Shu；旁白的Speaker留空。
+当前对照表：outputs/forest-script-20261116/Forest Script - Current.xlsx。
+旧 Forest Script.xlsx 是上一版拟稿，仍保留；本表取代它作为现有游戏台词的核对依据。
 
-0–2 火塘出发；3–5 追猪；6 首次助战；7 归途；8–12 西岸发现刀丢了；13–15 署的质问；16–18 三昼夜后出发；19–24 最后返乡；25、26为两种互斥结尾。
-按事件分段触发，不整表连播。动作、镜头、AI与触发条件写在Note，不进入字幕。Content中的@等待沿用现有解析语法；没有自创指令或套用队友关卡的移动坐标。
+一张表，Index / Speaker / 中文 / English / Note 五列。共24条，中文、英文逐行对应，不再润色。Father是父亲，Gaolequ是高勒趣，Shu是署；Speaker空白表示旁白。Index是从0开始的阅读序号，不是游戏触发ID。
 
-本次是剧本拟稿，未替换游戏台词，也未自动生成/绑定DialogueLibrary。后续若接入，需分段挂接当前森林事件，并确认角色显示名、按回车推进与语言映射。中间解谜由队友负责，本稿只留衔接；首个解谜结束仍返回卷轴，不能直接跳到返乡。
+内容覆盖火塘出发、追猪、助战、归途、丢刀、署的质问、三天三夜、东行及最终返乡。备注说明触发和分支，不是字幕：丢刀前的“等等……”只在非叙事预览模式使用；返乡按有无树桩选择不同对白；两句结尾按附近是否有可见动物二选一。首个解谜结束仍返回卷轴，不会直接播放最终返乡。本表不包含队友解谜段和UI操作提示。
 
-写法参考：远端origin/main的Assets/Dialogues/Level 0.xlsx，文件由1450562提交引入；本次fetch后远端main为ce84949，本地该表与远端blob一致（61e69c925c8adda360e0dcac02c0442388af3818）。
-情节依据为已确定的游戏改编流程与当前Forest对白，英文为团队拟稿，不是经文正式译文。没有新增人与署的契约、祭祀规则或父亲遇难原因。拟稿重点是父亲“回来”的承诺、等待与最后动物归来的呼应。
+本表现在的作用是对照、修改台词和交接。修改Excel不会自动改变游戏。
+森林段的实际台词来自 Assets/DongbaPrototype/ObliqueForest.StoryLines.cs 和 ObliqueForest.RestorationEnding.cs，中英映射来自 Assets/DongbaPrototype/Resources/DongbaLanguages.json。表内只取当前en、zh，不取旧译文aliases。
+队友现有的导入工具是CSV转DialogueLibrary，需要在Unity中手动同步；它读取单个Content列，不直接读取本表的中文、English两列，也不负责改写森林代码。后续若接入统一表格，需要增加双语同步和稳定台词ID映射。此次没有改动运行时台词、触发条件或导入工具。
 
-已核对两表各27行的中英对应、0起始索引缓存、角色、空Speaker旁白和等待指令；检查了条件结尾不连播，已渲染两表全部内容并检查排版。原Level 0.xlsx文件哈希不变。本次不修改Unity运行逻辑，不生成新游戏构建，不push。
+整理时已逐条核对24条双语正文、说话人、分支说明与索引，渲染检查全部表格。原Level 0.xlsx保持不变。本次仅修改文档，未运行Unity、未生成构建包、未push。
