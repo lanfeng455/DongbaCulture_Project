@@ -59,7 +59,12 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
     }
     DialogueDisplay narrativeSubtitleDisplay;
+    internal void RefreshLanguagePresentation(){
+        bool cinematic=StoryModeEnabled&&(NarrativeInputLocked||ManualStoryDialogueActive||fatherIntroActive||RestorationArrivalLocked||AfterCaptureLocked||journeyStage==JourneyStage.ReturnForKnife||journeyStage==JourneyStage.BoarPass||storyOpeningState==StoryOpeningState.CaptureBeat||storyCurtain>.001f);
+        DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,cinematic);
+    }
     void ApplyNarrativePose(){
+        RefreshLanguagePresentation();
         if(!NarrativePreview)return;
         bool cinematic=StoryModeEnabled&&(NarrativeInputLocked||ManualStoryDialogueActive||fatherIntroActive||RestorationArrivalLocked||journeyStage==JourneyStage.ReturnForKnife);
         if(hudHealth!=null)hudHealth.transform.parent.gameObject.SetActive(!cinematic);

@@ -1,15 +1,27 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 namespace DongbaPrototype {
-public sealed class DongbaLanguageSwitch : MonoBehaviour {
+public sealed partial class DongbaLanguageSwitch : MonoBehaviour {
     public static DongbaLanguageSwitch Instance {get;private set;}
     public Canvas SwitchCanvas {get;private set;}
     public RectTransform HitRect {get;private set;}
     TMP_Text label;
+    readonly HashSet<Behaviour> presentationBlocks=new HashSet<Behaviour>();
+    public void SetPresentationBlocked(Behaviour owner,bool blocked){
+        if(owner==null)return;
+        if(blocked)presentationBlocks.Add(owner);else presentationBlocks.Remove(owner);
+        RefreshVisibility();
+    }
+    void RefreshVisibility(){
+        presentationBlocks.RemoveWhere(owner=>owner==null||!owner.isActiveAndEnabled);
+        SwitchCanvas.enabled=presentationBlocks.Count==0;
+    }
+    void LateUpdate(){RefreshVisibility();}
     void Awake(){
         if(Instance!=null){Destroy(gameObject);return;}Instance=this;DontDestroyOnLoad(gameObject);
         var canvasObject=new GameObject("Language switch",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler));canvasObject.transform.SetParent(transform,false);
@@ -23,6 +35,7 @@ public sealed class DongbaLanguageSwitch : MonoBehaviour {
         DongbaLanguage.Changed+=Refresh;SceneManager.sceneLoaded+=BindScene;Refresh();
     }
     IEnumerator Start(){
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--language-transition-test")>=0)yield return CheckLanguagePresentation();
         if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--language-check")>=0){
             ObliqueForest forest=null;while(forest==null){forest=FindFirstObjectByType<ObliqueForest>();yield return null;}
             yield return forest.CheckLanguageSwitching();
@@ -40,7 +53,7 @@ public sealed class DongbaLanguageSwitch : MonoBehaviour {
     void Update(){
         bool pressed=Keyboard.current!=null&&Keyboard.current.f8Key.wasPressedThisFrame;
         var mouse=Mouse.current;
-        if(mouse!=null&&mouse.leftButton.wasPressedThisFrame&&RectTransformUtility.RectangleContainsScreenPoint(HitRect,mouse.position.ReadValue(),null))pressed=true;
+        if(SwitchCanvas.enabled&&mouse!=null&&mouse.leftButton.wasPressedThisFrame&&RectTransformUtility.RectangleContainsScreenPoint(HitRect,mouse.position.ReadValue(),null))pressed=true;
         if(pressed)DongbaLanguage.Set(DongbaLanguage.Chinese?DongbaLocale.English:DongbaLocale.Chinese);
     }
     void BindScene(Scene scene,LoadSceneMode mode){foreach(var root in scene.GetRootGameObjects())BindRoot(root);StartCoroutine(BindAfterStart(scene));}

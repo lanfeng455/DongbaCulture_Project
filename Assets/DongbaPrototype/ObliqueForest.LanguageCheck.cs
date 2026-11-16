@@ -35,9 +35,13 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         Vector2 click=RectTransformUtility.WorldToScreenPoint(null,DongbaLanguageSwitch.Instance.HitRect.position+new Vector3(-70,-15));
         InputSystem.QueueStateEvent(mouse,new MouseState{position=click}.WithButton(MouseButton.Left));yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=click});yield return null;yield return new WaitForEndOfFrame();
-        check("Mouse language control changes language",DongbaLanguage.Chinese&&fatherIntroLine==1);
-        check("Preference saved",PlayerPrefs.GetInt(DongbaLanguage.PreferenceKey,-1)==(int)DongbaLocale.Chinese);
+        check("Hidden opening control ignores mouse clicks",!DongbaLanguageSwitch.Instance.SwitchCanvas.enabled&&!DongbaLanguage.Chinese&&fatherIntroLine==1);
         yield return PressStoryKey(Key.Enter);yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(.45f);noticeTime=0;uiHelpOpen=true;yield return null;yield return new WaitForEndOfFrame();
+        check("Language control returns after opening",DongbaLanguageSwitch.Instance.SwitchCanvas.enabled);
+        InputSystem.QueueStateEvent(mouse,new MouseState{position=click}.WithButton(MouseButton.Left));yield return null;
+        InputSystem.QueueStateEvent(mouse,new MouseState{position=click});yield return null;yield return new WaitForEndOfFrame();
+        check("Visible mouse control changes language",DongbaLanguage.Chinese);
+        check("Preference saved",PlayerPrefs.GetInt(DongbaLanguage.PreferenceKey,-1)==(int)DongbaLocale.Chinese);
         check("Chinese controls readable",uiHelpPanel.GetComponentsInChildren<UnityEngine.UI.Text>().Any(t=>t.text.Contains("照料 / 喂养")));
         DongbaLanguageCapture.Write(cam,folder+"/controls-zh.png");uiHelpOpen=false;
         var tree=plants.Find(t=>t.tree);player.position=tree.home+Vector3.right;FollowPlayerCamera(100);yield return new WaitForEndOfFrame();
@@ -61,9 +65,12 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         forestSubtitles.HideDialogue();forestSubtitles.SetCharactersPerSecond(ForestSubtitleCharactersPerSecond);SetStoryModeEnabled(true);RestartRun();fatherIntroActive=false;ResetForestSubtitles();
         PrepareJourneyDestination();journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(30,0,0);FollowPlayerCamera(100);
         var keyboard=Keyboard.current;float age=0;
-        while(!reelPortalHost.InLevel&&age<40){InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));age+=Time.unscaledDeltaTime;yield return null;}
+        bool portalHidden=true;int portalFrames=0;
+        while(!reelPortalHost.InLevel&&age<40){InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));age+=Time.unscaledDeltaTime;yield return null;if(reelPortalHost.IsBusy&&!reelPortalHost.InLevel){portalHidden&=!DongbaLanguageSwitch.Instance.SwitchCanvas.enabled;portalFrames++;}}
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+        check("Reel entry hides language control throughout transition",portalHidden&&portalFrames>0);
         check("Chinese selection survives real puzzle entry",reelPortalHost.InLevel&&DongbaLanguage.Chinese&&DongbaLanguageSwitch.Instance!=null);
+        check("Puzzle play restores language control",DongbaLanguageSwitch.Instance.SwitchCanvas.enabled);
         if(reelPortalHost.InLevel){
             var puzzle=DialogueDisplay.Instance;puzzle.PlayLine("高勒趣","高处为“白”，低处为“黑”。");puzzle.CompleteCurrentLine();yield return new WaitForEndOfFrame();
             check("Actual puzzle uses Chinese",puzzle.SubtitleText.text.Contains("高处为“白”"));
@@ -71,8 +78,11 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             check("F8 works inside puzzle",!DongbaLanguage.Chinese&&puzzle.SubtitleText.text.Contains("High ground"));
             DongbaLanguageCapture.Write(Camera.main,folder+"/actual-puzzle-en.png");
             var director=FindFirstObjectByType<PuzzleDirectorBase>();if(director!=null)typeof(PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);
-            age=0;while((reelPortalHost.InLevel||reelPortalHost.IsBusy)&&age<18){age+=Time.unscaledDeltaTime;yield return null;}
+            age=0;portalHidden=true;portalFrames=0;
+            while((reelPortalHost.InLevel||reelPortalHost.IsBusy)&&age<18){age+=Time.unscaledDeltaTime;yield return null;if(reelPortalHost.PresentationTransitionActive){portalHidden&=!DongbaLanguageSwitch.Instance.SwitchCanvas.enabled;portalFrames++;}}
+            check("Reel return hides language control throughout transition",portalHidden&&portalFrames>0);
             check("Language retained on return to reel",!reelPortalHost.InLevel&&!reelPortalHost.IsBusy&&!DongbaLanguage.Chinese&&gameObject.activeInHierarchy);
+            check("Reel walking restores language control",DongbaLanguageSwitch.Instance.SwitchCanvas.enabled);
         }
         DongbaLanguage.Set(previousLocale,false);if(hadPreference)PlayerPrefs.SetInt(DongbaLanguage.PreferenceKey,previousPreference);else PlayerPrefs.DeleteKey(DongbaLanguage.PreferenceKey);PlayerPrefs.Save();
         File.AppendAllText(report,"Puzzle completion above is a handoff simulation, not a puzzle-solving test.\n");Application.Quit(passed?0:1);

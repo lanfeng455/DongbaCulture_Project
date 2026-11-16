@@ -50,6 +50,7 @@ public class ReelPortalHost:MonoBehaviour {
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
     public bool InLevel {get;private set;} public bool IsBusy=>busy;
+    public bool PresentationTransitionActive=>busy&&(!InLevel||completed);
     public float MaxReelUvError {get;private set;}
     public float LastPositionErrorPixels {get;private set;} public float LastHeightErrorPixels {get;private set;}
     void Awake(){
@@ -87,7 +88,7 @@ public class ReelPortalHost:MonoBehaviour {
         foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);hiddenRoots.Clear();
         if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         HideOverlay();ReleaseTextures();InLevel=false;busy=false;completed=false;restorationRequested=false;
-        if(forest!=null)forest.RestartFromPortal();restarting=false;
+        if(forest!=null){forest.RestartFromPortal();forest.RefreshLanguagePresentation();}DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);restarting=false;
     }
     // Project the real, transformed sprite quad, including the capture's transparent margin.
     static Rect ActorRect(Camera camera,SpriteRenderer actor){
@@ -172,6 +173,7 @@ public class ReelPortalHost:MonoBehaviour {
     IEnumerator EnterRoutine(string scene){
         busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;EntryTravel=0;reelScroll=0;
         if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);resume?.Invoke();busy=false;yield break;}
+        DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
         handoffPhase="source capture";worstFrame=0;
         yield return new WaitForEndOfFrame(); // Capture after forest UI/ink fading has settled for this frame.
         var source=forest.ReelActorRenderer;var sourceCamera=forest.ReelViewCamera;var start=ActorRect(sourceCamera,source);BeginOverlay(sourceCamera,source);source.forceRenderingOff=true;
@@ -190,18 +192,19 @@ public class ReelPortalHost:MonoBehaviour {
         foreach(var root in level.GetRootGameObjects()){director=root.GetComponentInChildren<PuzzleDirectorBase>(true);if(director!=null)break;}
         if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
         if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination,true);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
-        if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;
+        if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
         while(!completed){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)Application.Quit();yield return null;}
+        DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
         yield return new WaitForSecondsRealtime(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
         start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;if(director!=null)director.PuzzleCompleted-=OnCompleted;
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         forest.SetReelActorScale(1);forest.SetReelTransitionFocus(0);resume?.Invoke();yield return null;yield return new WaitForEndOfFrame();
-        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();
+        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();forest.RefreshLanguagePresentation();DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
     }
     void ReleaseTextures(){destinationBackdrop.texture=backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=destinationBackgroundTexture=fromTexture=toTexture=null;}
     // Bind only to the final rescue/death sequence, not ordinary puzzle completion.
     public void ReturnToForestForRestoration(){if(!InLevel)return;restorationRequested=true;completed=true;}
     void OnCompleted(){completed=true;}
-    void OnDestroy(){SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
+    void OnDestroy(){DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
 }}
