@@ -9,7 +9,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     Material fatherKnifeInk;
     Material FatherKnifeInk {get {if(fatherKnifeInk==null)fatherKnifeInk=new Material(Resources.Load<Shader>("KnifeBloodInk"));return fatherKnifeInk;}}
     Material storyBoarInk; Being storyBoar; Transform droppedKnife; Text journeyObjective;
-    float fatherJumpAge=-1,boarAidReady,boarStun;Vector3 fatherJumpFrom,fatherJumpTo;
+    bool boarAidSpoken;float fatherJumpAge=-1,boarAidReady,boarStun;Vector3 fatherJumpFrom,fatherJumpTo;
     Vector3 knifeDropPoint;float returnWait,captureBeatAge;bool captureEventSent;bool shuConfrontationStarted,shuConfrontationFinished;
     static readonly Vector3 BoarClearing=new Vector3(23,0,0);
     static readonly Vector3 DeparturePoint=new Vector3(-7,0,0);
@@ -19,7 +19,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(storyShu!=null){Destroy(storyShu.gameObject);storyShu=null;}shuPreviewCaptured=false;carryStarted=false;
         if(storyBoar!=null){Destroy(storyBoar.root.gameObject);storyBoar=null;}
         if(droppedKnife!=null){Destroy(droppedKnife.gameObject);droppedKnife=null;}
-        journeyStage=StoryModeEnabled?JourneyStage.Hunting:JourneyStage.Off;fatherHuntTarget=null;fatherSwingAge=-1;fatherNextSwing=0;fatherSwingHit=false;fatherAIFacing=0;invitationAge=0;captureEventSent=false;shuConfrontationStarted=shuConfrontationFinished=false;returnWait=captureBeatAge=0;fatherJumpAge=-1;boarAidReady=0;boarStun=0;
+        journeyStage=StoryModeEnabled?JourneyStage.Hunting:JourneyStage.Off;fatherHuntTarget=null;fatherSwingAge=-1;fatherNextSwing=0;fatherSwingHit=false;fatherAIFacing=0;invitationAge=0;captureEventSent=false;shuConfrontationStarted=shuConfrontationFinished=false;returnWait=captureBeatAge=0;fatherJumpAge=-1;boarAidReady=0;boarAidSpoken=false;boarStun=0;
         EnsureStoryHome();boarPassComplete=false;boarPassAge=0;fatherIntroActive=StoryModeEnabled;fatherIntroLine=0;if(storyFatherKnifeImage!=null)storyFatherKnifeImage.enabled=false;
         if(StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<3f){storyFatherRoot.position=FatherHomeStart;storyFather.home=FatherHomeStart;facing=-1;heading=Vector3.left;}
     }
@@ -46,7 +46,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             float distance=Vector3.Distance(Feet,storyBoar.root.position);
             if(distance<7)storyBoar.angry=true;
             boarStun=Mathf.Max(0,boarStun-dt);
-            if(storyFatherRoot!=null&&Vector3.Distance(storyFatherRoot.position,storyBoar.root.position)<5&&clock>=boarAidReady&&distance<6){boarAidReady=clock+7;boarStun=1.6f;Tell(BoarAidLine);}
+            if(storyFatherRoot!=null&&Vector3.Distance(storyFatherRoot.position,storyBoar.root.position)<5&&clock>=boarAidReady&&distance<6){boarAidReady=clock+7;boarStun=1.6f;if(!boarAidSpoken){boarAidSpoken=true;SayDuringAction(BoarAidLine);}}
             if(storyBoar.angry&&boarStun<=0)UpdateAnimalEcology(storyBoar,dt,jumpAge<0?0:1);
         }
         if(journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health<=0){

@@ -8,6 +8,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     Image[] uiHealthPips=new Image[5];
     GameObject uiHelpShortcut,uiHelpPanel,uiObjectivePanel,uiNoticePanel,uiCoreHints,uiBoarPlate;
     bool uiHelpOpen;
+    Being careLimitTarget;string careLimitText;float careLimitUntil;
+    void ShowCareLimit(Being target,string text){careLimitTarget=target;careLimitText=text;careLimitUntil=clock+1.6f;}
+    void ClearCareLimit(){careLimitTarget=null;careLimitText="";careLimitUntil=0;}
+    void ApplyCareLimit(Being target){if(target==careLimitTarget&&clock<careLimitUntil)hudPrompt.text=careLimitText;}
     readonly Color uiAccent=new Color(.53f,.22f,.15f),uiMuted=new Color(.45f,.37f,.27f);
     void PrepareQuietUIArt(){
         const int n=64;var tex=new Texture2D(n,n,TextureFormat.RGBA32,false);tex.name="UI paper edges / not a pictograph";var pixels=new Color[n*n];
@@ -50,8 +54,9 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         uiMode.text=StoryModeEnabled?"STORY MODE":"SANDBOX";
         for(int i=0;i<uiHealthPips.Length;i++)uiHealthPips[i].color=i<health?new Color(.57f,.20f,.14f,1):new Color(.37f,.30f,.21f,.22f);
         bool dialogue=(NarrativePreview&&StoryModeEnabled&&(NarrativeInputLocked||journeyStage==JourneyStage.ReturnForKnife))||RestorationArrivalLocked||fatherIntroActive||ManualStoryDialogueActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
-        uiHelpShortcut.SetActive(!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiHelpPanel.SetActive(uiHelpOpen&&!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiCoreHints.SetActive(clock<12&&!dialogue&&!uiHelpOpen&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);
-        uiNoticePanel.SetActive(!dialogue&&hudNotice.text.Length>0);
+        uiHelpShortcut.SetActive(!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiHelpPanel.SetActive(uiHelpOpen&&!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);
+        // Keep the lower centre for character speech. Controls live in H; action results are visual.
+        uiCoreHints.SetActive(false);uiNoticePanel.SetActive(false);
         if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(StoryModeEnabled&&!dialogue&&journeyStage!=JourneyStage.ScrollTransition);
     }
     void EnsureQuietObjective(){

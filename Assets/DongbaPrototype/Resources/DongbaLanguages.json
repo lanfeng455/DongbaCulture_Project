@@ -725,6 +725,31 @@
       "id": "forest.story.knife.offer",
       "en": "I'll come with you.",
       "zh": "我跟你回去。"
+    },
+    {
+      "id": "ui.care.tended",
+      "en": "Already tended",
+      "zh": "已照料过"
+    },
+    {
+      "id": "ui.care.growing",
+      "en": "Still growing",
+      "zh": "正在生长"
+    },
+    {
+      "id": "ui.care.feeding",
+      "en": "Still feeding",
+      "zh": "还在进食"
+    },
+    {
+      "id": "ui.care.space",
+      "en": "No room nearby",
+      "zh": "附近空间不足"
+    },
+    {
+      "id": "ui.care.limit",
+      "en": "Animal limit reached",
+      "zh": "动物数量已达上限"
     }
   ]
 }

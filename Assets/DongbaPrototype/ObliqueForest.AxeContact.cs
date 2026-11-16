@@ -54,8 +54,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         if(!BladeTouchesMesh(mesh))return;
         swingContacts.Add(b);hit=true;ApplyEcologyHit(b);
-        if(b.tree){b.shake=.45f;Tell(b.health==0?"Felled - E to replant":"Axe struck the trunk");}
-        else {b.angry=true;var p=b.root.position+swingDirection*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);if(b==storyBoar)Tell("Great boar: "+b.health+" / 6");}
+        if(b.tree)b.shake=.45f;
+        else {b.angry=true;var p=b.root.position+swingDirection*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);}
     }
     bool BladeTouchesMesh(GlyphContactMesh mesh){
         for(int t=0;t<mesh.triangles.Length;t+=3){
