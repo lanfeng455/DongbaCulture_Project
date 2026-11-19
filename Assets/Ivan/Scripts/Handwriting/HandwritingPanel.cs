@@ -121,6 +121,7 @@ public class HandwritingPanel : MonoBehaviour
 
     private void Update()
     {
+        if (DongbaPrototype.DongbaInterface.GameplayBlocked) return;
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null)
         {

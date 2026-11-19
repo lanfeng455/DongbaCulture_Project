@@ -271,6 +271,7 @@ public class PlayerEntity : SceneEntity
 
     private void Update()
     {
+        if (DongbaPrototype.DongbaInterface.GameplayBlocked) return;
         if (!Application.isPlaying || m_isDead)
         {
             return;

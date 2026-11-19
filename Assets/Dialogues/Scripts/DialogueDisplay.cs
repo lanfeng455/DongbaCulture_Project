@@ -22,7 +22,7 @@ using DongbaPrototype;
 //   HideDialogue()               手动隐藏（任何时候都可调）
 //
 // 多说一句：PlayRange 是新开一段对话，旧对话如果还在放会被打断。
-public class DialogueDisplay : MonoBehaviour
+public partial class DialogueDisplay : MonoBehaviour
 {
     public static DialogueDisplay Instance { get; private set; }
 
@@ -345,6 +345,7 @@ public class DialogueDisplay : MonoBehaviour
         DongbaLanguage.Changed += RefreshLanguage;
 
         EnsureUi();
+        SetPaperPresentation(false,false);
         // 初始化必须立即隐藏：走渐变会在场景启动瞬间闪一帧全亮字幕条
         SetVisible(false, immediate: true);
     }
@@ -572,7 +573,7 @@ public class DialogueDisplay : MonoBehaviour
 
         string speakerHex = ColorUtility.ToHtmlStringRGB(m_speakerColor);
         string separator = DongbaLanguage.Chinese ? "：" : ": ";
-        return $"<color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color>{separator}{content}";
+        return $"<size=70%><color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color></size>\n{content}";
     }
 
     // Re-render the current line in place. Never restart a segment or replay @ actor commands.
@@ -788,7 +789,8 @@ public class DialogueDisplay : MonoBehaviour
         float canvasWidth = (m_canvas.transform as RectTransform).rect.width;
         float targetWidth = canvasWidth * m_widthRatio;
         rect.sizeDelta = new Vector2(targetWidth, m_minHeightInPixels);
-        rect.anchoredPosition = new Vector2(0f, m_bottomMarginInPixels);
+        rect.anchorMin=rect.anchorMax=new Vector2(.5f,paperAtTop?1:0);rect.pivot=new Vector2(.5f,paperAtTop?1:0);
+        rect.anchoredPosition = new Vector2(0f, paperAtTop?-m_bottomMarginInPixels:m_bottomMarginInPixels);
 
         m_background.color = m_backgroundColor;
         if (m_text != null)
@@ -803,7 +805,7 @@ public class DialogueDisplay : MonoBehaviour
         if (m_background == null || m_text == null) return;
         float width = Mathf.Max(100, (m_canvas.transform as RectTransform).rect.width * m_widthRatio);
         Vector2 preferred = m_text.GetPreferredValues(text, width - m_textPadding.x * 2, Mathf.Infinity);
-        m_background.rectTransform.sizeDelta = new Vector2(width, Mathf.Max(m_minHeightInPixels, preferred.y + m_textPadding.y * 2));
+        m_background.rectTransform.sizeDelta = new Vector2(width, Mathf.Max(m_minHeightInPixels, preferred.y + m_textPadding.y * 2 + (paperManual?34:0)));
     }
 
     private TMP_FontAsset ResolveFont()

@@ -89,6 +89,7 @@ public class ToolEquip : MonoBehaviour
 
     private void Update()
     {
+        if (DongbaPrototype.DongbaInterface.GameplayBlocked) return;
         RouteMouseClick();
     }
 

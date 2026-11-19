@@ -19,7 +19,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void ResetForestSubtitles(){manualStoryLines=null;manualStoryFinished=null;manualStoryIndex=0;forestSubtitleKey=null;if(forestSubtitles!=null)forestSubtitles.HideDialogue();if(forestSubtitleAdvance!=null)forestSubtitleAdvance.gameObject.SetActive(false);}
     void RefreshForestSubtitles(){
         if(!UseSharedSubtitles&&!fatherIntroActive&&!ManualStoryDialogueActive){if(forestSubtitleKey!=null)ResetForestSubtitles();if(afterCaptureCaption!=null)afterCaptureCaption.enabled=true;return;}
-        EnsureForestSubtitles();string speaker="",content="";bool actionAside=false;
+        EnsureForestSubtitles();forestSubtitles.SetPaperPresentation(journeyStage==JourneyStage.ScrollWalk||eastPaperProgress>.5f||(reelPlayerStyled&&journeyReelGroup!=null&&journeyReelGroup.alpha>.25f),StoryModeEnabled&&(fatherIntroActive||ManualStoryDialogueActive));string speaker="",content="";bool actionAside=false;
         if(StoryModeEnabled){
             if(ManualStoryDialogueActive){SplitStoryLine(manualStoryLines[manualStoryIndex],out speaker,out content);}
             else if(fatherIntroActive){
@@ -32,7 +32,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(fatherIntroPanel!=null)fatherIntroPanel.SetActive(false);
         if(afterCaptureCaption!=null)afterCaptureCaption.enabled=false;
         if(storyCaptionPaper!=null)storyCaptionPaper.gameObject.SetActive(false);
-        forestSubtitleAdvance.gameObject.SetActive(StoryModeEnabled&&(fatherIntroActive||ManualStoryDialogueActive));
+        forestSubtitleAdvance.gameObject.SetActive(false);
         forestSubtitleAdvance.color=Color.Lerp(uiMuted,new Color(.95f,.91f,.82f),Mathf.SmoothStep(0,1,storyCurtain));
         if(content.Length>0){
             if(uiNoticePanel!=null)uiNoticePanel.SetActive(false);

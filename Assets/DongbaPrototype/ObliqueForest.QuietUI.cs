@@ -26,43 +26,31 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void QuietRule(Transform parent,Vector2 position,Vector2 size,Color color){var rule=UIBlock("Ink rule / UI decoration",parent,new Vector2(0,1),new Vector2(0,1),position,size);rule.gameObject.AddComponent<Image>().color=color;}
     void BuildQuietForestHUD(GameObject go){
         PrepareQuietUIArt();
-        var header=UIBlock("Compact identity and vitality",go.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-20),new Vector2(302,104));QuietPaper(header);
-        var title=UILabel("Project name",header,new Vector2(0,1),new Vector2(0,1),new Vector2(20,-12),new Vector2(134,38),29,"DONGBA");title.font=uiHeadingFont;
-        uiMode=UILabel("Current mode",header,new Vector2(1,1),new Vector2(1,1),new Vector2(-18,-22),new Vector2(137,23),16,"");uiMode.alignment=TextAnchor.MiddleRight;uiMode.color=uiMuted;
-        QuietRule(header,new Vector2(20,-55),new Vector2(262,1),new Color(.40f,.29f,.18f,.20f));
-        hudHealth=UILabel("Health",header,new Vector2(0,1),new Vector2(0,1),new Vector2(20,-67),new Vector2(90,25),19,"Health");
-        for(int i=0;i<5;i++){var dot=UIBlock("Vitality ink dot "+i,header,new Vector2(0,1),new Vector2(.5f,.5f),new Vector2(145+i*28,-79),new Vector2(24,24));uiHealthPips[i]=dot.gameObject.AddComponent<Image>();uiHealthPips[i].sprite=uiInkDot;uiHealthPips[i].raycastTarget=false;}
-        var area=UIBlock("Place paper label",go.transform,new Vector2(1,1),new Vector2(1,1),new Vector2(-24,-24),new Vector2(216,46));QuietPaper(area,.85f);
-        hudArea=UILabel("Location",area,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(194,28),19,"");hudArea.alignment=TextAnchor.MiddleCenter;hudArea.color=uiMuted;
-        var note=UIBlock("Feedback paper",go.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,87),new Vector2(660,78));uiNoticePanel=note.gameObject;QuietPaper(note,.95f);
-        hudNotice=UILabel("Feedback",note,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(612,58),21,"");hudNotice.alignment=TextAnchor.MiddleCenter;
-        var card=UIBlock("Nearby interaction card",go.transform,new Vector2(1,0),new Vector2(1,0),new Vector2(-24,24),new Vector2(328,128));promptPanel=card.gameObject;QuietPaper(card);
-        QuietRule(card,new Vector2(18,-18),new Vector2(3,88),new Color(.53f,.22f,.15f,.60f));
-        hudPromptTitle=UILabel("Target name",card,new Vector2(0,1),new Vector2(0,1),new Vector2(34,-15),new Vector2(274,30),23,"");hudPromptTitle.fontStyle=FontStyle.Bold;
-        hudPrompt=UILabel("Available actions",card,new Vector2(0,1),new Vector2(0,1),new Vector2(34,-55),new Vector2(274,63),19,"");hudPrompt.supportRichText=true;hudPrompt.lineSpacing=1.15f;
-        var toggle=UIBlock("Controls shortcut paper",go.transform,Vector2.zero,Vector2.zero,new Vector2(24,24),new Vector2(150,42));uiHelpShortcut=toggle.gameObject;QuietPaper(toggle,.87f);var help=UILabel("Controls shortcut",toggle,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(130,28),18,"H   Controls");help.alignment=TextAnchor.MiddleCenter;
-        var hints=UIBlock("First steps hint",go.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,24),new Vector2(610,42));uiCoreHints=hints.gameObject;QuietPaper(hints,.84f);var hintText=UILabel("Core keys",hints,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(582,28),18,"WASD  Move     SPACE  Jump     E  Care     J  Axe");hintText.alignment=TextAnchor.MiddleCenter;
-        var controls=UIBlock("Expanded controls",go.transform,Vector2.zero,Vector2.zero,new Vector2(24,78),new Vector2(350,370));uiHelpPanel=controls.gameObject;QuietPaper(controls,.98f);
-        var controlTitle=UILabel("Help title",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-18),new Vector2(302,35),25,"Controls");controlTitle.font=uiHeadingFont;
-        QuietRule(controls,new Vector2(24,-61),new Vector2(302,1),new Color(.40f,.29f,.18f,.2f));
-        var keys=UILabel("Keys",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-79),new Vector2(146,274),18,"WASD / Arrows\nSpace\nJ / Enter\nE\nR\nF5\nEsc\nH");keys.lineSpacing=1.23f;keys.fontStyle=FontStyle.Bold;
-        var actions=UILabel("Key actions",controls,new Vector2(0,1),new Vector2(0,1),new Vector2(176,-79),new Vector2(150,274),18,"Move\nJump\nAxe\nCare / feed\nRestart\nStory / sandbox\nQuit\nClose controls");actions.lineSpacing=1.23f;
-        uiHelpPanel.SetActive(false);uiNoticePanel.SetActive(false);
+        var healthPlate=UIBlock("Contextual health",go.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(28,-138),new Vector2(252,48));QuietPaper(healthPlate);
+        hudHealth=UILabel("Health",healthPlate,new Vector2(0,1),new Vector2(0,1),new Vector2(16,-10),new Vector2(76,27),18,"Health");
+        for(int i=0;i<5;i++){var dot=UIBlock("Health ink dot "+i,healthPlate,new Vector2(0,1),new Vector2(.5f,.5f),new Vector2(112+i*25,-24),new Vector2(20,20));uiHealthPips[i]=dot.gameObject.AddComponent<Image>();uiHealthPips[i].sprite=uiInkDot;uiHealthPips[i].raycastTarget=false;}
+        uiMode=UILabel("Legacy mode / hidden",healthPlate,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.one,16,"");uiMode.gameObject.SetActive(false);
+        var area=UIBlock("Legacy area / hidden",go.transform,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.one);hudArea=UILabel("Area",area,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.one,16,"");area.gameObject.SetActive(false);
+        var note=UIBlock("Legacy notice / hidden",go.transform,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.one);uiNoticePanel=note.gameObject;hudNotice=UILabel("Notice",note,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.one,16,"");note.gameObject.SetActive(false);
+        var card=UIBlock("Nearby interaction",go.transform,new Vector2(1,0),new Vector2(1,0),new Vector2(-28,28),new Vector2(360,156));promptPanel=card.gameObject;QuietPaper(card);
+        QuietRule(card,new Vector2(22,-20),new Vector2(30,2),uiAccent);
+        hudPromptTitle=UILabel("Target",card,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-28),new Vector2(312,30),24,"");hudPromptTitle.fontStyle=FontStyle.Bold;
+        hudPrompt=UILabel("Actions",card,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-65),new Vector2(312,55),20,"");hudPrompt.supportRichText=true;hudPrompt.lineSpacing=1.12f;
+        var help=UIBlock("Help shortcut",go.transform,Vector2.zero,Vector2.zero,new Vector2(28,28),new Vector2(158,44));uiHelpShortcut=help.gameObject;QuietPaper(help,.92f);
+        var key=UILabel("Controls shortcut",help,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(138,28),18,"H   Controls");key.alignment=TextAnchor.MiddleCenter;
+        var tutorial=UIBlock("First action",go.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,28),new Vector2(560,52));uiCoreHints=tutorial.gameObject;QuietPaper(tutorial,.94f);
+        var hint=UILabel("Context tutorial",tutorial,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(526,34),20,"");hint.alignment=TextAnchor.MiddleCenter;
+        uiHelpPanel=new GameObject("Legacy help / replaced by shared menu");uiHelpPanel.transform.SetParent(go.transform);uiHelpPanel.SetActive(false);
+        BuildInteractionPolish();
     }
     void HandleQuietHUDInput(Keyboard keyboard){if(keyboard!=null&&keyboard.hKey.wasPressedThisFrame)uiHelpOpen=!uiHelpOpen;}
-    void RefreshQuietHUD(){
-        uiMode.text=StoryModeEnabled?"STORY MODE":"SANDBOX";
-        for(int i=0;i<uiHealthPips.Length;i++)uiHealthPips[i].color=i<health?new Color(.57f,.20f,.14f,1):new Color(.37f,.30f,.21f,.22f);
-        bool dialogue=(NarrativePreview&&StoryModeEnabled&&(NarrativeInputLocked||journeyStage==JourneyStage.ReturnForKnife))||RestorationArrivalLocked||fatherIntroActive||ManualStoryDialogueActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
-        uiHelpShortcut.SetActive(!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiHelpPanel.SetActive(uiHelpOpen&&!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);
-        // Keep the lower centre for character speech. Controls live in H; action results are visual.
-        uiCoreHints.SetActive(false);uiNoticePanel.SetActive(false);
-        if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(StoryModeEnabled&&!dialogue&&journeyStage!=JourneyStage.ScrollTransition);
-    }
+    void RefreshQuietHUD(){RefreshContextHUD();}
     void EnsureQuietObjective(){
         if(journeyObjective!=null||forestCanvas==null)return;
-        var panel=UIBlock("Story objective paper",forestCanvas.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-136),new Vector2(462,92));uiObjectivePanel=panel.gameObject;QuietPaper(panel,.91f);
-        QuietRule(panel,new Vector2(18,-18),new Vector2(3,56),new Color(.53f,.22f,.15f,.55f));journeyObjective=UILabel("Story objective",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(34,-15),new Vector2(410,65),21,"");journeyObjective.lineSpacing=1.12f;
+        var panel=UIBlock("Current objective",forestCanvas.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(28,-28),new Vector2(430,98));uiObjectivePanel=panel.gameObject;QuietPaper(panel,.94f);
+        objectiveFade=panel.gameObject.AddComponent<CanvasGroup>();
+        objectiveTag=UILabel("Objective update",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(22,-12),new Vector2(382,23),16,"Current objective");objectiveTag.color=uiAccent;
+        journeyObjective=UILabel("Objective",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(22,-38),new Vector2(382,55),21,"");journeyObjective.lineSpacing=1.12f;
     }
     RectTransform CreateQuietDialogue(string name,out Text speaker,out Text content,out Text advance,out Text progress){
         var panel=UIBlock(name,forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,28),new Vector2(1000,160));QuietPaper(panel,.98f);
@@ -88,7 +76,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
     }
     void EnsureQuietBoarMarker(){
-        if(boarMarker!=null||forestCanvas==null)return;var panel=UIBlock("Great boar marker paper",forestCanvas.transform,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(190,68));uiBoarPlate=panel.gameObject;QuietPaper(panel,.92f);
-        boarMarker=UILabel("Great boar target",panel,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(170,54),20,"");boarMarker.alignment=TextAnchor.MiddleCenter;boarMarker.color=uiAccent;
+        if(boarMarker!=null||forestCanvas==null)return;
+        var panel=UIBlock("Great boar",forestCanvas.transform,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(200,64));uiBoarPlate=panel.gameObject;QuietPaper(panel,.94f);
+        boarMarker=UILabel("Great boar name",panel,new Vector2(.5f,1),new Vector2(.5f,1),new Vector2(0,-9),new Vector2(176,28),20,"");boarMarker.alignment=TextAnchor.MiddleCenter;boarMarker.color=uiAccent;
+        var track=UIBlock("Health track",panel,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,13),new Vector2(160,7));track.gameObject.AddComponent<Image>().color=new Color(.3f,.2f,.1f,.15f);
+        var fill=UIBlock("Remaining health",track,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero);fill.anchorMax=Vector2.one;boarHealthFill=fill.gameObject.AddComponent<Image>();boarHealthFill.color=uiAccent;
     }
 }}

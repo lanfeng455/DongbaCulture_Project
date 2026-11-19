@@ -118,16 +118,14 @@ public partial class ObliqueForest {
         for(int i=0;i<40;i++){float a=i*Mathf.PI*2/40;line.SetPosition(i,new Vector3(Mathf.Cos(a)*.55f,.09f,Mathf.Sin(a)*.43f));}UpdateForestPresentation(0);
     }
     void UpdateForestPresentation(float dt){
-        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=(RestorationArrivalLocked||AfterCapturePeaceful||fatherIntroActive||storyOpeningState==StoryOpeningState.CaptureBeat)?null:NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
-        if(interactionTarget!=null){var b=interactionTarget;selectionRing.position=b.root.position;hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";hudPrompt.text=b.animal?(b.age<2?"<b>E</b>   Feed to grow\n<b>J</b>   Attack":"<b>E</b>   Feed / new young\n<b>J</b>   Attack"):b.health<=0?"<b>E</b>   Replant here":b.cultivated?"Tended once\n<b>J</b>   Chop":"<b>E</b>   Tend\n<b>J</b>   Chop";}
-        if(interactionTarget!=null)ApplyCareLimit(interactionTarget);
-        if(displayedHealth!=health){displayedHealth=health;hudHealth.text="Health";}hudNotice.text="";
-        float bank=Feet.x-RiverX(Feet.z);hudArea.text=InScrollWorld?"Rescue scroll":Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";RefreshQuietHUD();
+        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();
+        interactionTarget=InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0?NearestForestInteraction():null;
+        RefreshQuietHUD();
     }
     Being NearestForestInteraction(){
         Being near=null;float best=1.8f*InteractionRange;foreach(var b in plants)if(b.tree){float d=Vector3.Distance(Feet,b.home);if(d<best){best=d;near=b;}}
-        foreach(var b in animals)if(b.health>0&&b.migrationState!=2){float d=Vector3.Distance(Feet,b.root.position);if(d<best){best=d;near=b;}}
-        if(interactionTarget!=null&&(!interactionTarget.animal||interactionTarget.health>0)){float current=Vector3.Distance(Feet,interactionTarget.root.position);if(current<1.8f*InteractionRange&&current<best+.18f)return interactionTarget;}return near;
+        foreach(var b in animals)if(b.health>0&&b.migrationState!=2&&b.root.gameObject.activeInHierarchy){float d=Vector3.Distance(Feet,b.root.position);if(d<best){best=d;near=b;}}
+        if(interactionTarget!=null&&interactionTarget.root.gameObject.activeInHierarchy&&(!interactionTarget.animal||(interactionTarget.health>0&&interactionTarget.migrationState!=2))){float current=Vector3.Distance(Feet,interactionTarget.root.position);if(current<1.8f*InteractionRange&&current<best+.18f)return interactionTarget;}return near;
     }
     IEnumerator CaptureForestLayout(){
         Directory.CreateDirectory("Verification");yield return new WaitForSeconds(2);

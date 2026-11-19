@@ -44,7 +44,7 @@ public class ReelPortalHost:MonoBehaviour {
         if(preparedDialogue!=null)preparedDialogue.ReleaseForSceneHandoff();
         if(forestDialogue!=null&&!busy)forestDialogue.RestoreAfterSceneHandoff(false);
     }
-    static float WalkInput(){var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
+    static float WalkInput(){if(DongbaInterface.GameplayBlocked)return 0;var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
     void WalkPaper(float dt,float weight){walkingPhase+=dt*Mathf.Abs(WalkInput())*11.2f;float angle=Mathf.Sin(walkingPhase)*1.25f*weight;fromActor.rectTransform.localRotation=Quaternion.Euler(0,0,angle);}
     Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
@@ -65,15 +65,8 @@ public class ReelPortalHost:MonoBehaviour {
     void HideOverlay(){destinationBackdrop.gameObject.SetActive(false);backdrop.gameObject.SetActive(false);fromActor.gameObject.SetActive(false);toActor.gameObject.SetActive(false);}
     Coroutine entryRoutine;bool restarting;
     public void Enter(ObliqueForest source,string scene,Action onReturn){if(busy)return;forest=source;resume=onReturn;entryRoutine=StartCoroutine(EnterRoutine(scene));}
-    void Update(){
-        if(!busy||restarting||Keyboard.current==null)return;
-        if(Keyboard.current.escapeKey.wasPressedThisFrame){
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying=false;
-#else
-            Application.Quit();
-#endif
-        }else if(Keyboard.current.rKey.wasPressedThisFrame)StartCoroutine(RestartForestSession());
+    public IEnumerator LeaveForInterface(){
+        if(busy||InLevel||preload!=null)yield return RestartForestSession();
     }
     IEnumerator RestartForestSession(){
         restarting=true;if(entryRoutine!=null)StopCoroutine(entryRoutine);
@@ -136,7 +129,7 @@ public class ReelPortalHost:MonoBehaviour {
         // A single continuous camera move changes position and lens together.
         handoffPhase="camera blend";float time=0;Rect current=start;
         while(time<1){
-            float dt=Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime;
+            float dt=DongbaInterface.Instance!=null&&DongbaInterface.Instance.ModalOpen?0:Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime;
             time+=dt/(outgoingReel?2.8f:1.8f);
             Vector3 travel=outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero;
             if(outgoingReel)EntryTravel=travel.magnitude;
@@ -181,7 +174,7 @@ public class ReelPortalHost:MonoBehaviour {
         hiddenRoots.Clear();foreach(var root in forestScene.GetRootGameObjects())if(root.activeSelf){hiddenRoots.Add(root);root.SetActive(false);}
         handoffPhase="scene activation";
         var load=preload!=null&&preloadedScene==scene?preload:SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);preload=load;preloadedScene=scene;load.allowSceneActivation=true;
-        while(!load.isDone){float dt=Time.unscaledDeltaTime;reelScroll+=WalkInput()*dt*.055f;backdrop.uvRect=new Rect(reelScroll,0,1,1);WalkPaper(dt,1);yield return null;}preload=null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
+        while(!load.isDone){float dt=(DongbaInterface.Instance!=null&&DongbaInterface.Instance.ModalOpen?0:Time.unscaledDeltaTime);reelScroll+=WalkInput()*dt*.055f;backdrop.uvRect=new Rect(reelScroll,0,1,1);WalkPaper(dt,1);yield return null;}preload=null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
         if(forestDialogue!=null)forestDialogue.ReleaseForSceneHandoff();
         foreach(var root in preparedRoots)if(root!=null)root.SetActive(true);preparedRoots.Clear();
         if(preparedDialogue!=null)preparedDialogue.RestoreAfterSceneHandoff();
@@ -193,9 +186,9 @@ public class ReelPortalHost:MonoBehaviour {
         if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
         if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination,true);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
         if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
-        while(!completed){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)Application.Quit();yield return null;}
+        while(!completed){yield return null;}
         DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
-        yield return new WaitForSecondsRealtime(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
+        yield return new WaitForSeconds(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
         start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;if(director!=null)director.PuzzleCompleted-=OnCompleted;
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();

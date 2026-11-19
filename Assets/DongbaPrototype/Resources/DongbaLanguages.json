@@ -750,6 +750,256 @@
       "id": "ui.care.limit",
       "en": "Animal limit reached",
       "zh": "动物数量已达上限"
+    },
+    {
+      "id": "interface.20261119.0",
+      "en": "Begin story",
+      "zh": "开始故事"
+    },
+    {
+      "id": "interface.20261119.1",
+      "en": "Settings",
+      "zh": "设置"
+    },
+    {
+      "id": "interface.20261119.2",
+      "en": "Quit game",
+      "zh": "退出游戏"
+    },
+    {
+      "id": "interface.20261119.3",
+      "en": "Paused",
+      "zh": "已暂停"
+    },
+    {
+      "id": "interface.20261119.4",
+      "en": "Resume",
+      "zh": "继续游戏"
+    },
+    {
+      "id": "interface.20261119.5",
+      "en": "Restart story",
+      "zh": "重新开始故事"
+    },
+    {
+      "id": "interface.20261119.6",
+      "en": "Return to title",
+      "zh": "返回主菜单"
+    },
+    {
+      "id": "interface.20261119.7",
+      "en": "Back",
+      "zh": "返回"
+    },
+    {
+      "id": "interface.20261119.8",
+      "en": "Confirm",
+      "zh": "确认"
+    },
+    {
+      "id": "interface.20261119.9",
+      "en": "Cancel",
+      "zh": "取消"
+    },
+    {
+      "id": "interface.20261119.10",
+      "en": "Restart the story?",
+      "zh": "重新开始故事？"
+    },
+    {
+      "id": "interface.20261119.11",
+      "en": "Return to the title?",
+      "zh": "返回主菜单？"
+    },
+    {
+      "id": "interface.20261119.12",
+      "en": "Quit game?",
+      "zh": "退出游戏？"
+    },
+    {
+      "id": "interface.20261119.13",
+      "en": "Close the game?",
+      "zh": "确定关闭游戏？"
+    },
+    {
+      "id": "interface.20261119.14",
+      "en": "Opening the story…",
+      "zh": "正在展开故事……"
+    },
+    {
+      "id": "interface.20261119.15",
+      "en": "Return to the opening by the hearth. All progress in this run will be lost.",
+      "zh": "将回到火塘旁的开场，本次游玩进度不会保留。"
+    },
+    {
+      "id": "interface.20261119.16",
+      "en": "There is no saved progress. Leaving will end this run.",
+      "zh": "当前没有存档，离开后本次游玩进度不会保留。"
+    },
+    {
+      "id": "interface.20261119.17",
+      "en": "Story complete",
+      "zh": "故事完成"
+    },
+    {
+      "id": "interface.20261119.18",
+      "en": "You can stay in the forest and keep exploring.",
+      "zh": "你可以留在森林里，继续探索与照料。"
+    },
+    {
+      "id": "interface.20261119.19",
+      "en": "Keep exploring",
+      "zh": "继续探索"
+    },
+    {
+      "id": "interface.20261119.20",
+      "en": "Master volume",
+      "zh": "总音量"
+    },
+    {
+      "id": "interface.20261119.21",
+      "en": "Mute",
+      "zh": "静音"
+    },
+    {
+      "id": "interface.20261119.22",
+      "en": "Unmute",
+      "zh": "取消静音"
+    },
+    {
+      "id": "interface.20261119.23",
+      "en": "Language / 语言",
+      "zh": "语言 / Language"
+    },
+    {
+      "id": "interface.20261119.24",
+      "en": "Controls all game audio. Settings are saved on this computer.",
+      "zh": "调节所有游戏声音。设置会保存在这台电脑上。"
+    },
+    {
+      "id": "interface.20261119.25",
+      "en": "Current objective",
+      "zh": "当前目标"
+    },
+    {
+      "id": "interface.20261119.26",
+      "en": "Eating — please wait",
+      "zh": "正在进食，请稍候"
+    },
+    {
+      "id": "interface.20261119.27",
+      "en": "Growing — please wait",
+      "zh": "正在生长，请稍候"
+    },
+    {
+      "id": "interface.20261119.28",
+      "en": "Replanted",
+      "zh": "已补种"
+    },
+    {
+      "id": "interface.20261119.29",
+      "en": "Tended",
+      "zh": "已照料"
+    },
+    {
+      "id": "interface.20261119.30",
+      "en": "Fed — growing",
+      "zh": "已喂养，正在长大"
+    },
+    {
+      "id": "interface.20261119.31",
+      "en": "Fed — young animal nearby",
+      "zh": "已喂养，幼兽出现在附近"
+    },
+    {
+      "id": "interface.20261119.32",
+      "en": "E   Feed to grow",
+      "zh": "E   喂养，让幼兽长大"
+    },
+    {
+      "id": "interface.20261119.33",
+      "en": "E   Feed / new young",
+      "zh": "E   喂养，繁育幼兽"
+    },
+    {
+      "id": "interface.20261119.34",
+      "en": "E   Replant here",
+      "zh": "E   在此补种"
+    },
+    {
+      "id": "interface.20261119.35",
+      "en": "E   Tend",
+      "zh": "E   照料"
+    },
+    {
+      "id": "interface.20261119.36",
+      "en": "J   Attack",
+      "zh": "J   攻击"
+    },
+    {
+      "id": "interface.20261119.37",
+      "en": "J   Chop",
+      "zh": "J   砍伐"
+    },
+    {
+      "id": "interface.20261119.38",
+      "en": "WASD / Arrows   Move",
+      "zh": "WASD / 方向键   移动"
+    },
+    {
+      "id": "interface.20261119.39",
+      "en": "SPACE   Jump across the river",
+      "zh": "空格   跳过河流"
+    },
+    {
+      "id": "interface.20261119.40",
+      "en": "J   Swing the axe",
+      "zh": "J   挥动斧头"
+    },
+    {
+      "id": "interface.20261119.41",
+      "en": "Approach a stump, then press E to replant.",
+      "zh": "靠近树桩，按 E 补种。"
+    },
+    {
+      "id": "interface.20261119.42",
+      "en": "SPACE   Jump",
+      "zh": "空格   跳跃"
+    },
+    {
+      "id": "interface.20261119.43",
+      "en": "J   Chop / attack",
+      "zh": "J   砍伐 / 攻击"
+    },
+    {
+      "id": "interface.20261119.44",
+      "en": "E   Replant / tend / feed",
+      "zh": "E   补种 / 照料 / 喂养"
+    },
+    {
+      "id": "interface.20261119.45",
+      "en": "ENTER   Continue dialogue",
+      "zh": "回车   继续对白"
+    },
+    {
+      "id": "interface.20261119.46",
+      "en": "ESC   Pause / back",
+      "zh": "Esc   暂停 / 返回"
+    },
+    {
+      "id": "interface.20261119.47",
+      "en": "H   Open / close controls",
+      "zh": "H   打开 / 关闭操作说明"
+    },
+    {
+      "id": "interface.20261119.48",
+      "en": "R   Restart the entire story",
+      "zh": "R   重新开始整个故事"
+    },
+    {
+      "id": "interface.20261119.49",
+      "en": "E   Interact with the nearby object",
+      "zh": "E   与附近对象交互"
     }
   ]
 }

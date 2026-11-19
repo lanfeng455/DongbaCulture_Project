@@ -209,6 +209,7 @@ namespace Ivan.Diorama
 
         private void Update()
         {
+            if (DongbaPrototype.DongbaInterface.GameplayBlocked) { m_moveInput=Vector3.zero; return; }
             float dt = Time.deltaTime;
             m_clock += dt;
 
@@ -239,7 +240,7 @@ namespace Ivan.Diorama
                     // 跳跃期间关闭所有水体碰撞，让玩家能跨过河面（落地时恢复）
                     DioramaRiver.SetWaterEnabled(false);
                 }
-                if ((kb.jKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame) && m_attackAge < 0)
+                if (kb.jKey.wasPressedThisFrame && m_attackAge < 0)
                 {
                     m_attackAge = 0f;
                     m_hitDone = false;
