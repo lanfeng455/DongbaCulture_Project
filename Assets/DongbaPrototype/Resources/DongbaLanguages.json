@@ -1000,6 +1000,11 @@
       "id": "interface.20261119.49",
       "en": "E   Interact with the nearby object",
       "zh": "E   与附近对象交互"
+    },
+    {
+      "id": "interface.manuscript.title-caption",
+      "en": "A NAXI TALE",
+      "zh": "纳西故事"
     }
   ]
 }

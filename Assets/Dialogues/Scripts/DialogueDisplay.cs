@@ -397,6 +397,7 @@ public partial class DialogueDisplay : MonoBehaviour
 
                 SetVisible(true);
                 m_visibleEntry = entry;
+                UpdatePaperPortrait();
                 string line = FormatLine(entry);
                 await TypeLineAsync(line, token);
 
@@ -572,7 +573,6 @@ public partial class DialogueDisplay : MonoBehaviour
         }
 
         string speakerHex = ColorUtility.ToHtmlStringRGB(m_speakerColor);
-        string separator = DongbaLanguage.Chinese ? "：" : ": ";
         return $"<size=70%><color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color></size>\n{content}";
     }
 
@@ -804,7 +804,7 @@ public partial class DialogueDisplay : MonoBehaviour
     {
         if (m_background == null || m_text == null) return;
         float width = Mathf.Max(100, (m_canvas.transform as RectTransform).rect.width * m_widthRatio);
-        Vector2 preferred = m_text.GetPreferredValues(text, width - m_textPadding.x * 2, Mathf.Infinity);
+        Vector2 preferred = m_text.GetPreferredValues(text, width - (paperStyled?paperTextLeft+paperTextRight:m_textPadding.x*2), Mathf.Infinity);
         m_background.rectTransform.sizeDelta = new Vector2(width, Mathf.Max(m_minHeightInPixels, preferred.y + m_textPadding.y * 2 + (paperManual?34:0)));
     }
 

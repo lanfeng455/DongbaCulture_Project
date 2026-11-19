@@ -16,7 +16,7 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     public bool ModalOpen=>page!=Page.None;
     public Page CurrentPage=>page;
     public static string Choose(string en,string zh)=>DongbaLanguage.Chinese?zh:en;
-    Canvas canvas;RectTransform safe,panel;GameObject modal,titleMenu;Text volumeReadout;Slider volumeSlider;Button muteButton;
+    Canvas canvas;RectTransform safe,panel,menuPage;GameObject modal,titleMenu;Text volumeReadout;Slider volumeSlider;Button muteButton;
     Page page,returnPage;bool onTitle,muted,loading,startStoryOnLoad;int consumeThroughFrame=-1;float savedTimeScale=1,masterVolume=1;
     ObliqueForest forest;InkBloomTransition titleTransition;EventSystem ownedEventSystem;
     const string VolumeKey="Dongba.Audio.Master",MuteKey="Dongba.Audio.Muted";
@@ -89,11 +89,14 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         if(next==Page.None)Close();else{page=next;returnPage=Page.None;BuildModal();}
     }
     void BuildTitleMenu(){
-        var root=DongbaUIStyle.Rect("Story title actions",safe,new Vector2(.12f,.30f),new Vector2(0,.5f),Vector2.zero,new Vector2(360,202));titleMenu=root.gameObject;
-        DongbaUIStyle.Plate(root,new Color(.96f,.93f,.86f,.94f));
-        DongbaUIStyle.Button(root,"Begin story",new Vector2(18,-18),new Vector2(324,48),BeginStory);
-        DongbaUIStyle.Button(root,"Settings",new Vector2(18,-76),new Vector2(324,48),()=>Open(Page.Settings));
-        DongbaUIStyle.Button(root,"Quit game",new Vector2(18,-134),new Vector2(324,48),()=>Open(Page.Quit));SelectFirst(root.gameObject);
+        var root=DongbaUIStyle.Rect("Story title actions",safe,new Vector2(.075f,.33f),new Vector2(0,.5f),Vector2.zero,new Vector2(340,250));titleMenu=root.gameObject;
+        var intro=DongbaUIStyle.Label("Story title caption",root,Choose("A NAXI TALE","纳西故事"),new Vector2(10,-2),new Vector2(320,28),16);intro.color=new Color(.92f,.86f,.73f);
+        string[] names={"Begin story","Settings","Quit game"};
+        for(int i=0;i<3;i++){
+            var leaf=DongbaUIStyle.Rect("Cut title leaf",root,new Vector2(0,1),new Vector2(0,1),new Vector2(i*5,-40-i*68),new Vector2(330-i*26,58));DongbaUIStyle.EdgeShadow(DongbaUIStyle.Plate(leaf,Color.white));
+            int action=i;DongbaUIStyle.Button(leaf,names[i],new Vector2(10,-3),new Vector2(306-i*26,50),()=>{if(action==0)BeginStory();else Open(action==1?Page.Settings:Page.Quit);});
+        }
+        SelectFirst(root.gameObject);
     }
     public void BeginStory(){
         if(loading)return;Close(false);loading=true;startStoryOnLoad=true;consumeThroughFrame=Time.frameCount+2;if(titleMenu!=null)titleMenu.SetActive(false);
@@ -102,46 +105,68 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     void BuildModal(){
         if(modal!=null){modal.SetActive(false);Destroy(modal);}volumeSlider=null;volumeReadout=null;muteButton=null;
         var root=DongbaUIStyle.Rect("Modal "+page,canvas.transform,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero);root.anchorMax=Vector2.one;
-        modal=root.gameObject;var shade=modal.AddComponent<Image>();shade.color=new Color(.14f,.11f,.08f,page==Page.Loading?1:.46f);
-        var height=page==Page.Help?650:page==Page.Pause?560:page==Page.Settings?530:page==Page.Ending?340:350;
-        panel=DongbaUIStyle.Rect("Paper",root,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(620,height));DongbaUIStyle.Plate(panel,DongbaUIStyle.Paper,true);
+        modal=root.gameObject;var shade=modal.AddComponent<Image>();shade.color=new Color(.12f,.095f,.065f,page==Page.Loading?1:.62f);
+        panel=DongbaUIStyle.Rect("Open manuscript",root,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(970,660));
+        var under=DongbaUIStyle.Rect("Underlying leaf",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(6,-7),new Vector2(962,650));var underside=DongbaUIStyle.Plate(under,new Color(.84f,.80f,.69f));DongbaUIStyle.EdgeShadow(underside,.25f);
+        var left=DongbaUIStyle.Rect("Story leaf",panel,new Vector2(0,1),new Vector2(0,1),Vector2.zero,new Vector2(348,652));DongbaUIStyle.Plate(left,new Color(.94f,.91f,.83f));
+        menuPage=DongbaUIStyle.Rect("Menu leaf",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(340,0),new Vector2(630,656));DongbaUIStyle.Plate(menuPage,Color.white,true);
+        DongbaUIStyle.Stroke(left,new Vector2(329,-25),new Vector2(2,598),new Color(.27f,.18f,.10f,.2f));
+        BuildStoryLeaf(left);
+        var small=DongbaUIStyle.Label("Page caption",menuPage,"DONGBA  /  THE LIVING SCRIPT",new Vector2(38,-27),new Vector2(550,24),13);small.color=DongbaUIStyle.Muted;
         string title=page==Page.Pause?"Paused":page==Page.Help?"Controls":page==Page.Settings?"Settings":page==Page.Restart?"Restart the story?":page==Page.ReturnTitle?"Return to the title?":page==Page.Quit?"Quit game?":page==Page.Ending?"Story complete":"Opening the story…";
-        var heading=DongbaUIStyle.Label("Heading",panel,title,new Vector2(36,-28),new Vector2(548,46),32);heading.fontStyle=FontStyle.Bold;
-        var rule=DongbaUIStyle.Rect("Ink rule",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(36,-87),new Vector2(548,1));DongbaUIStyle.Plate(rule,new Color(.4f,.3f,.2f,.25f));
+        var heading=DongbaUIStyle.Label("Heading",menuPage,title,new Vector2(36,-57),new Vector2(554,66),40);DongbaUIStyle.Serif(heading);
+        DongbaUIStyle.Stroke(menuPage,new Vector2(36,-128),new Vector2(550,2),new Color(.33f,.23f,.13f,.55f));
         if(page==Page.Pause){
-            MenuButton("Resume",108,()=>Close());MenuButton("Controls",174,()=>Open(Page.Help));MenuButton("Settings",240,()=>Open(Page.Settings));
-            MenuButton("Restart story",306,()=>Open(Page.Restart));MenuButton("Return to title",372,()=>Open(Page.ReturnTitle));MenuButton("Quit game",438,()=>Open(Page.Quit));
+            MenuButton("Resume",151,()=>Close(),1);MenuButton("Controls",215,()=>Open(Page.Help),2);MenuButton("Settings",279,()=>Open(Page.Settings),3);
+            MenuButton("Restart story",343,()=>Open(Page.Restart),4);MenuButton("Return to title",407,()=>Open(Page.ReturnTitle),5);MenuButton("Quit game",471,()=>Open(Page.Quit),6);
+            var foot=DongbaUIStyle.Label("Return key",menuPage,Choose("ESC  ·  Return to the forest","ESC  ·  回到故事"),new Vector2(54,-588),new Vector2(510,26),16);foot.color=DongbaUIStyle.Muted;
         }else if(page==Page.Help){
             bool puzzle=SceneManager.GetActiveScene().name=="Beat_2_Cleansing_Impurity";
-            string help=puzzle?"WASD / Arrows   Move\nSPACE   Jump\nJ   Attack\nE   Interact with the nearby object\nESC   Pause / back\nH   Open / close controls\nR   Restart the entire story":"WASD / Arrows   Move\nSPACE   Jump across the river\nJ   Chop / attack\nE   Replant / tend / feed\nENTER   Continue dialogue\nESC   Pause / back\nH   Open / close controls\nR   Restart the entire story";
-            var body=DongbaUIStyle.Label("Controls",panel,help,new Vector2(36,-112),new Vector2(548,410),24);body.lineSpacing=1.45f;
+            string[] keys={"WASD","SPACE","J","E","ENTER","ESC","H","R"};
+            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Continue dialogue","Pause / back","Controls","Restart the story"};
+            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","继续对白","暂停 / 返回","操作说明","重新开始故事"};
+            for(int i=0;i<keys.Length;i++){
+                var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-i*46),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));
+                var key=DongbaUIStyle.Label("Key text",badge,keys[i],new Vector2(4,-4),new Vector2(78,26),16);key.alignment=TextAnchor.MiddleCenter;key.color=DongbaUIStyle.Accent;
+                DongbaUIStyle.Label("Control action",menuPage,Choose(en[i],zh[i]),new Vector2(146,-156-i*46),new Vector2(436,34),22);
+            }
             MenuButton("Back",566,Back);
         }else if(page==Page.Settings){
-            DongbaUIStyle.Label("Volume label",panel,"Master volume",new Vector2(36,-114),new Vector2(310,36),24);
-            volumeReadout=DongbaUIStyle.Label("Volume value",panel,"",new Vector2(405,-114),new Vector2(143,36),22);volumeReadout.alignment=TextAnchor.MiddleRight;
-            BuildVolumeSlider();muteButton=MenuButton("Mute",226,()=>{muted=!muted;ApplyVolume();RefreshVolume();});
-            var language=MenuButton("Language / 语言",300,()=>{DongbaLanguage.Set(DongbaLanguage.Chinese?DongbaLocale.English:DongbaLocale.Chinese);});
-            language.GetComponentInChildren<Text>().text=Choose("Language: English","语言：简体中文");
-            var hint=DongbaUIStyle.Label("Audio scope",panel,"Controls all game audio. Settings are saved on this computer.",new Vector2(36,-369),new Vector2(548,57),19);hint.color=DongbaUIStyle.Muted;
-            MenuButton("Back",446,Back);RefreshVolume();
+            DongbaUIStyle.Label("Volume label",menuPage,"Master volume",new Vector2(40,-161),new Vector2(310,36),24);
+            volumeReadout=DongbaUIStyle.Label("Volume value",menuPage,"",new Vector2(405,-161),new Vector2(143,36),22);volumeReadout.alignment=TextAnchor.MiddleRight;
+            BuildVolumeSlider();muteButton=MenuButton("Mute",280,()=>{muted=!muted;ApplyVolume();RefreshVolume();});
+            var language=MenuButton("Language / 语言",356,()=>DongbaLanguage.Set(DongbaLanguage.Chinese?DongbaLocale.English:DongbaLocale.Chinese));language.GetComponentInChildren<Text>().text=Choose("Language: English","语言：简体中文");
+            var hint=DongbaUIStyle.Label("Audio scope",menuPage,"Controls all game audio. Settings are saved on this computer.",new Vector2(54,-441),new Vector2(510,74),18);hint.color=DongbaUIStyle.Muted;
+            MenuButton("Back",566,Back);RefreshVolume();
         }else if(page==Page.Ending){
-            DongbaUIStyle.Label("Ending",panel,"You can stay in the forest and keep exploring.",new Vector2(36,-108),new Vector2(548,64),23);
-            MenuButton("Keep exploring",184,()=>Close());MenuButton("Return to title",250,()=>Open(Page.ReturnTitle));
+            DongbaUIStyle.Label("Ending",menuPage,"You can stay in the forest and keep exploring.",new Vector2(40,-163),new Vector2(540,105),26);
+            MenuButton("Keep exploring",358,()=>Close(),1);MenuButton("Return to title",438,()=>Open(Page.ReturnTitle),2);
         }else if(page!=Page.Loading){
             string warning=page==Page.Restart?"Return to the opening by the hearth. All progress in this run will be lost.":onTitle?"Close the game?":"There is no saved progress. Leaving will end this run.";
-            DongbaUIStyle.Label("Consequence",panel,warning,new Vector2(36,-112),new Vector2(548,104),23);
-            DongbaUIStyle.Button(panel,"Cancel",new Vector2(36,-255),new Vector2(264,54),Back);
-            DongbaUIStyle.Button(panel,"Confirm",new Vector2(320,-255),new Vector2(264,54),Confirm);
+            DongbaUIStyle.Label("Consequence",menuPage,warning,new Vector2(40,-174),new Vector2(540,160),25);
+            MenuButton("Cancel",389,Back,1);MenuButton("Confirm",465,Confirm,2);
         }
         EnsureEventSystem();SelectFirst(modal);
     }
-    Button MenuButton(string text,float y,UnityEngine.Events.UnityAction action)=>DongbaUIStyle.Button(panel,text,new Vector2(36,-y),new Vector2(548,52),action);
+    void BuildStoryLeaf(RectTransform leaf){
+        string chapter=forest!=null?forest.InterfaceChapter:Choose("THE HUNT","入林");
+        var tag=DongbaUIStyle.Rect("Chapter ribbon",leaf,new Vector2(0,1),new Vector2(0,1),new Vector2(34,8),new Vector2(48,100));DongbaUIStyle.Plate(tag,DongbaUIStyle.Accent);
+        var numeral=DongbaUIStyle.Label("Chapter number",tag,forest!=null?forest.InterfaceChapterNumber:"I",new Vector2(4,-26),new Vector2(40,44),28);numeral.color=new Color(.98f,.94f,.82f);numeral.alignment=TextAnchor.MiddleCenter;DongbaUIStyle.Serif(numeral);
+        var part=DongbaUIStyle.Label("Current chapter",leaf,chapter,new Vector2(102,-40),new Vector2(212,35),18);part.color=DongbaUIStyle.Accent;
+        var name=DongbaUIStyle.Label("Tale title",leaf,Choose("The Father\nand Son","父与子"),new Vector2(38,-126),new Vector2(278,103),32);DongbaUIStyle.Serif(name);
+        DongbaUIStyle.Picture(leaf,"Gaolequ / actual game glyph",DongbaUIStyle.Glyph("player_glyph"),new Vector2(55,-262),new Vector2(180,202));
+        if(forest==null||forest.InterfaceFatherPresent)DongbaUIStyle.Picture(leaf,"Father / actual game glyph",forest!=null?forest.InterfaceFatherSprite:DongbaUIStyle.Glyph("father_glyph"),new Vector2(204,-327),new Vector2(78,133));
+        DongbaUIStyle.Stroke(leaf,new Vector2(48,-483),new Vector2(245,2),new Color(.3f,.2f,.1f,.42f));
+        DongbaUIStyle.Picture(leaf,"Hearth / existing glyph",DongbaUIStyle.Glyph("hearth_glyph"),new Vector2(129,-505),new Vector2(68,42));
+        var caption=DongbaUIStyle.Label("Cultural context",leaf,Choose("A NAXI TALE","纳西故事"),new Vector2(38,-585),new Vector2(275,30),15);caption.alignment=TextAnchor.MiddleCenter;caption.color=DongbaUIStyle.Muted;
+    }
+    Button MenuButton(string text,float y,UnityEngine.Events.UnityAction action,int number=0)=>DongbaUIStyle.Button(menuPage,text,new Vector2(36,-y),new Vector2(548,52),action,number);
     void BuildVolumeSlider(){
-        var rect=DongbaUIStyle.Rect("Volume slider",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(36,-167),new Vector2(548,34));
+        var rect=DongbaUIStyle.Rect("Volume slider",menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-218),new Vector2(548,34));
         var hit=rect.gameObject.AddComponent<Image>();hit.color=Color.clear;hit.raycastTarget=true;
         volumeSlider=rect.gameObject.AddComponent<Slider>();var track=DongbaUIStyle.Rect("Track",rect,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(520,6));DongbaUIStyle.Plate(track,new Color(.5f,.4f,.3f,.35f));
         var slideArea=DongbaUIStyle.Rect("Handle area",rect,Vector2.zero,Vector2.zero,new Vector2(12,0),new Vector2(-24,0));slideArea.anchorMax=Vector2.one;
-        var handle=DongbaUIStyle.Rect("Handle",slideArea,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(24,28));var image=DongbaUIStyle.Plate(handle,DongbaUIStyle.Accent,true);
+        var handle=DongbaUIStyle.Rect("Handle",slideArea,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(22,25));var image=DongbaUIStyle.Plate(handle,DongbaUIStyle.Accent,true);
         volumeSlider.handleRect=handle;volumeSlider.targetGraphic=image;volumeSlider.minValue=0;volumeSlider.maxValue=1;volumeSlider.SetValueWithoutNotify(masterVolume);
         volumeSlider.onValueChanged.AddListener(value=>{masterVolume=value;ApplyVolume();RefreshVolume();});
     }

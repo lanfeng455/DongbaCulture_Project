@@ -10,12 +10,16 @@ using UnityEngine.UI;
 
 namespace DongbaPrototype {
 public sealed partial class DongbaInterface {
-    internal const string CheckFolder="Verification/ui-20261119";
+    internal const string CheckFolder="Verification/ui-manuscript-20261119";
     internal readonly List<string> checks=new List<string>();internal int checkFailures;
-    int originalMute,originalLocale;float originalVolume;
+    int originalMute,originalLocale;float originalVolume;Keyboard checkKeyboard;Mouse checkMouse;
     IEnumerator Start(){
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-check")<0&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")<0)yield break;
         Application.runInBackground=true;
+        // Hidden test launches can lose native input focus during screenshots/resize.
+        // Isolate injected events from the user's physical keyboard and OS focus resets.
+        InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+        checkKeyboard=InputSystem.AddDevice<Keyboard>("InterfaceCheckKeyboard");checkMouse=InputSystem.AddDevice<Mouse>("InterfaceCheckMouse");
         originalMute=PlayerPrefs.GetInt(MuteKey,0);originalVolume=PlayerPrefs.GetFloat(VolumeKey,1);originalLocale=PlayerPrefs.GetInt(DongbaLanguage.PreferenceKey,0);
         Directory.CreateDirectory(CheckFolder);yield return new WaitForSecondsRealtime(2);
         // A hidden launch can leave the swap chain occluded until its first resize.
@@ -39,23 +43,24 @@ public sealed partial class DongbaInterface {
     }
     internal void Check(string label,bool ok){checks.Add((ok?"PASS ":"FAIL ")+label);if(!ok)checkFailures++;Debug.Log(checks[checks.Count-1]);File.WriteAllLines(CheckFolder+"/progress.txt",checks);}
     internal IEnumerator Snap(string label){
+        yield return new WaitForSecondsRealtime(.25f);
         yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(CheckFolder+"/"+label+".png",image.EncodeToPNG());Destroy(image);
     }
     internal IEnumerator KeyPress(Key key){
-        var keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(key));yield return null;yield return null;
+        var keyboard=checkKeyboard;keyboard.MakeCurrent();InputSystem.QueueStateEvent(keyboard,new KeyboardState(key));yield return null;yield return null;
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;yield return null;
     }
     internal IEnumerator ClickButton(string name){
         Button button=null;foreach(var candidate in FindObjectsByType<Button>(FindObjectsSortMode.None))if(candidate.name==name&&candidate.isActiveAndEnabled){button=candidate;break;}
         Check("Clickable control exists: "+name,button!=null);if(button==null)yield break;
         var rect=(RectTransform)button.transform;var location=RectTransformUtility.WorldToScreenPoint(null,rect.TransformPoint(rect.rect.center));
-        var mouse=Mouse.current??InputSystem.AddDevice<Mouse>();
+        var mouse=checkMouse;mouse.MakeCurrent();
         InputSystem.QueueStateEvent(mouse,new MouseState{position=location});yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=location}.WithButton(MouseButton.Left,true));yield return null;yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=location});yield return null;yield return null;
     }
     internal IEnumerator ClickAt(Vector2 location){
-        var mouse=Mouse.current??InputSystem.AddDevice<Mouse>();
+        var mouse=checkMouse;mouse.MakeCurrent();
         InputSystem.QueueStateEvent(mouse,new MouseState{position=location});yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=location}.WithButton(MouseButton.Left,true));yield return null;yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=location});yield return null;yield return null;
@@ -97,6 +102,7 @@ public partial class ObliqueForest {
         DongbaLanguage.Set(DongbaLocale.English,false);SetStoryModeEnabled(true);RestartRun();yield return new WaitForSecondsRealtime(.5f);
         ui.Check("Opening hides objective, interactions and tutorial",fatherIntroActive&&!uiObjectivePanel.activeSelf&&!promptPanel.activeSelf&&!uiCoreHints.activeSelf);
         ui.Check("Manual dialogue shows Continue",forestSubtitles.ManualContinueVisible);
+        ui.Check("Father subtitle uses the actual father glyph",forestSubtitles.PaperSpeakerGlyph==StoryFatherGlyph);
         yield return ui.Snap("02-forest-dialogue-en");yield return new WaitForSecondsRealtime(1);
         ui.Check("Tutorial not consumed during dialogue",!taughtMove&&!taughtJump&&!taughtAxe&&!taughtCare);
         int line=fatherIntroLine;yield return ui.KeyPress(Key.Enter);ui.Check("Enter advances one line without attack",fatherIntroLine==line+1&&attackAge<0);
@@ -109,6 +115,8 @@ public partial class ObliqueForest {
         ui.Check("Card and ring identify the same nearby tree",interactionTarget==tree&&promptPanel.activeSelf&&selectionRing.gameObject.activeSelf&&Vector3.Distance(selectionRing.position,tree.home)<.01f);
         Care();yield return null;ui.Check("Care success stays in object card",tree.cultivated&&interactionResult.text=="Tended"&&noticeTime<=0);
         yield return ui.Snap("03-tended-tree");Care();yield return null;ui.Check("Repeated care gives real reason",hudPrompt.text.Contains("Already tended"));
+        ui.CheckLayout("English interaction and chapter",forestCanvas.transform);
+        DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return null;yield return ui.Snap("03b-tended-tree-zh");ui.CheckLayout("Chinese interaction and chapter",forestCanvas.transform);DongbaLanguage.Set(DongbaLocale.English,false);yield return null;
         while(tree.health>0)ApplyEcologyHit(tree);yield return new WaitForSecondsRealtime(.7f);
         Care();yield return null;ui.Check("Replant gives local result",tree.health>0&&interactionResult.text=="Replanted");
         player.position=ForestSpawn;interactionTarget=null;FollowPlayerCamera(100);yield return null;ui.Check("Walking away clears old target result",interactionTarget!=tree&&(!promptPanel.activeSelf||interactionResult.text!="Replanted"));

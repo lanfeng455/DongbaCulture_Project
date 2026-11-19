@@ -13,6 +13,10 @@ public sealed class DongbaLocalizedLabel : MonoBehaviour {
         if(text.GetComponent<DongbaLocalizedLabel>()!=null)return;
         var b=text.gameObject.AddComponent<DongbaLocalizedLabel>();b.legacy=text;b.originalFont=text.font;b.originalOverflow=text.verticalOverflow;b.Register();
     }
+    public static void SetSourceFont(Text text,Font font){
+        text.font=font;var binding=text.GetComponent<DongbaLocalizedLabel>();
+        if(binding!=null){binding.originalFont=font;binding.revision=-1;binding.Refresh();}
+    }
     public static void Bind(TMP_Text text){
         if(text.GetComponent<DongbaLocalizedLabel>()!=null)return;
         var b=text.gameObject.AddComponent<DongbaLocalizedLabel>();b.tmp=text;b.originalTmpFont=text.font;b.Register();

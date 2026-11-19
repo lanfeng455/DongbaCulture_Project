@@ -3,12 +3,16 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 namespace DongbaPrototype {public partial class ObliqueForest {
-    Text interactionResult,firstStepHint,objectiveTag;GameObject firstStepPanel;CanvasGroup objectiveFade;
+    Text interactionResult,firstStepHint,objectiveTag,objectiveDetail,chapterNumber;Image interactionGlyph;GameObject firstStepPanel;CanvasGroup objectiveFade;
     Being resultTarget;string resultText,lastObjective;float resultUntil,objectiveChangedAt;
     bool taughtMove,taughtJump,taughtAxe,taughtCare,endingAcknowledged;Vector3 tutorialOrigin;
     Image boarHealthFill;int lastBoarHealth=6;float boarHurtAt=-10;
     bool ForestCinematic=>fatherIntroActive||ManualStoryDialogueActive||NarrativeInputLocked||RestorationArrivalLocked||AfterCaptureLocked||journeyStage==JourneyStage.ReturnForKnife||journeyStage==JourneyStage.BoarPass||storyOpeningState==StoryOpeningState.CaptureBeat||storyCurtain>.01f||(noticeTime>0&&!string.IsNullOrEmpty(notice));
     bool InterfaceExploring=>!ForestCinematic&&!DongbaInterface.GameplayBlocked;
+    public string InterfaceChapterNumber=>IsRestorationEnding?"III":journeyStage>=JourneyStage.Captured?"II":"I";
+    public string InterfaceChapter=>IsRestorationEnding?DongbaInterface.Choose("THE RETURN","归来"):journeyStage>=JourneyStage.Captured?DongbaInterface.Choose("THE JOURNEY","寻父"):DongbaInterface.Choose("THE HUNT","入林");
+    public bool InterfaceFatherPresent=>storyFatherRoot!=null&&storyFatherRoot.gameObject.activeInHierarchy;
+    public Sprite InterfaceFatherSprite=>StoryFatherGlyph;
     public bool InterfaceEndingReady=>journeyStage==JourneyStage.RestorationComplete&&!ManualStoryDialogueActive&&narrativeBeat==NarrativeBeat.None&&!narrativeClosingDialogue&&!endingAcknowledged;
     public void AcknowledgeEndingInterface(){endingAcknowledged=true;}
     public void RestartFromInterface(){SetStoryModeEnabled(true);RestartRun();}
@@ -22,7 +26,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         resultTarget=target;resultText=result;resultUntil=clock+1.8f;taughtCare=true;
     }
     void BuildInteractionPolish(){
-        interactionResult=UILabel("Local action result",promptPanel.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(24,-116),new Vector2(312,30),18,"");interactionResult.color=new Color(.29f,.40f,.24f);
+        interactionResult=UILabel("Local action result",promptPanel.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(146,-158),new Vector2(271,30),17,"");interactionResult.color=new Color(.29f,.40f,.24f);
         firstStepPanel=uiCoreHints;firstStepHint=uiCoreHints.GetComponentInChildren<Text>();
         var help=uiHelpShortcut.AddComponent<Button>();var graphic=uiHelpShortcut.GetComponent<Image>();graphic.raycastTarget=true;help.targetGraphic=graphic;
         var colors=help.colors;colors.highlightedColor=colors.selectedColor=new Color(.85f,.77f,.63f);colors.pressedColor=new Color(.7f,.6f,.43f);help.colors=colors;
@@ -40,6 +44,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         promptPanel.SetActive(visible);selectionRing.gameObject.SetActive(visible);
         if(!visible)return;
         var b=interactionTarget;selectionRing.position=b.root.position;
+        if(interactionGlyph!=null)interactionGlyph.sprite=b.animal?b.renderer.sprite:b.health<=0?b.stumpGlyph:b.fullGlyph;
         var line=selectionRing.GetComponent<LineRenderer>();line.startColor=line.endColor=DongbaUIStyle.Accent;line.widthMultiplier=.035f;
         // The marker and card use exactly the same target as E; the title does not imply an unverified species.
         hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";
@@ -63,9 +68,13 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(uiObjectivePanel!=null){
             string value=QuietStoryObjective();
             bool show=StoryModeEnabled&&explore&&!string.IsNullOrEmpty(value)&&!(journeyStage==JourneyStage.RestorationComplete&&endingAcknowledged);
-            uiObjectivePanel.SetActive(show);journeyObjective.text=value;
+            uiObjectivePanel.SetActive(show);
+            string localized=DongbaLanguage.Text(value);
+            int split=localized.IndexOf('\n');journeyObjective.text=split>=0?localized.Substring(0,split):localized;
+            if(objectiveDetail!=null)objectiveDetail.text=split>=0?localized.Substring(split+1):"";
+            if(chapterNumber!=null)chapterNumber.text=InterfaceChapterNumber;
             if(value!=lastObjective){lastObjective=value;objectiveChangedAt=clock;}
-            if(objectiveTag!=null)objectiveTag.text=clock-objectiveChangedAt<3?"Current objective":"";
+            if(objectiveTag!=null)objectiveTag.text=InterfaceChapter;
             if(objectiveFade!=null)objectiveFade.alpha=Mathf.Lerp(.65f,1,Mathf.Clamp01((clock-objectiveChangedAt)/.3f));
         }
         RefreshInteractionCard();

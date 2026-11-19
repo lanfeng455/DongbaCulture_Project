@@ -3,24 +3,12 @@ using UnityEngine.UI;
 
 namespace DongbaPrototype {
 // UI decoration only: these edges and rules are not Dongba pictographs.
-public static class DongbaUIStyle {
-    public static readonly Color Ink=new Color(.22f,.16f,.11f);
+public static partial class DongbaUIStyle {
+    public static readonly Color Ink=new Color(.19f,.13f,.085f);
     public static readonly Color Muted=new Color(.43f,.36f,.27f);
-    public static readonly Color Accent=new Color(.53f,.25f,.17f);
-    public static readonly Color Paper=new Color(.965f,.935f,.865f,.98f);
-    static Sprite paper;
-    public static Sprite PaperSprite {get {
-        if(paper!=null)return paper;
-        const int n=64;var texture=new Texture2D(n,n,TextureFormat.RGBA32,false);texture.name="Reusable paper UI";
-        var pixels=new Color[n*n];
-        for(int y=0;y<n;y++)for(int x=0;x<n;x++){
-            float edge=Mathf.Min(Mathf.Min(x,n-1-x),Mathf.Min(y,n-1-y));
-            float alpha=Mathf.SmoothStep(0,1,(edge+.25f*Mathf.Sin(y*1.7f)+.2f*Mathf.Sin(x*2.3f))/3);
-            float fiber=1-.015f*(.5f+.5f*Mathf.Sin(x*8.1f+y*13.9f));pixels[y*n+x]=new Color(fiber,fiber,fiber,alpha);
-        }
-        texture.SetPixels(pixels);texture.Apply();
-        paper=Sprite.Create(texture,new Rect(0,0,n,n),Vector2.one*.5f,100,0,SpriteMeshType.FullRect,new Vector4(8,8,8,8));return paper;
-    }}
+    public static readonly Color Accent=new Color(.57f,.235f,.14f);
+    public static readonly Color Paper=Color.white;
+    public static Sprite PaperSprite=>ManuscriptPaper;
     public static RectTransform Rect(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 position,Vector2 size){
         var rect=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();rect.SetParent(parent,false);
         rect.anchorMin=rect.anchorMax=anchor;rect.pivot=pivot;rect.anchoredPosition=position;rect.sizeDelta=size;return rect;
@@ -32,12 +20,15 @@ public static class DongbaUIStyle {
         label.raycastTarget=false;label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Overflow;
         DongbaLocalizedLabel.Bind(label);return label;
     }
-    public static Button Button(Transform parent,string text,Vector2 position,Vector2 size,UnityEngine.Events.UnityAction action){
+    public static Button Button(Transform parent,string text,Vector2 position,Vector2 size,UnityEngine.Events.UnityAction action,int number=0){
         var rect=Rect(text,parent,new Vector2(0,1),new Vector2(0,1),position,size);
-        var image=Plate(rect,Color.white,true);var button=rect.gameObject.AddComponent<Button>();button.targetGraphic=image;
-        var colors=button.colors;colors.normalColor=new Color(.88f,.83f,.72f,.48f);colors.highlightedColor=new Color(.83f,.75f,.59f,1);
-        colors.selectedColor=new Color(.83f,.75f,.59f,1);colors.pressedColor=new Color(.68f,.57f,.42f,1);colors.disabledColor=new Color(.88f,.86f,.80f,.45f);colors.fadeDuration=.1f;button.colors=colors;
-        var label=Label("Label",rect,text,new Vector2(18,-8),size-new Vector2(36,16));label.alignment=TextAnchor.MiddleLeft;
+        var image=rect.gameObject.AddComponent<Image>();image.sprite=BrushSprite;image.color=Color.clear;image.raycastTarget=true;
+        var button=rect.gameObject.AddComponent<Button>();button.targetGraphic=image;button.transition=Selectable.Transition.None;
+        var rule=Stroke(rect,new Vector2(14,-size.y+2),new Vector2(size.x-28,1.6f),new Color(.35f,.25f,.15f,.26f));
+        var mark=Stroke(rect,new Vector2(0,-14),new Vector2(4,22),Accent);
+        var label=Label("Label",rect,text,new Vector2(number>0?56:22,-7),new Vector2(size.x-(number>0?78:44),size.y-14),24);label.alignment=TextAnchor.MiddleLeft;Serif(label);
+        if(number>0){var no=Label("Row number",rect,number.ToString("00"),new Vector2(18,-11),new Vector2(34,30),15);no.color=Muted;}
+        rect.gameObject.AddComponent<DongbaInkButton>().Initialize(image,label,mark,rule);
         button.onClick.AddListener(action);return button;
     }
 }
