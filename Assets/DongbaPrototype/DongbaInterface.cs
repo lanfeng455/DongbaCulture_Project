@@ -34,11 +34,11 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     void Loaded(Scene scene,LoadSceneMode mode){if(mode==LoadSceneMode.Single)StartCoroutine(BindScene(scene));}
     IEnumerator BindScene(Scene scene){
         yield return null;
-        RestoreTitlePresentation();onTitle=scene.name=="Title";loading=false;forest=null;Close(false);EnsureEventSystem();
+        onTitle=scene.name=="Title";loading=false;forest=null;Close(false);EnsureEventSystem();
         if(titleMenu!=null)Destroy(titleMenu);
         if(onTitle){
             titleTransition=FindFirstObjectByType<InkBloomTransition>();
-            PrepareTitlePresentation(scene);
+            if(titleTransition!=null){var old=titleTransition.GetComponent<Button>();if(old!=null){old.interactable=false;foreach(var graphic in old.GetComponentsInChildren<Graphic>())graphic.enabled=false;}}
             BuildTitleMenu();
         }else if(scene.name=="ObliqueForest"){
             forest=FindFirstObjectByType<ObliqueForest>();
@@ -53,7 +53,6 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     public void AttachForest(ObliqueForest value){forest=value;onTitle=false;}
     void Update(){
         var area=Screen.safeArea;safe.anchorMin=new Vector2(area.xMin/Screen.width,area.yMin/Screen.height);safe.anchorMax=new Vector2(area.xMax/Screen.width,area.yMax/Screen.height);
-        FitTitleLeaf();
         if(panel!=null){float scale=Mathf.Min(1,(safe.rect.width-32)/panel.sizeDelta.x,(safe.rect.height-32)/panel.sizeDelta.y);panel.localScale=Vector3.one*Mathf.Max(.5f,scale);}
         if(loading)return;
         var kb=Keyboard.current;if(kb==null)return;
@@ -90,7 +89,14 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         if(next==Page.None)Close();else{page=next;returnPage=Page.None;BuildModal();}
     }
     void BuildTitleMenu(){
-        BuildTitleLeaf();
+        var root=DongbaUIStyle.Rect("Story title actions",safe,new Vector2(.075f,.33f),new Vector2(0,.5f),Vector2.zero,new Vector2(340,250));titleMenu=root.gameObject;
+        var intro=DongbaUIStyle.Label("Story title caption",root,Choose("A NAXI TALE","纳西故事"),new Vector2(10,-2),new Vector2(320,28),16);intro.color=new Color(.92f,.86f,.73f);
+        string[] names={"Begin story","Settings","Quit game"};
+        for(int i=0;i<3;i++){
+            var leaf=DongbaUIStyle.Rect("Cut title leaf",root,new Vector2(0,1),new Vector2(0,1),new Vector2(i*5,-40-i*68),new Vector2(330-i*26,58));DongbaUIStyle.EdgeShadow(DongbaUIStyle.Plate(leaf,Color.white));
+            int action=i;DongbaUIStyle.Button(leaf,names[i],new Vector2(10,-3),new Vector2(306-i*26,50),()=>{if(action==0)BeginStory();else Open(action==1?Page.Settings:Page.Quit);});
+        }
+        SelectFirst(root.gameObject);
     }
     public void BeginStory(){
         if(loading)return;Close(false);loading=true;startStoryOnLoad=true;consumeThroughFrame=Time.frameCount+2;if(titleMenu!=null)titleMenu.SetActive(false);
@@ -193,6 +199,6 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         var operation=SceneManager.LoadSceneAsync(name);while(operation!=null&&!operation.isDone)yield return null;
     }
     void OnApplicationQuit(){PlayerPrefs.Save();}
-    void OnDestroy(){if(Instance!=this)return;RestoreTitlePresentation();SceneManager.sceneLoaded-=Loaded;DongbaLanguage.Changed-=RefreshLanguage;Time.timeScale=1;AudioListener.pause=false;Instance=null;}
+    void OnDestroy(){if(Instance!=this)return;SceneManager.sceneLoaded-=Loaded;DongbaLanguage.Changed-=RefreshLanguage;Time.timeScale=1;AudioListener.pause=false;Instance=null;}
 }
 }

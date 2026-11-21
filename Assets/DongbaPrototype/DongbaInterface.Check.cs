@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace DongbaPrototype {
 public sealed partial class DongbaInterface {
-    internal const string CheckFolder="Verification/ui-review-20261121";
+    internal const string CheckFolder="Verification/title-ink-20261121";
     internal readonly List<string> checks=new List<string>();internal int checkFailures;
     int originalMute,originalLocale;float originalVolume;Keyboard checkKeyboard;Mouse checkMouse;
     IEnumerator Start(){
@@ -76,14 +76,16 @@ public sealed partial class DongbaInterface {
     IEnumerator CheckTitle(){
         DongbaLanguage.Set(DongbaLocale.English,false);yield return null;
         Check("Original title retained with three real actions",onTitle&&titleMenu!=null&&titleTransition!=null&&titleMenu.GetComponentsInChildren<Button>().Length==3);
-        Check("Title has no black vignette",titleVignette!=null&&!titleVignette.active);
+        bool originalInk=false;
+        foreach(var volume in FindObjectsByType<UnityEngine.Rendering.Volume>(FindObjectsSortMode.None))if(volume.gameObject.scene==SceneManager.GetActiveScene()&&volume.sharedProfile!=null&&volume.sharedProfile.TryGet<UnityEngine.Rendering.Universal.Vignette>(out var vignette))originalInk|=vignette.active&&vignette.intensity.value>.4f;
+        Check("Original title ink composition retained",originalInk&&titleMenu.transform.Find("Front cover leaf")==null);
         CheckLayout("English title",titleMenu.transform);
         DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return Snap("01b-title-zh");CheckLayout("Chinese title",titleMenu.transform);
         Screen.SetResolution(1024,768,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.4f);CheckLayout("Title 1024x768",titleMenu.transform);yield return Snap("title-1024");
         Screen.SetResolution(1600,900,FullScreenMode.Windowed);DongbaLanguage.Set(DongbaLocale.English,false);yield return new WaitForSecondsRealtime(.4f);
         yield return Snap("01-title-en");yield return ClickButton("Settings");Check("Title settings opens",page==Page.Settings);
         yield return ClickButton("Back");Check("Settings returns to title",page==Page.None&&titleMenu.activeSelf);
-        yield return ClickButton("Begin story");float limit=Time.realtimeSinceStartup+35;
+        yield return ClickButton("Begin story");Check("Original ink bloom transition starts",FindFirstObjectByType<InkBloomOverlay>()!=null&&loading&&!titleMenu.activeSelf);yield return Snap("01c-ink-transition");float limit=Time.realtimeSinceStartup+35;
         while(SceneManager.GetActiveScene().name!="ObliqueForest"&&Time.realtimeSinceStartup<limit)yield return null;
         yield return new WaitForSecondsRealtime(4);Check("Title begins the story, not sandbox",forest!=null&&forest.StoryModeEnabled);
         yield return KeyPress(Key.Escape);Check("Pause reachable from opening",page==Page.Pause);
