@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace DongbaPrototype {
 public sealed partial class DongbaInterface {
-    internal const string CheckFolder="Verification/ui-manuscript-20261119";
+    internal const string CheckFolder="Verification/ui-review-20261121";
     internal readonly List<string> checks=new List<string>();internal int checkFailures;
     int originalMute,originalLocale;float originalVolume;Keyboard checkKeyboard;Mouse checkMouse;
     IEnumerator Start(){
@@ -76,6 +76,11 @@ public sealed partial class DongbaInterface {
     IEnumerator CheckTitle(){
         DongbaLanguage.Set(DongbaLocale.English,false);yield return null;
         Check("Original title retained with three real actions",onTitle&&titleMenu!=null&&titleTransition!=null&&titleMenu.GetComponentsInChildren<Button>().Length==3);
+        Check("Title has no black vignette",titleVignette!=null&&!titleVignette.active);
+        CheckLayout("English title",titleMenu.transform);
+        DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return Snap("01b-title-zh");CheckLayout("Chinese title",titleMenu.transform);
+        Screen.SetResolution(1024,768,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.4f);CheckLayout("Title 1024x768",titleMenu.transform);yield return Snap("title-1024");
+        Screen.SetResolution(1600,900,FullScreenMode.Windowed);DongbaLanguage.Set(DongbaLocale.English,false);yield return new WaitForSecondsRealtime(.4f);
         yield return Snap("01-title-en");yield return ClickButton("Settings");Check("Title settings opens",page==Page.Settings);
         yield return ClickButton("Back");Check("Settings returns to title",page==Page.None&&titleMenu.activeSelf);
         yield return ClickButton("Begin story");float limit=Time.realtimeSinceStartup+35;
@@ -117,11 +122,18 @@ public partial class ObliqueForest {
         yield return ui.Snap("03-tended-tree");Care();yield return null;ui.Check("Repeated care gives real reason",hudPrompt.text.Contains("Already tended"));
         ui.CheckLayout("English interaction and chapter",forestCanvas.transform);
         DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return null;yield return ui.Snap("03b-tended-tree-zh");ui.CheckLayout("Chinese interaction and chapter",forestCanvas.transform);DongbaLanguage.Set(DongbaLocale.English,false);yield return null;
+        chapterTab.Reveal();float expandedHeight=((RectTransform)uiObjectivePanel.transform).rect.height;
+        yield return new WaitForSecondsRealtime(6.3f);ui.Check("Chapter note folds without losing objective",!chapterTab.Expanded&&journeyObjective.text=="Hunt with Father"&&((RectTransform)uiObjectivePanel.transform).rect.height<expandedHeight-20);
+        yield return ui.Snap("03c-chapter-folded");yield return ui.KeyPress(Key.Tab);yield return new WaitForSecondsRealtime(.3f);ui.Check("Tab expands the chapter note",chapterTab.Expanded);yield return ui.Snap("03d-chapter-open");
+        yield return ui.KeyPress(Key.Tab);yield return new WaitForSecondsRealtime(.3f);ui.Check("Tab folds the chapter note",!chapterTab.Expanded);
+        ui.Open(DongbaInterface.Page.Pause);yield return null;ui.Close();yield return new WaitForSecondsRealtime(.4f);ui.Check("Returning from a hidden HUD reveals the chapter note",chapterTab.Expanded);
         while(tree.health>0)ApplyEcologyHit(tree);yield return new WaitForSecondsRealtime(.7f);
         Care();yield return null;ui.Check("Replant gives local result",tree.health>0&&interactionResult.text=="Replanted");
         player.position=ForestSpawn;interactionTarget=null;FollowPlayerCamera(100);yield return null;ui.Check("Walking away clears old target result",interactionTarget!=tree&&(!promptPanel.activeSelf||interactionResult.text!="Replanted"));
         var animal=animals[0];animal.root.position=Feet+Vector3.right;animal.age=0;animal.careReady=0;animal.protectedUntil=clock+99;interactionTarget=null;yield return null;
         Care();yield return null;ui.Check("Feeding state and success reflect actual growth",animal.age==1&&hudPrompt.text.Contains("Eating")&&interactionResult.text=="Fed — growing");yield return ui.Snap("04-feeding");
+        float inkWait=interactionWait.fillAmount;yield return new WaitForSecondsRealtime(.3f);ui.Check("Feeding ink strip follows real cooldown",interactionWait.transform.parent.gameObject.activeSelf&&interactionWait.fillAmount<inkWait&&Mathf.Abs(interactionWait.fillAmount-(animal.careReady-clock)/3f)<.02f);
+        int beforeAge=animal.age;Care();ui.Check("Waiting still rejects repeated feeding",animal.age==beforeAge);yield return new WaitForSecondsRealtime(1.3f);ui.Check("Wait indicator clears when feeding is ready",!interactionWait.transform.parent.gameObject.activeSelf);
         animal.root.gameObject.SetActive(false);yield return null;yield return null;ui.Check("Hidden animals cannot retain the interaction marker",interactionTarget!=animal);animal.root.gameObject.SetActive(true);yield return null;
         yield return ui.KeyPress(Key.Escape);ui.Check("Esc pauses, does not exit",ui.CurrentPage==DongbaInterface.Page.Pause&&Time.timeScale==0&&AudioListener.pause);
         float before=clock;var feet=Feet;int care=careCount;yield return ui.KeyPress(Key.J);yield return ui.KeyPress(Key.E);yield return ui.KeyPress(Key.D);
@@ -130,7 +142,7 @@ public partial class ObliqueForest {
         var slider=UnityEngine.Object.FindFirstObjectByType<Slider>();if(slider!=null){var area=(RectTransform)slider.handleRect.parent;yield return ui.ClickAt(RectTransformUtility.WorldToScreenPoint(null,area.TransformPoint(new Vector3(Mathf.Lerp(area.rect.xMin,area.rect.xMax,.35f),area.rect.center.y,0))));}
         ui.Check("Volume control affects listener",Mathf.Abs(AudioListener.volume-.35f)<.01f);
         yield return ui.ClickButton("Mute");ui.Check("Mute works",AudioListener.volume==0);yield return ui.ClickButton("Mute");ui.Check("Unmute restores chosen value",Mathf.Abs(AudioListener.volume-.35f)<.01f);
-        yield return ui.ClickButton("Language / 语言");ui.Check("Settings switches to Chinese",DongbaLanguage.Chinese);yield return null;yield return ui.Snap("06-settings-zh");ui.CheckLayout("Chinese settings",ui.transform);
+        yield return ui.ClickButton("Language / 语言");ui.Check("Settings switches to Chinese",DongbaLanguage.Chinese);ui.Check("Language switch preserves button focus",UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.name=="Language / 语言");yield return null;yield return ui.Snap("06-settings-zh");ui.CheckLayout("Chinese settings",ui.transform);
         yield return ui.ClickButton("Back");yield return ui.ClickButton("Controls");ui.Check("Help has return path",ui.CurrentPage==DongbaInterface.Page.Help);yield return ui.Snap("07-help-zh");ui.CheckLayout("Chinese help",ui.transform);
         yield return ui.KeyPress(Key.H);ui.Check("H returns help to pause",ui.CurrentPage==DongbaInterface.Page.Pause);
         yield return ui.ClickButton("Resume");yield return null;ui.Check("Resume restores gameplay time",Time.timeScale==1&&!AudioListener.pause);

@@ -34,11 +34,11 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     void Loaded(Scene scene,LoadSceneMode mode){if(mode==LoadSceneMode.Single)StartCoroutine(BindScene(scene));}
     IEnumerator BindScene(Scene scene){
         yield return null;
-        onTitle=scene.name=="Title";loading=false;forest=null;Close(false);EnsureEventSystem();
+        RestoreTitlePresentation();onTitle=scene.name=="Title";loading=false;forest=null;Close(false);EnsureEventSystem();
         if(titleMenu!=null)Destroy(titleMenu);
         if(onTitle){
             titleTransition=FindFirstObjectByType<InkBloomTransition>();
-            if(titleTransition!=null){var old=titleTransition.GetComponent<Button>();if(old!=null){old.interactable=false;foreach(var graphic in old.GetComponentsInChildren<Graphic>())graphic.enabled=false;}}
+            PrepareTitlePresentation(scene);
             BuildTitleMenu();
         }else if(scene.name=="ObliqueForest"){
             forest=FindFirstObjectByType<ObliqueForest>();
@@ -53,6 +53,7 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     public void AttachForest(ObliqueForest value){forest=value;onTitle=false;}
     void Update(){
         var area=Screen.safeArea;safe.anchorMin=new Vector2(area.xMin/Screen.width,area.yMin/Screen.height);safe.anchorMax=new Vector2(area.xMax/Screen.width,area.yMax/Screen.height);
+        FitTitleLeaf();
         if(panel!=null){float scale=Mathf.Min(1,(safe.rect.width-32)/panel.sizeDelta.x,(safe.rect.height-32)/panel.sizeDelta.y);panel.localScale=Vector3.one*Mathf.Max(.5f,scale);}
         if(loading)return;
         var kb=Keyboard.current;if(kb==null)return;
@@ -89,14 +90,7 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         if(next==Page.None)Close();else{page=next;returnPage=Page.None;BuildModal();}
     }
     void BuildTitleMenu(){
-        var root=DongbaUIStyle.Rect("Story title actions",safe,new Vector2(.075f,.33f),new Vector2(0,.5f),Vector2.zero,new Vector2(340,250));titleMenu=root.gameObject;
-        var intro=DongbaUIStyle.Label("Story title caption",root,Choose("A NAXI TALE","纳西故事"),new Vector2(10,-2),new Vector2(320,28),16);intro.color=new Color(.92f,.86f,.73f);
-        string[] names={"Begin story","Settings","Quit game"};
-        for(int i=0;i<3;i++){
-            var leaf=DongbaUIStyle.Rect("Cut title leaf",root,new Vector2(0,1),new Vector2(0,1),new Vector2(i*5,-40-i*68),new Vector2(330-i*26,58));DongbaUIStyle.EdgeShadow(DongbaUIStyle.Plate(leaf,Color.white));
-            int action=i;DongbaUIStyle.Button(leaf,names[i],new Vector2(10,-3),new Vector2(306-i*26,50),()=>{if(action==0)BeginStory();else Open(action==1?Page.Settings:Page.Quit);});
-        }
-        SelectFirst(root.gameObject);
+        BuildTitleLeaf();
     }
     public void BeginStory(){
         if(loading)return;Close(false);loading=true;startStoryOnLoad=true;consumeThroughFrame=Time.frameCount+2;if(titleMenu!=null)titleMenu.SetActive(false);
@@ -122,13 +116,14 @@ public sealed partial class DongbaInterface : MonoBehaviour {
             var foot=DongbaUIStyle.Label("Return key",menuPage,Choose("ESC  ·  Return to the forest","ESC  ·  回到故事"),new Vector2(54,-588),new Vector2(510,26),16);foot.color=DongbaUIStyle.Muted;
         }else if(page==Page.Help){
             bool puzzle=SceneManager.GetActiveScene().name=="Beat_2_Cleansing_Impurity";
-            string[] keys={"WASD","SPACE","J","E","ENTER","ESC","H","R"};
-            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Continue dialogue","Pause / back","Controls","Restart the story"};
-            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","继续对白","暂停 / 返回","操作说明","重新开始故事"};
-            for(int i=0;i<keys.Length;i++){
-                var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-i*46),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));
+            string[] keys={"WASD","SPACE","J","E","ENTER","TAB","ESC","H","R"};
+            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Continue dialogue",puzzle?"—":"Expand / fold chapter note","Pause / back","Controls","Restart the story"};
+            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","继续对白",puzzle?"—":"展开 / 收起章签","暂停 / 返回","操作说明","重新开始故事"};
+            int row=0;for(int i=0;i<keys.Length;i++){
+                if(puzzle&&keys[i]=="TAB")continue;
+                var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-row*43),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));
                 var key=DongbaUIStyle.Label("Key text",badge,keys[i],new Vector2(4,-4),new Vector2(78,26),16);key.alignment=TextAnchor.MiddleCenter;key.color=DongbaUIStyle.Accent;
-                DongbaUIStyle.Label("Control action",menuPage,Choose(en[i],zh[i]),new Vector2(146,-156-i*46),new Vector2(436,34),22);
+                DongbaUIStyle.Label("Control action",menuPage,Choose(en[i],zh[i]),new Vector2(146,-156-row*43),new Vector2(436,34),22);row++;
             }
             MenuButton("Back",566,Back);
         }else if(page==Page.Settings){
@@ -172,7 +167,11 @@ public sealed partial class DongbaInterface : MonoBehaviour {
     }
     void ApplyVolume(){AudioListener.volume=muted?0:masterVolume;PlayerPrefs.SetFloat(VolumeKey,masterVolume);PlayerPrefs.SetInt(MuteKey,muted?1:0);}
     void RefreshVolume(){if(volumeReadout!=null)volumeReadout.text=muted||masterVolume<=0?Choose("Muted","已静音"):Mathf.RoundToInt(masterVolume*100)+"%";if(muteButton!=null)muteButton.GetComponentInChildren<Text>().text=muted?"Unmute":"Mute";}
-    void RefreshLanguage(){if(page!=Page.None)BuildModal();}
+    void RefreshLanguage(){
+        string selected=EventSystem.current!=null&&EventSystem.current.currentSelectedGameObject!=null?EventSystem.current.currentSelectedGameObject.name:null;
+        if(page!=Page.None)BuildModal();
+        if(modal!=null&&selected!=null)foreach(var item in modal.GetComponentsInChildren<Selectable>())if(item.name==selected){EventSystem.current?.SetSelectedGameObject(item.gameObject);break;}
+    }
     void SelectFirst(GameObject root){var first=root.GetComponentInChildren<Selectable>();if(first!=null&&EventSystem.current!=null)EventSystem.current.SetSelectedGameObject(first.gameObject);}
     public void Confirm(){if(page==Page.Quit){PlayerPrefs.Save();
 #if UNITY_EDITOR
@@ -194,6 +193,6 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         var operation=SceneManager.LoadSceneAsync(name);while(operation!=null&&!operation.isDone)yield return null;
     }
     void OnApplicationQuit(){PlayerPrefs.Save();}
-    void OnDestroy(){if(Instance!=this)return;SceneManager.sceneLoaded-=Loaded;DongbaLanguage.Changed-=RefreshLanguage;Time.timeScale=1;AudioListener.pause=false;Instance=null;}
+    void OnDestroy(){if(Instance!=this)return;RestoreTitlePresentation();SceneManager.sceneLoaded-=Loaded;DongbaLanguage.Changed-=RefreshLanguage;Time.timeScale=1;AudioListener.pause=false;Instance=null;}
 }
 }

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 namespace DongbaPrototype {public partial class ObliqueForest {
-    Text interactionResult,firstStepHint,objectiveTag,objectiveDetail,chapterNumber;Image interactionGlyph;GameObject firstStepPanel;CanvasGroup objectiveFade;
+    Text interactionResult,firstStepHint,objectiveTag,objectiveDetail,chapterNumber;Image interactionGlyph,interactionWait;GameObject firstStepPanel;CanvasGroup objectiveFade;DongbaChapterTab chapterTab;
     Being resultTarget;string resultText,lastObjective;float resultUntil,objectiveChangedAt;
     bool taughtMove,taughtJump,taughtAxe,taughtCare,endingAcknowledged;Vector3 tutorialOrigin;
     Image boarHealthFill;int lastBoarHealth=6;float boarHurtAt=-10;
@@ -53,8 +53,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             care=clock<b.careReady?"Eating — please wait":b.age<2?"E   Feed to grow":"E   Feed / new young";
         }else care=b.health<=0?"E   Replant here":b.cultivated?"Already tended":clock<b.careReady?"Growing — please wait":"E   Tend";
         hudPrompt.text=care+(b.health>0?(b.animal?"\nJ   Attack":"\nJ   Chop"):"");
-        if(b==careLimitTarget&&clock<careLimitUntil)hudPrompt.text=careLimitText+(b.health>0?(b.animal?"\nJ   Attack":"\nJ   Chop"):"");
+        bool waitingLimit=careLimitText=="Still feeding"||careLimitText=="Still growing";
+        if(b==careLimitTarget&&clock<careLimitUntil&&(!waitingLimit||clock<b.careReady))hudPrompt.text=careLimitText+(b.health>0?(b.animal?"\nJ   Attack":"\nJ   Chop"):"");
         interactionResult.text=b==resultTarget&&clock<resultUntil?resultText:"";
+        // The ink strip counts down the real remaining cooldown, in a three-second range.
+        // No new growth/feeding timer is introduced by the interface.
+        float remaining=Mathf.Max(0,b.careReady-clock);
+        interactionWait.transform.parent.gameObject.SetActive(remaining>0&&(b.animal||!b.cultivated));
+        interactionWait.fillAmount=Mathf.Clamp01(remaining/3f);
     }
     void RefreshContextHUD(){
         if(forestCanvas==null)return;
@@ -73,7 +79,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             int split=localized.IndexOf('\n');journeyObjective.text=split>=0?localized.Substring(0,split):localized;
             if(objectiveDetail!=null)objectiveDetail.text=split>=0?localized.Substring(split+1):"";
             if(chapterNumber!=null)chapterNumber.text=InterfaceChapterNumber;
-            if(value!=lastObjective){lastObjective=value;objectiveChangedAt=clock;}
+            if(value!=lastObjective){lastObjective=value;objectiveChangedAt=clock;chapterTab?.Reveal();}
+            if(show&&Keyboard.current!=null&&Keyboard.current.tabKey.wasPressedThisFrame)chapterTab?.Toggle();
             if(objectiveTag!=null)objectiveTag.text=InterfaceChapter;
             if(objectiveFade!=null)objectiveFade.alpha=Mathf.Lerp(.65f,1,Mathf.Clamp01((clock-objectiveChangedAt)/.3f));
         }

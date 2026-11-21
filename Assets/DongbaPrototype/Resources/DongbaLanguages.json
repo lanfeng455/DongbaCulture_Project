@@ -1005,6 +1005,26 @@
       "id": "interface.manuscript.title-caption",
       "en": "A NAXI TALE",
       "zh": "纳西故事"
+    },
+    {
+      "id": "interface.review.premise",
+      "en": "When writing becomes a playable world.",
+      "zh": "走进由象形文字构成的世界。"
+    },
+    {
+      "id": "interface.review.tale",
+      "en": "The Father and Son",
+      "zh": "父与子"
+    },
+    {
+      "id": "interface.review.demo",
+      "en": "Work in progress",
+      "zh": "开发中的体验版本"
+    },
+    {
+      "id": "interface.review.chapter-control",
+      "en": "Expand / fold chapter note",
+      "zh": "展开 / 收起章签"
     }
   ]
 }

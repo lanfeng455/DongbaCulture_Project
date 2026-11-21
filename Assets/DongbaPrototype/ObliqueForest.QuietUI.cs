@@ -37,6 +37,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         hudPromptTitle=UILabel("Target",card,new Vector2(0,1),new Vector2(0,1),new Vector2(144,-26),new Vector2(275,40),25,"");DongbaUIStyle.Serif(hudPromptTitle);
         DongbaUIStyle.Stroke(card,new Vector2(144,-68),new Vector2(266,1.5f),new Color(.3f,.2f,.1f,.35f));
         hudPrompt=UILabel("Actions",card,new Vector2(0,1),new Vector2(0,1),new Vector2(146,-83),new Vector2(271,70),19,"");hudPrompt.supportRichText=true;hudPrompt.lineSpacing=1.4f;
+        var wait=DongbaUIStyle.Stroke(card,new Vector2(146,-151),new Vector2(266,3),new Color(.3f,.2f,.1f,.12f));
+        interactionWait=DongbaUIStyle.Stroke(wait.transform,Vector2.zero,new Vector2(266,3),DongbaUIStyle.Accent);interactionWait.type=Image.Type.Filled;interactionWait.fillMethod=Image.FillMethod.Horizontal;interactionWait.fillOrigin=0;
         var help=UIBlock("Help shortcut",go.transform,Vector2.zero,Vector2.zero,new Vector2(30,30),new Vector2(172,48));uiHelpShortcut=help.gameObject;QuietPaper(help,.98f);
         DongbaUIStyle.Stroke(help,new Vector2(13,-10),new Vector2(2,28),uiAccent);
         var key=UILabel("Controls shortcut",help,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(146,29),18,"H   Controls");key.alignment=TextAnchor.MiddleCenter;
@@ -49,13 +51,15 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void RefreshQuietHUD(){RefreshContextHUD();}
     void EnsureQuietObjective(){
         if(journeyObjective!=null||forestCanvas==null)return;
-        var panel=UIBlock("Current objective",forestCanvas.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(30,-28),new Vector2(448,145));uiObjectivePanel=panel.gameObject;DongbaUIStyle.EdgeShadow(QuietPaper(panel,.98f),.10f);
+        var panel=UIBlock("Current objective",forestCanvas.transform,new Vector2(0,1),new Vector2(0,1),new Vector2(30,-28),new Vector2(448,145));uiObjectivePanel=panel.gameObject;var paper=QuietPaper(panel,.98f);paper.raycastTarget=true;DongbaUIStyle.EdgeShadow(paper,.10f);
         objectiveFade=panel.gameObject.AddComponent<CanvasGroup>();
         var ribbon=UIBlock("Chapter bookmark",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(12,4),new Vector2(40,106));DongbaUIStyle.Plate(ribbon,DongbaUIStyle.Accent);
         chapterNumber=UILabel("Chapter number",ribbon,new Vector2(0,1),new Vector2(0,1),new Vector2(3,-28),new Vector2(34,38),25,"I");chapterNumber.color=new Color(.98f,.94f,.82f);chapterNumber.alignment=TextAnchor.MiddleCenter;DongbaUIStyle.Serif(chapterNumber);
-        objectiveTag=UILabel("Chapter",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(71,-16),new Vector2(350,23),14,"");objectiveTag.color=uiAccent;
+        objectiveTag=UILabel("Chapter",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(71,-16),new Vector2(320,23),14,"");objectiveTag.color=uiAccent;
         journeyObjective=UILabel("Objective",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(69,-46),new Vector2(356,43),26,"");DongbaUIStyle.Serif(journeyObjective);
         objectiveDetail=UILabel("Objective detail",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(71,-95),new Vector2(349,42),18,"");objectiveDetail.color=DongbaUIStyle.Muted;
+        var mark=UILabel("Expand chapter note",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(407,-15),new Vector2(22,25),18,"−");mark.color=uiAccent;
+        chapterTab=panel.gameObject.AddComponent<DongbaChapterTab>();chapterTab.Initialize(panel,(RectTransform)hudHealth.transform.parent,ribbon,journeyObjective,objectiveDetail,mark);
     }
     RectTransform CreateQuietDialogue(string name,out Text speaker,out Text content,out Text advance,out Text progress){
         var panel=UIBlock(name,forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,28),new Vector2(1000,160));QuietPaper(panel,.98f);
