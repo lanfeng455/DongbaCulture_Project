@@ -98,6 +98,7 @@ public partial class ObliqueForest : MonoBehaviour {
         var floor=GameObject.Find("Stationary paper ground");if(floor!=null)floor.transform.localScale=new Vector3(9.2f,1,4.2f);
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
         FollowPlayerCamera(100); SetupForestHUD(); SetupForestAudio();
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--subtitle-portraits-check")>=0)BeginSubtitlePortraitCheck();
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-coherence-check")>=0)StartCoroutine(CheckOpeningSurvey());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--forest-audio-check")>=0)StartCoroutine(CheckForestAudio());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--forest-audio-preview")>=0)StartCoroutine(PreviewForestAudio());

@@ -1,0 +1,14 @@
+﻿字幕头像修复（2026-11-23）
+
+之前头像只识别 Father、Gaolequ、Shu。队友关卡使用 Gao，并新增 Fox、Snakes，所以文字正常、头像为空；不是角色素材丢失。
+
+Gao / Gaolequ / 高勒趣共用主角头像。Father / Egaole / 父亲 / 俄高勒共用父亲头像。名字比较忽略大小写和两端空格，但不改台词表里的 Speaker，原来的演员演出指令不受影响。
+
+Beat_2_Cleansing_Impurity 的 DialogueDisplay 现在直接绑定关卡原有的“狐狸.png”和“蛇.png”。源图是白色透明字形，头像使用深褐 Tint；森林原图继续保持原有颜色。横向字形在头像纸片中等比居中，字幕为头像预留宽度。双蛇对白使用原蛇字形作头像，不依赖合体或分开后的场景对象是否显示。
+
+以后增加角色：在该关卡 DialogueDisplay 的“说话人头像（关卡现有字形）”中添加 Speaker、可选别名、Glyph、Tint。使用已有 Sprite，不必拷贝图片到 Resources。旁白（空 Speaker）不显示头像；没配置的新角色也不会误用上一位的头像。
+
+验证使用 --subtitle-portraits-check：从森林经真实卷轴转场进入关卡，检查实际台词库的 Gao、Fox、Snakes、语言切换和别名；模拟解谜完成事件，再经真实返回流程检查森林头像。这个测试不代替解谜通关测试。
+本机 Unity 6000.3.0b1 Windows x64 构建；团队声明的 6000.3.12f1 本机尚未安装。
+
+运行结果：19 项检查通过，包括实际进关、返回卷轴、中英切换、演员隐藏、旁白与未知说话人的头像清理。截图保存在 Verification/subtitle-portraits-20261123。

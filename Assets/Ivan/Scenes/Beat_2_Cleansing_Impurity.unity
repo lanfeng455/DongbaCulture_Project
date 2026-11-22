@@ -5317,6 +5317,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueDisplay
   m_dialogueLibrary: {fileID: 11400000, guid: 0a6ef08be9d8ad14ab2b056ce9120c76, type: 2}
+  m_speakerPortraits:
+  - speaker: Fox
+    aliases:
+    - 狐狸
+    glyph: {fileID: 21300000, guid: e5b86b8f00157fd41aceab0c43b4d3c0, type: 3}
+    tint: {r: 0.19, g: 0.13, b: 0.085, a: 1}
+  - speaker: Snakes
+    aliases:
+    - 两蛇
+    - 双蛇
+    glyph: {fileID: 21300000, guid: 69adb39068cf46f4c9897155d8f6d029, type: 3}
+    tint: {r: 0.19, g: 0.13, b: 0.085, a: 1}
   m_canvas: {fileID: 0}
   m_background: {fileID: 0}
   m_text: {fileID: 0}
