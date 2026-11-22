@@ -8,10 +8,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(fatherHuntTarget==null)return false;Vector3 delta=fatherHuntTarget.root.position-storyFatherRoot.position;fatherAIFacing=delta.x<0?-1:1;
         if(delta.magnitude>1.4f)MoveStoryFatherToward(fatherHuntTarget.root.position,2.8f,dt);
         else if(fatherSwingAge<0&&clock>=fatherNextSwing){fatherSwingAge=0;fatherSwingHit=false;fatherNextSwing=clock+1;}
-        if(fatherSwingAge>=0){fatherSwingAge+=dt;if(fatherSwingAge>=.25f&&!fatherSwingHit){fatherSwingHit=true;if(delta.magnitude<1.9f)ApplyFatherLightHit(fatherHuntTarget);}if(fatherSwingAge>.6f)fatherSwingAge=-1;}
+        if(fatherSwingAge>=0){if(fatherSwingAge<.13f&&fatherSwingAge+dt>=.13f)PlayForestVariant("knife",2,storyFatherRoot.position,.60f);fatherSwingAge+=dt;if(fatherSwingAge>=.25f&&!fatherSwingHit){fatherSwingHit=true;if(delta.magnitude<1.9f)ApplyFatherLightHit(fatherHuntTarget);}if(fatherSwingAge>.6f)fatherSwingAge=-1;}
         storyFatherImage.sortingOrder=DepthOrder(storyFatherRoot.position.z);return true;
     }
-    void ApplyFatherLightHit(Being target){if(target==null||target.health<=0)return;target.fatherHalfHits++;target.angry=true;if(target.fatherHalfHits%2==0)ApplyEcologyHit(target);if(target.health<=0){target.root.gameObject.SetActive(false);fatherHuntTarget=null;}}
+    void ApplyFatherLightHit(Being target){if(target==null||target.health<=0)return;target.fatherHalfHits++;target.angry=true;if(target.fatherHalfHits%2==0)ApplyEcologyHit(target);else PlayForestHit(target);if(target.health<=0){target.root.gameObject.SetActive(false);fatherHuntTarget=null;}}
     void UpdateFatherKnifeAnimation(){if(storyFatherKnifeImage==null)return;if(fatherSwingAge>=0&&fatherHuntTarget==null){fatherSwingAge+=Time.deltaTime;if(fatherSwingAge>.6f)fatherSwingAge=-1;}storyFatherKnifeImage.enabled=StoryModeEnabled&&!fatherIntroActive&&journeyStage==JourneyStage.Hunting&&fatherSwingAge>=0;float angle=fatherSwingAge>=0?Mathf.Sin(fatherSwingAge/.6f*Mathf.PI)*-95:0;storyFatherKnifeImage.transform.localRotation=Quaternion.Euler(0,0,angle);}
     void DrawBoarTargetMarker(){
         EnsureQuietBoarMarker();

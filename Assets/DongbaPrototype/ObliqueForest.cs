@@ -97,7 +97,9 @@ public partial class ObliqueForest : MonoBehaviour {
         }
         var floor=GameObject.Find("Stationary paper ground");if(floor!=null)floor.transform.localScale=new Vector3(9.2f,1,4.2f);
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
-        FollowPlayerCamera(100); SetupForestHUD();
+        FollowPlayerCamera(100); SetupForestHUD(); SetupForestAudio();
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--forest-audio-check")>=0)StartCoroutine(CheckForestAudio());
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--forest-audio-preview")>=0)StartCoroutine(PreviewForestAudio());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--homecoming-check")>=0)StartCoroutine(CheckHomecoming());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--boar-boundary-check")>=0)StartCoroutine(CheckBoarBoundary());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--feature-audit-check")>=0)StartCoroutine(CheckFeatureAudit());
@@ -156,11 +158,11 @@ public partial class ObliqueForest : MonoBehaviour {
     void AddPlant(Vector3 p,bool tree,int index){AddDictionaryPlant(p,tree,index);}
     void AddAnimal(Vector3 p,int species=-1){AddDictionaryAnimal(p,species);}
     bool Free(Vector3 p){if(StoryModeEnabled&&journeyStage==JourneyStage.EastJourney&&p.x>=JourneyReelStart)return p.x<=JourneyReelStart+510&&Mathf.Abs(p.z)<=ForestHalfDepth;if(InScrollWorld)return p.x>=94&&p.x<=124&&Mathf.Abs(p.z-70)<=3.5f;if(storyHearth!=null&&Mathf.Abs(p.x-HearthPosition.x)<.50f&&Mathf.Abs(p.z-HearthPosition.z)<.28f)return false;if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.2f&&Mathf.Abs(p.z-storyHome.position.z)<.65f)return false;if(Mathf.Abs(p.x)>ForestHalfWidth||Mathf.Abs(p.z)>ForestHalfDepth)return false;if(jumpAge<0&&River(p))return false;foreach(var b in plants)if(b.tree&&b.health>0){if(Vector3.Distance(p,b.home)<.50f)return false;}return true;}
-    void Update(){if(player==null)return;if(DongbaInterface.GameplayBlocked){UpdateForestPresentation(0);return;}RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked||NarrativeInputLocked;var kb=Keyboard.current;if(kb!=null&&kb.enterKey.wasPressedThisFrame){if(fatherIntroActive)AdvanceFatherIntro();else if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();}Vector3 move=Vector3.zero;if(kb!=null){if((Application.isEditor||Debug.isDebugBuild)&&kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0){jumpAge=0;taughtJump=true;}if(!storyInputLocked&&eastPaperProgress<=0&&kb.jKey.wasPressedThisFrame&&attackAge<0){if(move.sqrMagnitude>0){heading=move.normalized;if(move.x!=0)facing=move.x>0?1:-1;}BeginAxeAttack();taughtAxe=true;}if(!storyInputLocked&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
+    void Update(){if(player==null)return;if(DongbaInterface.GameplayBlocked){UpdateForestPresentation(0);return;}RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked||NarrativeInputLocked;var kb=Keyboard.current;if(kb!=null&&kb.enterKey.wasPressedThisFrame){if(fatherIntroActive)AdvanceFatherIntro();else if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();}Vector3 move=Vector3.zero;if(kb!=null){if((Application.isEditor||Debug.isDebugBuild)&&kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0){jumpAge=0;taughtJump=true;PlayForestSfx("jump",Feet);}if(!storyInputLocked&&eastPaperProgress<=0&&kb.jKey.wasPressedThisFrame&&attackAge<0){if(move.sqrMagnitude>0){heading=move.normalized;if(move.x!=0)facing=move.x>0?1:-1;}BeginAxeAttack();taughtAxe=true;}if(!storyInputLocked&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
         if(storyInputLocked)move=Vector3.zero;
         if(ecologyPreviewWalking)move=ecologyPreviewDirection;Vector3 previousFeet=Feet;move=Vector3.ClampMagnitude(move,1);if(move.sqrMagnitude>0){if(attackAge<0){heading=move;if(move.x!=0)facing=move.x>0?1:-1;}var p=Feet+move*4*dt;if(Free(p))player.position=p;}
         UpdateInterfaceTutorial(move,false,false);if(!River(Feet))lastDryPosition=Feet;
-        float hop=0;if(jumpAge>=0){jumpAge+=dt;hop=Mathf.Sin(Mathf.Clamp01(jumpAge/.85f)*Mathf.PI)*1.45f;if(jumpAge>=.85f){jumpAge=-1;if(River(Feet)){player.position=lastDryPosition;}}}
+        float hop=0;if(jumpAge>=0){jumpAge+=dt;hop=Mathf.Sin(Mathf.Clamp01(jumpAge/.85f)*Mathf.PI)*1.45f;if(jumpAge>=.85f){jumpAge=-1;PlayForestLanding(Feet,true);if(River(Feet)){player.position=lastDryPosition;}}}
         UpdateFlowerTrail(previousFeet,move,dt);
         body.localPosition=new Vector3(0,hop+.015f*Mathf.Sin(clock*3.4f),0);playerImage.flipX=facing<0;playerImage.color=damageCooldown>0?new Color(1,.55f,.45f):Color.white;
         hand.localPosition=PlayerHandLocalPosition();
@@ -224,7 +226,7 @@ public partial class ObliqueForest : MonoBehaviour {
             if(Free(step)){player.position=step;lastDryPosition=step;return;}
         }
     }
-    void PerformCare(){ClearCareLimit();Being nearest=NearestForestInteraction();if(nearest==null)return;if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayNaxiWordVoice("tree",nearest);}else {GrowAround(nearest);}}}
+    void PerformCare(){ClearCareLimit();Being nearest=NearestForestInteraction();if(nearest==null)return;if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayForestSfx("plant",nearest.home);PlayNaxiWordVoice("tree",nearest);}else {GrowAround(nearest);}}}
     bool FindLocal(Vector3 origin,float min,float max,int seed,bool animal,out Vector3 found){
         for(int i=0;i<48;i++){float angle=(seed*1.73f+i*2.39996f);float radius=Mathf.Lerp(min,max,(i%7)/6f);var p=origin+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius);
             if(Mathf.Abs(p.x)>ForestHalfWidth-1.2f||Mathf.Abs(p.z)>ForestHalfDepth-1.0f||River(p)||Mathf.Abs(p.x-RiverX(p.z))<1.35f)continue;
@@ -237,19 +239,19 @@ public partial class ObliqueForest : MonoBehaviour {
     [Min(25)] public int AnimalPopulationLimit=64;
     void Feed(Being b){
         if(clock<b.careReady){ShowCareLimit(b,"Still feeding");return;}
-        if(b.age<2){BeginFeedingResponse(b);b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);return;}
+        if(b.age<2){BeginFeedingResponse(b);b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayForestSfx("feed",b.root.position);PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);return;}
         int living=0;foreach(var a in animals)if(a.health>0)living++;
         if(living>=Mathf.Max(25,AnimalPopulationLimit)){ShowCareLimit(b,"Animal limit reached");return;}
         // Keep offspring close to the fed adult while retaining the usual local clearance checks.
         if(FindLocal(b.root.position,.7f,1.35f,animals.Count+b.speciesIndex*17,true,out var p)){
-            BeginFeedingResponse(b);AddAnimal(p,b.speciesIndex);var child=animals[animals.Count-1];child.age=0;child.birth=.42f;child.art.localScale=child.initialScale*.42f;child.careReady=clock+1.5f;child.protectedUntil=clock+18;populationCapacity[child.populationRegion]++;b.careReady=clock+3;PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);
+            BeginFeedingResponse(b);AddAnimal(p,b.speciesIndex);var child=animals[animals.Count-1];child.age=0;child.birth=.42f;child.art.localScale=child.initialScale*.42f;child.careReady=clock+1.5f;child.protectedUntil=clock+18;populationCapacity[child.populationRegion]++;b.careReady=clock+3;PlayForestSfx("feed",b.root.position);PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);
         }else ShowCareLimit(b,"No room nearby");
     }
     void GrowAround(Being b){
         if(b.cultivated){ShowCareLimit(b,"Already tended");return;}
         if(clock<b.careReady){ShowCareLimit(b,"Still growing");return;}int count=0;
         for(int i=0;i<4;i++)if(FindLocal(b.home,.75f,2.0f,plants.Count+i,false,out var p)){AddPlant(p,false,plants.Count);var sprout=plants[plants.Count-1];sprout.art.localScale=sprout.initialScale*.08f;sprout.renderer.color=new Color(1,1,1,.92f);BeginSproutReveal(sprout,count);count++;}
-        if(count>0){b.cultivated=true;b.growth++;if(b.targetScale<1)b.targetScale=Mathf.Min(1,b.targetScale+.22f);RegisterCare();b.careReady=clock+2;b.shake=.045f;PlayNaxiWordVoice("tree",b);}else ShowCareLimit(b,"No room nearby");
+        if(count>0){b.cultivated=true;b.growth++;if(b.targetScale<1)b.targetScale=Mathf.Min(1,b.targetScale+.22f);RegisterCare();b.careReady=clock+2;b.shake=.045f;PlayNaxiWordVoice("tree",b);PlayForestSfx("grow",b.home);}else ShowCareLimit(b,"No room nearby");
     }
     // Abstract ink particles, not Dongba characters. Textures are created once.
     Sprite MakeEcologyInk(bool falling){
@@ -294,17 +296,13 @@ public partial class ObliqueForest : MonoBehaviour {
         }
         if(clip==null){if(missingNaxiWordVoiceWarnings.Add(key))Debug.LogWarning("Missing verified Naxi word recording at Resources/Audio/NaxiWords/"+key+".wav; action audio hook is ready, but no invented voice is played.");return;}
         if(source==null||source.root==null)return;
-        var speaker=source.root.GetComponent<AudioSource>();
-        if(speaker==null)speaker=source.root.gameObject.AddComponent<AudioSource>();
-        speaker.playOnAwake=false;speaker.loop=false;speaker.spatialBlend=1f;speaker.dopplerLevel=0f;
-        speaker.rolloffMode=AudioRolloffMode.Linear;speaker.minDistance=1.1f;speaker.maxDistance=14f;
-        speaker.PlayOneShot(clip,NaxiWordVoiceVolume);
+        PlayForestClip("naxi_"+key,clip,source.root.position,NaxiWordVoiceVolume,ForestSoundGroup.Word);
     }
     void RegisterDamage(){damageCount++;}
     void ApplyEcologyHit(Being target){
         if(target.health<=0)return;
         if(target.animal){EndAnimalVisit(target);target.migrationState=0;target.fleeing=false;target.socialReadyAt=clock+30;}
-        target.health--;
+        target.health--;PlayForestHit(target);
         // One ecological loss per felled tree / killed animal, never per axe hit.
         if(target.health==0){RegisterDamage();if(target.animal)RegisterDamage();}
     }
@@ -463,7 +461,7 @@ public partial class ObliqueForest : MonoBehaviour {
         storyFatherKnifeImage.sprite=Sprite.Create(knifeTexture,new Rect(0,0,knifeTexture.width,knifeTexture.height),new Vector2(.20f,.42f),100);
         storyOpeningState=StoryOpeningState.Following;
     }
-    void LateUpdate(){if(DongbaInterface.GameplayBlocked){RefreshContextHUD();return;}UpdateJourneyReel();UpdateKnifeGroundBlood();UpdateAfterCapturePose();RefreshForestSubtitles();UpdateFatherVisualPose();UpdateFatherKnifeAnimation();if(storyFatherArt!=null&&storyFatherImage!=null){var scale=storyFatherArt.localScale;scale.x=Mathf.Abs(scale.x)*(fatherIntroActive?1:journeyStage==JourneyStage.ReturnForKnife?(knifeDropPoint.x>=storyFatherRoot.position.x?1:-1):fatherAIFacing!=0?fatherAIFacing:facing);storyFatherArt.localScale=scale;}if(storyFatherKnifeImage!=null&&storyFatherImage!=null){storyFatherKnifeImage.color=storyFatherImage.color;storyFatherKnifeImage.sortingOrder=storyFatherImage.sortingOrder+1;}ApplyNarrativePose();RefreshContextHUD();}
+    void LateUpdate(){if(DongbaInterface.GameplayBlocked){RefreshContextHUD();return;}UpdateForestAudio(Time.deltaTime);UpdateJourneyReel();UpdateKnifeGroundBlood();UpdateAfterCapturePose();RefreshForestSubtitles();UpdateFatherVisualPose();UpdateFatherKnifeAnimation();if(storyFatherArt!=null&&storyFatherImage!=null){var scale=storyFatherArt.localScale;scale.x=Mathf.Abs(scale.x)*(fatherIntroActive?1:journeyStage==JourneyStage.ReturnForKnife?(knifeDropPoint.x>=storyFatherRoot.position.x?1:-1):fatherAIFacing!=0?fatherAIFacing:facing);storyFatherArt.localScale=scale;}if(storyFatherKnifeImage!=null&&storyFatherImage!=null){storyFatherKnifeImage.color=storyFatherImage.color;storyFatherKnifeImage.sortingOrder=storyFatherImage.sortingOrder+1;}ApplyNarrativePose();RefreshContextHUD();}
     void SetStoryModeEnabled(bool enabled){
         StoryModeEnabled=enabled;
         if(enabled){if(storyFatherRoot==null)CreateStoryFather();else{storyFatherRoot.position=player.position+new Vector3(-1.25f,0,-.75f);storyFatherRoot.gameObject.SetActive(true);storyFatherImage.color=StoryFatherGlyph!=null?Color.white:new Color(.34f,.23f,.13f,.9f);storyFather.route.Clear();storyFather.navRefresh=clock;storyOpeningState=StoryOpeningState.Following;}}

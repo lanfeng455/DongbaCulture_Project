@@ -1,0 +1,327 @@
+[
+  {
+    "name": "step_0",
+    "seconds": 0.242,
+    "rms_db": -30.75,
+    "peak_db": -10.75,
+    "sources": [
+      "footstep02"
+    ],
+    "loop": false
+  },
+  {
+    "name": "step_1",
+    "seconds": 0.323,
+    "rms_db": -30.76,
+    "peak_db": -10.75,
+    "sources": [
+      "footstep04"
+    ],
+    "loop": false
+  },
+  {
+    "name": "step_2",
+    "seconds": 0.276,
+    "rms_db": -33.08,
+    "peak_db": -10.75,
+    "sources": [
+      "footstep05"
+    ],
+    "loop": false
+  },
+  {
+    "name": "step_3",
+    "seconds": 0.215,
+    "rms_db": -27.61,
+    "peak_db": -10.75,
+    "sources": [
+      "footstep09"
+    ],
+    "loop": false
+  },
+  {
+    "name": "axe_0",
+    "seconds": 0.29,
+    "rms_db": -32.92,
+    "peak_db": -10.17,
+    "sources": [
+      "cloth1"
+    ],
+    "loop": false
+  },
+  {
+    "name": "axe_1",
+    "seconds": 0.29,
+    "rms_db": -33.51,
+    "peak_db": -10.17,
+    "sources": [
+      "cloth2"
+    ],
+    "loop": false
+  },
+  {
+    "name": "axe_2",
+    "seconds": 0.29,
+    "rms_db": -29.54,
+    "peak_db": -10.17,
+    "sources": [
+      "cloth3"
+    ],
+    "loop": false
+  },
+  {
+    "name": "knife_0",
+    "seconds": 0.26,
+    "rms_db": -27.74,
+    "peak_db": -11.93,
+    "sources": [
+      "knifeSlice"
+    ],
+    "loop": false
+  },
+  {
+    "name": "knife_1",
+    "seconds": 0.26,
+    "rms_db": -31.74,
+    "peak_db": -11.06,
+    "sources": [
+      "knifeSlice2"
+    ],
+    "loop": false
+  },
+  {
+    "name": "wood_0",
+    "seconds": 0.24,
+    "rms_db": -24.18,
+    "peak_db": -4.88,
+    "sources": [
+      "chop",
+      "creak1"
+    ],
+    "loop": false
+  },
+  {
+    "name": "wood_1",
+    "seconds": 0.256,
+    "rms_db": -24.3,
+    "peak_db": -4.88,
+    "sources": [
+      "chop",
+      "creak2"
+    ],
+    "loop": false
+  },
+  {
+    "name": "wood_2",
+    "seconds": 0.227,
+    "rms_db": -24.24,
+    "peak_db": -4.88,
+    "sources": [
+      "chop",
+      "creak3"
+    ],
+    "loop": false
+  },
+  {
+    "name": "hit_0",
+    "seconds": 0.23,
+    "rms_db": -22.85,
+    "peak_db": -8.38,
+    "sources": [
+      "dropLeather"
+    ],
+    "loop": false
+  },
+  {
+    "name": "hit_1",
+    "seconds": 0.23,
+    "rms_db": -22.85,
+    "peak_db": -8.23,
+    "sources": [
+      "dropLeather"
+    ],
+    "loop": false
+  },
+  {
+    "name": "hit_2",
+    "seconds": 0.23,
+    "rms_db": -22.85,
+    "peak_db": -8.08,
+    "sources": [
+      "dropLeather"
+    ],
+    "loop": false
+  },
+  {
+    "name": "jump",
+    "seconds": 0.23,
+    "rms_db": -32.38,
+    "peak_db": -14.42,
+    "sources": [
+      "cloth4"
+    ],
+    "loop": false
+  },
+  {
+    "name": "land",
+    "seconds": 0.399,
+    "rms_db": -29.08,
+    "peak_db": -8.4,
+    "sources": [
+      "footstep04",
+      "cloth4"
+    ],
+    "loop": false
+  },
+  {
+    "name": "tree_fall",
+    "seconds": 1.104,
+    "rms_db": -26.77,
+    "peak_db": -4.73,
+    "sources": [
+      "chop",
+      "creak2",
+      "bookPlace2",
+      "cloth4"
+    ],
+    "loop": false
+  },
+  {
+    "name": "animal_down",
+    "seconds": 0.464,
+    "rms_db": -25.91,
+    "peak_db": -7.96,
+    "sources": [
+      "dropLeather",
+      "cloth4"
+    ],
+    "loop": false
+  },
+  {
+    "name": "player_hurt",
+    "seconds": 0.3,
+    "rms_db": -22.61,
+    "peak_db": -6.38,
+    "sources": [
+      "dropLeather"
+    ],
+    "loop": false
+  },
+  {
+    "name": "plant",
+    "seconds": 0.583,
+    "rms_db": -30.85,
+    "peak_db": -10.75,
+    "sources": [
+      "footstep04",
+      "handleSmallLeather"
+    ],
+    "loop": false
+  },
+  {
+    "name": "grow",
+    "seconds": 0.478,
+    "rms_db": -40.8,
+    "peak_db": -12.04,
+    "sources": [
+      "bookFlip2"
+    ],
+    "loop": false
+  },
+  {
+    "name": "feed",
+    "seconds": 0.307,
+    "rms_db": -34.52,
+    "peak_db": -12.77,
+    "sources": [
+      "handleSmallLeather2",
+      "footstep04"
+    ],
+    "loop": false
+  },
+  {
+    "name": "boar_step",
+    "seconds": 0.293,
+    "rms_db": -29.98,
+    "peak_db": -9.12,
+    "sources": [
+      "footstep00"
+    ],
+    "loop": false
+  },
+  {
+    "name": "boar_rush",
+    "seconds": 0.806,
+    "rms_db": -29.42,
+    "peak_db": -8.4,
+    "sources": [
+      "cloth1",
+      "footstep00"
+    ],
+    "loop": false
+  },
+  {
+    "name": "boar_hit",
+    "seconds": 0.5,
+    "rms_db": -23.96,
+    "peak_db": -6.2,
+    "sources": [
+      "dropLeather"
+    ],
+    "loop": false
+  },
+  {
+    "name": "boar_down",
+    "seconds": 0.594,
+    "rms_db": -23.2,
+    "peak_db": -5.68,
+    "sources": [
+      "dropLeather",
+      "footstep00",
+      "cloth4"
+    ],
+    "loop": false
+  },
+  {
+    "name": "shu_grab",
+    "seconds": 0.846,
+    "rms_db": -30.08,
+    "peak_db": -8.18,
+    "sources": [
+      "dropLeather",
+      "clothBelt"
+    ],
+    "loop": false
+  },
+  {
+    "name": "shu_depart",
+    "seconds": 1.002,
+    "rms_db": -32.54,
+    "peak_db": -9.12,
+    "sources": [
+      "cloth1",
+      "bookFlip1"
+    ],
+    "loop": false
+  },
+  {
+    "name": "forest_bed",
+    "seconds": 28.0,
+    "rms_db": -28.4,
+    "peak_db": -11.8,
+    "sources": [
+      "wind_excerpt.flac"
+    ],
+    "loop": true
+  },
+  {
+    "name": "river_bed",
+    "seconds": 28.0,
+    "rms_db": -26.18,
+    "peak_db": -9.12,
+    "sources": [
+      "river_excerpt.flac"
+    ],
+    "loop": true
+  }
+]

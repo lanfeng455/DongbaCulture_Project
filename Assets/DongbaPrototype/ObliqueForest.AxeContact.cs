@@ -23,6 +23,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void UpdateAxeAttack(float dt){
         if(attackAge<0){sampledAttackAge=-1;return;}
         if(sampledAttackAge<0){swingContacts.Clear();swingFacing=facing;swingDirection=Vector3.right*swingFacing;sampledAttackAge=0;previousGrip=HandPosition();}
+        if(attackAge<.16f&&attackAge+dt>=.16f)PlayForestVariant("axe",3,HandPosition());
         facing=swingFacing;attackAge+=dt;axe.gameObject.SetActive(true);axe.localPosition=Vector3.zero;
         // Sample the actual rendered arc, including frame-to-frame hand travel. Damage
         // begins on the downswing, never while raising the axe; one hit per target/swing.

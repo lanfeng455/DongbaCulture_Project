@@ -1,0 +1,33 @@
+DONGBA forest Foley source register — 2026-11-22
+
+1. Kenney Vleugels — RPG Audio / 50 RPG sound effects (CC0)
+   Official: https://kenney.nl/assets/rpg-audio
+   Author's mirror: https://opengameart.org/content/50-rpg-sound-effects
+   Download: https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip
+   Selected unmodified OGG originals: kenney/ (22 files).
+   Original license: kenney/LICENSE.txt
+   Used for footsteps, cloth/paper movement, chopping, creaks, soft impacts and care.
+
+2. Thimras — Park ambiences (CC0)
+   https://opengameart.org/content/park-ambiences
+   https://opengameart.org/sites/default/files/park_ambience_wind.wav
+   wind_excerpt.flac: source seconds 32–64, stereo averaged to mono,
+   resampled from 48000 to 44100 Hz, PCM24 FLAC. Recorded in Adelaide.
+
+3. RandomMind — Sea and river wave sounds (CC0)
+   https://opengameart.org/content/sea-and-river-wave-sounds
+   https://opengameart.org/sites/default/files/VistulaShort_0.mp3
+   river_excerpt.flac: source seconds 44–76, stereo averaged to mono,
+   PCM24 FLAC, 44100 Hz. Recorded on the Vistula river.
+
+License: https://creativecommons.org/publicdomain/zero/1.0/
+All three source pages explicitly identify CC0. The nature recordings are generic
+sound-design material, NOT recordings from Naxi communities or a specific local habitat.
+No new spoken words, culturally attributed voices, or animal vocalizations were made.
+
+Processing: Tools/make_forest_sfx.py. Per-output source mapping and levels:
+Assets/DongbaPrototype/Resources/Audio/ForestSfx/manifest.json.
+Edits include band-pass EQ, short attack/release fades, quiet layering, slight
+playback-speed differences, separate RMS/peak targets and 2-second ambient wrap fades.
+Final loops are 28 seconds. No sinusoidal impacts, reward chimes or white-noise beds.
+Preserve this register and the included Kenney license when redistributing source assets.
