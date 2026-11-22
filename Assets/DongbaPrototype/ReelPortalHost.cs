@@ -12,6 +12,7 @@ public class ReelPortalHost:MonoBehaviour {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void OpenRequestedPreview(){
         if(SceneManager.GetActiveScene().name!="Title")return;
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--puzzle-guidance-check")>=0){SceneManager.LoadScene("Beat_2_Cleansing_Impurity");return;}
         foreach(var arg in Environment.GetCommandLineArgs())if(arg.StartsWith("--")&&(arg.EndsWith("-check")||arg.EndsWith("-preview")||arg.EndsWith("-capture"))){SceneManager.LoadScene("ObliqueForest");break;}
     }
     readonly bool measureHandoff=Array.IndexOf(Environment.GetCommandLineArgs(),"--journey-reel-check")>=0;

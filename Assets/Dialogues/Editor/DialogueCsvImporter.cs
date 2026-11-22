@@ -213,6 +213,7 @@ public static class DialogueCsvImporter
         }
 
         int speakerCol = FindColumn(header, k_speakerAliases);
+        int chineseCol = FindColumn(header, new[] { "ChineseContent", "Chinese", "中文", "中文台词" });
         int noteCol = FindColumn(header, k_noteAliases);
 
         List<DialogueLibrarySO.DialogueEntry> entries = new List<DialogueLibrarySO.DialogueEntry>();
@@ -233,6 +234,7 @@ public static class DialogueCsvImporter
             {
                 speaker = speaker,
                 content = content,
+                chineseContent = chineseCol >= 0 ? GetCell(row, chineseCol) : string.Empty,
                 note = note,
             });
         }
@@ -277,7 +279,7 @@ public static class DialogueCsvImporter
 
     private static void WriteCsv(DialogueLibrarySO library, string csvAssetPath)
     {
-        List<string> header = new List<string> { k_headerIndex, k_headerSpeaker, k_headerContent, k_headerNote };
+        List<string> header = new List<string> { k_headerIndex, k_headerSpeaker, k_headerContent, "ChineseContent", k_headerNote };
         List<IReadOnlyList<string>> rows = new List<IReadOnlyList<string>>();
 
         for (int i = 0; i < library.Count; i++)
@@ -288,6 +290,7 @@ public static class DialogueCsvImporter
                 i.ToString(),
                 entry.speaker ?? string.Empty,
                 entry.content ?? string.Empty,
+                entry.chineseContent ?? string.Empty,
                 entry.note ?? string.Empty,
             });
         }

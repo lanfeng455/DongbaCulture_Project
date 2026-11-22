@@ -13,130 +13,176 @@ MonoBehaviour:
   m_Name: Level 0
   m_EditorClassIdentifier: Assembly-CSharp::DialogueLibrarySO
   m_entries:
-  - speaker: Gao
-    content: My father, you had been caught by the God <color=#FFDC88>Shu</color>.
-    note: 
-  - speaker: Gao
-    content: "@\u5411\u5DE6\u770B"
-    note: 
-  - speaker: Gao
-    content: "@\u7B49\u5F851\u79D2"
-    note: 
-  - speaker: Gao
-    content: My father, how can I find your trace?
-    note: 
-  - speaker: Fox
-    content: "@\u5411\u5DE6\u770B"
-    note: 
-  - speaker: Fox
-    content: "@\u4EE54\u4E3A\u901F\u5EA6\u79FB\u52A8"
-    note: 
-  - speaker: Fox
-    content: "@\u79FB\u52A8\u5230-5.31"
-    note: 
-  - speaker: Fox
-    content: Your father is <color=#FFDC88>Egaole</color>, right?
-    note: 
-  - speaker: Fox
-    content: "@\u7B49\u5F851\u79D2"
-    note: 
-  - speaker: Gao
-    content: "@\u5411\u53F3\u770B"
-    note: 
-  - speaker: Gao
-    content: "@\u7B49\u5F851\u79D2"
-    note: 
-  - speaker: Fox
-    content: And you, you are <color=#FFDC88>Gaolequ</color>.
-    note: 
-  - speaker: Gao
-    content: Exactly. Dear fox, how do you know us?
-    note: 
-  - speaker: Fox
-    content: "@\u7B49\u5F851\u79D2"
-    note: 
-  - speaker: Fox
-    content: Gao, the damage you two have caused to nature was so much!
-    note: 
-  - speaker: Fox
-    content: You even violated the contract and captured the wild boar of the God
-      Shu!
-    note: 
-  - speaker: Gao
-    content: Well...but I don't think Shu has the right to catch my father.
-    note: 
-  - speaker: Fox
-    content: "@\u7B49\u5F851\u79D2"
-    note: 
-  - speaker: Fox
-    content: Gao, your father is imprisoned on <color=#9876C5>the fifth hill</color>,
-      and <color=#FFDC88>this</color> is the first one.
-    note: 
-  - speaker: Fox
-    content: "@\u5411\u53F3\u770B"
-    note: 
-  - speaker: Fox
-    content: "@\u7B49\u5F852\u79D2"
-    note: 
-  - speaker: Fox
-    content: To <color=#6AADFF>reconcile</color> rather than continue to destroy
-      nature, otherwise you will also fall into the same fate.
-    note: 
-  - speaker: Fox
-    content: "@\u79FB\u52A8\u52309.79"
-    note: 
-  - speaker: Fox
-    content: "@\u9690\u85CF"
-    note: 
-  - speaker: Gao
+  - speaker: "Gao"
+    content: "My father, you had been caught by the God <color=#FFDC88>Shu</color>."
+    chineseContent: "\u7236\u4eb2\uff0c\u4f60\u88ab<color=#FFDC88>\u7f72\u795e</color>\u6293\u8d70\u4e86\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "@\u5411\u5de6\u770b"
+    chineseContent: ""
+    note: ""
+  - speaker: "Gao"
+    content: "@\u7b49\u5f851\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Gao"
+    content: "My father, how can I find your trace?"
+    chineseContent: "\u7236\u4eb2\uff0c\u6211\u8be5\u53bb\u54ea\u91cc\u5bfb\u627e\u4f60\u7684\u8e2a\u8ff9\uff1f"
+    note: ""
+  - speaker: "Fox"
+    content: "@\u5411\u5de6\u770b"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "@\u4ee54\u4e3a\u901f\u5ea6\u79fb\u52a8"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "@\u79fb\u52a8\u5230-5.31"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "Your father is <color=#FFDC88>Egaole</color>, right?"
+    chineseContent: "\u4f60\u7684\u7236\u4eb2\uff0c\u662f<color=#FFDC88>Egaole</color>\uff0c\u5bf9\u5417\uff1f"
+    note: ""
+  - speaker: "Fox"
+    content: "@\u7b49\u5f851\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Gao"
+    content: "@\u5411\u53f3\u770b"
+    chineseContent: ""
+    note: ""
+  - speaker: "Gao"
+    content: "@\u7b49\u5f851\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "And you, you are <color=#FFDC88>Gaolequ</color>."
+    chineseContent: "\u800c\u4f60\uff0c\u5c31\u662f<color=#FFDC88>\u9ad8\u52d2\u8da3</color>\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "Exactly. Dear fox, how do you know us?"
+    chineseContent: "\u662f\u7684\u3002\u72d0\u72f8\uff0c\u4f60\u600e\u4e48\u4f1a\u8ba4\u8bc6\u6211\u4eec\uff1f"
+    note: ""
+  - speaker: "Fox"
+    content: "@\u7b49\u5f851\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "Gao, the damage you two have caused to nature was so much!"
+    chineseContent: "\u9ad8\u52d2\u8da3\uff0c\u4f60\u4eec\u7236\u5b50\u7ed9\u81ea\u7136\u9020\u6210\u4e86\u592a\u591a\u4f24\u5bb3\uff01"
+    note: ""
+  - speaker: "Fox"
+    content: "You even violated the contract and captured the wild boar of the God Shu!"
+    chineseContent: "\u4f60\u4eec\u751a\u81f3\u8fdd\u80cc\u7ea6\u5b9a\uff0c\u730e\u6740\u4e86\u7f72\u795e\u7684\u91ce\u732a\uff01"
+    note: ""
+  - speaker: "Gao"
+    content: "Well...but I don't think Shu has the right to catch my father."
+    chineseContent: "\u53ef\u662f\u2026\u2026\u6211\u4e0d\u89c9\u5f97\u7f72\u6709\u6743\u6293\u8d70\u6211\u7684\u7236\u4eb2\u3002"
+    note: ""
+  - speaker: "Fox"
+    content: "@\u7b49\u5f851\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "Gao, your father is imprisoned on <color=#9876C5>the fifth hill</color>, and <color=#FFDC88>this</color> is the first one."
+    chineseContent: "\u9ad8\u52d2\u8da3\uff0c\u4f60\u7236\u4eb2\u88ab\u5173\u5728<color=#9876C5>\u7b2c\u4e94\u5ea7\u5c71</color>\u4e0a\uff0c\u800c<color=#FFDC88>\u8fd9\u91cc</color>\u624d\u662f\u7b2c\u4e00\u5ea7\u3002"
+    note: ""
+  - speaker: "Fox"
+    content: "@\u5411\u53f3\u770b"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "@\u7b49\u5f852\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "To <color=#6AADFF>reconcile</color> rather than continue to destroy nature, otherwise you will also fall into the same fate."
+    chineseContent: "\u53bb<color=#6AADFF>\u548c\u89e3</color>\uff0c\u522b\u518d\u7834\u574f\u81ea\u7136\uff0c\u5426\u5219\u4f60\u4e5f\u4f1a\u843d\u5f97\u540c\u6837\u7684\u4e0b\u573a\u3002"
+    note: ""
+  - speaker: "Fox"
+    content: "@\u79fb\u52a8\u52309.79"
+    chineseContent: ""
+    note: ""
+  - speaker: "Fox"
+    content: "@\u9690\u85cf"
+    chineseContent: ""
+    note: ""
+  - speaker: "Gao"
     content: "It disappered\u2026"
-    note: 
-  - speaker: Gao
-    content: My father often said that, the south slope is sunny, the north valley
-      is shady.
-    note: 
-  - speaker: Gao
-    content: And all white things go up, all black things go down, that's the rule.
-    note: 
-  - speaker: Gao
-    content: "The snakes are twisting with each other, I can't pass through this
-      way\u2026"
-    note: 
-  - speaker: Gao
+    chineseContent: "\u5b83\u6d88\u5931\u4e86\u2026\u2026"
+    note: ""
+  - speaker: "Gao"
+    content: "My father often said that, the south slope is sunny, the north valley is shady."
+    chineseContent: "\u7236\u4eb2\u5e38\u8bf4\uff0c\u5357\u5761\u5411\u9633\uff0c\u5317\u8c37\u80cc\u9634\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "White belongs <color=#FFDC88>above</color>. Black belongs <color=#FFDC88>below</color>. I must remember that."
+    chineseContent: "\u767d\u7684\u5f52\u4e8e<color=#FFDC88>\u9ad8\u5904</color>\uff0c\u9ed1\u7684\u5f52\u4e8e<color=#FFDC88>\u4f4e\u5904</color>\u3002\u8fd9\u53e5\u8bdd\uff0c\u6211\u5f97\u8bb0\u4f4f\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "The snakes are twisting with each other, I can't pass through this way\u2026"
+    chineseContent: "\u4e24\u6761\u86c7\u7f20\u5728\u4e00\u8d77\uff0c\u6321\u4f4f\u4e86\u53bb\u8def\u2026\u2026"
+    note: ""
+  - speaker: "Gao"
     content: "Hey, could you please\u2026"
-    note: 
-  - speaker: Snakes
+    chineseContent: "\u90a3\u4e2a\uff0c\u80fd\u4e0d\u80fd\u8bf7\u4f60\u4eec\u2026\u2026"
+    note: ""
+  - speaker: "Snakes"
     content: "Hiss\u2026hiss\u2026"
-    note: 
-  - speaker: Gao
-    content: Aha, thanks.
-    note: 
-  - speaker: Gao
-    content: "Well\u2026the stones seem to be the next trouble."
-    note: 
-  - speaker: Gao
-    content: "@\u7B49\u5F851\u79D2"
-    note: 
-  - speaker: Gao
-    content: "@\u5411\u5DE6\u770B"
-    note: 
-  - speaker: Snakes
+    chineseContent: "\u5636\u2026\u2026\u5636\u2026\u2026"
+    note: ""
+  - speaker: "Gao"
+    content: "Aha, thanks."
+    chineseContent: "\u554a\uff0c\u8c22\u8c22\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "The path is still blocked by these boulders."
+    chineseContent: "\u8fd9\u4e9b\u5de8\u77f3\u2026\u2026\u8fd8\u662f\u628a\u8def\u5835\u4f4f\u4e86\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "@\u7b49\u5f851\u79d2"
+    chineseContent: ""
+    note: ""
+  - speaker: "Gao"
+    content: "@\u5411\u5de6\u770b"
+    chineseContent: ""
+    note: ""
+  - speaker: "Snakes"
     content: "Hiss\u2026hiss\u2026"
-    note: 
-  - speaker: Gao
-    content: If I go to resolve the dispute between these two snakes first, will
-      I also find another way?
-    note: 
-  - speaker: Gao
+    chineseContent: "\u5636\u2026\u2026\u5636\u2026\u2026"
+    note: ""
+  - speaker: "Gao"
+    content: "But those two are still staring at each other. They will not budge."
+    chineseContent: "\u53ef\u4ed6\u4eec\u4fe9\u8fd8\u662f\u7d27\u76ef\u7740\u5f7c\u6b64\uff0c\u600e\u4e48\u4e5f\u63a8\u4e0d\u52a8\u3002"
+    note: ""
+  - speaker: "Gao"
     content: "Maybe\u2026the fox is right."
-    note: 
-  - speaker: Gao
-    content: This is the southern cave.
-    note: 
-  - speaker: Gao
-    content: This is the northern cave.
-    note: 
-  - speaker: Gao
-    content: So many rocks, I'm definitely reaching the peak.
-    note: 
+    chineseContent: "\u4e5f\u8bb8\u2026\u2026\u72d0\u72f8\u8bf4\u5f97\u5bf9\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "This sunny cave is higher up. A place for the white snake."
+    chineseContent: "\u8fd9\u4e2a\u6d1e\u5411\u9633\uff0c\u5728\u9ad8\u5904\u3002\u767d\u86c7\u5e94\u8be5\u5f52\u5230\u8fd9\u91cc\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "This shaded cave is lower down. A place for the black snake."
+    chineseContent: "\u8fd9\u4e2a\u6d1e\u80cc\u9634\uff0c\u5728\u4f4e\u5904\u3002\u9ed1\u86c7\u5e94\u8be5\u5f52\u5230\u8fd9\u91cc\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "So many rocks, I'm definitely reaching the peak."
+    chineseContent: "\u77f3\u5934\u8d8a\u6765\u8d8a\u591a\uff0c\u5e94\u8be5\u5feb\u5230\u5c71\u9876\u4e86\u3002"
+    note: ""
+  - speaker: "Gao"
+    content: "If only something could stand between them, so they could no longer see each other..."
+    chineseContent: "\u8981\u662f\u6709\u4ec0\u4e48\u4e1c\u897f\u80fd\u9694\u5728\u4e2d\u95f4\uff0c\u8ba9\u4ed6\u4eec\u770b\u4e0d\u89c1\u5f7c\u6b64\u5c31\u597d\u4e86\u2026\u2026"
+    note: "\u5de8\u77f3\u524d\u5bf9\u8bdd\uff0c\u63a5\u5728 35 \u540e\uff1b\u4e0d\u8981\u66f4\u6539\u7d22\u5f15\u987a\u5e8f"
+  - speaker: "Gao"
+    content: "Those red stones... perhaps I could push one between them."
+    chineseContent: "\u90a3\u4e9b\u7ea2\u8272\u7684\u77f3\u5934\u2026\u2026\u6216\u8bb8\u80fd\u63a8\u8fc7\u53bb\u8bd5\u8bd5\u3002"
+    note: "\u5de8\u77f3\u524d\u5bf9\u8bdd\uff0c\u63a5\u5728 35 \u540e\uff1b\u4e0d\u8981\u66f4\u6539\u7d22\u5f15\u987a\u5e8f"
+  - speaker: "Gao"
+    content: "Then their caves. Father said: <color=#FFDC88>white above, black below</color>."
+    chineseContent: "\u7136\u540e\u662f\u4ed6\u4eec\u5404\u81ea\u7684\u6d1e\u3002\u7236\u4eb2\u8bf4\u8fc7\uff1a<color=#FFDC88>\u767d\u7684\u5728\u9ad8\u5904\uff0c\u9ed1\u7684\u5728\u4f4e\u5904</color>\u3002"
+    note: "\u5de8\u77f3\u524d\u5bf9\u8bdd\uff0c\u63a5\u5728 35 \u540e\uff1b\u4e0d\u8981\u66f4\u6539\u7d22\u5f15\u987a\u5e8f"
   m_linkedCsvPath: Assets/Dialogues/Level 0.csv

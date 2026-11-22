@@ -32,6 +32,10 @@ namespace Ivan.Puzzle
         private bool m_hasSplit;
         private bool m_hasSeparated;
 
+        public bool HasSplit => m_hasSplit;
+        public SnakeActor WhiteSnake => m_whiteSnake;
+        public SnakeActor BlackSnake => m_blackSnake;
+
         private void Awake()
         {
             if (m_whiteSnake != null) m_whiteSnake.BindOpponent(m_blackSnake);

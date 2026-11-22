@@ -187,6 +187,22 @@ namespace Ivan.Puzzle
             return m_imageFade;
         }
 
+        // Interpolate in the game's assembly, avoiding the precompiled DOTween Vector3
+        // plugin's Unity-version-specific operator calls. Keep collider and art together.
+        private Tween MoveTo(Vector3 target, float duration, Ease ease)
+        {
+            transform.DOKill(); // An exit can interrupt capture before its .45s tween finishes.
+            Vector3 start = transform.position;
+            float progress = 0f;
+            return DOTween.To(() => progress, value =>
+            {
+                progress = value;
+                Vector3 position = Vector3.LerpUnclamped(start, target, value);
+                m_body.position = position;
+                transform.position = position;
+            }, 1f, duration).SetEase(ease).SetTarget(transform);
+        }
+
         // 刚分开：可自由推动，头顶先不出文字
         public void EnterFree()
         {
@@ -217,7 +233,7 @@ namespace Ivan.Puzzle
             {
                 AudioManager.Instance.PlaySe("Assets/Ivan/Audio/SE/SnakeHiss");
             }
-            m_body.linearVelocity = Vector3.zero;
+            if (!m_body.isKinematic) m_body.linearVelocity = Vector3.zero;
             m_body.isKinematic = true;
             SetColliderEnabled(true);
 
@@ -257,7 +273,7 @@ namespace Ivan.Puzzle
 
             m_state = SnakeState.Captured;
             m_cave = cave;
-            m_body.linearVelocity = Vector3.zero;
+            if (!m_body.isKinematic) m_body.linearVelocity = Vector3.zero;
             m_body.isKinematic = true;
             SetColliderEnabled(false);
 
@@ -269,7 +285,7 @@ namespace Ivan.Puzzle
             Vector3 target = cave.transform.position;
             target.y = transform.position.y;
             transform.DOKill();
-            transform.DOMove(target, m_captureDuration).SetEase(Ease.InQuad);
+            MoveTo(target, m_captureDuration, Ease.InQuad);
         }
 
         // 从洞里窜出来（视线恢复时由导演调用）：朝对方方向弹出洞口，
@@ -279,7 +295,7 @@ namespace Ivan.Puzzle
             if (m_state != SnakeState.Captured) return;
 
             m_state = SnakeState.Exiting;
-            m_body.linearVelocity = Vector3.zero;
+            if (!m_body.isKinematic) m_body.linearVelocity = Vector3.zero;
 
             // 通知洞放行：碰撞体重开时可能仍在触发区内，别再把它吸回来
             if (m_cave != null)
@@ -306,7 +322,7 @@ namespace Ivan.Puzzle
 
             Vector3 exit = transform.position + direction * m_exitPopDistance;
             exit.y = transform.position.y;
-            transform.DOMove(exit, m_exitDuration).SetEase(Ease.OutQuad).OnComplete(() =>
+            MoveTo(exit, m_exitDuration, Ease.OutQuad).OnComplete(() =>
             {
                 if (this == null) return;
 

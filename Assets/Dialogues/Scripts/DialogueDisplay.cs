@@ -114,6 +114,7 @@ public partial class DialogueDisplay : MonoBehaviour
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
     public TMP_Text SubtitleText => m_text;
     public void SetCharactersPerSecond(float speed) { m_charactersPerSecond = Mathf.Max(1, speed); }
+    [SerializeField] private bool m_waitForAdvance;
 
     // Adapters can reuse this display without replacing the scene's dialogue library.
     public void PlayLine(string speaker, string content)
@@ -277,7 +278,7 @@ public partial class DialogueDisplay : MonoBehaviour
         m_playbackCts = new CancellationTokenSource();
         // 代数 +1：旧段的 finally（取消后下一帧才跑）凭代数识别自己已过期，不再覆盖新段状态
         int generation = ++m_playbackGeneration;
-        _ = PlaySegmentAsync(segment, autoHide, hideDelayInSeconds, m_playbackCts.Token, generation);
+        _ = PlaySegmentAsync(segment, autoHide, hideDelayInSeconds, m_playbackCts.Token, generation, m_waitForAdvance);
     }
 
     // 播整段对话库（便捷重载）
@@ -372,9 +373,10 @@ public partial class DialogueDisplay : MonoBehaviour
         bool autoHide,
         float hideDelayInSeconds,
         CancellationToken token,
-        int generation)
+        int generation, bool manual = false)
     {
         m_isPlaying = true;
+        if (manual) SetPaperPresentation(false, true);
         SetVisible(true);
 
         try
@@ -399,15 +401,22 @@ public partial class DialogueDisplay : MonoBehaviour
                 m_visibleEntry = entry;
                 UpdatePaperPortrait();
                 string line = FormatLine(entry);
-                await TypeLineAsync(line, token);
+                await TypeLineAsync(line, token, manual);
 
                 if (token.IsCancellationRequested)
                 {
                     return;
                 }
 
-                // 句间停顿
-                if (m_delayBetweenLinesInSeconds > 0f)
+                // Range-based puzzle dialogue can opt into the same Enter rhythm as the forest.
+                // PlayLine/PlayBilingualLine remain controlled by their existing callers.
+                if (manual)
+                {
+                    int shownFrame = Time.frameCount;
+                    do { await Awaitable.NextFrameAsync(token); }
+                    while (Time.frameCount <= shownFrame || !AdvancePressed());
+                }
+                else if (m_delayBetweenLinesInSeconds > 0f)
                 {
                     await Awaitable.WaitForSecondsAsync(m_delayBetweenLinesInSeconds, token);
                 }
@@ -515,7 +524,14 @@ public partial class DialogueDisplay : MonoBehaviour
     }
 
     // 打字机：逐字符填充
-    private async Awaitable TypeLineAsync(string fullLine, CancellationToken token)
+    private static bool AdvancePressed()
+    {
+        var keyboard = UnityEngine.InputSystem.Keyboard.current;
+        return !DongbaInterface.GameplayBlocked && keyboard != null &&
+            (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame);
+    }
+
+    private async Awaitable TypeLineAsync(string fullLine, CancellationToken token, bool manual = false)
     {
         if (m_text == null)
         {
@@ -541,7 +557,7 @@ public partial class DialogueDisplay : MonoBehaviour
 
         while (shown < totalVisible)
         {
-            if (m_revealCurrentLine) break;
+            if (m_revealCurrentLine || (manual && AdvancePressed())) break;
             if (token.IsCancellationRequested)
             {
                 return;
@@ -567,6 +583,9 @@ public partial class DialogueDisplay : MonoBehaviour
     {
         string content = string.IsNullOrEmpty(entry.chineseContent) ? DongbaLanguage.Text(entry.content)
             : (DongbaLanguage.Chinese ? entry.chineseContent : entry.content);
+        // Keep contrast on paper, including when the language changes mid-line.
+        if (m_waitForAdvance && paperManual) content = content.Replace("<color=#FFDC88>", "<color=#8A3E22>")
+            .Replace("<color=#6AADFF>", "<color=#32678A>");
         if (string.IsNullOrEmpty(entry.speaker))
         {
             return content;

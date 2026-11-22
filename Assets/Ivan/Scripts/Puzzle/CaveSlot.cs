@@ -16,8 +16,23 @@ namespace Ivan.Puzzle
         // 不能再把它吸回来（否则出洞→回捕→出洞无限抽搐），
         // 直到它真正走出触发区（OnTriggerExit）才恢复捕获资格
         private SnakeActor m_releasing;
+        private Collider m_trigger;
 
         public SnakeSide RequiredSide => m_requiredSide;
+
+        private void Awake() { m_trigger = GetComponent<Collider>(); }
+
+        private void FixedUpdate()
+        {
+            if (m_releasing == null || m_releasing.State == SnakeState.Exiting) return;
+            var obstacle = m_releasing.GetComponent<Ivan.Diorama.DioramaObstacle>();
+            var body = obstacle == null ? null : obstacle.Collider;
+            // Exit animation keeps the snake collider disabled until it is outside.
+            // In that case Unity never sends OnTriggerExit; clear the release guard
+            // geometrically or this cave will permanently reject the returning snake.
+            if (body != null && body.enabled && !m_trigger.bounds.Intersects(body.bounds))
+                m_releasing = null;
+        }
 
         private void Reset()
         {

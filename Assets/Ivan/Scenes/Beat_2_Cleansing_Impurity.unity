@@ -5334,6 +5334,7 @@ MonoBehaviour:
   m_speakerColor: {r: 0.6, g: 0.87, b: 1, a: 1}
   m_charactersPerSecond: 32
   m_delayBetweenLinesInSeconds: 1
+  m_waitForAdvance: 1
   m_eventRange: 0/2
   m_autoHideByDefault: 1
   m_autoHideDelayInSeconds: 2.5
@@ -20010,6 +20011,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 2026112201}
   - component: {fileID: 343677824}
   - component: {fileID: 343677825}
   m_Layer: 0
@@ -26218,7 +26220,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ivan.Scroll.StoryTripwire
   m_fromIndex: 0
   m_toIndex: 0
-  m_pauseWalking: 0
+  m_pauseWalking: 1
 --- !u!4 &473696326 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 0a734b90f30e44b41bd2a518e5eb7002, type: 3}
@@ -92206,6 +92208,13 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+  - m_kind: 0
+    m_fromIndex: 40
+    m_toIndex: 42
+    m_seconds: 0
+    m_onEvent:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!4 &1541338727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 603742074816925043, guid: e158d14915e6c4b41ac5898f7dffefde, type: 3}
@@ -99217,7 +99226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ivan.Scroll.StoryTripwire
   m_fromIndex: 39
   m_toIndex: 39
-  m_pauseWalking: 0
+  m_pauseWalking: 1
 --- !u!1001 &1657366107
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -131563,6 +131572,20 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6665990056663840802, guid: 09e8293868f627d41a039f945542bd04, type: 3}
   m_PrefabInstance: {fileID: 8817018745116934272}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2026112201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343677823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7b63f7b5a244636a7d937d685fc5ee0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Ivan.Puzzle.Puzzle1Presentation
+  m_exitX: 95
+  m_hintStartX: 49
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

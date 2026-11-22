@@ -608,8 +608,11 @@
     },
     {
       "id": "puzzle.level0.26",
-      "en": "And all white things go up, all black things go down, that's the rule.",
-      "zh": "白的归于高处，黑的归于低处，这是规矩。"
+      "en": "White belongs <color=#FFDC88>above</color>. Black belongs <color=#FFDC88>below</color>. I must remember that.",
+      "zh": "白的归于<color=#FFDC88>高处</color>，黑的归于<color=#FFDC88>低处</color>。这句话，我得记住。",
+      "aliases": [
+        "And all white things go up, all black things go down, that's the rule."
+      ]
     },
     {
       "id": "puzzle.level0.27",
@@ -633,8 +636,11 @@
     },
     {
       "id": "puzzle.level0.31",
-      "en": "Well…the stones seem to be the next trouble.",
-      "zh": "看来……接下来要想办法搬开这些石头了。"
+      "en": "The path is still blocked by these boulders.",
+      "zh": "这些巨石……还是把路堵住了。",
+      "aliases": [
+        "Well…the stones seem to be the next trouble."
+      ]
     },
     {
       "id": "puzzle.level0.34",
@@ -643,8 +649,11 @@
     },
     {
       "id": "puzzle.level0.35",
-      "en": "If I go to resolve the dispute between these two snakes first, will I also find another way?",
-      "zh": "如果先解开这两条蛇之间的纠缠，是不是就能找到另一条路？"
+      "en": "But those two are still staring at each other. They will not budge.",
+      "zh": "可他们俩还是紧盯着彼此，怎么也推不动。",
+      "aliases": [
+        "If I go to resolve the dispute between these two snakes first, will I also find another way?"
+      ]
     },
     {
       "id": "puzzle.level0.36",
@@ -653,13 +662,19 @@
     },
     {
       "id": "puzzle.level0.37",
-      "en": "This is the southern cave.",
-      "zh": "这是南边的洞穴。"
+      "en": "This sunny cave is higher up. A place for the white snake.",
+      "zh": "这个洞向阳，在高处。白蛇应该归到这里。",
+      "aliases": [
+        "This is the southern cave."
+      ]
     },
     {
       "id": "puzzle.level0.38",
-      "en": "This is the northern cave.",
-      "zh": "这是北边的洞穴。"
+      "en": "This shaded cave is lower down. A place for the black snake.",
+      "zh": "这个洞背阴，在低处。黑蛇应该归到这里。",
+      "aliases": [
+        "This is the northern cave."
+      ]
     },
     {
       "id": "puzzle.level0.39",
@@ -1010,6 +1025,21 @@
       "id": "interface.review.chapter-control",
       "en": "Expand / fold chapter note",
       "zh": "展开 / 收起章签"
+    },
+    {
+      "id": "puzzle.level0.40",
+      "en": "If only something could stand between them, so they could no longer see each other...",
+      "zh": "要是有什么东西能隔在中间，让他们看不见彼此就好了……"
+    },
+    {
+      "id": "puzzle.level0.41",
+      "en": "Those red stones... perhaps I could push one between them.",
+      "zh": "那些红色的石头……或许能推过去试试。"
+    },
+    {
+      "id": "puzzle.level0.42",
+      "en": "Then their caves. Father said: <color=#FFDC88>white above, black below</color>.",
+      "zh": "然后是他们各自的洞。父亲说过：<color=#FFDC88>白的在高处，黑的在低处</color>。"
     }
   ]
 }

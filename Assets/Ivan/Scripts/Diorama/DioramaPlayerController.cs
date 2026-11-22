@@ -522,6 +522,7 @@ namespace Ivan.Diorama
 
         private bool IsFree(Vector3 p)
         {
+            if (Ivan.Puzzle.Puzzle1Presentation.Blocks(gameObject.scene, p, m_capsuleRadius)) return false;
             // 指定了多边形可行走区域则以它为准；否则退回按地面推导的矩形边界
             if (m_walkableArea != null)
             {
