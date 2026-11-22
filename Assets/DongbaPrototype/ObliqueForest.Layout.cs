@@ -33,10 +33,12 @@ public partial class ObliqueForest {
         if(StoryModeEnabled&&(journeyStage==JourneyStage.Leaving||journeyStage==JourneyStage.EastJourney||journeyStage==JourneyStage.ScrollTransition))center.x=player.position.x;
         if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=shuConfrontationStarted||captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
         if(StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization))center=HearthPosition+Vector3.forward*1.5f;
-        float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
-        if(StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null)center=Vector3.Lerp(Feet,storyBoar.root.position,.3f);
+        float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;NarrativeCamera(ref center,ref targetZoom);cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
+        bool boarShot=StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null;
+        if(boarShot)center=ClampBoarViewToPaper(new Vector3(boarPassMoving?Mathf.Max(boarPassView.x,storyBoar.root.position.x):boarPassView.x,0,0));
         var goal=center+CameraOffset;
         cam.transform.position=dt>50?goal:Vector3.Lerp(cam.transform.position,goal,1-Mathf.Exp(-dt*5.5f));
+        if(boarShot)cam.transform.position=ClampBoarViewToPaper(cam.transform.position-CameraOffset)+CameraOffset;
     }
     bool InClearing(Vector3 p){
         Vector2 q=new Vector2(p.x,p.z);
@@ -104,7 +106,7 @@ public partial class ObliqueForest {
         foreach(var other in animals)if(other!=moving&&other.health>0&&other.migrationState!=2){var size=other.renderer.sprite.bounds.size;if(ink.Overlaps(ProjectedInkRect(other.root.position,size.x*other.art.localScale.x,size.y*other.art.localScale.y)))return false;}return true;
     }
     RectTransform UIBlock(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size){var t=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();t.SetParent(parent,false);t.anchorMin=t.anchorMax=anchor;t.pivot=pivot;t.anchoredPosition=pos;t.sizeDelta=size;return t;}
-    Text UILabel(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size,int fontSize,string content){var r=UIBlock(name,parent,anchor,pivot,pos,size);var label=r.gameObject.AddComponent<Text>();label.font=forestFont;label.fontSize=fontSize;label.color=uiInk;label.text=content;label.raycastTarget=false;label.supportRichText=false;label.resizeTextForBestFit=false;label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;return label;}
+    Text UILabel(string name,Transform parent,Vector2 anchor,Vector2 pivot,Vector2 pos,Vector2 size,int fontSize,string content){var r=UIBlock(name,parent,anchor,pivot,pos,size);var label=r.gameObject.AddComponent<Text>();label.font=forestFont;label.fontSize=fontSize;label.color=uiInk;label.text=content;label.raycastTarget=false;label.supportRichText=false;label.resizeTextForBestFit=false;label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;DongbaLocalizedLabel.Bind(label);return label;}
     void SetupForestHUD(){
         forestFont=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");var go=new GameObject("Forest HUD / fixed safe margins",typeof(RectTransform));forestCanvas=go.AddComponent<Canvas>();forestCanvas.renderMode=RenderMode.ScreenSpaceCamera;forestCanvas.worldCamera=cam;forestCanvas.planeDistance=1;
         // HUD 必须画在所有森林物件之上。DepthOrder 基准为 20000，最远树（z≈-21）的叶层最高约 28407；
@@ -116,15 +118,14 @@ public partial class ObliqueForest {
         for(int i=0;i<40;i++){float a=i*Mathf.PI*2/40;line.SetPosition(i,new Vector3(Mathf.Cos(a)*.55f,.09f,Mathf.Sin(a)*.43f));}UpdateForestPresentation(0);
     }
     void UpdateForestPresentation(float dt){
-        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=(RestorationArrivalLocked||AfterCapturePeaceful||fatherIntroActive||storyOpeningState==StoryOpeningState.CaptureBeat)?null:NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
-        if(interactionTarget!=null){var b=interactionTarget;selectionRing.position=b.root.position;hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";hudPrompt.text=b.animal?(b.age<2?"<b>E</b>   Feed to grow\n<b>J</b>   Attack":"<b>E</b>   Feed / new young\n<b>J</b>   Attack"):b.health<=0?"<b>E</b>   Replant here":b.cultivated?"Tended once\n<b>J</b>   Chop":"<b>E</b>   Tend\n<b>J</b>   Chop";}
-        if(displayedHealth!=health){displayedHealth=health;hudHealth.text="Health";}hudNotice.text=noticeTime>0?notice:flourishAge>=0?"The forest is flourishing":"";
-        float bank=Feet.x-RiverX(Feet.z);hudArea.text=InScrollWorld?"Rescue scroll":Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";RefreshQuietHUD();
+        if(forestCanvas==null)return;UpdateStoryObjectiveHUD();
+        interactionTarget=InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0?NearestForestInteraction():null;
+        RefreshQuietHUD();
     }
     Being NearestForestInteraction(){
         Being near=null;float best=1.8f*InteractionRange;foreach(var b in plants)if(b.tree){float d=Vector3.Distance(Feet,b.home);if(d<best){best=d;near=b;}}
-        foreach(var b in animals)if(b.health>0&&b.migrationState!=2){float d=Vector3.Distance(Feet,b.root.position);if(d<best){best=d;near=b;}}
-        if(interactionTarget!=null&&(!interactionTarget.animal||interactionTarget.health>0)){float current=Vector3.Distance(Feet,interactionTarget.root.position);if(current<1.8f*InteractionRange&&current<best+.18f)return interactionTarget;}return near;
+        foreach(var b in animals)if(b.health>0&&b.migrationState!=2&&b.root.gameObject.activeInHierarchy){float d=Vector3.Distance(Feet,b.root.position);if(d<best){best=d;near=b;}}
+        if(interactionTarget!=null&&interactionTarget.root.gameObject.activeInHierarchy&&(!interactionTarget.animal||(interactionTarget.health>0&&interactionTarget.migrationState!=2))){float current=Vector3.Distance(Feet,interactionTarget.root.position);if(current<1.8f*InteractionRange&&current<best+.18f)return interactionTarget;}return near;
     }
     IEnumerator CaptureForestLayout(){
         Directory.CreateDirectory("Verification");yield return new WaitForSeconds(2);

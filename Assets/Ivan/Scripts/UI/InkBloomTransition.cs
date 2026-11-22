@@ -71,6 +71,7 @@ public class InkBloomOverlay : MonoBehaviour
 
     public void Play(string targetSceneName, Vector2 originViewport, Material inkMaterial, float coverDuration, float revealDuration, Color inkColor, Color haloColor)
     {
+        DongbaPrototype.DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this, true);
         m_targetSceneName = targetSceneName;
         m_inkMaterial = inkMaterial;
         m_coverDuration = coverDuration;
@@ -149,6 +150,7 @@ public class InkBloomOverlay : MonoBehaviour
 
     void OnDestroy()
     {
+        DongbaPrototype.DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this, false);
         if (m_inkMaterial != null) Destroy(m_inkMaterial);
     }
 }

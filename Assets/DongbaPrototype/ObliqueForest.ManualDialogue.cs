@@ -16,8 +16,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(forestSubtitles!=null)forestSubtitles.HideDialogue();finished?.Invoke();
     }
     void BeginRealizationDialogue(){
-        BeginManualStoryDialogue(new[]{"Gaolequ: Father should have returned by now.","Gaolequ: Something is wrong. I must go east and find him."},()=>{
-            journeyStage=JourneyStage.EastJourney;afterCaptureCaption.gameObject.SetActive(false);heading=UnityEngine.Vector3.right;facing=1;EnsureEastPaperContinuation();Tell("Go east through the woods. Cross the river and keep walking.");
+        BeginManualStoryDialogue(RealizationLines,()=>{
+            journeyStage=JourneyStage.EastJourney;afterCaptureCaption.gameObject.SetActive(false);heading=UnityEngine.Vector3.right;facing=1;EnsureEastPaperContinuation();
         });
     }
 }}

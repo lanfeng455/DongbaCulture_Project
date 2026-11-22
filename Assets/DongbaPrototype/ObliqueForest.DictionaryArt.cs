@@ -112,7 +112,7 @@ public partial class ObliqueForest {
         Billboard("Shadow",b.root,shadow,.55f,true);b.initialScale=b.art.localScale;animals.Add(b);
     }
 
-    bool ClearAnimalStep(Vector3 p,Being moving=null){if((placingForestAnimals||fatherIntroActive)&&Mathf.Abs(p.x-HearthPosition.x)<3.4f&&Mathf.Abs(p.z-HearthPosition.z)<2.4f)return false;
+    bool ClearAnimalStep(Vector3 p,Being moving=null){if(moving!=null&&!placingForestAnimals)return CircleStepClear(p,moving);if((placingForestAnimals||fatherIntroActive)&&Mathf.Abs(p.x-HearthPosition.x)<3.4f&&Mathf.Abs(p.z-HearthPosition.z)<2.4f)return false;
         if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.9f&&p.z>storyHome.position.z-.65f&&p.z<storyHome.position.z+4.2f)return false;
         if(placingForestAnimals&&Vector3.Distance(p,ForestSpawn)<2.6f)return false;
         if(River(p)||Mathf.Abs(p.x)>ForestHalfWidth-1||Mathf.Abs(p.z)>ForestHalfDepth-.8f)return false;

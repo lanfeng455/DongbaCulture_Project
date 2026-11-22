@@ -291,6 +291,7 @@ public class GlyphFusionHintDisplay : MonoBehaviour
         }
 
         m_root.transform.localScale = Vector3.one * m_textScale;
+        DongbaPrototype.DongbaLocalizedLabel.Bind(m_text);
         m_root.SetActive(false);
     }
 

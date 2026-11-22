@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 using Ivan.Scroll;
+using DongbaPrototype;
 
 // 对话显示：场景级单例，负责把 DialogueLibrarySO 里的某段对话
 // 用打字机效果呈现到一个极简字幕条上。
@@ -21,7 +22,7 @@ using Ivan.Scroll;
 //   HideDialogue()               手动隐藏（任何时候都可调）
 //
 // 多说一句：PlayRange 是新开一段对话，旧对话如果还在放会被打断。
-public class DialogueDisplay : MonoBehaviour
+public partial class DialogueDisplay : MonoBehaviour
 {
     public static DialogueDisplay Instance { get; private set; }
 
@@ -106,8 +107,9 @@ public class DialogueDisplay : MonoBehaviour
 
     public bool IsPlaying => m_isPlaying;
     public void ReleaseForSceneHandoff(){if(Instance==this)Instance=null;}
-    public void RestoreAfterSceneHandoff(){Instance=this;HideDialogue();}
+    public void RestoreAfterSceneHandoff(bool hide=true){Instance=this;if(hide)HideDialogue();}
 
+    private DialogueLibrarySO.DialogueEntry m_visibleEntry;
     private bool m_revealCurrentLine;
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
     public TMP_Text SubtitleText => m_text;
@@ -131,14 +133,23 @@ public class DialogueDisplay : MonoBehaviour
         return true;
     }
 
+    public void PlayBilingualLine(string speaker, string english, string chinese)
+    {
+        CancelPlayback();
+        m_playbackCts = new CancellationTokenSource();
+        int generation = ++m_playbackGeneration;
+        var entry = new DialogueLibrarySO.DialogueEntry { speaker = speaker, content = english, chineseContent = chinese };
+        _ = PlaySegmentAsync(new List<DialogueLibrarySO.DialogueEntry> { entry }, false, 0, m_playbackCts.Token, generation);
+    }
+
     // Keep the default overlay for teammate scenes; the forest uses its existing capture camera.
-    public void SetRenderCamera(Camera camera)
+    public void SetRenderCamera(Camera camera, int sortingOrder = 1100)
     {
         EnsureUi();
         m_canvas.renderMode = RenderMode.ScreenSpaceCamera;
         m_canvas.worldCamera = camera;
         m_canvas.planeDistance = Mathf.Max(camera.nearClipPlane + .1f, .8f);
-        m_canvas.sortingOrder = 1100;
+        m_canvas.sortingOrder = sortingOrder;
         Canvas.ForceUpdateCanvases();
         ApplyLayout();
     }
@@ -308,6 +319,7 @@ public class DialogueDisplay : MonoBehaviour
     public void HideDialogue()
     {
         CancelPlayback();
+        m_visibleEntry = null;
         SetVisible(false);
     }
 
@@ -330,14 +342,17 @@ public class DialogueDisplay : MonoBehaviour
             return;
         }
         Instance = this;
+        DongbaLanguage.Changed += RefreshLanguage;
 
         EnsureUi();
+        SetPaperPresentation(false,false);
         // 初始化必须立即隐藏：走渐变会在场景启动瞬间闪一帧全亮字幕条
         SetVisible(false, immediate: true);
     }
 
     private void OnDestroy()
     {
+        DongbaLanguage.Changed -= RefreshLanguage;
         CancelPlayback();
         m_fadeCts?.Cancel();
         m_fadeCts?.Dispose();
@@ -374,12 +389,15 @@ public class DialogueDisplay : MonoBehaviour
                 // 演出指令行（Content 以 @ 开头）：不进字幕，转给舞台执行
                 if (StageCommandParser.TryParse(entry.content, out StageCommand command))
                 {
+                    m_visibleEntry = null;
                     SetVisible(false);
                     await ExecuteStageCommandAsync(command, entry.speaker, token);
                     continue;
                 }
 
                 SetVisible(true);
+                m_visibleEntry = entry;
+                UpdatePaperPortrait();
                 string line = FormatLine(entry);
                 await TypeLineAsync(line, token);
 
@@ -540,19 +558,33 @@ public class DialogueDisplay : MonoBehaviour
             await Awaitable.NextFrameAsync(token);
         }
 
-        m_text.maxVisibleCharacters = totalVisible;
+        // A language switch can change the length while this typewriter is awaiting a frame.
+        m_text.maxVisibleCharacters = m_text.textInfo.characterCount;
     }
 
     // 格式化为 "说话人：内容"；没说话人就是纯内容（旁白）
     private string FormatLine(DialogueLibrarySO.DialogueEntry entry)
     {
+        string content = string.IsNullOrEmpty(entry.chineseContent) ? DongbaLanguage.Text(entry.content)
+            : (DongbaLanguage.Chinese ? entry.chineseContent : entry.content);
         if (string.IsNullOrEmpty(entry.speaker))
         {
-            return entry.content ?? string.Empty;
+            return content;
         }
 
         string speakerHex = ColorUtility.ToHtmlStringRGB(m_speakerColor);
-        return $"<color=#{speakerHex}>{entry.speaker}</color>：{entry.content}";
+        return $"<size=70%><color=#{speakerHex}>{DongbaLanguage.Text(entry.speaker)}</color></size>\n{content}";
+    }
+
+    // Re-render the current line in place. Never restart a segment or replay @ actor commands.
+    private void RefreshLanguage()
+    {
+        if (m_visibleEntry == null || m_text == null) return;
+        m_text.text = FormatLine(m_visibleEntry);
+        FitBackgroundToText(m_text.text);
+        m_text.ForceMeshUpdate();
+        m_revealCurrentLine = true;
+        m_text.maxVisibleCharacters = m_text.textInfo.characterCount;
     }
 
     private void CancelPlayback()
@@ -757,7 +789,8 @@ public class DialogueDisplay : MonoBehaviour
         float canvasWidth = (m_canvas.transform as RectTransform).rect.width;
         float targetWidth = canvasWidth * m_widthRatio;
         rect.sizeDelta = new Vector2(targetWidth, m_minHeightInPixels);
-        rect.anchoredPosition = new Vector2(0f, m_bottomMarginInPixels);
+        rect.anchorMin=rect.anchorMax=new Vector2(.5f,paperAtTop?1:0);rect.pivot=new Vector2(.5f,paperAtTop?1:0);
+        rect.anchoredPosition = new Vector2(0f, paperAtTop?-m_bottomMarginInPixels:m_bottomMarginInPixels);
 
         m_background.color = m_backgroundColor;
         if (m_text != null)
@@ -771,8 +804,8 @@ public class DialogueDisplay : MonoBehaviour
     {
         if (m_background == null || m_text == null) return;
         float width = Mathf.Max(100, (m_canvas.transform as RectTransform).rect.width * m_widthRatio);
-        Vector2 preferred = m_text.GetPreferredValues(text, width - m_textPadding.x * 2, Mathf.Infinity);
-        m_background.rectTransform.sizeDelta = new Vector2(width, Mathf.Max(m_minHeightInPixels, preferred.y + m_textPadding.y * 2));
+        Vector2 preferred = m_text.GetPreferredValues(text, width - (paperStyled?paperTextLeft+paperTextRight:m_textPadding.x*2), Mathf.Infinity);
+        m_background.rectTransform.sizeDelta = new Vector2(width, Mathf.Max(m_minHeightInPixels, preferred.y + m_textPadding.y * 2 + (paperManual?34:0)));
     }
 
     private TMP_FontAsset ResolveFont()
@@ -790,6 +823,9 @@ public class DialogueDisplay : MonoBehaviour
         {
             return m_fontAsset;
         }
+
+        if (Application.isPlaying && DongbaLanguage.ChineseSubtitleFont != null)
+            return DongbaLanguage.ChineseSubtitleFont;
 
         try
         {

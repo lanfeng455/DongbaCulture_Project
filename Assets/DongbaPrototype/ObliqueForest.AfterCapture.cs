@@ -62,6 +62,7 @@ public partial class ObliqueForest {
         if(playerImage!=null)playerImage.enabled=true;
     }
     void BeginHearthWaiting(){
+        PrepareJourneyDestination();
         journeyStage=JourneyStage.WaitingAtHearth;waitingAge=0;waitingBeat=-1;waitingBeatsShown=0;
         player.position=ForestSpawn;lastDryPosition=Feet;heading=Vector3.right;facing=1;jumpAge=attackAge=-1;axe.gameObject.SetActive(false);body.localPosition=Vector3.zero;
         foreach(var animal in animals)animal.angry=false;
@@ -85,7 +86,8 @@ public partial class ObliqueForest {
             bool night=(beat&1)==1;
             float daylightPhase=Mathf.Repeat(waitingAge,HearthHalfDaySeconds)/HearthHalfDaySeconds;
             float previousLight=beat==0?0:night?0:1;
-            nightAmount=Mathf.Lerp(previousLight,night?1:0,Mathf.SmoothStep(0,1,Mathf.InverseLerp(.10f,.45f,daylightPhase)));
+            // Let the prop finish its descent (.28) and settle before it changes the light.
+            nightAmount=Mathf.Lerp(previousLight,night?1:0,Mathf.SmoothStep(0,1,Mathf.InverseLerp(.34f,.68f,daylightPhase)));
             storyTimeSymbols.SetActive(true);storySunImage.gameObject.SetActive(!night);storyMoonImage.gameObject.SetActive(night);
             storySunImage.color=storyMoonImage.color=new Color(1,1,1,.92f);
             float dropY;
@@ -94,11 +96,11 @@ public partial class ObliqueForest {
             else dropY=Mathf.Lerp(-140,140,Mathf.SmoothStep(0,1,(daylightPhase-.72f)/.28f));
             ((RectTransform)storyTimeSymbols.transform).anchoredPosition=new Vector2(0,dropY);
             storySkyRod.rectTransform.anchoredPosition=new Vector2(night?3.2f:-.2f,night?-4.8f:-21.2f);
-            afterCaptureCaption.gameObject.SetActive(true);afterCaptureCaption.text="Gaolequ waits beside the hearth.\nThree days and three nights pass...";
+            afterCaptureCaption.gameObject.SetActive(true);afterCaptureCaption.text=WaitingNarration;
             if(waitingAge>=HearthHalfDaySeconds*6){journeyStage=JourneyStage.Realization;realizationAge=0;storyTimeSymbols.SetActive(false);BeginRealizationDialogue();}
         }else if(journeyStage==JourneyStage.Realization){
             realizationAge+=dt;nightAmount=Mathf.MoveTowards(nightAmount,0,dt/1.1f);storyCurtain=0;
-            afterCaptureCaption.text="Father should have returned by now.\nSomething is wrong. I must go east and find him.";
+            afterCaptureCaption.text=RealizationLines[0].Substring("Gaolequ: ".Length)+"\n"+RealizationLines[1].Substring("Gaolequ: ".Length);
 
         }else if(journeyStage==JourneyStage.EastJourney){
             nightAmount=Mathf.MoveTowards(nightAmount,0,dt);storyCurtain=0;
@@ -118,12 +120,12 @@ public partial class ObliqueForest {
     }
     void CacheRetreatInk(){
         var all=FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None);
-        var selected=new System.Collections.Generic.List<SpriteRenderer>();foreach(var image in all)if(!image.transform.IsChildOf(player))selected.Add(image);
+        var selected=new System.Collections.Generic.List<SpriteRenderer>();foreach(var image in all)if(image.gameObject.scene==gameObject.scene&&!image.transform.IsChildOf(player))selected.Add(image);
         retreatSprites=selected.ToArray();retreatSpriteAlpha=new float[retreatSprites.Length];
         var graphics=forestCanvas.GetComponentsInChildren<Graphic>(true);var selectedUI=new System.Collections.Generic.List<Graphic>();
         foreach(var graphic in graphics)if(graphic!=storyCurtainImage&&graphic!=storyNightShade)selectedUI.Add(graphic);
         retreatGraphics=selectedUI.ToArray();retreatGraphicAlpha=new float[retreatGraphics.Length];
-        retreatLines=FindObjectsByType<LineRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None);retreatLineStart=new Color[retreatLines.Length];retreatLineEnd=new Color[retreatLines.Length];
+        retreatLines=System.Array.FindAll(FindObjectsByType<LineRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None),line=>line.gameObject.scene==gameObject.scene);retreatLineStart=new Color[retreatLines.Length];retreatLineEnd=new Color[retreatLines.Length];
     }
     // Undo only our last-frame multiplier before gameplay updates its own colors, preventing cumulative fading.
     void RestoreJourneyInk(){

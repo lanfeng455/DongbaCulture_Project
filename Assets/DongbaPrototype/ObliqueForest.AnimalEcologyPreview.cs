@@ -5,16 +5,17 @@ using UnityEngine;
 namespace DongbaPrototype {
 public partial class ObliqueForest {
     IEnumerator CaptureFriendlyPreview(){
-        string folder="Verification/friendly-preview";Directory.CreateDirectory(folder+"/frames");
-        player.position=new Vector3(-8,0,-2.5f);lastDryPosition=Feet;FollowPlayerCamera(100);
+        string folder="Verification/animal-response/motion";Directory.CreateDirectory(folder+"/frames");
+        SetStoryModeEnabled(false);RestartRun();
+        player.position=new Vector3(-18,0,-3);lastDryPosition=Feet;FollowPlayerCamera(100);
         yield return new WaitForSeconds(1);Time.captureFramerate=30;
         var rt=new RenderTexture(960,540,24);var tex=new Texture2D(960,540,TextureFormat.RGB24,false);
         var prior=cam.targetTexture;var active=RenderTexture.active;
-        try{for(int frame=0;frame<750;frame++){
+        try{for(int frame=0;frame<1080;frame++){
             if(frame==60)while(Balance<18)RegisterCare();
             if(frame==330){ecologyPreviewWalking=true;ecologyPreviewDirection=Vector3.left;}
             if(frame==390)ecologyPreviewWalking=false;
-            if(frame==600)while(Balance>7)RegisterDamage();
+            if(frame==600)while(Balance>-10)RegisterDamage();
             if(frame%30==0){int followers=0,close=0;float speed=0;foreach(var a in animals)if(a.follow>0){followers++;if(Vector3.Distance(a.root.position,Feet)<3.5f)close++;speed=Mathf.Max(speed,a.moveSpeed);}
                 File.AppendAllText(folder+"/checks.txt","t="+frame/30+" balance="+Balance+" followers="+followers+" close="+close+" maxSpeed="+speed.ToString("F2")+" player="+Feet+"\n");}
             cam.targetTexture=rt;cam.Render();RenderTexture.active=rt;tex.ReadPixels(new Rect(0,0,960,540),0,0);tex.Apply(false,false);File.WriteAllBytes(folder+"/frames/"+frame.ToString("D4")+".jpg",tex.EncodeToJPG(85));cam.targetTexture=prior;RenderTexture.active=active;yield return null;

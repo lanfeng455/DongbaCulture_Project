@@ -11,16 +11,29 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         yield return new WaitForSeconds(1);Directory.CreateDirectory("Verification/after-capture");
         PrepareAfterCapturePreview();
         File.WriteAllText("Verification/after-capture/checks.txt","Test starts at completed capture; prior hunt/capture covered by story-journey regression.\n");
-        Time.captureFramerate=30;StartCoroutine(RecordAfterCapture());
+        bool lightingOnly=System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--hearth-lighting-only")>=0;
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--after-capture-record")>=0){Time.captureFramerate=30;StartCoroutine(RecordAfterCapture());}
+        bool lightWaitsForProp=true,lightFinishesBeforeRetraction=true;var settledLightChecks=new bool[6];var finishedLightChecks=new bool[6];
+        var timingShots=new bool[4];float maxWaitingDisplacement=0;
         var dropped=new bool[6];var withdrawn=new bool[6];bool rodConnected=true;
         float timeout=0;bool dayShot=false,nightShot=false,realizationShot=false,standingDuringWait=true;var keyboard=Keyboard.current;if(keyboard==null)keyboard=InputSystem.AddDevice<Keyboard>();
         while(journeyStage!=JourneyStage.EastJourney&&timeout<30){
             if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();
             if(journeyStage==JourneyStage.WaitingAtHearth){
+                maxWaitingDisplacement=Mathf.Max(maxWaitingDisplacement,Vector3.Distance(Feet,ForestSpawn));
                 standingDuringWait&=playerImage.enabled&&playerImage.sprite==Get("player_glyph");
                 int skyBeat=Mathf.Clamp(waitingBeat,0,5);float skyPhase=Mathf.Repeat(waitingAge,HearthHalfDaySeconds)/HearthHalfDaySeconds;float skyY=((RectTransform)storyTimeSymbols.transform).anchoredPosition.y;
                 if(skyPhase>.30f&&skyPhase<.70f)dropped[skyBeat]|=Mathf.Abs(skyY+140)<.1f;
                 if(skyPhase>.98f)withdrawn[skyBeat]|=skyY>130;
+                float previousLight=skyBeat==0?0:((skyBeat&1)==1?0:1);
+                if(skyPhase<.34f)lightWaitsForProp&=Mathf.Abs(nightAmount-previousLight)<.001f;
+                if(skyPhase>.29f&&skyPhase<.33f){settledLightChecks[skyBeat]=true;lightWaitsForProp&=Mathf.Abs(skyY+140)<.1f&&Mathf.Abs(nightAmount-previousLight)<.001f;}
+                if(skyPhase>.69f&&skyPhase<.72f){finishedLightChecks[skyBeat]=true;lightFinishesBeforeRetraction&=Mathf.Abs(skyY+140)<.1f&&Mathf.Abs(nightAmount-((skyBeat&1)==1?1:0))<.001f;}
+                int timingShot=waitingBeat==1?0:waitingBeat==2?2:-1;
+                if(lightingOnly&&timingShot>=0){
+                    if(skyPhase>.30f&&skyPhase<.33f&&!timingShots[timingShot]){timingShots[timingShot]=true;CaptureSceneToTexture("Verification/after-capture/"+(waitingBeat==1?"moon-arrives-before-dark":"sun-arrives-before-light")+".png");}
+                    if(skyPhase>.69f&&skyPhase<.72f&&!timingShots[timingShot+1]){timingShots[timingShot+1]=true;CaptureSceneToTexture("Verification/after-capture/"+(waitingBeat==1?"moon-darkened":"sun-brightened")+".png");}
+                }
                 if(waitingBeat>=0)rodConnected&=storySkyRod!=null&&storySkyRod.rectTransform.sizeDelta.y>=400&&Mathf.Abs(storySkyRod.rectTransform.anchoredPosition.x-((skyBeat&1)==1?3.2f:-.2f))<.01f;
                 if(!dayShot&&waitingBeat==0&&waitingAge>.9f){CaptureSceneToTexture("Verification/after-capture/day.png");dayShot=true;}
                 if(!nightShot&&waitingBeat==1&&nightAmount>.95f){CaptureSceneToTexture("Verification/after-capture/night.png");nightShot=true;}
@@ -30,11 +43,19 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             timeout+=Time.deltaTime;yield return null;
         }
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
-        bool stayedAtHearth=Vector3.Distance(Feet,ForestSpawn)<.15f;bool sixPuppets=true;for(int i=0;i<6;i++)sixPuppets&=dropped[i]&&withdrawn[i];
+        // Sample the locked stage itself; after the final dialogue, held D is legitimately playable again.
+        bool stayedAtHearth=maxWaitingDisplacement<.15f;bool sixPuppets=true;for(int i=0;i<6;i++)sixPuppets&=dropped[i]&&withdrawn[i];
         File.AppendAllText("Verification/after-capture/checks.txt","Six day/night props descend hold and retract="+sixPuppets+"\nSuspension rod connected="+rodConnected+"\n");
         File.AppendAllText("Verification/after-capture/checks.txt","Waiting keeps original standing glyph="+standingDuringWait+"\nSix day/night beats="+(waitingBeatsShown==6)+"; beats="+waitingBeatsShown+"\nWaiting locks held movement="+stayedAtHearth+"\nSun/night screenshots="+(dayShot&&nightShot)+"\n");
+        bool sampledEveryBeat=true;for(int i=0;i<6;i++)sampledEveryBeat&=settledLightChecks[i]&&finishedLightChecks[i];
+        File.AppendAllText("Verification/after-capture/checks.txt","Lighting sampled across all six beats="+sampledEveryBeat+"\nProp settles before lighting changes="+lightWaitsForProp+"\nLighting completes before prop retracts="+lightFinishesBeforeRetraction+"\n");
+        if(lightingOnly){
+            RestartRun();yield return null;
+            File.AppendAllText("Verification/after-capture/checks.txt","Restart clears day/night presentation="+(!storyTimeSymbols.activeSelf&&nightAmount==0&&storyCurtain==0)+"\n");
+            Application.Quit();yield break;
+        }
         Vector3 before=Feet;yield return new WaitForSeconds(.7f);File.AppendAllText("Verification/after-capture/checks.txt","East journey waits for player input="+(Vector3.Distance(before,Feet)<.02f&&journeyStage==JourneyStage.EastJourney)+"\n");
-        float travel=0;bool jumped=false,retreatShot=false,blankShot=false,blankClean=false;int entries=0;RescueScrollEntered+=()=>entries++;
+        float travel=0;bool jumped=false,retreatShot=false,blankShot=false,blankClean=false;
         while(!scrollEntered&&travel<30){
             KeyboardState keys;
             if(Feet.z<-.15f&&!InScrollWorld)keys=new KeyboardState(Key.W);
@@ -49,13 +70,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
                 InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;var stopped=Feet;yield return new WaitForSeconds(.45f);
                 File.AppendAllText("Verification/after-capture/checks.txt","Blank paper still waits for movement="+(journeyStage==JourneyStage.EastJourney&&Vector3.Distance(stopped,Feet)<.02f)+"\n");
             }
+            if(blankShot)break; // ReelPortalHost owns the subsequent level handoff; its own test survives scene parking.
             travel+=Time.deltaTime;yield return null;
         }
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
-        yield return new WaitForSeconds(2);CaptureSceneToTexture("Verification/after-capture/transition-end.png");
-        File.AppendAllText("Verification/after-capture/checks.txt","Forest fades and blank paper contains only player="+(retreatShot&&blankShot&&blankClean)+"\nKeyboard east walk reaches final cut="+(journeyStage==JourneyStage.ScrollTransition&&storyCurtain==1)+"\nNo temporary scroll scene created="+(scrollWorld==null&&!scrollFrame.activeSelf&&!scrollRelocated)+"\nSingle handoff="+(entries==1)+"\nJumped across river="+jumped+"\n");
-        var endPosition=Feet;InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));yield return new WaitForSeconds(.5f);InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
-        File.AppendAllText("Verification/after-capture/checks.txt","Cut holds without gameplay or reappearing scene="+(storyCurtain==1&&Vector3.Distance(Feet,endPosition)<.01f&&scrollWorld==null)+"\n");
+        yield return new WaitForSeconds(.2f);CaptureSceneToTexture("Verification/after-capture/forest-to-reel.png");
+        File.AppendAllText("Verification/after-capture/checks.txt","Forest ink fully retreats beneath reel="+(retreatShot&&blankShot&&blankClean)+"\nEast walk reveals reel before checkpoint="+(journeyStage==JourneyStage.EastJourney&&journeyReelGroup!=null&&journeyReelGroup.alpha>.95f)+"\nNo obsolete temporary scroll world created="+(scrollWorld==null&&!scrollFrame.activeSelf&&!scrollRelocated)+"\nJumped across river="+jumped+"\n");
+        var endPosition=Feet;yield return new WaitForSeconds(.5f);
+        File.AppendAllText("Verification/after-capture/checks.txt","Releasing input pauses walking on reel="+(Vector3.Distance(Feet,endPosition)<.01f)+"\n");
         afterCapturePreviewDone=true;yield return new WaitForEndOfFrame();SetStoryModeEnabled(false);yield return null;
         File.AppendAllText("Verification/after-capture/checks.txt","Switching from scroll to Sandbox returns to forest="+(!StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<.1f&&!InScrollWorld&&!scrollFrame.activeSelf)+"\n");
         SetStoryModeEnabled(true);RestartRun();yield return null;

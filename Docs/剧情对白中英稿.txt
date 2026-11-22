@@ -1,0 +1,93 @@
+2026-11-16 剧情对白中英稿
+
+本稿用于游戏改编，不是经文引用。保留现有事件顺序；导航与按键提示仍放在界面上。对白按回车逐句推进，F8切换中英不改变当前句。
+
+这次重点：父亲从“天黑前回来”到“拿了刀就回来”的承诺；高勒趣在追猪、找刀时回应父亲；返乡先反省之前的索取，再开始种树。署的质问与最后迎接动物的短句保留。
+
+火塘边出门
+父亲：把斧子带上，高勒趣。跟我进林子。
+Father: Bring your axe, Gaolequ. Let's head into the forest.
+
+高勒趣：今天要走多远？
+Gaolequ: How far are we going today?
+
+父亲：就在近处。天黑前回来。
+Father: Not far. We'll be home before dark.
+
+野猪跑过，决定过河
+高勒趣：它过河了……还追吗？
+Gaolequ: It's across the river... Are we still going after it?
+
+父亲：这么大一头，不能就这么放跑了。
+Father: We can't let one that big get away.
+
+父亲：走，跟上我。
+Father: Come on. Stay with me.
+
+猎猪时父亲协助
+父亲：我来引住它！
+Father: I'll keep it busy!
+
+准备回家
+父亲：今天够了。走，回家。
+Father: That's enough for today. Let's go home.
+
+回西岸后发现刀丢了
+父亲：我的刀……落在河那边了。
+Father: My knife... I left it across the river.
+
+高勒趣：我跟你回去。
+Gaolequ: I'll come with you.
+
+父亲：不用，你在这儿等着。拿了刀我就回来。
+Father: No, wait here. I'll get it and come straight back.
+
+署的质问
+署：这是你的刀？
+Shu: Is this your knife?
+
+父亲短暂停住，不加解释字幕。
+
+署：原来是你杀了我的野猪！
+Shu: So it was you who killed my wild boar!
+
+三昼夜与决定寻父
+旁白：三天三夜过去了。
+Narration: Three days and three nights pass.
+
+高勒趣：他说拿了刀就回来的……
+Gaolequ: He said he'd come straight back...
+
+高勒趣：我不能再等了。我得去找他。
+Gaolequ: I can't keep waiting. I have to find him.
+
+回到森林：黑幕旁白、火塘空镜，再看受损树林
+旁白：父亲终究没能活着回来。高勒趣独自回到了这片树林。
+Narration: His father never made it home alive. Gaolequ returned to the forest alone.
+
+高勒趣：那时候，总觉得林子里的东西取不完。
+Gaolequ: Back then, I thought the forest would never run out.
+
+高勒趣：先让这里再长出树来吧。
+Gaolequ: I'll start by bringing the trees back.
+
+实际没有树桩时，沿用这两句，不声称发生了砍伐
+高勒趣：这里怎么这么安静……
+Gaolequ: It's so quiet here.
+
+高勒趣：我会好好照料这片树林。
+Gaolequ: I'll care for this forest.
+
+动物实际进入镜头后的结尾
+高勒趣：你们回来了。
+Gaolequ: You're back.
+
+若等待后仍没有动物进入镜头
+高勒趣：明天，我再来看看。
+Gaolequ: I'll come back tomorrow.
+
+未改变生态计分、地图、角色尺寸、镜头或解谜对白。普通模式找刀前仍有一句“等等……”，叙事试验版以停顿动作承担这一句。
+
+实机验证已完成：中文叙事试验版与英文普通版的回车逐句推进、新增父子回应、对话期间不提前行动；中英切换保持当前句与进度；返乡与主线狩猎至抓走的回归。新增对白均有中英文映射，中文字库检查通过，已目视检查找刀中英字幕和返乡字幕排版。
+
+测试使用快捷设置与模拟输入推进部分前置；语言检查的解谜完成信号为模拟，不代表人工解完全部关卡。统计与截图在 Verification/dialogue-polish。沿用本机 Unity 6000.3.0b1 兼容验证工程，开发工程保持6000.3.12f1，未在缺失的团队编辑器版本复测。现有 Builds/NarrativePreview 已更新，未新建正式留档包。

@@ -29,7 +29,12 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     public void SetReelTransitionFocus(float value){journeyReelFocus=value;}
     bool journeyReelPassedPortal;ReelPortalHost reelPortalHost;
     const float JourneyReelStart=30,JourneyReelPixelsPerUnit=180;
+    void PrepareJourneyDestination(){
+        if(reelPortalHost==null)reelPortalHost=new GameObject("Reel level handoff").AddComponent<ReelPortalHost>();
+        reelPortalHost.Prepare("Beat_2_Cleansing_Impurity");
+    }
     System.Collections.IEnumerator PreviewJourneyReel(){
+        PrepareJourneyDestination();
         yield return new WaitForSeconds(1);SetStoryModeEnabled(true);RestartRun();fatherIntroActive=false;
         while(Balance>-10)RegisterDamage();if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);
         journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(28,0,0);FollowPlayerCamera(100);
@@ -51,6 +56,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         EnsureJourneyReel();float progress=Mathf.Max(0,(Feet.x-JourneyReelStart)*JourneyReelPixelsPerUnit);
         journeyReelGroup.alpha=Mathf.SmoothStep(0,1,Mathf.InverseLerp(JourneyReelStart,35,Feet.x));
         StyleReelPlayer(journeyReelGroup.alpha);
+        if(!journeyReelPassedPortal&&Feet.x>35)PrepareJourneyDestination();
         float height=journeyReelRoot.rect.height*1.05f*(1+journeyReelFocus*.10f),scale=height/journeyReelData.tileHeight;
         float position=Mathf.Min(progress,Mathf.Max(0,journeyReelData.totalWidth-journeyReelRoot.rect.width/scale));int first=0;
         for(int i=0;i<journeyReelData.beats.Length;i++)if(journeyReelData.beats[i].x<=position)first=i;

@@ -93,6 +93,7 @@ public class GlyphAimController : MonoBehaviour
 
     private void Update()
     {
+        if (DongbaPrototype.DongbaInterface.GameplayBlocked) return;
         Mouse mouse = Mouse.current;
         if (mouse == null)
         {

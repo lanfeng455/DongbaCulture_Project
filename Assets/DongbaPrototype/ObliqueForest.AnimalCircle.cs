@@ -22,6 +22,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         // around trees, river banks and other animals when the straight segment is blocked.
         if(CircleStepClear(goal,b)&&CircleSegmentClear(b,b.root.position,goal)){
             if(b.route==null)b.route=new List<Vector3>(96);b.route.Clear();b.route.Add(goal);b.routeIndex=0;b.navGoal=goal;b.navRefresh=clock+.25f;
+        }else if(clock>=b.navRefresh){
+            // Advance along a nearby arc if the exact point is occupied; otherwise navigate
+            // around the obstacle instead of keeping a stale, already completed destination.
+            b.navRefresh=clock+.55f;
+            for(int i=0;i<6;i++){
+                float a=angle+i*.22f;var candidate=Feet+new Vector3(Mathf.Cos(a)*CircleRadius,0,Mathf.Sin(a)*CircleRadius);
+                if(CircleStepClear(candidate,b)&&PlanFriendlyRoute(b,candidate))break;
+            }
         }
     }
     bool PlanFriendlyRoute(Being b,Vector3 goal){
@@ -30,16 +38,30 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         return PlanAnimalRoute(b,goal);
     }
-    bool CircleStepClear(Vector3 p,Being b){
+    float AnimalPlantRadius(Being plant){return plant.tree?(plant.health>0?.85f:.35f):.2f;}
+    bool AnimalTerrainClear(Vector3 p){
         if(River(p)||Mathf.Abs(p.x)>ForestHalfWidth-1||Mathf.Abs(p.z)>ForestHalfDepth-.8f)return false;
         if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.9f&&p.z>storyHome.position.z-.65f&&p.z<storyHome.position.z+4.2f)return false;
         if(storyHearth!=null&&Vector3.Distance(p,HearthPosition)<.65f)return false;
-        foreach(var plant in plants)if(plant.health>0&&Vector3.Distance(p,plant.home)<(plant.tree?.85f:.2f))return false;
-        foreach(var other in animals)if(other!=b&&other.health>0&&other.migrationState!=2&&Vector3.Distance(p,other.root.position)<.95f)return false;
+        return true;
+    }
+    bool CircleStepClear(Vector3 p,Being b){
+        if(!AnimalTerrainClear(p))return false;
+        foreach(var plant in plants)if(Vector3.Distance(p,plant.home)<AnimalPlantRadius(plant))return false;
+        foreach(var other in animals)if(other!=b&&other.health>0&&other.migrationState!=2){
+            float distance=Vector3.Distance(p,other.root.position);if(distance>=.95f)continue;
+            // A youngster can grow inside an adult's clearance. Permit only steps that
+            // increase existing separation, so the pair can untangle without teleporting.
+            float current=Vector3.Distance(b.root.position,other.root.position);
+            if(current>=.95f||distance<=current+.0001f)return false;
+        }
         return true;
     }
     bool CircleSegmentClear(Being b,Vector3 from,Vector3 to){int n=Mathf.Max(1,Mathf.CeilToInt(Vector3.Distance(from,to)/.15f));for(int i=1;i<=n;i++)if(!CircleStepClear(Vector3.Lerp(from,to,(float)i/n),b))return false;return true;}
     IEnumerator CheckAnimalCircle(){
+        var args=System.Environment.GetCommandLineArgs();
+        if(System.Array.IndexOf(args,"--animal-friendly-play")>=0||System.Array.IndexOf(args,"--animal-flee-play")>=0){yield return PreviewAnimalResponse(System.Array.IndexOf(args,"--animal-flee-play")>=0);yield break;}
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--animal-response-check")>=0){yield return CheckAnimalResponse();yield break;}
         yield return new WaitForSeconds(1);SetStoryModeEnabled(false);RestartRun();player.position=new Vector3(-18,0,-3);lastDryPosition=Feet;FollowPlayerCamera(100);careCount=FlourishThreshold;damageCount=0;
         // Fixture: extra nearby adults exercise the outer followers as well as the three orbiters.
         for(int i=0;i<3;i++)if(FindLocal(Feet,4,7,100+i,true,out var spot)){AddAnimal(spot,i);populationCapacity[animals[animals.Count-1].populationRegion]++;}

@@ -9,10 +9,48 @@ using Ivan.Puzzle;
 using Ivan.Diorama;
 namespace DongbaPrototype {
 public class ReelPortalHost:MonoBehaviour {
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void OpenRequestedPreview(){
+        if(SceneManager.GetActiveScene().name!="Title")return;
+        foreach(var arg in Environment.GetCommandLineArgs())if(arg.StartsWith("--")&&(arg.EndsWith("-check")||arg.EndsWith("-preview")||arg.EndsWith("-capture"))){SceneManager.LoadScene("ObliqueForest");break;}
+    }
+    readonly bool measureHandoff=Array.IndexOf(Environment.GetCommandLineArgs(),"--journey-reel-check")>=0;
+    string handoffPhase="idle";double lastFrame;float worstFrame;
+    void LateUpdate(){if(!measureHandoff)return;double now=Time.realtimeSinceStartupAsDouble;if(busy&&!InLevel&&lastFrame>0){float ms=(float)((now-lastFrame)*1000);if(ms>worstFrame){worstFrame=ms;Debug.Log("Handoff peak frame: "+ms.ToString("F1")+" ms / "+handoffPhase);}}lastFrame=now;}
+    AsyncOperation preload; string preloadedScene; float walkingPhase, reelScroll;
+    public float EntryTravel {get;private set;}
+    readonly List<GameObject> preparedRoots=new List<GameObject>();DialogueDisplay preparedDialogue;
+    public void Prepare(string scene){
+        if(preload!=null||busy||!Application.CanStreamedLevelBeLoaded(scene))return;
+        preloadedScene=scene;
+        SceneManager.sceneLoaded+=ParkPreparedScene;
+        preload=SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);preload.allowSceneActivation=false;
+        StartCoroutine(ActivatePreparedScene());
+    }
+    IEnumerator ActivatePreparedScene(){
+        while(preload!=null&&preload.progress<.9f)yield return null;
+        if(!busy&&DialogueDisplay.Instance!=null)forestDialogue=DialogueDisplay.Instance;if(forestDialogue!=null)forestDialogue.ReleaseForSceneHandoff();
+        if(preload!=null)preload.allowSceneActivation=true;
+    }
+    void ParkPreparedScene(Scene scene,LoadSceneMode mode){
+        if(scene.name!=preloadedScene)return;SceneManager.sceneLoaded-=ParkPreparedScene;
+        // Awake and asset activation happen before the checkpoint; Start/gameplay stays paused.
+        foreach(var root in scene.GetRootGameObjects()){
+            var dialogue=root.GetComponentInChildren<DialogueDisplay>(true);if(dialogue!=null)preparedDialogue=dialogue;
+            var camera=root.GetComponentInChildren<Camera>();
+            if(camera!=null){var target=camera.targetTexture;var warm=RenderTexture.GetTemporary(64,64,24);camera.targetTexture=warm;camera.Render();camera.targetTexture=target;RenderTexture.ReleaseTemporary(warm);}
+        }
+        foreach(var root in scene.GetRootGameObjects())if(root.activeSelf){preparedRoots.Add(root);root.SetActive(false);}
+        if(preparedDialogue!=null)preparedDialogue.ReleaseForSceneHandoff();
+        if(forestDialogue!=null&&!busy)forestDialogue.RestoreAfterSceneHandoff(false);
+    }
+    static float WalkInput(){if(DongbaInterface.GameplayBlocked)return 0;var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
+    void WalkPaper(float dt,float weight){walkingPhase+=dt*Mathf.Abs(WalkInput())*11.2f;float angle=Mathf.Sin(walkingPhase)*1.25f*weight;fromActor.rectTransform.localRotation=Quaternion.Euler(0,0,angle);}
     Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
     public bool InLevel {get;private set;} public bool IsBusy=>busy;
+    public bool PresentationTransitionActive=>busy&&(!InLevel||completed);
     public float MaxReelUvError {get;private set;}
     public float LastPositionErrorPixels {get;private set;} public float LastHeightErrorPixels {get;private set;}
     void Awake(){
@@ -25,12 +63,36 @@ public class ReelPortalHost:MonoBehaviour {
     }
     RawImage Image(string name){var go=new GameObject(name,typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));go.transform.SetParent(overlay.transform,false);var image=go.GetComponent<RawImage>();image.raycastTarget=false;return image;}
     void HideOverlay(){destinationBackdrop.gameObject.SetActive(false);backdrop.gameObject.SetActive(false);fromActor.gameObject.SetActive(false);toActor.gameObject.SetActive(false);}
-    public void Enter(ObliqueForest source,string scene,Action onReturn){if(busy)return;forest=source;resume=onReturn;StartCoroutine(EnterRoutine(scene));}
+    Coroutine entryRoutine;bool restarting;
+    public void Enter(ObliqueForest source,string scene,Action onReturn){if(busy)return;forest=source;resume=onReturn;entryRoutine=StartCoroutine(EnterRoutine(scene));}
+    public IEnumerator LeaveForInterface(){
+        if(busy||InLevel||preload!=null)yield return RestartForestSession();
+    }
+    IEnumerator RestartForestSession(){
+        restarting=true;if(entryRoutine!=null)StopCoroutine(entryRoutine);
+        if(director!=null)director.PuzzleCompleted-=OnCompleted;
+        // An asynchronous load cannot be cancelled. Finish activation before unloading;
+        // never leave Unity's scene-operation queue stalled at allowSceneActivation=false.
+        if(preload!=null){preload.allowSceneActivation=true;while(!preload.isDone)yield return null;}
+        var destination=level.IsValid()?level:SceneManager.GetSceneByName(preloadedScene??"Beat_2_Cleansing_Impurity");
+        if(destination.IsValid()&&destination.isLoaded){var unload=SceneManager.UnloadSceneAsync(destination);if(unload!=null)while(!unload.isDone)yield return null;}
+        SceneManager.sceneLoaded-=ParkPreparedScene;preload=null;preloadedScene=null;preparedRoots.Clear();preparedDialogue=null;level=default;
+        if(forestScene.IsValid())SceneManager.SetActiveScene(forestScene);
+        foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);hiddenRoots.Clear();
+        if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
+        HideOverlay();ReleaseTextures();InLevel=false;busy=false;completed=false;restorationRequested=false;
+        if(forest!=null){forest.RestartFromPortal();forest.RefreshLanguagePresentation();}DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);restarting=false;
+    }
     // Project the real, transformed sprite quad, including the capture's transparent margin.
     static Rect ActorRect(Camera camera,SpriteRenderer actor){
         var bounds=actor.sprite.bounds;Vector2 min=new Vector2(float.MaxValue,float.MaxValue),max=new Vector2(float.MinValue,float.MinValue);
         for(int i=0;i<4;i++){var corner=new Vector3((i&1)==0?bounds.min.x:bounds.max.x,(i&2)==0?bounds.min.y:bounds.max.y,0);var p=camera.WorldToViewportPoint(actor.transform.TransformPoint(corner));min=Vector2.Min(min,new Vector2(p.x,p.y));max=Vector2.Max(max,new Vector2(p.x,p.y));}
         var center=(min+max)*.5f;var size=(max-min)*1.14f;return new Rect(center-size*.5f,size);
+    }
+    // Both portraits share a foot anchor, but keep their own aspect ratio.
+    static void PlacePortrait(RawImage image,Rect view){
+        float width=view.height*image.texture.width/image.texture.height*Screen.height/Screen.width;
+        Place(image,new Rect(view.center.x-width*.5f,view.yMin,width,view.height));
     }
     static void Place(RawImage image,Rect view){var rect=image.rectTransform;rect.anchorMin=view.min;rect.anchorMax=view.max;rect.offsetMin=rect.offsetMax=Vector2.zero;}
     static RenderTexture Background(Camera camera,SpriteRenderer actor){
@@ -49,68 +111,93 @@ public class ReelPortalHost:MonoBehaviour {
         Place(fromActor,ActorRect(camera,actor));Place(toActor,ActorRect(camera,actor));backdrop.gameObject.SetActive(true);fromActor.gameObject.SetActive(true);
     }
     IEnumerator MatchActor(Rect start,Camera destinationCamera,SpriteRenderer destination,bool outgoingReel){
-        // Freeze actor world transforms. Only a real orthographic camera moves and zooms.
+        // On entry the real movement/collision motor stays live; only camera ownership changes.
         var rigidbody=destination.GetComponentInParent<Rigidbody>();bool wasKinematic=rigidbody!=null&&rigidbody.isKinematic;
         var oldInterpolation=rigidbody!=null?rigidbody.interpolation:RigidbodyInterpolation.None;var oldDetection=rigidbody!=null?rigidbody.collisionDetectionMode:CollisionDetectionMode.Discrete;
-        if(rigidbody!=null){if(!wasKinematic){rigidbody.linearVelocity=Vector3.zero;rigidbody.angularVelocity=Vector3.zero;}var held=rigidbody.transform.position;rigidbody.interpolation=RigidbodyInterpolation.None;rigidbody.collisionDetectionMode=CollisionDetectionMode.Discrete;rigidbody.isKinematic=true;rigidbody.position=held;}
+        if(rigidbody!=null&&!outgoingReel){if(!wasKinematic){rigidbody.linearVelocity=Vector3.zero;rigidbody.angularVelocity=Vector3.zero;}var held=rigidbody.transform.position;rigidbody.interpolation=RigidbodyInterpolation.None;rigidbody.collisionDetectionMode=CollisionDetectionMode.Discrete;rigidbody.isKinematic=true;rigidbody.position=held;}
+        var controller=destination.GetComponentInParent<DioramaPlayerController>();
+        Vector3 entryFeet=controller!=null?controller.transform.position:destination.transform.position;
+        if(outgoingReel&&controller!=null){controller.CameraHandoff=true;controller.enabled=true;controller.SetStageMovementLock(false);}
         Vector3 nativePosition=destinationCamera.transform.position;float nativeZoom=destinationCamera.orthographicSize;
         Rect end=ActorRect(destinationCamera,destination);
-        destinationBackgroundTexture=Background(destinationCamera,destination);destinationBackdrop.texture=destinationBackgroundTexture;destinationBackdrop.color=Color.white;destinationBackdrop.gameObject.SetActive(true);
+        if(!outgoingReel){destinationBackgroundTexture=Background(destinationCamera,destination);destinationBackdrop.texture=destinationBackgroundTexture;destinationBackdrop.color=Color.white;destinationBackdrop.gameObject.SetActive(true);}
         toTexture=Portrait(destinationCamera,destination);toActor.texture=toTexture;toActor.gameObject.SetActive(true);destination.forceRenderingOff=true;
         float initialZoom=nativeZoom*end.height/Mathf.Max(.01f,start.height);destinationCamera.orthographicSize=initialZoom;
         Rect initial=ActorRect(destinationCamera,destination);
         destinationCamera.transform.position+=destinationCamera.transform.right*((initial.center.x-start.center.x)*2*initialZoom*destinationCamera.aspect)+destinationCamera.transform.up*((initial.center.y-start.center.y)*2*initialZoom);
         Vector3 initialPosition=destinationCamera.transform.position;
         // A single continuous camera move changes position and lens together.
-        float time=0;Rect current=start;
+        handoffPhase="camera blend";float time=0;Rect current=start;
         while(time<1){
-            time+=(Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime)/1.8f;
-            float u=Mathf.Clamp01(time);float ease=u*u*u*(u*(u*6-15)+10);
-            destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease);
-            destinationCamera.orthographicSize=Mathf.Lerp(initialZoom,nativeZoom,ease);
-            current=ActorRect(destinationCamera,destination);Place(fromActor,current);Place(toActor,current);
+            float dt=DongbaInterface.Instance!=null&&DongbaInterface.Instance.ModalOpen?0:Time.captureFramerate>0?1f/Time.captureFramerate:Time.unscaledDeltaTime;
+            time+=dt/(outgoingReel?2.8f:1.8f);
+            Vector3 travel=outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero;
+            if(outgoingReel)EntryTravel=travel.magnitude;
+            float u=Mathf.Clamp01(time);float ease=Mathf.SmoothStep(0,1,u);
+            destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease)+travel;
+            // Interpolate apparent height, not lens size: linear zoom produces a rapid
+            // reciprocal shrink halfway through. Anchor the feet to the same smooth path.
+            float height=Mathf.Lerp(start.height,end.height,ease);
+            destinationCamera.orthographicSize=nativeZoom*end.height/Mathf.Max(.001f,height);
+            var projected=ActorRect(destinationCamera,destination);
+            Vector2 desired=new Vector2(Mathf.Lerp(start.center.x,end.center.x,ease),Mathf.Lerp(start.yMin,end.yMin,ease)+height*.5f);
+            float span=2*destinationCamera.orthographicSize;
+            destinationCamera.transform.position+=destinationCamera.transform.right*((projected.center.x-desired.x)*span*destinationCamera.aspect)+destinationCamera.transform.up*((projected.center.y-desired.y)*span);
+            current=ActorRect(destinationCamera,destination);PlacePortrait(fromActor,current);PlacePortrait(toActor,current);
             // The reel is a fixed full-screen page: crossfade it without camera zoom.
             // Only the actor and the diorama world follow the camera projection.
             float oldScale=initialZoom/destinationCamera.orthographicSize,newScale=nativeZoom/destinationCamera.orthographicSize;
             Vector2 oldCenter=current.center+(Vector2.one*.5f-start.center)*oldScale,newCenter=current.center+(Vector2.one*.5f-end.center)*newScale;
-            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=outgoingReel?new Rect(0,0,1,1):new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
+            Place(backdrop,new Rect(0,0,1,1));backdrop.uvRect=outgoingReel?new Rect(reelScroll,0,1,1):new Rect(Vector2.one*.5f-oldCenter/oldScale,Vector2.one/oldScale);
             Place(destinationBackdrop,new Rect(0,0,1,1));destinationBackdrop.uvRect=outgoingReel?new Rect(Vector2.one*.5f-newCenter/newScale,Vector2.one/newScale):new Rect(0,0,1,1);
-            Rect reelUv=outgoingReel?backdrop.uvRect:destinationBackdrop.uvRect;MaxReelUvError=Mathf.Max(MaxReelUvError,reelUv.position.magnitude+(reelUv.size-Vector2.one).magnitude);
-            float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
+            Rect reelUv=outgoingReel?backdrop.uvRect:destinationBackdrop.uvRect;MaxReelUvError=Mathf.Max(MaxReelUvError,(reelUv.size-Vector2.one).magnitude);
+            if(outgoingReel){reelScroll+=WalkInput()*dt*.055f;WalkPaper(dt,1-ease);}
+            float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(outgoingReel?.45f:.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
             yield return null;
         }
-        destinationCamera.transform.position=nativePosition;destinationCamera.orthographicSize=nativeZoom;
-        Rect actual=ActorRect(destinationCamera,destination);Place(fromActor,actual);Place(toActor,actual);
+        destinationCamera.transform.position=nativePosition+(outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero);destinationCamera.orthographicSize=nativeZoom;
+        Rect actual=ActorRect(destinationCamera,destination);PlacePortrait(fromActor,actual);PlacePortrait(toActor,actual);
         LastPositionErrorPixels=Vector2.Scale(current.center-actual.center,new Vector2(Screen.width,Screen.height)).magnitude;LastHeightErrorPixels=Mathf.Abs(current.height-actual.height)*Screen.height;
-        if(rigidbody!=null){rigidbody.isKinematic=wasKinematic;rigidbody.collisionDetectionMode=oldDetection;rigidbody.interpolation=oldInterpolation;}
+        if(outgoingReel&&controller!=null)controller.CameraHandoff=false;
+        fromActor.rectTransform.localRotation=Quaternion.identity;
+        if(rigidbody!=null&&!outgoingReel){rigidbody.isKinematic=wasKinematic;rigidbody.collisionDetectionMode=oldDetection;rigidbody.interpolation=oldInterpolation;}
         destination.forceRenderingOff=false;HideOverlay();ReleaseTextures();
     }
     IEnumerator EnterRoutine(string scene){
-        busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;
+        busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;EntryTravel=0;reelScroll=0;
         if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);resume?.Invoke();busy=false;yield break;}
+        DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
+        handoffPhase="source capture";worstFrame=0;
         yield return new WaitForEndOfFrame(); // Capture after forest UI/ink fading has settled for this frame.
         var source=forest.ReelActorRenderer;var sourceCamera=forest.ReelViewCamera;var start=ActorRect(sourceCamera,source);BeginOverlay(sourceCamera,source);source.forceRenderingOff=true;
         forestScene=forest.gameObject.scene;forestDialogue=DialogueDisplay.Instance;if(forestDialogue!=null){forestDialogue.HideDialogue();forestDialogue.ReleaseForSceneHandoff();}
         hiddenRoots.Clear();foreach(var root in forestScene.GetRootGameObjects())if(root.activeSelf){hiddenRoots.Add(root);root.SetActive(false);}
-        var load=SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);while(!load.isDone)yield return null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
+        handoffPhase="scene activation";
+        var load=preload!=null&&preloadedScene==scene?preload:SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);preload=load;preloadedScene=scene;load.allowSceneActivation=true;
+        while(!load.isDone){float dt=(DongbaInterface.Instance!=null&&DongbaInterface.Instance.ModalOpen?0:Time.unscaledDeltaTime);reelScroll+=WalkInput()*dt*.055f;backdrop.uvRect=new Rect(reelScroll,0,1,1);WalkPaper(dt,1);yield return null;}preload=null;level=SceneManager.GetSceneByName(scene);SceneManager.SetActiveScene(level);
+        if(forestDialogue!=null)forestDialogue.ReleaseForSceneHandoff();
+        foreach(var root in preparedRoots)if(root!=null)root.SetActive(true);preparedRoots.Clear();
+        if(preparedDialogue!=null)preparedDialogue.RestoreAfterSceneHandoff();
+        handoffPhase="level startup";
         var controller=FindFirstObjectByType<DioramaPlayerController>();if(controller!=null)controller.SetStageMovementLock(true);
         yield return null;yield return new WaitForEndOfFrame();
         var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;if(controller!=null){controller.enabled=false;destinationCamera.transform.position=controller.transform.position+new Vector3(0,17,-20);}
         foreach(var root in level.GetRootGameObjects()){director=root.GetComponentInChildren<PuzzleDirectorBase>(true);if(director!=null)break;}
         if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
         if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination,true);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
-        if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;
-        while(!completed){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)Application.Quit();yield return null;}
-        yield return new WaitForSecondsRealtime(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
+        if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
+        while(!completed){yield return null;}
+        DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
+        yield return new WaitForSeconds(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
         start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;if(director!=null)director.PuzzleCompleted-=OnCompleted;
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         forest.SetReelActorScale(1);forest.SetReelTransitionFocus(0);resume?.Invoke();yield return null;yield return new WaitForEndOfFrame();
-        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();
+        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();forest.RefreshLanguagePresentation();DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
     }
     void ReleaseTextures(){destinationBackdrop.texture=backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=destinationBackgroundTexture=fromTexture=toTexture=null;}
     // Bind only to the final rescue/death sequence, not ordinary puzzle completion.
     public void ReturnToForestForRestoration(){if(!InLevel)return;restorationRequested=true;completed=true;}
     void OnCompleted(){completed=true;}
-    void OnDestroy(){ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
+    void OnDestroy(){DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
 }}

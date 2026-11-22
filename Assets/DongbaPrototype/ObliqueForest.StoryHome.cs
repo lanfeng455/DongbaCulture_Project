@@ -2,7 +2,27 @@ using System;using UnityEngine;
 namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly Vector3 HearthPosition=new Vector3(-8.5f,0,-2.2f);
     static readonly Vector3 FatherHomeStart=new Vector3(-10.05f,0,-2.65f);
+    static readonly Vector3 HomeStoryCenter=HearthPosition+Vector3.forward*1.5f;
+    const float HomeStoryZoom=6.6f;
     Transform storyHearth;Transform storyHome;float boarPassAge;Vector3 boarPassStart;bool boarPassComplete;
+    Vector3 boarPassView;bool boarPassMoving;
+    void BeginBoarPass(){
+        SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;
+        boarPassAge=0;boarPassComplete=boarPassMoving=false;
+        float halfView=8.5f*cam.aspect,halfGlyph=storyBoar.renderer.bounds.extents.x+.25f;
+        // Leave enough paper beyond the left edge for the entire boar, not just its feet.
+        float westView=-ForestHalfWidth+halfView+2*halfGlyph+1;
+        boarPassView=new Vector3(Mathf.Clamp(Feet.x,westView,Mathf.Max(westView,RiverX(0)-2)),0,0);
+        boarPassStart=new Vector3(boarPassView.x-halfView-halfGlyph-.5f,0,0);
+        storyBoar.root.position=boarPassStart;storyBoar.root.gameObject.SetActive(false);
+    }
+    Vector3 ClampBoarViewToPaper(Vector3 center){
+        float halfWidth=cam.orthographicSize*cam.aspect;
+        float halfDepth=cam.orthographicSize/Mathf.Max(.5f,Mathf.Abs(cam.transform.up.z));
+        float x=Mathf.Max(0,ForestHalfWidth-halfWidth-.15f),z=Mathf.Max(0,ForestHalfDepth-halfDepth-.15f);
+        center.x=Mathf.Clamp(center.x,-x,x);center.z=Mathf.Clamp(center.z,-z,z);center.y=0;
+        return center;
+    }
     void EnsureStoryHome(){if(storyHome==null){storyHome=Billboard("Family home / dictionary grass house PDF338",null,Get("home_glyph"),2.65f);storyHome.position=new Vector3(-8.5f,0,-.8f);storyHome.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(4f)+k_DepthOrderStride-1;storyHome.GetComponent<SpriteRenderer>().sharedMaterial=new Material(Resources.Load<Shader>("HouseWash"));
         var contact=Sprite.Create(soft,new Rect(0,0,64,64),new Vector2(.5f,.5f),64);var ground=Billboard("House ground contact / neutral ink wash",null,contact,2.85f,true);ground.position=storyHome.position+new Vector3(0,.025f,-.25f);var size=ground.localScale;size.y*=.52f;ground.localScale=size;ground.GetComponent<SpriteRenderer>().color=new Color(.31f,.28f,.20f,.35f);
         AddDictionaryPlant(storyHome.position+new Vector3(-1.65f,0,-.55f),false,1100,"plant_06",.38f);
@@ -10,10 +30,16 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(storyHearth==null){storyHearth=Billboard("Family hearth / dictionary PDF312 printed240",null,Get("hearth_glyph"),.68f);storyHearth.position=HearthPosition;storyHearth.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(HearthPosition.z);}
     }
     void UpdateBoarPass(float dt){
-        boarPassAge+=dt;storyBoar.root.position=Vector3.MoveTowards(storyBoar.root.position,BoarClearing,13*dt);
+        boarPassAge+=dt;
+        if(!boarPassMoving){
+            // First look into the forest. Reveal only once the start is safely off camera.
+            if(boarPassAge<.55f||Vector3.Distance(cam.transform.position-CameraOffset,ClampBoarViewToPaper(boarPassView))>.3f||Mathf.Abs(cam.orthographicSize-8.5f)>.1f)return;
+            boarPassMoving=true;storyBoar.root.gameObject.SetActive(true);
+        }
+        storyBoar.root.position=Vector3.MoveTowards(storyBoar.root.position,BoarClearing,13*dt);
         float x=storyBoar.root.position.x,river=RiverX(storyBoar.root.position.z);float jump=Mathf.Abs(x-river)<1.5f?Mathf.Sin(Mathf.Clamp01((x-river+1.5f)/3)*Mathf.PI)*1.15f:0;
         storyBoar.art.localPosition=Vector3.up*(jump+.035f*Mathf.Sin(boarPassAge*24));storyBoar.renderer.flipX=false;storyBoar.renderer.sortingOrder=DepthOrder(storyBoar.root.position.z);
         if(boarPassAge>1.1f&&!boarPassComplete&&Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0&&!System.IO.File.Exists("Verification/story-journey/boar-pass.png"))CaptureSceneToTexture("Verification/story-journey/boar-pass.png");
-        if(Vector3.Distance(storyBoar.root.position,BoarClearing)<.1f){storyBoar.art.localPosition=Vector3.zero;boarPassComplete=true;journeyStage=JourneyStage.Invitation;Tell("Father: Did you see that boar? Come here a moment.");}
+        if(Vector3.Distance(storyBoar.root.position,BoarClearing)<.1f){storyBoar.art.localPosition=Vector3.zero;boarPassComplete=true;journeyStage=JourneyStage.Invitation;}
     }
 }}

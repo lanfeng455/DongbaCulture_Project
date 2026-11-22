@@ -16,7 +16,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void DrawBoarTargetMarker(){
         EnsureQuietBoarMarker();
         if(boarMarker==null)return;
-        bool show=StoryModeEnabled&&journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0&&storyBoar.root.gameObject.activeInHierarchy;
+        bool show=InterfaceExploring&&StoryModeEnabled&&journeyStage==JourneyStage.Boar&&storyBoar!=null&&storyBoar.health>0&&storyBoar.root.gameObject.activeInHierarchy;
         Vector3 v=Vector3.zero;
         if(show){
             Vector3 feet=cam.WorldToViewportPoint(storyBoar.root.position);
@@ -26,6 +26,6 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         uiBoarPlate.SetActive(show);if(!show)return;
         var rect=(RectTransform)uiBoarPlate.transform;rect.anchorMin=rect.anchorMax=new Vector2(v.x,v.y);rect.anchoredPosition=Vector2.zero;
-        boarMarker.text="GREAT BOAR\n"+storyBoar.health+" / 6";
+        boarMarker.text="Great boar";RefreshBoarHealth();
     }
 }}
