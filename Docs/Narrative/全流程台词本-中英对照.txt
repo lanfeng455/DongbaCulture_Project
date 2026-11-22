@@ -1,0 +1,308 @@
+﻿全流程台词本（当前游戏，中英对照）
+2026-11-22
+
+从火塘开场、狩猎、丢刀与抓捕、三天三夜、东行卷轴，到狐狸与两蛇解谜，再到最终返乡恢复自然。
+正文按剧情顺序排，条件分支都保留。括号是阅读备注，不是游戏字幕。这里只整理现有文本，没有新写或润色台词。
+主线及结尾分支共 50 条；另附保留但未接入当前流程的 9 条。不是每条都会在一次游玩中出现。
+可以直接修改这份文本后交回同步。修改这个 txt 不会自动修改游戏；森林代码、剧情节点和解谜 CSV 目前仍是三个不同的实际来源。
+
+1. 火塘旁，准备出发
+
+01　父亲
+中：把斧子带上，高勒趣。跟我进林子。
+EN: Bring your axe, Gaolequ. Let's head into the forest.
+
+02　高勒趣
+中：今天要走多远？
+EN: How far are we going today?
+
+03　父亲
+中：就在近处。天黑前回来。
+EN: Not far. We'll be home before dark.
+
+2. 大野猪经过，决定追猎
+（环境下降触发大野猪从西向东经过后。）
+
+04　高勒趣
+中：它过河了……还追吗？
+EN: It's across the river... Are we still going after it?
+
+05　父亲
+中：这么大一头，不能就这么放跑了。
+EN: We can't let one that big get away.
+
+06　父亲
+中：走，跟上我。
+EN: Come on. Stay with me.
+
+3. 对付大野猪
+
+07　父亲
+（父亲靠近协助战斗时说一次，属于条件台词。）
+中：我来引住它！
+EN: I'll keep it busy!
+
+4. 猎猪后准备回家
+
+08　父亲
+中：今天够了。走，回家。
+EN: That's enough for today. Let's go home.
+
+5. 回到西岸，发现刀落下了
+（当前以剧情节点资产为准。叙事预览版先用动作停顿；普通版多说一句“等等”。）
+
+09　父亲
+（仅普通版；叙事预览版不说这句。）
+中：等等……
+EN: Wait a moment...
+
+10　父亲
+中：我的刀……落在河那边了。
+EN: My knife... I left it across the river.
+
+11　高勒趣
+中：我跟你回去。
+EN: I'll come with you.
+
+12　父亲
+中：不用，你在这儿等着。拿了刀我就回来。
+EN: No, wait here. I'll get it and come straight back.
+
+6. 父亲独自回去找刀，与署对峙
+（署问完后，父亲愣住，没有回答台词。署说完第二句后抓走父亲。）
+
+13　署
+中：这是你的刀？
+EN: Is this your knife?
+
+14　署
+中：原来是你杀了我的野猪！
+EN: So it was you who killed my wild boar!
+
+7. 高勒趣在火塘旁等待
+
+15　旁白
+（旁白，配合三天三夜的明暗变化。）
+中：三天三夜过去了。
+EN: Three days and three nights pass.
+
+8. 决定出发，寻找父亲
+
+16　高勒趣
+中：他说拿了刀就回来的……
+EN: He said he'd come straight back...
+
+17　高勒趣
+中：我不能再等了。我得去找他。
+EN: I can't keep waiting. I have to find him.
+
+9. 向东走入卷轴
+（这一段目前由玩家行走、画面退去和卷轴转场表达，没有额外人物台词。）
+
+10. 入山，寻找父亲、遇见狐狸
+
+18　高勒趣
+中：父亲，你被署神抓走了。
+EN: My father, you had been caught by the God Shu.
+
+19　高勒趣
+中：父亲，我该去哪里寻找你的踪迹？
+EN: My father, how can I find your trace?
+
+20　狐狸
+中：你的父亲，是Egaole，对吗？
+EN: Your father is Egaole, right?
+
+21　狐狸
+中：而你，就是高勒趣。
+EN: And you, you are Gaolequ.
+
+22　高勒趣
+中：是的。狐狸，你怎么会认识我们？
+EN: Exactly. Dear fox, how do you know us?
+
+23　狐狸
+中：高勒趣，你们父子给自然造成了太多伤害！
+EN: Gao, the damage you two have caused to nature was so much!
+
+24　狐狸
+中：你们甚至违背约定，猎杀了署神的野猪！
+EN: You even violated the contract and captured the wild boar of the God Shu!
+
+25　高勒趣
+中：可是……我不觉得署有权抓走我的父亲。
+EN: Well...but I don't think Shu has the right to catch my father.
+
+26　狐狸
+中：高勒趣，你父亲被关在第五座山上，而这里才是第一座。
+EN: Gao, your father is imprisoned on the fifth hill, and this is the first one.
+
+27　狐狸
+中：去和解，别再破坏自然，否则你也会落得同样的下场。
+EN: To reconcile rather than continue to destroy nature, otherwise you will also fall into the same fate.
+
+28　高勒趣
+中：它消失了……
+EN: It disappered…
+
+11. 山间前行，记起父亲的话
+
+29　高勒趣
+中：父亲常说，南坡向阳，北谷背阴。
+EN: My father often said that, the south slope is sunny, the north valley is shady.
+
+30　高勒趣
+中：白的归于高处，黑的归于低处。这句话，我得记住。
+EN: White belongs above. Black belongs below. I must remember that.
+
+31　高勒趣
+中：石头越来越多，应该快到山顶了。
+EN: So many rocks, I'm definitely reaching the peak.
+
+12. 路被两蛇拦住
+（两蛇发出嘶声后分开，高勒趣再道谢。）
+
+32　高勒趣
+中：两条蛇缠在一起，挡住了去路……
+EN: The snakes are twisting with each other, I can't pass through this way…
+
+33　高勒趣
+中：那个，能不能请你们……
+EN: Hey, could you please…
+
+34　两蛇
+中：嘶……嘶……
+EN: Hiss…hiss…
+
+35　高勒趣
+中：啊，谢谢。
+EN: Aha, thanks.
+
+13. 走到巨石前，发现还需要隔开两蛇的视线
+
+36　高勒趣
+中：这些巨石……还是把路堵住了。
+EN: The path is still blocked by these boulders.
+
+37　两蛇
+中：嘶……嘶……
+EN: Hiss…hiss…
+
+38　高勒趣
+中：可他们俩还是紧盯着彼此，怎么也推不动。
+EN: But those two are still staring at each other. They will not budge.
+
+39　高勒趣
+中：要是有什么东西能隔在中间，让他们看不见彼此就好了……
+EN: If only something could stand between them, so they could no longer see each other...
+
+40　高勒趣
+中：那些红色的石头……或许能推过去试试。
+EN: Those red stones... perhaps I could push one between them.
+
+41　高勒趣
+中：然后是他们各自的洞。父亲说过：白的在高处，黑的在低处。
+EN: Then their caves. Father said: white above, black below.
+
+14. 洞口的线索
+（靠近相应洞口才触发；两句顺序取决于玩家路线。）
+
+42　高勒趣
+（高处的洞，接收白蛇。）
+中：这个洞向阳，在高处。白蛇应该归到这里。
+EN: This sunny cave is higher up. A place for the white snake.
+
+43　高勒趣
+（低处的洞，接收黑蛇。）
+中：这个洞背阴，在低处。黑蛇应该归到这里。
+EN: This shaded cave is lower down. A place for the black snake.
+
+15. 解谜完成，返回卷轴
+（当前没有新增通关对白。两蛇关卡完成后回到卷轴；后续营救关卡、救出父亲及父亲遇难的独立过程，目前没有已接入的完整台词。）
+
+16. 最终返乡，面对被破坏的森林
+（下面是项目里已经实现的结尾段台词。它等待最终营救结束后调用；当前两蛇关卡通关不会直接触发这一段。）
+
+44　旁白
+（返乡旁白。）
+中：父亲终究没能活着回来。高勒趣独自回到了这片树林。
+EN: His father never made it home alive. Gaolequ returned to the forest alone.
+
+45　高勒趣
+（有被砍倒的树桩时使用，与下面“没有树桩”分支二选一。）
+中：那时候，总觉得林子里的东西取不完。
+EN: Back then, I thought the forest would never run out.
+
+46　高勒趣
+（有被砍倒的树桩时使用，与下面“没有树桩”分支二选一。）
+中：先让这里再长出树来吧。
+EN: I'll start by bringing the trees back.
+
+47　高勒趣
+（没有树桩时替换上面两句人物台词；返乡旁白不变。）
+中：这里怎么这么安静……
+EN: It's so quiet here.
+
+48　高勒趣
+（没有树桩时替换上面两句人物台词；返乡旁白不变。）
+中：我会好好照料这片树林。
+EN: I'll care for this forest.
+
+17. 恢复自然后的收尾
+（两句按当前镜头情况二选一，不会连续说。）
+
+49　高勒趣
+（附近有动物，且动物确实出现在镜头中。）
+中：你们回来了。
+EN: You're back.
+
+50　高勒趣
+（镜头中暂时没有返回的动物。）
+中：明天，我再来看看。
+EN: I'll come back tomorrow.
+
+附录 A. 两蛇台词库中保留、当前没有触发的句子
+
+51　高勒趣
+中：也许……狐狸说得对。
+EN: Maybe…the fox is right.
+
+附录 B. 旧环境／神位实验场景保留的台词
+（这 8 句保存在 IntroDialogue，并用于 Environment／Template 场景；这两个场景不在当前 Windows 构建的启用场景列表里。一起列出，避免漏掉项目中现有的台词，但它们不接在上述主线后面。）
+
+52　高勒趣
+中：这就是“石”。它堵住了高处的泉眼。
+EN: This is “stone”. It is blocking the spring on the high ground.
+
+53　署
+中：高勒趣，把“白石”砌在高处，组成神位。
+EN: Gaolequ, place “white stone” on the high ground to form the spirit seat.
+
+54　高勒趣
+中：高处为“白”，低处为“黑”。
+EN: High ground is “white”; low ground is “black”.
+
+55　高勒趣
+中：需要把“石”变成“白石”，才能够放到神位上。
+EN: I need to turn “stone” into “white stone” before I can place it on the spirit seat.
+
+56　高勒趣
+中：如果需要构建神位，这点“白石”可不行。
+EN: This is not enough “white stone” to build the spirit seat.
+
+57　高勒趣
+中：去别的地方再找找材料吧。
+EN: I should look elsewhere for more materials.
+
+58　高勒趣
+中：似乎无法组成合理的含义。
+EN: These do not seem to form a meaningful combination.
+
+59　高勒趣
+中：神位已成，接下来……
+EN: The spirit seat is ready. Now…
+
+核对范围
+取自当前 StoryLines、RestorationEnding、ForestCaptureGraph、Level 0、IntroDialogue 和中英语言表，并核对了解谜场景的对话触发范围。剧情节点优先于代码中的同文回退副本。
+以 @ 开头的转身、行走、等待、隐藏是演出指令，不是说出来的台词；没有列成对白。
+普通探索、砍树、喂养、种植，以及无对白的镜头变化，没有擅自补入解释性字幕。菜单与按键提示不计入台词。
