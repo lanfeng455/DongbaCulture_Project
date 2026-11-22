@@ -59,7 +59,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         DongbaLanguageCapture.Write(cam,folder+"/flourishing.png");
         while(Balance>-10)RegisterDamage();yield return new WaitForSeconds(3);
         check("Decline remains visual without narration",ecologyVisual<0&&NoActionNarration());
-        SetStoryModeEnabled(true);RestartRun();for(int i=0;i<FatherIntroLines.Length;i++)AdvanceFatherIntro();
+        SetStoryModeEnabled(true);RestartRun();SkipOpeningForVerification();
         SpawnStoryBoar();journeyStage=JourneyStage.Boar;player.position=BoarClearing+Vector3.left*1.4f;
         storyFatherRoot.position=Feet+Vector3.back*.5f;FollowPlayerCamera(100);yield return new WaitForEndOfFrame();yield return null;yield return new WaitForEndOfFrame();
         check("Father help is speech rather than an action banner",boarAidSpoken&&forestSubtitles.SubtitleText.text.Contains("我来引住它")&&!uiNoticePanel.activeSelf);

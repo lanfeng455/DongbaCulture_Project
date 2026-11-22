@@ -21,7 +21,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         return true;
     }
     IEnumerator CheckFatherRiver(){
-        yield return new WaitForSeconds(1);SetStoryModeEnabled(true);RestartRun();for(int i=0;i<3;i++)AdvanceFatherIntro();
+        yield return new WaitForSeconds(1);SetStoryModeEnabled(true);RestartRun();SkipOpeningForVerification();
         var folder="Verification/father-river";Directory.CreateDirectory(folder);File.WriteAllText(folder+"/checks.txt","");
         tonePreviewFreezeAnimals=true;foreach(var a in animals){a.root.gameObject.SetActive(false);a.health=0;}
         // Keep obstacles intact except the test's landing footprint, so each role can use a clear bank.

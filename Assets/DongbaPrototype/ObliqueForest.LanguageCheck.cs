@@ -19,24 +19,29 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             SplitStoryLine(line,out var speaker,out var content);
             return DongbaLanguage.Entries.Any(e=>e.en==content&&!string.IsNullOrWhiteSpace(e.zh));
         }));
-        yield return new WaitForSeconds(1);DongbaLanguage.Set(DongbaLocale.English,false);SetStoryModeEnabled(true);RestartRun();yield return new WaitForEndOfFrame();
-        check("English opening rendered",forestSubtitles.SubtitleText.text.Contains("Bring your axe, Gaolequ"));
+        yield return new WaitForSeconds(1);DongbaLanguage.Set(DongbaLocale.English,false);SetStoryModeEnabled(true);RestartRun();
+        yield return new WaitForSeconds(OpeningSurveySeconds+.1f);yield return new WaitForEndOfFrame();
+        SplitStoryLine(FatherIntroLines[0],out var openingSpeaker,out var openingText);
+        SplitStoryLine(FatherIntroLines[1],out var replySpeaker,out var replyText);
+        string openingChinese=DongbaLanguage.Entries.Single(e=>e.en==openingText).zh,replyChinese=DongbaLanguage.Entries.Single(e=>e.en==replyText).zh;
+        check("English opening rendered after survey",!OpeningSurveyActive&&forestSubtitles.SubtitleText.text.Contains(openingText));
         DongbaLanguageCapture.Write(cam,folder+"/opening-en.png");
         var position=Feet;int balance=Balance;yield return PressStoryKey(Key.F8);
-        check("F8 changes current opening to Chinese",DongbaLanguage.Chinese&&forestSubtitles.SubtitleText.text.Contains("把斧子带上，高勒趣"));
+        check("F8 changes current opening to Chinese",DongbaLanguage.Chinese&&forestSubtitles.SubtitleText.text.Contains(openingChinese));
         check("Switch does not advance or attack",fatherIntroLine==0&&fatherIntroActive&&attackAge<0&&Balance==balance&&Vector3.Distance(position,Feet)<.001f);
         Canvas.ForceUpdateCanvases();File.AppendAllText(report,"Chinese HUD values: "+hudHealth.text+" / "+forestSubtitleAdvance.text+" / "+uiMode.text+"\n");
         check("Chinese HUD and continue hint",hudHealth.text=="生命"&&forestSubtitleAdvance.text=="回车   继续"&&uiMode.text=="故事模式");
         DongbaLanguageCapture.Write(cam,folder+"/opening-zh.png");
-        yield return PressStoryKey(Key.Enter);check("Enter advances exactly once in Chinese",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains("今天要走多远"));
-        yield return PressStoryKey(Key.F8);check("Back to English keeps the same line",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains("How far are we going today?"));
+        yield return PressStoryKey(Key.Enter);check("Enter advances exactly once in Chinese",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains(replyChinese));
+        yield return PressStoryKey(Key.F8);check("Back to English keeps the same line",fatherIntroLine==1&&forestSubtitles.SubtitleText.text.Contains(replyText));
         // Exercise the real clickable rectangle, not a direct call to Set.
         var mouse=Mouse.current;if(mouse==null)mouse=InputSystem.AddDevice<Mouse>();
         Vector2 click=RectTransformUtility.WorldToScreenPoint(null,DongbaLanguageSwitch.Instance.HitRect.position+new Vector3(-70,-15));
         InputSystem.QueueStateEvent(mouse,new MouseState{position=click}.WithButton(MouseButton.Left));yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=click});yield return null;yield return new WaitForEndOfFrame();
         check("Hidden opening control ignores mouse clicks",!DongbaLanguageSwitch.Instance.SwitchCanvas.enabled&&!DongbaLanguage.Chinese&&fatherIntroLine==1);
-        yield return PressStoryKey(Key.Enter);yield return PressStoryKey(Key.Enter);yield return new WaitForSeconds(.45f);noticeTime=0;uiHelpOpen=true;yield return null;yield return new WaitForEndOfFrame();
+        for(int intro=1;intro<FatherIntroLines.Length;intro++)yield return PressStoryKey(Key.Enter);
+        yield return new WaitForSeconds(.45f);noticeTime=0;uiHelpOpen=true;yield return null;yield return new WaitForEndOfFrame();
         check("Language control returns after opening",DongbaLanguageSwitch.Instance.SwitchCanvas.enabled);
         InputSystem.QueueStateEvent(mouse,new MouseState{position=click}.WithButton(MouseButton.Left));yield return null;
         InputSystem.QueueStateEvent(mouse,new MouseState{position=click});yield return null;yield return new WaitForEndOfFrame();
@@ -47,7 +52,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var tree=plants.Find(t=>t.tree);player.position=tree.home+Vector3.right;FollowPlayerCamera(100);yield return new WaitForEndOfFrame();
         check("Interaction label translated",hudPromptTitle.text=="树木"&&hudPrompt.text.Contains("照料"));
         DongbaLanguageCapture.Write(cam,folder+"/interaction-zh.png");
-        yield return PressStoryKey(Key.R);yield return new WaitForEndOfFrame();check("R reset retains language",DongbaLanguage.Chinese&&fatherIntroLine==0&&forestSubtitles.SubtitleText.text.Contains("把斧子带上"));
+        yield return PressStoryKey(Key.R);yield return new WaitForEndOfFrame();check("R reset retains language during survey",DongbaLanguage.Chinese&&OpeningSurveyActive&&fatherIntroLine==0&&forestSubtitleKey==null);
+        yield return new WaitForSeconds(OpeningSurveySeconds+.1f);yield return new WaitForEndOfFrame();check("Restarted opening retains Chinese",DongbaLanguage.Chinese&&!OpeningSurveyActive&&fatherIntroLine==0&&forestSubtitles.SubtitleText.text.Contains(openingChinese));
         SetStoryModeEnabled(false);yield return null;yield return new WaitForEndOfFrame();Canvas.ForceUpdateCanvases();File.AppendAllText(report,"Sandbox label: "+uiMode.text+"\n");check("Sandbox keeps Chinese",DongbaLanguage.Chinese&&uiMode.text=="沙盒模式");
         // Translate the active shared typewriter without replaying its sequence or losing letters.
         const string line="高勒趣，把“白石”砌在高处，组成<color=#FFDC88>神位</color>。";
@@ -62,7 +68,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         foreach(char c in allChinese.Distinct())if(c>=0x3400&&c<=0x9fff&&!DongbaLanguage.ChineseSubtitleFont.HasCharacter(c,true,true))missing.Add(c);
         check("Chinese font covers catalogue",missing.Count==0);if(missing.Count>0)File.AppendAllText(report,"Missing: "+new string(missing.ToArray())+"\n");
         // Confirm the global preference survives the real additive puzzle handoff and return.
-        forestSubtitles.HideDialogue();forestSubtitles.SetCharactersPerSecond(ForestSubtitleCharactersPerSecond);SetStoryModeEnabled(true);RestartRun();fatherIntroActive=false;ResetForestSubtitles();
+        forestSubtitles.HideDialogue();forestSubtitles.SetCharactersPerSecond(ForestSubtitleCharactersPerSecond);SetStoryModeEnabled(true);RestartRun();SkipOpeningForVerification();ResetForestSubtitles();
         PrepareJourneyDestination();journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(30,0,0);FollowPlayerCamera(100);
         var keyboard=Keyboard.current;float age=0;
         bool portalHidden=true;int portalFrames=0;

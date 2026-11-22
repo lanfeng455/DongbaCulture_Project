@@ -2,17 +2,21 @@
 // Keep navigation and button instructions in the HUD, not in the characters' voices.
 namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly string[] FatherIntroLines={
-        "Father: Bring your axe, Gaolequ. Let's head into the forest.",
-        "Gaolequ: How far are we going today?",
-        "Father: Not far. We'll be home before dark."
+        "Father: We're nearly out of firewood, and there's not much meat left.",
+        "Gaolequ: Shall we head into the forest, then?",
+        "Father: Yes. Bring your axe. We'll gather wood and see what we can hunt.",
+        "Gaolequ: Let's go early, then. We can be home before dark."
     };
     static readonly string[] HuntInvitationLines={
-        "Gaolequ: It's across the river... Are we still going after it?",
-        "Father: We can't let one that big get away.",
-        "Father: Come on. Stay with me."
+        "Gaolequ: Father, did you see that? What a huge boar!",
+        "Father: It's heading east, across the river.",
+        "Father: Come on. Let's catch it!"
     };
     const string BoarAidLine="Father: I'll keep it busy!";
-    static readonly string[] HomewardLines={"Father: That's enough for today. Let's go home."};
+    static readonly string[] HomewardLines={
+        "Gaolequ: We really got it... Look at the size of it!",
+        "Father: Enough meat for days. That's enough for today. Let's go home."
+    };
     static readonly string[] MissingKnifeLines={
         "Father: My knife... I left it across the river.",
         "Gaolequ: I'll come with you.",

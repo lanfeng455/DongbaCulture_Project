@@ -109,7 +109,7 @@ def puzzle_line(index,note='',status='current'):
     add(row['Speaker'],en,zh,puzzle_source,str(index),note,status)
     covered_puzzle.add(index)
 
-section('1. 火塘旁，准备出发')
+section('1. 火塘旁，准备出发','开场先用约 9 秒镜头看过两岸森林，再收近火塘旁的父子；镜头停稳后开始以下对话。')
 forest_array('FatherIntroLines')
 section('2. 大野猪经过，决定追猎','环境下降触发大野猪从西向东经过后。')
 forest_array('HuntInvitationLines')
@@ -185,9 +185,9 @@ for quoted in re.findall(literal,story):
 
 def clean(text):return re.sub(r'<[^>]+>','',text)
 speaker_names={'Father':'父亲','Gaolequ':'高勒趣','Gao':'高勒趣','Shu':'署','Fox':'狐狸','Snakes':'两蛇','':'旁白'}
-output=['全流程台词本（当前游戏，中英对照）','2026-11-22','',
+output=['全流程台词本（当前游戏，中英对照）','2026-11-23','',
         '从火塘开场、狩猎、丢刀与抓捕、三天三夜、东行卷轴，到狐狸与两蛇解谜，再到最终返乡恢复自然。',
-        '正文按剧情顺序排，条件分支都保留。括号是阅读备注，不是游戏字幕。这里只整理现有文本，没有新写或润色台词。',
+        '正文按剧情顺序排，条件分支都保留。括号是阅读备注，不是游戏字幕。以下台词与本轮修改后的游戏文本一致。',
         f'主线及结尾分支共 {main_count} 条；另附保留但未接入当前流程的 {len(records)-main_count} 条。不是每条都会在一次游玩中出现。',
         '可以直接修改这份文本后交回同步。修改这个 txt 不会自动修改游戏；森林代码、剧情节点和解谜 CSV 目前仍是三个不同的实际来源。','']
 for part in sections:

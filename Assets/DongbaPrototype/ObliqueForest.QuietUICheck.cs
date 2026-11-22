@@ -24,7 +24,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.H));yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
             CaptureSceneToTexture(folder+"/controls-"+size.x+".png",Screen.width,Screen.height);CheckQuietTextLayout("Help "+Screen.width+"x"+Screen.height,report);report.AppendLine("H opens controls="+uiHelpPanel.activeSelf);
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.H));yield return null;InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;report.AppendLine("H closes controls="+!uiHelpPanel.activeSelf);
-            SetStoryModeEnabled(true);RestartRun();tonePreviewFreezeAnimals=true;for(int i=0;i<3;i++)AdvanceFatherIntro();journeyStage=JourneyStage.Boar;SpawnStoryBoar();player.position=BoarClearing+Vector3.left*3;FollowPlayerCamera(100);yield return new WaitForSeconds(.2f);
+            SetStoryModeEnabled(true);RestartRun();tonePreviewFreezeAnimals=true;SkipOpeningForVerification();journeyStage=JourneyStage.Boar;SpawnStoryBoar();player.position=BoarClearing+Vector3.left*3;FollowPlayerCamera(100);yield return new WaitForSeconds(.2f);
             CaptureSceneToTexture(folder+"/boar-"+size.x+".png",Screen.width,Screen.height);CheckQuietTextLayout("Boar "+Screen.width+"x"+Screen.height,report);
             BeginHearthWaiting();waitingAge=HearthHalfDaySeconds*1.5f;storyFatherRoot.gameObject.SetActive(false);yield return new WaitForSeconds(.2f);
             CaptureSceneToTexture(folder+"/waiting-"+size.x+".png",Screen.width,Screen.height);CheckQuietTextLayout("Waiting "+Screen.width+"x"+Screen.height,report);

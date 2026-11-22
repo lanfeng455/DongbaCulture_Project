@@ -24,6 +24,7 @@ public partial class ObliqueForest {
     readonly int[] groveLayouts={0,5,10,3,8,1,6,11,4,9,2,7};
     void FollowPlayerCamera(float dt){
         if(player==null||cam==null)return;
+        if(OpeningSurveyActive){OpeningSurveyPose(out var openingCenter,out var openingZoom);cam.orthographicSize=openingZoom;cam.transform.position=openingCenter+CameraOffset;return;}
         if(InScrollWorld){cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,7f,1-Mathf.Exp(-dt*3));var scrollGoal=new Vector3(Mathf.Clamp(Feet.x,96,124),0,70)+CameraOffset;cam.transform.position=dt>50?scrollGoal:Vector3.Lerp(cam.transform.position,scrollGoal,1-Mathf.Exp(-dt*5.5f));return;}
         float visibleHalfWidth=cam.orthographicSize*cam.aspect;
         float visibleHalfDepth=cam.orthographicSize/Mathf.Max(.5f,Mathf.Abs(cam.transform.up.z));

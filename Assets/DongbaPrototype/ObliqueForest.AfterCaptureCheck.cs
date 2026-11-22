@@ -6,7 +6,7 @@ using UnityEngine.InputSystem.LowLevel;
 namespace DongbaPrototype {public partial class ObliqueForest {
     bool afterCapturePreviewDone;
     IEnumerator PreviewAfterCapture(){yield return new WaitForSeconds(1);PrepareAfterCapturePreview();}
-    void PrepareAfterCapturePreview(){SetStoryModeEnabled(true);RestartRun();for(int i=0;i<3;i++)AdvanceFatherIntro();while(Balance>-10)RegisterDamage();if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);storyOpeningState=StoryOpeningState.Captured;journeyStage=JourneyStage.Captured;}
+    void PrepareAfterCapturePreview(){SetStoryModeEnabled(true);RestartRun();SkipOpeningForVerification();while(Balance>-10)RegisterDamage();if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);storyOpeningState=StoryOpeningState.Captured;journeyStage=JourneyStage.Captured;}
     IEnumerator CheckAfterCapture(){
         yield return new WaitForSeconds(1);Directory.CreateDirectory("Verification/after-capture");
         PrepareAfterCapturePreview();

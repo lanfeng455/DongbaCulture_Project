@@ -11,10 +11,10 @@ namespace DongbaPrototype {
 // Audio is the real listener mix, not the pre-exported source clips.
 public sealed class ForestAudioCapture : MonoBehaviour {
     float[] samples;int written,rate,channels=2;volatile bool recording;
-    string folder;double began;int frameIndex,pending;RenderTexture screen,small;
+    string folder;double began;int frameIndex,pending;RenderTexture screen,small;bool fastFrames;
     readonly List<string> frames=new List<string>();
-    public void Begin(string output,bool video){
-        folder=output;Directory.CreateDirectory(folder);rate=AudioSettings.outputSampleRate;
+    public void Begin(string output,bool video,bool uncompressedFrames=false){
+        fastFrames=uncompressedFrames;folder=output;Directory.CreateDirectory(folder);rate=AudioSettings.outputSampleRate;
         samples=new float[rate*2*180];written=0;began=AudioSettings.dspTime;recording=true;
         if(video)StartCoroutine(CaptureFrames());
     }
@@ -30,12 +30,27 @@ public sealed class ForestAudioCapture : MonoBehaviour {
         while(recording){
             yield return new WaitForEndOfFrame();double now=AudioSettings.dspTime;if(now<next||pending>2)continue;
             next=now+1.0/30;int index=frameIndex++;double stamp=now-began;
-            ScreenCapture.CaptureScreenshotIntoRenderTexture(screen);Graphics.Blit(screen,small);pending++;
+            ScreenCapture.CaptureScreenshotIntoRenderTexture(screen);Graphics.Blit(screen,small);Interlocked.Increment(ref pending);
             AsyncGPUReadback.Request(small,0,TextureFormat.RGBA32,r=>{
+                // Recording a camera move must not stall it with PNG compression on the main thread.
+                // BMPs are temporary diagnostic output; timestamps preserve real playback speed.
+                if(fastFrames&&!r.hasError){
+                    var pixels=r.GetData<byte>().ToArray();string path=folder+"/frames/"+index.ToString("D5")+".bmp";
+                    frames.Add(index+","+stamp.ToString("F6",System.Globalization.CultureInfo.InvariantCulture));
+                    ThreadPool.QueueUserWorkItem(_=>{try{WriteFrameBitmap(path,pixels);}finally{Interlocked.Decrement(ref pending);}});return;
+                }
                 try{if(r.hasError)return;var png=ImageConversion.EncodeNativeArrayToPNG(r.GetData<byte>(),UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm,960,540);
                     File.WriteAllBytes(folder+"/frames/"+index.ToString("D5")+".png",png.ToArray());png.Dispose();frames.Add(index+","+stamp.ToString("F6",System.Globalization.CultureInfo.InvariantCulture));
-                }finally{pending--;}
+                }finally{Interlocked.Decrement(ref pending);}
             });
+        }
+    }
+    static void WriteFrameBitmap(string path,byte[] rgba){
+        for(int i=0;i<rgba.Length;i+=4){byte red=rgba[i];rgba[i]=rgba[i+2];rgba[i+2]=red;}
+        using(var w=new BinaryWriter(File.Create(path))){
+            w.Write((ushort)0x4d42);w.Write(54+rgba.Length);w.Write(0);w.Write(54);
+            w.Write(40);w.Write(960);w.Write(540);w.Write((ushort)1);w.Write((ushort)32);
+            w.Write(0);w.Write(rgba.Length);w.Write(0);w.Write(0);w.Write(0);w.Write(0);w.Write(rgba);
         }
     }
     public IEnumerator Finish(){

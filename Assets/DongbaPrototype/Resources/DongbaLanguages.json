@@ -35,47 +35,57 @@
     },
     {
       "id": "forest.story.00",
-      "en": "Bring your axe, Gaolequ. Let's head into the forest.",
-      "zh": "把斧子带上，高勒趣。跟我进林子。",
+      "en": "We're nearly out of firewood, and there's not much meat left.",
+      "zh": "家里快没柴了，肉也剩得不多。",
       "aliases": [
         "Come on, Gaolequ. Let's hunt, and bring back some wood.",
-        "走吧，高勒趣。进林子打猎，再带些木头回来。"
+        "走吧，高勒趣。进林子打猎，再带些木头回来。",
+        "Bring your axe, Gaolequ. Let's head into the forest.",
+        "把斧子带上，高勒趣。跟我进林子。"
       ]
     },
     {
       "id": "forest.story.01",
-      "en": "How far are we going today?",
-      "zh": "今天要走多远？",
+      "en": "Shall we head into the forest, then?",
+      "zh": "那我们进林子一趟？",
       "aliases": [
         "I'm ready, Father.",
-        "我准备好了，父亲。"
+        "我准备好了，父亲。",
+        "How far are we going today?",
+        "今天要走多远？"
       ]
     },
     {
       "id": "forest.story.02",
-      "en": "Not far. We'll be home before dark.",
-      "zh": "就在近处。天黑前回来。",
+      "en": "Yes. Bring your axe. We'll gather wood and see what we can hunt.",
+      "zh": "嗯，带上斧子。砍些柴，再看看能猎到什么。",
       "aliases": [
         "Stay close. We won't go far.",
-        "跟紧我，我们不会走太远。"
+        "跟紧我，我们不会走太远。",
+        "Not far. We'll be home before dark.",
+        "就在近处。天黑前回来。"
       ]
     },
     {
       "id": "forest.story.03",
-      "en": "It's across the river... Are we still going after it?",
-      "zh": "它过河了……还追吗？",
+      "en": "Father, did you see that? What a huge boar!",
+      "zh": "爹，你看见了吗？好大一头野猪！",
       "aliases": [
         "Did you see the size of that boar?",
-        "看见那头野猪没有？这么大一头！"
+        "看见那头野猪没有？这么大一头！",
+        "It's across the river... Are we still going after it?",
+        "它过河了……还追吗？"
       ]
     },
     {
       "id": "forest.story.04",
-      "en": "We can't let one that big get away.",
-      "zh": "这么大一头，不能就这么放跑了。",
+      "en": "It's heading east, across the river.",
+      "zh": "它往东边去了，刚过河。",
       "aliases": [
         "It's gone across the river. Come on!",
-        "它往河对岸去了。咱们跟上！"
+        "它往河对岸去了。咱们跟上！",
+        "We can't let one that big get away.",
+        "这么大一头，不能就这么放跑了。"
       ]
     },
     {
@@ -85,11 +95,13 @@
     },
     {
       "id": "forest.story.06",
-      "en": "That's enough for today. Let's go home.",
-      "zh": "今天够了。走，回家。",
+      "en": "Enough meat for days. That's enough for today. Let's go home.",
+      "zh": "够吃好些天了。今天就到这儿，回家。",
       "aliases": [
         "That's enough. Let's go home.",
-        "够了，回家吧。"
+        "够了，回家吧。",
+        "That's enough for today. Let's go home.",
+        "今天够了。走，回家。"
       ]
     },
     {
@@ -548,53 +560,93 @@
     },
     {
       "id": "puzzle.level0.0",
-      "en": "My father, you had been caught by the God <color=#FFDC88>Shu</color>.",
-      "zh": "父亲，你被<color=#FFDC88>署神</color>抓走了。"
+      "en": "Father, you said you'd come straight back... Where are you?",
+      "zh": "爹，你说拿到刀就回来……你到底去哪儿了？",
+      "aliases": [
+        "My father, you had been caught by the God <color=#FFDC88>Shu</color>.",
+        "父亲，你被<color=#FFDC88>署神</color>抓走了。"
+      ]
     },
     {
       "id": "puzzle.level0.3",
-      "en": "My father, how can I find your trace?",
-      "zh": "父亲，我该去哪里寻找你的踪迹？"
+      "en": "Three days... Someone must have seen you.",
+      "zh": "已经三天了……总得有人见过你。",
+      "aliases": [
+        "My father, how can I find your trace?",
+        "父亲，我该去哪里寻找你的踪迹？"
+      ]
     },
     {
       "id": "puzzle.level0.7",
-      "en": "Your father is <color=#FFDC88>Egaole</color>, right?",
-      "zh": "你的父亲，是<color=#FFDC88>Egaole</color>，对吗？"
+      "en": "Are you looking for <color=#FFDC88>Egaole</color>?",
+      "zh": "你在找<color=#FFDC88>俄高勒</color>？",
+      "aliases": [
+        "Your father is <color=#FFDC88>Egaole</color>, right?",
+        "你的父亲，是<color=#FFDC88>Egaole</color>，对吗？"
+      ]
     },
     {
       "id": "puzzle.level0.11",
-      "en": "And you, you are <color=#FFDC88>Gaolequ</color>.",
-      "zh": "而你，就是<color=#FFDC88>高勒趣</color>。"
+      "en": "You're his son, <color=#FFDC88>Gaolequ</color>, aren't you?",
+      "zh": "你是他的儿子，<color=#FFDC88>高勒趣</color>吧？",
+      "aliases": [
+        "And you, you are <color=#FFDC88>Gaolequ</color>.",
+        "而你，就是<color=#FFDC88>高勒趣</color>。"
+      ]
     },
     {
       "id": "puzzle.level0.12",
-      "en": "Exactly. Dear fox, how do you know us?",
-      "zh": "是的。狐狸，你怎么会认识我们？"
+      "en": "You've seen my father? Where did he go?",
+      "zh": "你见过我父亲？他到哪里去了？",
+      "aliases": [
+        "Exactly. Dear fox, how do you know us?",
+        "是的。狐狸，你怎么会认识我们？"
+      ]
     },
     {
       "id": "puzzle.level0.14",
-      "en": "Gao, the damage you two have caused to nature was so much!",
-      "zh": "高勒趣，你们父子给自然造成了太多伤害！"
+      "en": "I have. <color=#FFDC88>Shu</color> took him away.",
+      "zh": "我见过。他被<color=#FFDC88>署</color>带走了。",
+      "aliases": [
+        "Gao, the damage you two have caused to nature was so much!",
+        "高勒趣，你们父子给自然造成了太多伤害！"
+      ]
     },
     {
       "id": "puzzle.level0.15",
-      "en": "You even violated the contract and captured the wild boar of the God Shu!",
-      "zh": "你们甚至违背约定，猎杀了署神的野猪！"
+      "en": "That boar you hunted belonged to Shu.",
+      "zh": "你们猎杀的那头野猪，是署的。",
+      "aliases": [
+        "You even violated the contract and captured the wild boar of the God Shu!",
+        "你们甚至违背约定，猎杀了署神的野猪！"
+      ]
     },
     {
       "id": "puzzle.level0.16",
-      "en": "Well...but I don't think Shu has the right to catch my father.",
-      "zh": "可是……我不觉得署有权抓走我的父亲。"
+      "en": "Shu? But we hunted it together...",
+      "zh": "署？可那头野猪是我们一起猎的……",
+      "aliases": [
+        "Well...but I don't think Shu has the right to catch my father.",
+        "可是……我不觉得署有权抓走我的父亲。"
+      ]
     },
     {
       "id": "puzzle.level0.18",
-      "en": "Gao, your father is imprisoned on <color=#9876C5>the fifth hill</color>, and <color=#FFDC88>this</color> is the first one.",
-      "zh": "高勒趣，你父亲被关在<color=#9876C5>第五座山</color>上，而<color=#FFDC88>这里</color>才是第一座。"
+      "en": "Egaole is held on <color=#9876C5>the fifth hill</color>. You've only reached the first.",
+      "zh": "俄高勒被关在<color=#9876C5>第五座山</color>上。你才走到第一座。",
+      "aliases": [
+        "Gao, your father is imprisoned on <color=#9876C5>the fifth hill</color>, and <color=#FFDC88>this</color> is the first one.",
+        "高勒趣，你父亲被关在<color=#9876C5>第五座山</color>上，而<color=#FFDC88>这里</color>才是第一座。"
+      ]
     },
     {
       "id": "puzzle.level0.21",
-      "en": "To <color=#6AADFF>reconcile</color> rather than continue to destroy nature, otherwise you will also fall into the same fate.",
-      "zh": "去<color=#6AADFF>和解</color>，别再破坏自然，否则你也会落得同样的下场。"
+      "en": "Go and find him. But this time, don't leave the forest wounded behind you.",
+      "zh": "去找他吧。只是这一次，别再让山林因你们受伤。",
+      "aliases": [
+        "To <color=#6AADFF>reconcile</color> rather than continue to destroy nature, otherwise you will also fall into the same fate.",
+        "去<color=#6AADFF>和解</color>，别再破坏自然，否则你也会落得同样的下场。"
+      ]
     },
     {
       "id": "puzzle.level0.24",
@@ -733,8 +785,12 @@
     },
     {
       "id": "forest.story.boar.follow",
-      "en": "Come on. Stay with me.",
-      "zh": "走，跟上我。"
+      "en": "Come on. Let's catch it!",
+      "zh": "走，咱们追上它！",
+      "aliases": [
+        "Come on. Stay with me.",
+        "走，跟上我。"
+      ]
     },
     {
       "id": "forest.story.knife.offer",
@@ -1040,6 +1096,16 @@
       "id": "puzzle.level0.42",
       "en": "Then their caves. Father said: <color=#FFDC88>white above, black below</color>.",
       "zh": "然后是他们各自的洞。父亲说过：<color=#FFDC88>白的在高处，黑的在低处</color>。"
+    },
+    {
+      "id": "forest.story.intro.home",
+      "en": "Let's go early, then. We can be home before dark.",
+      "zh": "那就早些走，天黑前回来。"
+    },
+    {
+      "id": "forest.story.homeward.size",
+      "en": "We really got it... Look at the size of it!",
+      "zh": "没想到真让我们猎到了，这么大一头！"
     }
   ]
 }

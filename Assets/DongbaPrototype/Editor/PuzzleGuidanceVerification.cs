@@ -15,6 +15,7 @@ namespace DongbaPrototype
             var read=typeof(DialogueCsvImporter).GetMethod("ReadEntries",BindingFlags.NonPublic|BindingFlags.Static);
             var rows=(List<DialogueLibrarySO.DialogueEntry>)read.Invoke(null,new object[]{path});
             var library=AssetDatabase.LoadAssetAtPath<DialogueLibrarySO>("Assets/Dialogues/Level 0.asset");
+            if(library.LinkedCsvPath!=path)throw new Exception("Puzzle library lost its editable CSV link");
             if(rows.Count!=43||library.Count!=rows.Count)throw new Exception("Puzzle dialogue count mismatch");
             for(int i=0;i<rows.Count;i++)
             {

@@ -1,5 +1,5 @@
 ﻿两蛇解谜段台词（当前游戏，中英对照）
-2026-11-22
+2026-11-23
 范围：进入队友关卡、狐狸对话、两蛇、巨石与洞穴。不含森林前后段。
 中文与英文分别对应游戏语言切换。下列编号是固定游戏索引，不是播放顺序。
 纯文本方便批注；实际编辑游戏请修改 Assets/Dialogues/Level 0.csv 的 Content（英文）和 ChineseContent（中文），在 Unity 选中 CSV，右键 Dongba → 同步为 DialogueLibrary。
@@ -7,47 +7,47 @@
 
 入山：寻找父亲
 [00] 高勒趣
-父亲，你被署神抓走了。
-My father, you had been caught by the God Shu.
+爹，你说拿到刀就回来……你到底去哪儿了？
+Father, you said you'd come straight back... Where are you?
 [01] （演出指令，不显示为字幕）@向左看
 [02] （演出指令，不显示为字幕）@等待1秒
 [03] 高勒趣
-父亲，我该去哪里寻找你的踪迹？
-My father, how can I find your trace?
+已经三天了……总得有人见过你。
+Three days... Someone must have seen you.
 [04] （演出指令，不显示为字幕）@向左看
 [05] （演出指令，不显示为字幕）@以4为速度移动
 [06] （演出指令，不显示为字幕）@移动到-5.31
 [07] 狐狸
-你的父亲，是Egaole，对吗？
-Your father is Egaole, right?
+你在找俄高勒？
+Are you looking for Egaole?
 [08] （演出指令，不显示为字幕）@等待1秒
 [09] （演出指令，不显示为字幕）@向右看
 [10] （演出指令，不显示为字幕）@等待1秒
 [11] 狐狸
-而你，就是高勒趣。
-And you, you are Gaolequ.
+你是他的儿子，高勒趣吧？
+You're his son, Gaolequ, aren't you?
 [12] 高勒趣
-是的。狐狸，你怎么会认识我们？
-Exactly. Dear fox, how do you know us?
+你见过我父亲？他到哪里去了？
+You've seen my father? Where did he go?
 [13] （演出指令，不显示为字幕）@等待1秒
 [14] 狐狸
-高勒趣，你们父子给自然造成了太多伤害！
-Gao, the damage you two have caused to nature was so much!
+我见过。他被署带走了。
+I have. Shu took him away.
 [15] 狐狸
-你们甚至违背约定，猎杀了署神的野猪！
-You even violated the contract and captured the wild boar of the God Shu!
+你们猎杀的那头野猪，是署的。
+That boar you hunted belonged to Shu.
 [16] 高勒趣
-可是……我不觉得署有权抓走我的父亲。
-Well...but I don't think Shu has the right to catch my father.
+署？可那头野猪是我们一起猎的……
+Shu? But we hunted it together...
 [17] （演出指令，不显示为字幕）@等待1秒
 [18] 狐狸
-高勒趣，你父亲被关在第五座山上，而这里才是第一座。
-Gao, your father is imprisoned on the fifth hill, and this is the first one.
+俄高勒被关在第五座山上。你才走到第一座。
+Egaole is held on the fifth hill. You've only reached the first.
 [19] （演出指令，不显示为字幕）@向右看
 [20] （演出指令，不显示为字幕）@等待2秒
 [21] 狐狸
-去和解，别再破坏自然，否则你也会落得同样的下场。
-To reconcile rather than continue to destroy nature, otherwise you will also fall into the same fate.
+去找他吧。只是这一次，别再让山林因你们受伤。
+Go and find him. But this time, don't leave the forest wounded behind you.
 [22] （演出指令，不显示为字幕）@移动到9.79
 [23] （演出指令，不显示为字幕）@隐藏
 [24] 高勒趣
