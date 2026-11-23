@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Ivan.Puzzle;
 using Ivan.Diorama;
+using Unity.Cinemachine;
 namespace DongbaPrototype {
 public class ReelPortalHost:MonoBehaviour {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -19,19 +20,36 @@ public class ReelPortalHost:MonoBehaviour {
     string handoffPhase="idle";double lastFrame;float worstFrame;
     void LateUpdate(){if(!measureHandoff)return;double now=Time.realtimeSinceStartupAsDouble;if(busy&&!InLevel&&lastFrame>0){float ms=(float)((now-lastFrame)*1000);if(ms>worstFrame){worstFrame=ms;Debug.Log("Handoff peak frame: "+ms.ToString("F1")+" ms / "+handoffPhase);}}lastFrame=now;}
     AsyncOperation preload; string preloadedScene; float walkingPhase, reelScroll;
+    Coroutine prepareRoutine;bool discardingPrepared,leavingForInterface;
     public float EntryTravel {get;private set;}
     readonly List<GameObject> preparedRoots=new List<GameObject>();DialogueDisplay preparedDialogue;
     public void Prepare(string scene){
-        if(preload!=null||busy||!Application.CanStreamedLevelBeLoaded(scene))return;
-        preloadedScene=scene;
+        if(IsBusy||!Application.CanStreamedLevelBeLoaded(scene))return;
+        if(preload!=null){if(preloadedScene!=scene)StartCoroutine(DiscardPreparedScene());return;}
+        preparedRoots.Clear();preparedDialogue=null;preloadedScene=scene;
         SceneManager.sceneLoaded+=ParkPreparedScene;
         preload=SceneManager.LoadSceneAsync(scene,LoadSceneMode.Additive);preload.allowSceneActivation=false;
-        StartCoroutine(ActivatePreparedScene());
+        prepareRoutine=StartCoroutine(ActivatePreparedScene(preload,scene));
     }
-    IEnumerator ActivatePreparedScene(){
-        while(preload!=null&&preload.progress<.9f)yield return null;
+    IEnumerator ActivatePreparedScene(AsyncOperation pending,string scene){
+        while(pending.progress<.9f)yield return null;
+        if(preload!=pending||preloadedScene!=scene||restarting||discardingPrepared)yield break;
         if(!busy&&DialogueDisplay.Instance!=null)forestDialogue=DialogueDisplay.Instance;if(forestDialogue!=null)forestDialogue.ReleaseForSceneHandoff();
-        if(preload!=null)preload.allowSceneActivation=true;
+        pending.allowSceneActivation=true;prepareRoutine=null;
+    }
+    void StopPreparation(){
+        if(prepareRoutine!=null){StopCoroutine(prepareRoutine);prepareRoutine=null;}
+        SceneManager.sceneLoaded-=ParkPreparedScene;
+    }
+    IEnumerator DiscardPreparedScene(){
+        discardingPrepared=true;StopPreparation();
+        var pending=preload;string scene=preloadedScene;
+        if(pending!=null){pending.allowSceneActivation=true;while(!pending.isDone)yield return null;}
+        var prepared=string.IsNullOrEmpty(scene)?default:SceneManager.GetSceneByName(scene);
+        if(prepared.IsValid()&&prepared.isLoaded){var unload=SceneManager.UnloadSceneAsync(prepared);if(unload!=null)while(!unload.isDone)yield return null;}
+        preload=null;preloadedScene=null;preparedRoots.Clear();preparedDialogue=null;
+        if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff(false);
+        discardingPrepared=false;
     }
     void ParkPreparedScene(Scene scene,LoadSceneMode mode){
         if(scene.name!=preloadedScene)return;SceneManager.sceneLoaded-=ParkPreparedScene;
@@ -47,10 +65,11 @@ public class ReelPortalHost:MonoBehaviour {
     }
     static float WalkInput(){if(DongbaInterface.GameplayBlocked)return 0;var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
     void WalkPaper(float dt,float weight){walkingPhase+=dt*Mathf.Abs(WalkInput())*11.2f;float angle=Mathf.Sin(walkingPhase)*1.25f*weight;fromActor.rectTransform.localRotation=Quaternion.Euler(0,0,angle);}
-    Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;ObliqueForest forest;Action resume;
+    Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;Beat4Puzzle beat4Director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
-    public bool InLevel {get;private set;} public bool IsBusy=>busy;
+    CinemachineBrain handoffBrain;CinemachineBrain.UpdateMethods previousBrainUpdate;
+    public bool InLevel {get;private set;} public bool IsBusy=>busy||restarting||discardingPrepared||leavingForInterface;
     public bool PresentationTransitionActive=>busy&&(!InLevel||completed);
     public float MaxReelUvError {get;private set;}
     public float LastPositionErrorPixels {get;private set;} public float LastHeightErrorPixels {get;private set;}
@@ -65,23 +84,42 @@ public class ReelPortalHost:MonoBehaviour {
     RawImage Image(string name){var go=new GameObject(name,typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));go.transform.SetParent(overlay.transform,false);var image=go.GetComponent<RawImage>();image.raycastTarget=false;return image;}
     void HideOverlay(){destinationBackdrop.gameObject.SetActive(false);backdrop.gameObject.SetActive(false);fromActor.gameObject.SetActive(false);toActor.gameObject.SetActive(false);}
     Coroutine entryRoutine;bool restarting;
-    public void Enter(ObliqueForest source,string scene,Action onReturn){if(busy)return;forest=source;resume=onReturn;entryRoutine=StartCoroutine(EnterRoutine(scene));}
+    public bool Enter(ObliqueForest source,string scene,Action onReturn){
+        if(IsBusy)return false;
+        if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);return false;}
+        // Never overwrite an outstanding asynchronous load with a different destination.
+        if(preload!=null&&preloadedScene!=scene){Prepare(scene);return false;}
+        forest=source;resume=onReturn;entryRoutine=StartCoroutine(EnterRoutine(scene));return true;
+    }
     public IEnumerator LeaveForInterface(){
+        leavingForInterface=true;
+        while(discardingPrepared)yield return null;
         if(busy||InLevel||preload!=null)yield return RestartForestSession();
+        leavingForInterface=false;
+    }
+    void UnsubscribeCompletion(){
+        if(director!=null)director.PuzzleCompleted-=OnCompleted;
+        if(beat4Director!=null)beat4Director.JourneyCompleted-=OnCompleted;
+        director=null;beat4Director=null;
+    }
+    void RestoreCameraOwnership(){
+        if(handoffBrain!=null)handoffBrain.UpdateMethod=previousBrainUpdate;
+        handoffBrain=null;
     }
     IEnumerator RestartForestSession(){
-        restarting=true;if(entryRoutine!=null)StopCoroutine(entryRoutine);
-        if(director!=null)director.PuzzleCompleted-=OnCompleted;
+        restarting=true;if(entryRoutine!=null){StopCoroutine(entryRoutine);entryRoutine=null;}
+        UnsubscribeCompletion();StopPreparation();RestoreCameraOwnership();
         // An asynchronous load cannot be cancelled. Finish activation before unloading;
         // never leave Unity's scene-operation queue stalled at allowSceneActivation=false.
         if(preload!=null){preload.allowSceneActivation=true;while(!preload.isDone)yield return null;}
-        var destination=level.IsValid()?level:SceneManager.GetSceneByName(preloadedScene??"Beat_2_Cleansing_Impurity");
+        if(level.IsValid()&&level.isLoaded){var unload=SceneManager.UnloadSceneAsync(level);if(unload!=null)while(!unload.isDone)yield return null;}
+        var destination=string.IsNullOrEmpty(preloadedScene)?default:SceneManager.GetSceneByName(preloadedScene);
         if(destination.IsValid()&&destination.isLoaded){var unload=SceneManager.UnloadSceneAsync(destination);if(unload!=null)while(!unload.isDone)yield return null;}
         SceneManager.sceneLoaded-=ParkPreparedScene;preload=null;preloadedScene=null;preparedRoots.Clear();preparedDialogue=null;level=default;
         if(forestScene.IsValid())SceneManager.SetActiveScene(forestScene);
         foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);hiddenRoots.Clear();
         if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
-        HideOverlay();ReleaseTextures();InLevel=false;busy=false;completed=false;restorationRequested=false;
+        HideOverlay();ReleaseTextures();InLevel=false;busy=false;completed=false;restorationRequested=false;resume=null;
         if(forest!=null){forest.RestartFromPortal();forest.RefreshLanguagePresentation();}DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);restarting=false;
     }
     // Project the real, transformed sprite quad, including the capture's transparent margin.
@@ -119,6 +157,9 @@ public class ReelPortalHost:MonoBehaviour {
         var controller=destination.GetComponentInParent<DioramaPlayerController>();
         Vector3 entryFeet=controller!=null?controller.transform.position:destination.transform.position;
         if(outgoingReel&&controller!=null){controller.CameraHandoff=true;controller.enabled=true;controller.SetStageMovementLock(false);}
+        var brain=destinationCamera.GetComponent<CinemachineBrain>();
+        bool guided=outgoingReel&&brain!=null&&brain.isActiveAndEnabled;
+        if(guided){handoffBrain=brain;previousBrainUpdate=brain.UpdateMethod;brain.UpdateMethod=CinemachineBrain.UpdateMethods.ManualUpdate;}
         Vector3 nativePosition=destinationCamera.transform.position;float nativeZoom=destinationCamera.orthographicSize;
         Rect end=ActorRect(destinationCamera,destination);
         if(!outgoingReel){destinationBackgroundTexture=Background(destinationCamera,destination);destinationBackdrop.texture=destinationBackgroundTexture;destinationBackdrop.color=Color.white;destinationBackdrop.gameObject.SetActive(true);}
@@ -134,8 +175,12 @@ public class ReelPortalHost:MonoBehaviour {
             time+=dt/(outgoingReel?2.8f:1.8f);
             Vector3 travel=outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero;
             if(outgoingReel)EntryTravel=travel.magnitude;
+            // Keep the new scene's camera framing, follow damping, and bounds alive,
+            // then own only its displayed projection until the handoff has finished.
+            // An automatic Cinemachine LateUpdate would otherwise overwrite this blend.
+            if(guided){brain.ManualUpdate();nativePosition=destinationCamera.transform.position;nativeZoom=destinationCamera.orthographicSize;end=ActorRect(destinationCamera,destination);}
             float u=Mathf.Clamp01(time);float ease=Mathf.SmoothStep(0,1,u);
-            destinationCamera.transform.position=Vector3.Lerp(initialPosition,nativePosition,ease)+travel;
+            destinationCamera.transform.position=guided?Vector3.Lerp(initialPosition+travel,nativePosition,ease):Vector3.Lerp(initialPosition,nativePosition,ease)+travel;
             // Interpolate apparent height, not lens size: linear zoom produces a rapid
             // reciprocal shrink halfway through. Anchor the feet to the same smooth path.
             float height=Mathf.Lerp(start.height,end.height,ease);
@@ -156,17 +201,19 @@ public class ReelPortalHost:MonoBehaviour {
             float t=Mathf.SmoothStep(0,1,time);float appearance=Mathf.SmoothStep(0,1,Mathf.InverseLerp(outgoingReel?.45f:.65f,1,time));fromActor.color=new Color(1,1,1,1-appearance);toActor.color=new Color(1,1,1,appearance);backdrop.color=new Color(1,1,1,1-t);
             yield return null;
         }
-        destinationCamera.transform.position=nativePosition+(outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero);destinationCamera.orthographicSize=nativeZoom;
+        if(guided)brain.ManualUpdate();
+        else {destinationCamera.transform.position=nativePosition+(outgoingReel&&controller!=null?controller.transform.position-entryFeet:Vector3.zero);destinationCamera.orthographicSize=nativeZoom;}
         Rect actual=ActorRect(destinationCamera,destination);PlacePortrait(fromActor,actual);PlacePortrait(toActor,actual);
         LastPositionErrorPixels=Vector2.Scale(current.center-actual.center,new Vector2(Screen.width,Screen.height)).magnitude;LastHeightErrorPixels=Mathf.Abs(current.height-actual.height)*Screen.height;
         if(outgoingReel&&controller!=null)controller.CameraHandoff=false;
+        RestoreCameraOwnership();
         fromActor.rectTransform.localRotation=Quaternion.identity;
         if(rigidbody!=null&&!outgoingReel){rigidbody.isKinematic=wasKinematic;rigidbody.collisionDetectionMode=oldDetection;rigidbody.interpolation=oldInterpolation;}
         destination.forceRenderingOff=false;HideOverlay();ReleaseTextures();
     }
     IEnumerator EnterRoutine(string scene){
         busy=true;completed=false;restorationRequested=false;MaxReelUvError=0;EntryTravel=0;reelScroll=0;
-        if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);resume?.Invoke();busy=false;yield break;}
+        UnsubscribeCompletion();
         DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
         handoffPhase="source capture";worstFrame=0;
         yield return new WaitForEndOfFrame(); // Capture after forest UI/ink fading has settled for this frame.
@@ -182,23 +229,28 @@ public class ReelPortalHost:MonoBehaviour {
         handoffPhase="level startup";
         var controller=FindFirstObjectByType<DioramaPlayerController>();if(controller!=null)controller.SetStageMovementLock(true);
         yield return null;yield return new WaitForEndOfFrame();
-        var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;if(controller!=null){controller.enabled=false;destinationCamera.transform.position=controller.transform.position+new Vector3(0,17,-20);}
-        foreach(var root in level.GetRootGameObjects()){director=root.GetComponentInChildren<PuzzleDirectorBase>(true);if(director!=null)break;}
+        var destination=controller!=null?controller.BodyRenderer:null;var destinationCamera=Camera.main;if(controller!=null){controller.enabled=false;if(destinationCamera!=null&&destinationCamera.GetComponent<CinemachineBrain>()==null)destinationCamera.transform.position=controller.transform.position+new Vector3(0,17,-20);}
+        foreach(var root in level.GetRootGameObjects()){
+            if(director==null)director=root.GetComponentInChildren<PuzzleDirectorBase>(true);
+            if(beat4Director==null)beat4Director=root.GetComponentInChildren<Beat4Puzzle>(true);
+        }
         if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
+        if(beat4Director!=null){beat4Director.JourneyCompleted+=OnCompleted;completed|=beat4Director.IsJourneyCompleted;}
         if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination,true);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
         if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
         while(!completed){yield return null;}
         DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
         yield return new WaitForSeconds(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
-        start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;if(director!=null)director.PuzzleCompleted-=OnCompleted;
+        start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;UnsubscribeCompletion();
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
-        SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
+        level=default;preloadedScene=null;preparedDialogue=null;preparedRoots.Clear();StopPreparation();
+        SceneManager.SetActiveScene(forestScene);foreach(var root in hiddenRoots)if(root!=null)root.SetActive(true);hiddenRoots.Clear();if(forestDialogue!=null)forestDialogue.RestoreAfterSceneHandoff();
         forest.SetReelActorScale(1);forest.SetReelTransitionFocus(0);resume?.Invoke();yield return null;yield return new WaitForEndOfFrame();
-        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;if(restorationRequested)forest.BeginRestorationEnding();forest.RefreshLanguagePresentation();DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
+        forest.enabled=false;yield return MatchActor(start,sourceCamera,source,false);forest.enabled=true;InLevel=false;busy=false;entryRoutine=null;resume=null;if(restorationRequested)forest.BeginRestorationEnding();forest.RefreshLanguagePresentation();DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
     }
     void ReleaseTextures(){destinationBackdrop.texture=backdrop.texture=fromActor.texture=toActor.texture=null;foreach(var texture in new[]{backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture})if(texture!=null){texture.Release();Destroy(texture);}backgroundTexture=destinationBackgroundTexture=fromTexture=toTexture=null;}
     // Bind only to the final rescue/death sequence, not ordinary puzzle completion.
     public void ReturnToForestForRestoration(){if(!InLevel)return;restorationRequested=true;completed=true;}
     void OnCompleted(){completed=true;}
-    void OnDestroy(){DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
+    void OnDestroy(){DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);UnsubscribeCompletion();RestoreCameraOwnership();SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
 }}

@@ -1,44 +1,44 @@
-Index,Speaker,Content,ChineseContent,Note
-0,Gao,"Father, you said you'd come straight back... Where are you?",爹，你说拿到刀就回来……你到底去哪儿了？,
-1,Gao,@向左看,,
-2,Gao,@等待1秒,,
-3,Gao,Three days... Someone must have seen you.,已经三天了……总得有人见过你。,
-4,Fox,@向左看,,
-5,Fox,@以4为速度移动,,
-6,Fox,@移动到-5.31,,
-7,Fox,Are you looking for <color=#FFDC88>Egaole</color>?,你在找<color=#FFDC88>俄高勒</color>？,
-8,Fox,@等待1秒,,
-9,Gao,@向右看,,
-10,Gao,@等待1秒,,
-11,Fox,"You're his son, <color=#FFDC88>Gaolequ</color>, aren't you?",你是他的儿子，<color=#FFDC88>高勒趣</color>吧？,
-12,Gao,You've seen my father? Where did he go?,你见过我父亲？他到哪里去了？,
-13,Fox,@等待1秒,,
-14,Fox,I have. <color=#FFDC88>Shu</color> took him away.,我见过。他被<color=#FFDC88>署</color>带走了。,
-15,Fox,That boar you hunted belonged to Shu.,你们猎杀的那头野猪，是署的。,
-16,Gao,Shu? But we hunted it together...,署？可那头野猪是我们一起猎的……,
-17,Fox,@等待1秒,,
-18,Fox,Egaole is held on <color=#9876C5>the fifth hill</color>. You've only reached the first.,俄高勒被关在<color=#9876C5>第五座山</color>上。你才走到第一座。,
-19,Fox,@向右看,,
-20,Fox,@等待2秒,,
-21,Fox,"Go and find him. But this time, don't leave the forest wounded behind you.",去找他吧。只是这一次，别再让山林因你们受伤。,
-22,Fox,@移动到9.79,,
-23,Fox,@隐藏,,
-24,Gao,It disappered…,它消失了……,
-25,Gao,"My father often said that, the south slope is sunny, the north valley is shady.",父亲常说，南坡向阳，北谷背阴。,
-26,Gao,White belongs <color=#FFDC88>above</color>. Black belongs <color=#FFDC88>below</color>. I must remember that.,白的归于<color=#FFDC88>高处</color>，黑的归于<color=#FFDC88>低处</color>。这句话，我得记住。,
-27,Gao,"The snakes are twisting with each other, I can't pass through this way…",两条蛇缠在一起，挡住了去路……,
-28,Gao,"Hey, could you please…",那个，能不能请你们……,
-29,Snakes,Hiss…hiss…,嘶……嘶……,
-30,Gao,"Aha, thanks.",啊，谢谢。,
-31,Gao,The path is still blocked by these boulders.,这些巨石……还是把路堵住了。,
-32,Gao,@等待1秒,,
-33,Gao,@向左看,,
-34,Snakes,Hiss…hiss…,嘶……嘶……,
-35,Gao,"They are apart now, but their eyes are still locked.",他们分开了，目光却还缠在一起……,
-36,Gao,Maybe…the fox is right.,也许……狐狸说得对。,
-37,Gao,"Sunlight reaches this hollow, above the path.",这里向阳，比山路高些。,
-38,Gao,"This hollow lies lower, in the shade.",这里背阴，地势也低。,
-39,Gao,"So many rocks, I'm definitely reaching the peak.",石头越来越多，应该快到山顶了。,
-40,Gao,"If only something could stand between them, so they could no longer see each other...",要是有什么东西能隔在中间，让他们看不见彼此就好了……,已停用的旧步骤提示；保留索引，当前关卡不播放。
-41,Gao,Those red stones... perhaps I could push one between them.,那些红色的石头……或许能推过去试试。,已停用的旧步骤提示；保留索引，当前关卡不播放。
-42,Gao,"Then their caves. Father said: <color=#FFDC88>white above, black below</color>.",然后是他们各自的洞。父亲说过：<color=#FFDC88>白的在高处，黑的在低处</color>。,已停用的旧步骤提示；保留索引，当前关卡不播放。
+Index,Speaker,Content,ChineseContent,Note,Manual
+0,Gao,"Father, you said you'd come straight back... Where are you?",爹，你说拿到刀就回来……你到底去哪儿了？,,0
+1,Gao,@向左看,,,0
+2,Gao,@等待1秒,,,0
+3,Gao,Three days... Someone must have seen you.,已经三天了……总得有人见过你。,,0
+4,Fox,@向左看,,,0
+5,Fox,@以4为速度移动,,,0
+6,Fox,@移动到-5.31,,,0
+7,Fox,Are you looking for <color=#FFDC88>Egaole</color>?,你在找<color=#FFDC88>俄高勒</color>？,,0
+8,Fox,@等待1秒,,,0
+9,Gao,@向右看,,,0
+10,Gao,@等待1秒,,,0
+11,Fox,"You're his son, <color=#FFDC88>Gaolequ</color>, aren't you?",你是他的儿子，<color=#FFDC88>高勒趣</color>吧？,,0
+12,Gao,You've seen my father? Where did he go?,你见过我父亲？他到哪里去了？,,0
+13,Fox,@等待1秒,,,0
+14,Fox,I have. <color=#FFDC88>Shu</color> took him away.,我见过。他被<color=#FFDC88>署</color>带走了。,,0
+15,Fox,That boar you hunted belonged to Shu.,你们猎杀的那头野猪，是署的。,,0
+16,Gao,Shu? But we hunted it together...,署？可那头野猪是我们一起猎的……,,0
+17,Fox,@等待1秒,,,0
+18,Fox,Egaole is held on <color=#9876C5>the fifth hill</color>. You've only reached the first.,俄高勒被关在<color=#9876C5>第五座山</color>上。你才走到第一座。,,0
+19,Fox,@向右看,,,0
+20,Fox,@等待2秒,,,0
+21,Fox,"Go and find him. But this time, don't leave the forest wounded behind you.",去找他吧。只是这一次，别再让山林因你们受伤。,,0
+22,Fox,@移动到9.79,,,0
+23,Fox,@隐藏,,,0
+24,Gao,It disappered…,它消失了……,,0
+25,Gao,"My father often said that, the south slope is sunny, the north valley is shady.",父亲常说，南坡向阳，北谷背阴。,,0
+26,Gao,White belongs <color=#FFDC88>above</color>. Black belongs <color=#FFDC88>below</color>. I must remember that.,白的归于<color=#FFDC88>高处</color>，黑的归于<color=#FFDC88>低处</color>。这句话，我得记住。,,0
+27,Gao,"The snakes are twisting with each other, I can't pass through this way…",两条蛇缠在一起，挡住了去路……,,0
+28,Gao,"Hey, could you please…",那个，能不能请你们……,,0
+29,Snakes,Hiss…hiss…,嘶……嘶……,,0
+30,Gao,"Aha, thanks.",啊，谢谢。,,0
+31,Gao,The path is still blocked by these boulders.,这些巨石……还是把路堵住了。,,0
+32,Gao,@等待1秒,,,0
+33,Gao,@向左看,,,0
+34,Snakes,Hiss…hiss…,嘶……嘶……,,0
+35,Gao,"They are apart now, but their eyes are still locked.",他们分开了，目光却还缠在一起……,,0
+36,Gao,Maybe…the fox is right.,也许……狐狸说得对。,,0
+37,Gao,"Sunlight reaches this hollow, above the path.",这里向阳，比山路高些。,,0
+38,Gao,"This hollow lies lower, in the shade.",这里背阴，地势也低。,,0
+39,Gao,"So many rocks, I'm definitely reaching the peak.",石头越来越多，应该快到山顶了。,,0
+40,Gao,"If only something could stand between them, so they could no longer see each other...",要是有什么东西能隔在中间，让他们看不见彼此就好了……,已停用的旧步骤提示；保留索引，当前关卡不播放。,0
+41,Gao,Those red stones... perhaps I could push one between them.,那些红色的石头……或许能推过去试试。,已停用的旧步骤提示；保留索引，当前关卡不播放。,0
+42,Gao,"Then their caves. Father said: <color=#FFDC88>white above, black below</color>.",然后是他们各自的洞。父亲说过：<color=#FFDC88>白的在高处，黑的在低处</color>。,已停用的旧步骤提示；保留索引，当前关卡不播放。,0

@@ -91,6 +91,11 @@ public class AudioManager : MonoBehaviour
     #region Public API
     // fadeDuration < 0 uses m_defaultFadeDuration; 0 switches instantly
 
+    public void PlayBgm(string clipName)
+    {
+        PlayBgm(clipName, -1f);
+    }
+
     public void PlayBgm(string clipName, float fadeDuration = -1f)
     {
         if (string.IsNullOrEmpty(clipName) || m_bgm.CurrentName == clipName)

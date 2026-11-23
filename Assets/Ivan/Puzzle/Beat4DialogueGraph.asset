@@ -1,0 +1,534 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 475c422c2c8b4b33be17206000dbb78a, type: 3}
+  m_Name: Beat4DialogueGraph
+  m_EditorClassIdentifier:
+  forestRules: 0
+  nodes:
+  - id: 56372216ee3a41379d95c1795d762c9b
+    title: "\u9AD8\u52D2\u8DA3 0"
+    kind: 1
+    position: {x: 320, y: 60}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u9ED1\u718A\u548C\u767D\u91CE\u732A\uFF0C\u4F60\u4EEC\u4E3A\u4F55\u800C\u4E89\u6597\uFF1F"
+    en: "Black Bear, White Boar, why are you fighting?"
+    note: "\u82f1\u6587\u4e3a\u56e2\u961f\u6e38\u620f\u9002\u914d\u8bd1\u6587\uff0c\u975e\u7ecf\u6587\u6743\u5a01\u8bd1\u6587\uff1b\u4fdd\u7559\u961f\u53cb\u539f\u4e2d\u6587\u53f0\u8bcd\u3002"
+    next: b93ab8c67f97421fa79e7cb76fa4e4a9
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: b93ab8c67f97421fa79e7cb76fa4e4a9
+    title: "\u9ED1\u718A 1"
+    kind: 1
+    position: {x: 580, y: 60}
+    entry: 0
+    speaker: "\u9ED1\u718A"
+    zh: "\u4EBA\u7C7B\uFF0C\u4F60\u957F\u7740\u4E24\u53EA\u773C\u775B\uFF0C\u9876\u7740\u8FD9\u4E48\u5927\u7684\u8111\u888B\uFF0C\u5374\u8FDE\u773C\u524D\u7684\u5371\u673A\u90FD\u770B\u4E0D\u5230\u5417\uFF1F"
+    en: "Human, with two eyes and such a great head, can you not see the trouble right before you?"
+    note: ""
+    next: f0d06a97569744d9ad179a967c2a87bb
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: f0d06a97569744d9ad179a967c2a87bb
+    title: "\u767D\u91CE\u732A 2"
+    kind: 1
+    position: {x: 840, y: 60}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u5317\u98CE\u547C\u5578\uFF0C\u6211\u7684\u65CF\u7FA4\u9700\u8981\u98DF\u7269\u8FC7\u51AC\u3002"
+    en: "The north wind is howling. My herd needs food to survive the winter."
+    note: ""
+    next: d2fbcc5dfac44975b1da0bd5666057ef
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: d2fbcc5dfac44975b1da0bd5666057ef
+    title: "\u9ED1\u718A 3"
+    kind: 1
+    position: {x: 1100, y: 60}
+    entry: 0
+    speaker: "\u9ED1\u718A"
+    zh: "\u77A7\u77A7\u8FD9\u6811\u4E0A\u7684\u6A61\u5B9E\u554A\u3002\u8981\u662F\u80FD\u8BA9\u6211\u7684\u5B69\u5B50\u6765\u4E0A\u4E00\u9897\uFF0C\u5B83\u8BE5\u6709\u591A\u9AD8\u5174\u554A\uFF01"
+    en: "Look at the acorns on that tree. How happy my child would be to have just one!"
+    note: ""
+    next: 65bd7d3e5fa847c99abdfc183be895b4
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 65bd7d3e5fa847c99abdfc183be895b4
+    title: "\u767D\u91CE\u732A 4"
+    kind: 1
+    position: {x: 1360, y: 60}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u9ED1\u718A\u3002\u4F60\u7684\u5B69\u5B50\u9700\u8981\u98DF\u7269\uFF0C\u6211\u7684\u5B69\u5B50\u96BE\u9053\u4E0D\u9700\u8981\u5417\uFF1F"
+    en: "Black Bear, your child needs food. Does mine not need it too?"
+    note: ""
+    next: fb647058cec74105b1b7f81849ff79c8
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: fb647058cec74105b1b7f81849ff79c8
+    title: "\u9AD8\u52D2\u8DA3 5"
+    kind: 1
+    position: {x: 1620, y: 60}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u8FD9\u91CC\u7684\u6811\u8FD9\u4E48\u591A\uFF0C\u4EB2\u7231\u7684\u718A\u548C\u91CE\u732A\uFF0C\u4F60\u4EEC\u4F55\u5FC5\u4E3A\u4E86\u5176\u4E2D\u7684\u4E00\u68F5\u4E89\u62A2\u5462\uFF1F"
+    en: "Dear Bear and Boar, there are so many trees here. Why fight over just one?"
+    note: ""
+    next: 6d83518a3992483493ac06a13a338c2b
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 6d83518a3992483493ac06a13a338c2b
+    title: "\u767D\u91CE\u732A 6"
+    kind: 1
+    position: {x: 1880, y: 60}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u8FD9\u91CC\u7684\u6811\u662F\u5F88\u591A\uFF0C\u4F46\u80FD\u591F\u7ED3\u679C\u7684\uFF0C\u53EF\u53EA\u6709\u8FD9\u4E00\u68F5\u554A\uFF01"
+    en: "There are many trees, but this is the only one bearing fruit!"
+    note: ""
+    next: 18fdc82799df43dfaa405595f2eb1746
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 18fdc82799df43dfaa405595f2eb1746
+    title: "\u9ED1\u718A 7"
+    kind: 1
+    position: {x: 2140, y: 60}
+    entry: 0
+    speaker: "\u9ED1\u718A"
+    zh: "\u8981\u662F\u80FD\u5148\u7528\u5B83\u679C\u8179\uFF0C\u6211\u4EEC\u5C31\u80FD\u53BB\u66F4\u8FDC\u7684\u5730\u65B9\u627E\u98DF\u7269\u4E86\u5427\u3002"
+    en: "With something to fill our bellies, perhaps we could travel farther to find food."
+    note: ""
+    next: 3311340747c2437bad7d9a6ecc47f860
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 3311340747c2437bad7d9a6ecc47f860
+    title: "\u9AD8\u52D2\u8DA3 8"
+    kind: 1
+    position: {x: 2400, y: 60}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\uFF08\u6709\u6CA1\u6709\u529E\u6CD5\u8BA9\u5927\u5BB6\u90FD\u80FD\u5206\u5230\u4E00\u90E8\u5206\u6A61\u5B9E\u5462\uFF1F\uFF09"
+    en: "(Is there a way for everyone to share these acorns?)"
+    note: ""
+    next: cd2eab92f2b54d15b2d17d03c6331c88
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: cd2eab92f2b54d15b2d17d03c6331c88
+    title: "\u9AD8\u52D2\u8DA3 9"
+    kind: 1
+    position: {x: 2660, y: 60}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\uFF08\u8FD9\u91CC\u8BF4\u4E0D\u5B9A\u80FD\u6709\u628A\u6A61\u5B9E\u5F04\u4E0B\u6765\u7684\u5DE5\u5177\u3002\uFF09"
+    en: "(Perhaps there is a tool nearby that could bring the acorns down.)"
+    note: ""
+    next: beat4-introduction-end
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 205e7ac041e2427781e922a445217260
+    title: "\u9AD8\u52D2\u8DA3 10"
+    kind: 1
+    position: {x: 320, y: 1320}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\uFF08\u7528\u65A7\u5934\u628A\u5927\u6A61\u5B9E\u5288\u6210\u4E24\u534A\u4E86\u3002\uFF09"
+    en: "(The axe has split the great acorn in two.)"
+    note: "\u4fdd\u7559\u539f\u6709\u77ed\u53e5\uff1b\u672c\u8f6e\u4e0d\u4e32\u5165\u521d\u89c1\uff0c\u5c1a\u672a\u7ed1\u5b9a\u73b0\u573a\u4ea4\u4e92\u3002"
+    next: beat4-unused-line-end
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: e0c2f3fae92740198566ab990e716e08
+    title: "\u9AD8\u52D2\u8DA3 11"
+    kind: 1
+    position: {x: 320, y: 1600}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u8FD9\u70B9\u98DF\u7269\u53EF\u591F\uFF1F"
+    en: "Will this be enough?"
+    note: "\u4fdd\u7559\u539f\u6709\u77ed\u53e5\uff1b\u672c\u8f6e\u4e0d\u4e32\u5165\u521d\u89c1\uff0c\u5c1a\u672a\u7ed1\u5b9a\u73b0\u573a\u4ea4\u4e92\u3002"
+    next: 75674630032f4e5e8e653bb46c739f40
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 75674630032f4e5e8e653bb46c739f40
+    title: "\u9ED1\u718A 12"
+    kind: 1
+    position: {x: 580, y: 1600}
+    entry: 0
+    speaker: "\u9ED1\u718A"
+    zh: "\u8DB3\u591F\u57AB\u57AB\u809A\u5B50\u4E86\uFF0C\u53EF\u592A\u8C22\u8C22\u4F60\u4E86\uFF01"
+    en: "Enough to fill our bellies for now. Thank you so much!"
+    note: ""
+    next: beat4-unused-line-end
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 1dde6ef3d2334c9897da5f8401ee918e
+    title: "\u9AD8\u52D2\u8DA3 13"
+    kind: 1
+    position: {x: 320, y: 1880}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u8FD9\u70B9\u98DF\u7269\u53EF\u591F\uFF1F"
+    en: "Will this be enough?"
+    note: "\u4fdd\u7559\u539f\u6709\u77ed\u53e5\uff1b\u672c\u8f6e\u4e0d\u4e32\u5165\u521d\u89c1\uff0c\u5c1a\u672a\u7ed1\u5b9a\u73b0\u573a\u4ea4\u4e92\u3002"
+    next: eb892c6b6af24991969e1ff8b461c873
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: eb892c6b6af24991969e1ff8b461c873
+    title: "\u767D\u91CE\u732A 14"
+    kind: 1
+    position: {x: 580, y: 1880}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u554A\uFF0C\u5F53\u7136\uFF01\u4F60\u53EF\u771F\u662F\u4E2A\u597D\u5FC3\u4EBA\uFF01"
+    en: "Oh, yes! You are very kind!"
+    note: ""
+    next: beat4-unused-line-end
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: bf80903d2bc74eeeae7165170d76fca8
+    title: "\u767D\u91CE\u732A 15"
+    kind: 1
+    position: {x: 320, y: 480}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u8BF7\u7559\u6B65\u3002"
+    en: "Wait a moment."
+    note: ""
+    next: 6a0a5c31f2c04490b28f6725af7df49d
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 6a0a5c31f2c04490b28f6725af7df49d
+    title: "\u9AD8\u52D2\u8DA3 16"
+    kind: 1
+    position: {x: 580, y: 480}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u6709\u4EC0\u4E48\u4E8B\u60C5\u5462\uFF1F"
+    en: "What is it?"
+    note: ""
+    next: e0d7349e429849468713d616d45ba59f
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: e0d7349e429849468713d616d45ba59f
+    title: "\u767D\u91CE\u732A 17"
+    kind: 1
+    position: {x: 840, y: 480}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F"
+    en: "What is your name?"
+    note: ""
+    next: c2f7e95343244dd585dd6ec16119c5b9
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: c2f7e95343244dd585dd6ec16119c5b9
+    title: "\u9AD8\u52D2\u8DA3 18"
+    kind: 1
+    position: {x: 1100, y: 480}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u9AD8\u52D2\u8DA3\u3002"
+    en: "Gaolequ."
+    note: ""
+    next: 19765a85527649f6bd4956aab3477aa7
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 19765a85527649f6bd4956aab3477aa7
+    title: "\u767D\u91CE\u732A 19"
+    kind: 1
+    position: {x: 1360, y: 480}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u9AD8\u52D2\u8DA3\u2026\u2026"
+    en: "Gaolequ..."
+    note: ""
+    next: fe8811b7640c4effa4135e48edae0690
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: fe8811b7640c4effa4135e48edae0690
+    title: "\u9AD8\u52D2\u8DA3 20"
+    kind: 1
+    position: {x: 1620, y: 480}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u6211\u6B63\u5728\u5BFB\u627E\u6211\u7684\u7236\u4EB2\u4FC4\u9AD8\u52D2\u3002"
+    en: "I am looking for my father, Egaole."
+    note: ""
+    next: 9369750448f44f65b69a8498028bf829
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 9369750448f44f65b69a8498028bf829
+    title: "\u9AD8\u52D2\u8DA3 21"
+    kind: 1
+    position: {x: 1880, y: 480}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u6211\u9047\u5230\u4E86\u2026\u2026\u4E00\u53EA\u72D0\u72F8\uFF0C\u5B83\u544A\u8BC9\u6211\uFF0C\u6211\u7684\u7236\u4EB2\u88AB\u7F72\u795E\u6293\u8D70\u4E86\u3002"
+    en: "I met... a fox. It told me that Shu had taken my father away."
+    note: ""
+    next: 9f7024590caa4cf3a4ba3230ccc2bf14
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 9f7024590caa4cf3a4ba3230ccc2bf14
+    title: "\u9AD8\u52D2\u8DA3 22"
+    kind: 1
+    position: {x: 2140, y: 480}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u60A8\u80FD\u544A\u8BC9\u6211\u60A8\u77E5\u9053\u7684\u4E8B\u60C5\u5417\uFF1F\u8981\u600E\u4E48\u505A\u624D\u80FD\u8BA9\u6211\u7684\u7236\u4EB2\u56DE\u6765\uFF1F"
+    en: "Please, can you tell me what you know? How can I bring my father back?"
+    note: ""
+    next: 97a0def1160e493c9f7a4f08f082c86a
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 97a0def1160e493c9f7a4f08f082c86a
+    title: "\u767D\u91CE\u732A 23"
+    kind: 1
+    position: {x: 2400, y: 480}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u7F72\u795E\u2026\u2026\u6211\u5DF2\u7ECF\u5F88\u591A\u5E74\u6CA1\u6709\u53BB\u548C\u4ED6\u89C1\u9762\u4E86\uFF0C\u62B1\u6B49\u3002"
+    en: "Shu... I have not seen him for many years. I am sorry."
+    note: ""
+    next: 2df19f21222942cd9ba04fc816cb3445
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 2df19f21222942cd9ba04fc816cb3445
+    title: "\u767D\u91CE\u732A 24"
+    kind: 1
+    position: {x: 2660, y: 480}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u8FD9\u4EFD\u3010\u91D1\u7CAE\u3011\u7ED9\u4F60\u3002\u8FD9\u662F\u4E4B\u524D\u7F72\u795E\u9001\u7ED9\u6211\u4EEC\u7684\u3002\u5B83\u4E0D\u80FD\u5403\uFF0C\u662F\u5F88\u795E\u5723\u7684\u4E1C\u897F\u3002"
+    en: "Take this Golden Grain. Shu gave it to us long ago. It is not for eating; it is sacred."
+    note: ""
+    next: 45462eff30574c2680801fd33e1640dd
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 45462eff30574c2680801fd33e1640dd
+    title: "\u767D\u91CE\u732A 25"
+    kind: 1
+    position: {x: 2920, y: 480}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u5F53\u4F60\u89C1\u5230\u7F72\u795E\u7684\u65F6\u5019\uFF0C\u5C31\u628A\u3010\u91D1\u7CAE\u3011\u7ED9\u4ED6\u770B\u3002\u8BF4\u4E0D\u5B9A\uFF0C\u4ED6\u80FD\u591F\u56DE\u5FC3\u8F6C\u610F\u3002"
+    en: "When you meet Shu, show him the Golden Grain. Perhaps it will soften his heart."
+    note: ""
+    next: beat4-deliver-grain
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 38640bef50144547a86b78d1bc0dec48
+    title: "\u9AD8\u52D2\u8DA3 26"
+    kind: 1
+    position: {x: 320, y: 900}
+    entry: 0
+    speaker: "\u9AD8\u52D2\u8DA3"
+    zh: "\u592A\u8C22\u8C22\u60A8\u4E86\u3002"
+    en: "Thank you so much."
+    note: ""
+    next: 63d7ddd1f3a84f98bc389b1163b1d66d
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 63d7ddd1f3a84f98bc389b1163b1d66d
+    title: "\u767D\u91CE\u732A 27"
+    kind: 1
+    position: {x: 580, y: 900}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u4F60\u5E2E\u52A9\u6211\u4EEC\u62FF\u5230\u98DF\u7269\uFF0C\u6211\u4EEC\u624D\u5E94\u8BE5\u9053\u8C22\u624D\u5BF9\u3002"
+    en: "You helped us find food. We are the ones who should thank you."
+    note: ""
+    next: 05621fc603fa4c6e89ff30d89c4c728d
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: 05621fc603fa4c6e89ff30d89c4c728d
+    title: "\u767D\u91CE\u732A 28"
+    kind: 1
+    position: {x: 840, y: 900}
+    entry: 0
+    speaker: "\u767D\u91CE\u732A"
+    zh: "\u7EE7\u7EED\u524D\u8FDB\u5427\uFF0C\u795D\u4F60\u4E00\u8DEF\u987A\u98CE\uFF01"
+    en: "Keep going. May your journey be safe!"
+    note: ""
+    next: beat4-grain-pickup-end
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-introduction-start
+    title: "\u521d\u89c1\uff1a\u718a\u4e0e\u91ce\u732a"
+    kind: 0
+    position: {x: 60, y: 60}
+    entry: 2
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "\u82f1\u6587\u4e3a\u56e2\u961f\u6e38\u620f\u9002\u914d\u8bd1\u6587\uff0c\u975e\u7ecf\u6587\u6743\u5a01\u8bd1\u6587\uff1b\u4fdd\u7559\u961f\u53cb\u539f\u4e2d\u6587\u53f0\u8bcd\u3002"
+    next: 56372216ee3a41379d95c1795d762c9b
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-introduction-end
+    title: "\u521d\u89c1\u7ed3\u675f\uff1a\u8fd4\u56de\u73a9\u5bb6\u64cd\u4f5c"
+    kind: 5
+    position: {x: 2920, y: 60}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next:
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-grain-giveaway-start
+    title: "\u8d60\u9001\u91d1\u7cae"
+    kind: 0
+    position: {x: 60, y: 480}
+    entry: 3
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: bf80903d2bc74eeeae7165170d76fca8
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-deliver-grain
+    title: "\u4ea4\u4ed8\u91d1\u7cae\uff08\u73b0\u6709\u6e38\u620f\u4e8b\u4ef6\uff09"
+    kind: 3
+    position: {x: 3180, y: 480}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: beat4-grain-giveaway-end
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 2
+  - id: beat4-grain-giveaway-end
+    title: "\u7b49\u5f85\u73a9\u5bb6\u6536\u4e0b\u91d1\u7cae"
+    kind: 5
+    position: {x: 3440, y: 480}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next:
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-grain-pickup-start
+    title: "\u6536\u4e0b\u91d1\u7cae\u540e\u7684\u544a\u522b"
+    kind: 0
+    position: {x: 60, y: 900}
+    entry: 4
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next: 38640bef50144547a86b78d1bc0dec48
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-grain-pickup-end
+    title: "\u544a\u522b\u7ed3\u675f"
+    kind: 5
+    position: {x: 1100, y: 900}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: ""
+    next:
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0
+  - id: beat4-unused-line-end
+    title: "\u4fdd\u7559\u77ed\u53e5\u7ed3\u675f\uff08\u5c1a\u672a\u7ed1\u5b9a\uff09"
+    kind: 5
+    position: {x: 1100, y: 1600}
+    entry: 0
+    speaker: ""
+    zh: ""
+    en: ""
+    note: "\u539f\u6709\u5206\u679c\u3001\u5582\u98df\u77ed\u53e5\u4fdd\u7559\uff0c\u672a\u81ea\u52a8\u4e32\u5165\u4efb\u4f55\u5df2\u542f\u7528\u5165\u53e3\u3002"
+    next:
+    otherwise:
+    seconds: 1
+    cue: 0
+    action: 0

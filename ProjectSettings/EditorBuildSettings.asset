@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Ivan/Scenes/Beat_2_Cleansing_Impurity.unity
     guid: 1a72921845c88d148bce1dce6a005f00
+  - enabled: 1
+    path: Assets/Ivan/Scenes/Beat_4 Bear and Pig.unity
+    guid: 3af32b3d6894b5541943202ae1b1f8fe
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: f2c577a706a298a49aa113c3fa78dee9, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

@@ -34,6 +34,8 @@
 *.booproj
 .DS_Store
 Thumbs.db
+# Office lock files are local editing state, never Unity source assets.
+~$*
 /Recordings
 *.md
 

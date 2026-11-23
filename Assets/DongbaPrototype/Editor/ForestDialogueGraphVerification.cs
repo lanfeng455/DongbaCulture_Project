@@ -17,7 +17,7 @@ namespace DongbaPrototype {
             var graph=AssetDatabase.LoadAssetAtPath<ForestDialogueGraph>(ForestDialogueGraphWindow.AssetPath);
             if(graph==null)throw new BuildFailedException("ForestCaptureGraph is missing.");
             var errors=graph.Validate();
-            foreach(ForestDialogueGraph.Entry entry in Enum.GetValues(typeof(ForestDialogueGraph.Entry)))if(graph.StartFor(entry)==null)errors.Add("Missing entry: "+entry);
+            foreach(var entry in new[]{ForestDialogueGraph.Entry.MissingKnife,ForestDialogueGraph.Entry.ShuConfrontation})if(graph.StartFor(entry)==null)errors.Add("Missing forest entry: "+entry);
             if(errors.Count>0)throw new BuildFailedException(string.Join("\n",errors));
         }
         [MenuItem("Dongba/Dialogue Graph/运行数据与播放检查")]

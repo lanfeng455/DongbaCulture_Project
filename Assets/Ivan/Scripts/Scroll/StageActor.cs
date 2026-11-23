@@ -28,6 +28,11 @@ namespace Ivan.Scroll
         private bool m_hasFacingLock;    // 演出转向后锁定，LateUpdate 每帧维持
         private bool m_lockedFaceLeft;
 
+        // 一只演员可能是多张贴图拼的（巨兽、多部件角色），转向要整只一起翻
+        private SpriteRenderer[] m_renderers;
+        private bool[] m_baseFlips;
+        private bool m_isFacingLeft;     // 当前是否朝左，不依赖某一张贴图的 flipX
+
         public string ActorName => m_actorName;
 
         // 定点移动是否已完成（没有进行中的目标即视为已到达）
@@ -39,6 +44,17 @@ namespace Ivan.Scroll
             {
                 m_renderer = GetComponentInChildren<SpriteRenderer>();
             }
+
+            // 缓存整只演员的全部贴图；记住各自原始 flipX，翻转时做异或，
+            // 避免把本来就朝左的部件一起翻反
+            m_renderers = GetComponentsInChildren<SpriteRenderer>(true);
+            m_baseFlips = new bool[m_renderers.Length];
+            for (int i = 0; i < m_renderers.Length; i++)
+            {
+                m_baseFlips[i] = m_renderers[i].flipX;
+            }
+
+            m_isFacingLeft = m_renderer != null && m_renderer.flipX != m_defaultFacesLeft;
         }
 
         private void OnEnable()
@@ -77,13 +93,13 @@ namespace Ivan.Scroll
         // 演出转向是持续状态：每帧维持翻转，抵抗 Animator / 其他组件对 flipX 的覆盖
         private void LateUpdate()
         {
-            if (m_hasFacingLock && m_renderer != null)
+            if (m_hasFacingLock)
             {
-                m_renderer.flipX = m_lockedFaceLeft;
+                ApplyFlip(m_lockedFaceLeft);
             }
         }
 
-        private bool IsFacingLeft => m_renderer != null && m_renderer.flipX != m_defaultFacesLeft;
+        private bool IsFacingLeft => m_isFacingLeft;
 
         // directionX 正 = 朝右（世界 +X），负 = 朝左
         public void Face(float directionX)
@@ -107,9 +123,19 @@ namespace Ivan.Scroll
 
             m_hasFacingLock = true;
             m_lockedFaceLeft = (directionX < 0f) != m_defaultFacesLeft;
-            if (m_renderer != null)
+            ApplyFlip(m_lockedFaceLeft);
+        }
+
+        // 把整只演员翻到指定朝向；按原始翻转做异或，多贴图角色不会互相打架
+        private void ApplyFlip(bool faceLeft)
+        {
+            m_isFacingLeft = faceLeft;
+            if (m_renderers == null) return;
+
+            for (int i = 0; i < m_renderers.Length; i++)
             {
-                m_renderer.flipX = m_lockedFaceLeft;
+                if (m_renderers[i] == null) continue;
+                m_renderers[i].flipX = m_baseFlips[i] ^ faceLeft;
             }
         }
 

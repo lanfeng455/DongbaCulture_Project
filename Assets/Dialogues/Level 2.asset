@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c3c456686982df45abd9b1cebe9549e, type: 3}
+  m_Name: Level 2
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueLibrarySO
+  m_entries:
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Black Bear, White Boar, why are you fighting?"
+    chineseContent: "\u9ed1\u718a\u548c\u767d\u91ce\u732a\uff0c\u4f60\u4eec\u4e3a\u4f55\u800c\u4e89\u6597\uff1f"
+    note: "\u82f1\u6587\u4e3a\u56e2\u961f\u6e38\u620f\u9002\u914d\u8bd1\u6587\uff0c\u975e\u7ecf\u6587\u6743\u5a01\u8bd1\u6587\uff1b\u4fdd\u7559\u961f\u53cb\u539f\u4e2d\u6587\u53f0\u8bcd\u3002"
+    manualContinue: 1
+  - speaker: "\u9ed1\u718a"
+    content: "Human, with two eyes and such a great head, can you not see the trouble right before you?"
+    chineseContent: "\u4eba\u7c7b\uff0c\u4f60\u957f\u7740\u4e24\u53ea\u773c\u775b\uff0c\u9876\u7740\u8fd9\u4e48\u5927\u7684\u8111\u888b\uff0c\u5374\u8fde\u773c\u524d\u7684\u5371\u673a\u90fd\u770b\u4e0d\u5230\u5417\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "The north wind is howling. My herd needs food to survive the winter."
+    chineseContent: "\u5317\u98ce\u547c\u5578\uff0c\u6211\u7684\u65cf\u7fa4\u9700\u8981\u98df\u7269\u8fc7\u51ac\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ed1\u718a"
+    content: "Look at the acorns on that tree. How happy my child would be to have just one!"
+    chineseContent: "\u77a7\u77a7\u8fd9\u6811\u4e0a\u7684\u6a61\u5b9e\u554a\u3002\u8981\u662f\u80fd\u8ba9\u6211\u7684\u5b69\u5b50\u6765\u4e0a\u4e00\u9897\uff0c\u5b83\u8be5\u6709\u591a\u9ad8\u5174\u554a\uff01"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Black Bear, your child needs food. Does mine not need it too?"
+    chineseContent: "\u9ed1\u718a\u3002\u4f60\u7684\u5b69\u5b50\u9700\u8981\u98df\u7269\uff0c\u6211\u7684\u5b69\u5b50\u96be\u9053\u4e0d\u9700\u8981\u5417\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Dear Bear and Boar, there are so many trees here. Why fight over just one?"
+    chineseContent: "\u8fd9\u91cc\u7684\u6811\u8fd9\u4e48\u591a\uff0c\u4eb2\u7231\u7684\u718a\u548c\u91ce\u732a\uff0c\u4f60\u4eec\u4f55\u5fc5\u4e3a\u4e86\u5176\u4e2d\u7684\u4e00\u68f5\u4e89\u62a2\u5462\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "There are many trees, but this is the only one bearing fruit!"
+    chineseContent: "\u8fd9\u91cc\u7684\u6811\u662f\u5f88\u591a\uff0c\u4f46\u80fd\u591f\u7ed3\u679c\u7684\uff0c\u53ef\u53ea\u6709\u8fd9\u4e00\u68f5\u554a\uff01"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ed1\u718a"
+    content: "With something to fill our bellies, perhaps we could travel farther to find food."
+    chineseContent: "\u8981\u662f\u80fd\u5148\u7528\u5b83\u679c\u8179\uff0c\u6211\u4eec\u5c31\u80fd\u53bb\u66f4\u8fdc\u7684\u5730\u65b9\u627e\u98df\u7269\u4e86\u5427\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "(Is there a way for everyone to share these acorns?)"
+    chineseContent: "\uff08\u6709\u6ca1\u6709\u529e\u6cd5\u8ba9\u5927\u5bb6\u90fd\u80fd\u5206\u5230\u4e00\u90e8\u5206\u6a61\u5b9e\u5462\uff1f\uff09"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "(Perhaps there is a tool nearby that could bring the acorns down.)"
+    chineseContent: "\uff08\u8fd9\u91cc\u8bf4\u4e0d\u5b9a\u80fd\u6709\u628a\u6a61\u5b9e\u5f04\u4e0b\u6765\u7684\u5de5\u5177\u3002\uff09"
+    note: ""
+    manualContinue: 0
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "(The axe has split the great acorn in two.)"
+    chineseContent: "\uff08\u7528\u65a7\u5934\u628a\u5927\u6a61\u5b9e\u5288\u6210\u4e24\u534a\u4e86\u3002\uff09"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Will this be enough?"
+    chineseContent: "\u8fd9\u70b9\u98df\u7269\u53ef\u591f\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ed1\u718a"
+    content: "Enough to fill our bellies for now. Thank you so much!"
+    chineseContent: "\u8db3\u591f\u57ab\u57ab\u809a\u5b50\u4e86\uff0c\u53ef\u592a\u8c22\u8c22\u4f60\u4e86\uff01"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Will this be enough?"
+    chineseContent: "\u8fd9\u70b9\u98df\u7269\u53ef\u591f\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Oh, yes! You are very kind!"
+    chineseContent: "\u554a\uff0c\u5f53\u7136\uff01\u4f60\u53ef\u771f\u662f\u4e2a\u597d\u5fc3\u4eba\uff01"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Wait a moment."
+    chineseContent: "\u8bf7\u7559\u6b65\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "What is it?"
+    chineseContent: "\u6709\u4ec0\u4e48\u4e8b\u60c5\u5462\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "What is your name?"
+    chineseContent: "\u4f60\u53eb\u4ec0\u4e48\u540d\u5b57\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Gaolequ."
+    chineseContent: "\u9ad8\u52d2\u8da3\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Gaolequ..."
+    chineseContent: "\u9ad8\u52d2\u8da3\u2026\u2026"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "I am looking for my father, Egaole."
+    chineseContent: "\u6211\u6b63\u5728\u5bfb\u627e\u6211\u7684\u7236\u4eb2\u4fc4\u9ad8\u52d2\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "I met... a fox. It told me that Shu had taken my father away."
+    chineseContent: "\u6211\u9047\u5230\u4e86\u2026\u2026\u4e00\u53ea\u72d0\u72f8\uff0c\u5b83\u544a\u8bc9\u6211\uff0c\u6211\u7684\u7236\u4eb2\u88ab\u7f72\u795e\u6293\u8d70\u4e86\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Please, can you tell me what you know? How can I bring my father back?"
+    chineseContent: "\u60a8\u80fd\u544a\u8bc9\u6211\u60a8\u77e5\u9053\u7684\u4e8b\u60c5\u5417\uff1f\u8981\u600e\u4e48\u505a\u624d\u80fd\u8ba9\u6211\u7684\u7236\u4eb2\u56de\u6765\uff1f"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Shu... I have not seen him for many years. I am sorry."
+    chineseContent: "\u7f72\u795e\u2026\u2026\u6211\u5df2\u7ecf\u5f88\u591a\u5e74\u6ca1\u6709\u53bb\u548c\u4ed6\u89c1\u9762\u4e86\uff0c\u62b1\u6b49\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Take this Golden Grain. Shu gave it to us long ago. It is not for eating; it is sacred."
+    chineseContent: "\u8fd9\u4efd\u3010\u91d1\u7cae\u3011\u7ed9\u4f60\u3002\u8fd9\u662f\u4e4b\u524d\u7f72\u795e\u9001\u7ed9\u6211\u4eec\u7684\u3002\u5b83\u4e0d\u80fd\u5403\uff0c\u662f\u5f88\u795e\u5723\u7684\u4e1c\u897f\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "When you meet Shu, show him the Golden Grain. Perhaps it will soften his heart."
+    chineseContent: "\u5f53\u4f60\u89c1\u5230\u7f72\u795e\u7684\u65f6\u5019\uff0c\u5c31\u628a\u3010\u91d1\u7cae\u3011\u7ed9\u4ed6\u770b\u3002\u8bf4\u4e0d\u5b9a\uff0c\u4ed6\u80fd\u591f\u56de\u5fc3\u8f6c\u610f\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u9ad8\u52d2\u8da3"
+    content: "Thank you so much."
+    chineseContent: "\u592a\u8c22\u8c22\u60a8\u4e86\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "You helped us find food. We are the ones who should thank you."
+    chineseContent: "\u4f60\u5e2e\u52a9\u6211\u4eec\u62ff\u5230\u98df\u7269\uff0c\u6211\u4eec\u624d\u5e94\u8be5\u9053\u8c22\u624d\u5bf9\u3002"
+    note: ""
+    manualContinue: 1
+  - speaker: "\u767d\u91ce\u732a"
+    content: "Keep going. May your journey be safe!"
+    chineseContent: "\u7ee7\u7eed\u524d\u8fdb\u5427\uff0c\u795d\u4f60\u4e00\u8def\u987a\u98ce\uff01"
+    note: ""
+    manualContinue: 1
+  m_linkedCsvPath: Assets/Dialogues/Level 2.csv

@@ -6,6 +6,16 @@
       "zh": "父亲"
     },
     {
+      "id": "speaker.boar",
+      "en": "Boar",
+      "zh": "野猪"
+    },
+    {
+      "id": "speaker.bear",
+      "en": "Bear",
+      "zh": "熊"
+    },
+    {
       "id": "speaker.gaolequ",
       "en": "Gaolequ",
       "zh": "高勒趣",
@@ -1106,6 +1116,16 @@
       "id": "forest.story.homeward.size",
       "en": "We really got it... Look at the size of it!",
       "zh": "没想到真让我们猎到了，这么大一头！"
+    },
+    {
+      "id": "speaker.black_bear",
+      "en": "Black Bear",
+      "zh": "黑熊"
+    },
+    {
+      "id": "speaker.white_boar",
+      "en": "White Boar",
+      "zh": "白野猪"
     }
   ]
 }

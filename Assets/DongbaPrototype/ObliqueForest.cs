@@ -114,6 +114,7 @@ public partial class ObliqueForest : MonoBehaviour {
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--restoration-preview")>=0)StartCoroutine(PreviewRestorationEnding());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--restoration-check")>=0)StartCoroutine(CheckRestorationEnding());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--journey-reel-check")>=0){reelPortalHost=new GameObject("Reel handoff test host").AddComponent<ReelPortalHost>();reelPortalHost.StartCoroutine(CheckJourneyReel());}
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--second-puzzle-check")>=0){reelPortalHost=new GameObject("Sequential puzzle verification host").AddComponent<ReelPortalHost>();var runner=new GameObject("Sequential puzzle test runner").AddComponent<SecondPuzzleCheckRunner>();DontDestroyOnLoad(runner.gameObject);runner.StartCoroutine(CheckSecondPuzzle());}
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--ui-preview")>=0)StartCoroutine(CheckQuietUI());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-journey-check")>=0)StartCoroutine(CheckStoryJourney());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--father-river-check")>=0)StartCoroutine(CheckFatherRiver());

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -38,7 +39,7 @@ public static class EcologyVisualBuilder {
             importer.SaveAndReimport();
         }
         var result = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-            scenes = new[] { "Assets/DongbaPrototype/ObliqueForest.unity", "Assets/Ivan/Scenes/Beat_2_Cleansing_Impurity.unity" },
+            scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(),
             locationPathName = destination + "/ForestPrototype.exe",
             target = BuildTarget.StandaloneWindows64,
             options = BuildOptions.None

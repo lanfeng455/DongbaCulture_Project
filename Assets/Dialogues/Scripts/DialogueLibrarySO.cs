@@ -29,6 +29,9 @@ public class DialogueLibrarySO : ScriptableObject
 
         [Tooltip("策划/翻译备注，不进游戏")]
         public string note;
+
+        [Tooltip("勾上：本句打完字后停住，等玩家按回车再进下一句；不勾则按句间停顿自动播放")]
+        public bool manualContinue;
     }
 
     [Tooltip("按顺序播放的对话句子列表")]

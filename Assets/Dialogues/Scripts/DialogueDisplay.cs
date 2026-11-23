@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 using Ivan.Scroll;
@@ -139,17 +140,33 @@ public partial class DialogueDisplay : MonoBehaviour
         return true;
     }
 
-    public void PlayBilingualLine(string speaker, string english, string chinese)
+    // Both range-based and per-row manual dialogue wait for a fresh Enter after reveal.
+    // GameplayBlocked prevents settings/pause input from advancing the script.
+    private async Awaitable WaitForAdvanceInputAsync(CancellationToken token)
+    {
+        int shownFrame = Time.frameCount;
+        do { await Awaitable.NextFrameAsync(token); }
+        while (Time.frameCount <= shownFrame || !AdvancePressed());
+    }
+
+    public void PlayBilingualLine(string speaker, string english, string chinese, bool manualContinue = false)
     {
         CancelPlayback();
         m_playbackCts = new CancellationTokenSource();
         int generation = ++m_playbackGeneration;
-        var entry = new DialogueLibrarySO.DialogueEntry { speaker = speaker, content = english, chineseContent = chinese };
+        var entry = new DialogueLibrarySO.DialogueEntry
+        {
+            speaker = speaker,
+            content = english,
+            chineseContent = chinese,
+            manualContinue = manualContinue,
+        };
         _ = PlaySegmentAsync(new List<DialogueLibrarySO.DialogueEntry> { entry }, false, 0, m_playbackCts.Token, generation);
     }
 
     // Keep the default overlay for teammate scenes; the forest uses its existing capture camera.
-    public void SetRenderCamera(Camera camera, int sortingOrder = 1100)
+    // 默认 31000：对白要压过卷轴纸(29500)与 HUD(30000)；需要更低层级的调用方自行传参覆盖
+    public void SetRenderCamera(Camera camera, int sortingOrder = 31000)
     {
         EnsureUi();
         m_canvas.renderMode = RenderMode.ScreenSpaceCamera;
@@ -386,6 +403,7 @@ public partial class DialogueDisplay : MonoBehaviour
     {
         m_isPlaying = true;
         if (manual) SetPaperPresentation(false, true);
+        bool segmentPaperManual = paperManual;
         SetVisible(true);
 
         try
@@ -407,24 +425,25 @@ public partial class DialogueDisplay : MonoBehaviour
                     continue;
                 }
 
+                bool lineManual = manual || entry.manualContinue;
+                // Reserve space for the per-row Enter prompt without changing forest-owned timing.
+                SetPaperPresentation(paperAtTop, segmentPaperManual || lineManual);
                 SetVisible(true);
                 m_visibleEntry = entry;
                 UpdatePaperPortrait();
                 string line = FormatLine(entry);
-                await TypeLineAsync(line, token, manual);
+                await TypeLineAsync(line, token, lineManual);
 
                 if (token.IsCancellationRequested)
                 {
                     return;
                 }
 
-                // Range-based puzzle dialogue can opt into the same Enter rhythm as the forest.
-                // PlayLine/PlayBilingualLine remain controlled by their existing callers.
-                if (manual)
+                // Global range mode and a row's Manual flag share one acknowledgement.
+                // Revealing the typewriter never acknowledges that same line.
+                if (lineManual)
                 {
-                    int shownFrame = Time.frameCount;
-                    do { await Awaitable.NextFrameAsync(token); }
-                    while (Time.frameCount <= shownFrame || !AdvancePressed());
+                    await WaitForAdvanceInputAsync(token);
                 }
                 else if (m_delayBetweenLinesInSeconds > 0f)
                 {
@@ -478,6 +497,7 @@ public partial class DialogueDisplay : MonoBehaviour
             if (m_playbackGeneration == generation)
             {
                 m_isPlaying = false;
+                SetPaperPresentation(paperAtTop, segmentPaperManual);
             }
         }
     }
@@ -605,7 +625,7 @@ public partial class DialogueDisplay : MonoBehaviour
         string content = string.IsNullOrEmpty(entry.chineseContent) ? DongbaLanguage.Text(entry.content)
             : (DongbaLanguage.Chinese ? entry.chineseContent : entry.content);
         // Keep contrast on paper, including when the language changes mid-line.
-        if (m_waitForAdvance && paperManual) content = content.Replace("<color=#FFDC88>", "<color=#8A3E22>")
+        if (paperStyled) content = content.Replace("<color=#FFDC88>", "<color=#8A3E22>")
             .Replace("<color=#6AADFF>", "<color=#32678A>");
         if (string.IsNullOrEmpty(entry.speaker))
         {
@@ -748,7 +768,7 @@ public partial class DialogueDisplay : MonoBehaviour
             GameObject canvasObject = new GameObject("DialogueCanvas");
             m_canvas = canvasObject.AddComponent<Canvas>();
             m_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            m_canvas.sortingOrder = 1000;
+            m_canvas.sortingOrder = 31000;
 
             canvasObject.AddComponent<GraphicRaycaster>();
         }

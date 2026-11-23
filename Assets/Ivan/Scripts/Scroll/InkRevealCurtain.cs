@@ -32,8 +32,8 @@ namespace Ivan.Scroll
         [SerializeField] private float m_edgeWidth = 1.6f;
         [Tooltip("墨迹前缘向左探出的距离（米），避免主体左缘与墨锋之间露出缝")]
         [SerializeField] private float m_inkBleed = 0.25f;
-        [Tooltip("渲染层级：要盖过地形（一般 100 上下）和玩家")]
-        [SerializeField] private int m_sortingOrder = 1000;
+        [Tooltip("渲染层级：要盖过 Diorama 场景里所有 SpriteRenderer（Beat_2 树最高 ~175，Forest 最高 ~28400），给 35000 留足余量")]
+        [SerializeField] private int m_sortingOrder = 35000;
         [Tooltip("纸面主体贴图覆盖：留空则程序生成纸纹")]
         [SerializeField] private Sprite m_bodySpriteOverride;
         [Tooltip("墨迹前缘贴图覆盖：留空则程序生成（需自带朝右淡出的不规则 alpha）")]
@@ -42,6 +42,11 @@ namespace Ivan.Scroll
         [Header("揭开")]
         [Tooltip("从 Reveal() 到完全揭开的时长（秒）")]
         [SerializeField] private float m_revealDuration = 2.5f;
+
+        [Tooltip("揭开完成时触发。可用来启动 ScrollPlayDirector.StartAutoPlay 进入卷轴演出")]
+        [SerializeField] private UnityEngine.Events.UnityEvent m_onRevealComplete = new();
+
+        private bool m_completeFired;   // 防止 complete 事件在同帧 Update 里被重复触发
 
         private SpriteRenderer m_body;          // 纸面主体（锚在区域右缘，收缩模拟纸退）
         private SpriteRenderer m_front;         // 不规则湿墨前缘
@@ -84,7 +89,18 @@ namespace Ivan.Scroll
             m_revealAge = -1f;
             m_body.gameObject.SetActive(false);
             m_front.gameObject.SetActive(false);
+
+            // 揭开完成：触发回调（可能绑定 ScrollPlayDirector.StartAutoPlay）。
+            // 用 m_completeFired 防止同一帧 Update 里重复触发（极端时序下的保险）
+            if (!m_completeFired)
+            {
+                m_completeFired = true;
+                m_onRevealComplete?.Invoke();
+            }
         }
+
+        // 墨纸是否还盖着（供卷轴导演判断"何时可以放行玩家向右走"）
+        public bool IsCovering => m_body != null && m_body.gameObject.activeSelf;
 
         // 开始揭开。供 UnityEvent（谜题完成）/ 代码调用
         [ContextMenu("揭开（播放动画）")]
@@ -94,6 +110,7 @@ namespace Ivan.Scroll
             if (m_body == null || m_front == null) return;
             if (!m_body.gameObject.activeSelf) return; // 已经揭过了
             m_revealAge = 0f;
+            m_completeFired = false;
         }
 
         // 立即盖回（测试/重置用）
