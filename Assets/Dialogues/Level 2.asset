@@ -29,8 +29,8 @@ MonoBehaviour:
     note: ""
     manualContinue: 1
   - speaker: "\u9ed1\u718a"
-    content: "Look at the acorns on that tree. How happy my child would be to have just one!"
-    chineseContent: "\u77a7\u77a7\u8fd9\u6811\u4e0a\u7684\u6a61\u5b9e\u554a\u3002\u8981\u662f\u80fd\u8ba9\u6211\u7684\u5b69\u5b50\u6765\u4e0a\u4e00\u9897\uff0c\u5b83\u8be5\u6709\u591a\u9ad8\u5174\u554a\uff01"
+    content: "Look at the chestnuts on that tree. How happy my child would be to have just one!"
+    chineseContent: "\u77a7\u77a7\u8fd9\u6811\u4e0a\u7684\u677f\u6817\u554a\u3002\u8981\u662f\u80fd\u8ba9\u6211\u7684\u5b69\u5b50\u6765\u4e0a\u4e00\u9897\uff0c\u5b83\u8be5\u6709\u591a\u9ad8\u5174\u554a\uff01"
     note: ""
     manualContinue: 1
   - speaker: "\u767d\u91ce\u732a"
@@ -54,18 +54,18 @@ MonoBehaviour:
     note: ""
     manualContinue: 1
   - speaker: "\u9ad8\u52d2\u8da3"
-    content: "(Is there a way for everyone to share these acorns?)"
-    chineseContent: "\uff08\u6709\u6ca1\u6709\u529e\u6cd5\u8ba9\u5927\u5bb6\u90fd\u80fd\u5206\u5230\u4e00\u90e8\u5206\u6a61\u5b9e\u5462\uff1f\uff09"
+    content: "(Is there a way for everyone to share these chestnuts?)"
+    chineseContent: "\uff08\u6709\u6ca1\u6709\u529e\u6cd5\u8ba9\u5927\u5bb6\u90fd\u80fd\u5206\u5230\u4e00\u90e8\u5206\u677f\u6817\u5462\uff1f\uff09"
     note: ""
     manualContinue: 1
   - speaker: "\u9ad8\u52d2\u8da3"
-    content: "(Perhaps there is a tool nearby that could bring the acorns down.)"
-    chineseContent: "\uff08\u8fd9\u91cc\u8bf4\u4e0d\u5b9a\u80fd\u6709\u628a\u6a61\u5b9e\u5f04\u4e0b\u6765\u7684\u5de5\u5177\u3002\uff09"
+    content: "(Perhaps there is a tool nearby that could bring the chestnuts down.)"
+    chineseContent: "\uff08\u8fd9\u91cc\u8bf4\u4e0d\u5b9a\u80fd\u6709\u628a\u677f\u6817\u5f04\u4e0b\u6765\u7684\u5de5\u5177\u3002\uff09"
     note: ""
     manualContinue: 0
   - speaker: "\u9ad8\u52d2\u8da3"
-    content: "(The axe has split the great acorn in two.)"
-    chineseContent: "\uff08\u7528\u65a7\u5934\u628a\u5927\u6a61\u5b9e\u5288\u6210\u4e24\u534a\u4e86\u3002\uff09"
+    content: "(The axe has split the great chestnut in two.)"
+    chineseContent: "\uff08\u7528\u65a7\u5934\u628a\u5927\u677f\u6817\u5288\u6210\u4e24\u534a\u4e86\u3002\uff09"
     note: ""
     manualContinue: 1
   - speaker: "\u9ad8\u52d2\u8da3"

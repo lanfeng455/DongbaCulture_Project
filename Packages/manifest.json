@@ -56,6 +56,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.xr.picoxr": "https://github.com/Pico-Developer/PICO-Unity-Integration-SDK.git#c93a59bab88d337fe0d54140499712897cedbe52"
   }
 }

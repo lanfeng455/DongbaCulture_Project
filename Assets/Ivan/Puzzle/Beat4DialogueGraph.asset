@@ -62,8 +62,8 @@ MonoBehaviour:
     position: {x: 1100, y: 60}
     entry: 0
     speaker: "\u9ED1\u718A"
-    zh: "\u77A7\u77A7\u8FD9\u6811\u4E0A\u7684\u6A61\u5B9E\u554A\u3002\u8981\u662F\u80FD\u8BA9\u6211\u7684\u5B69\u5B50\u6765\u4E0A\u4E00\u9897\uFF0C\u5B83\u8BE5\u6709\u591A\u9AD8\u5174\u554A\uFF01"
-    en: "Look at the acorns on that tree. How happy my child would be to have just one!"
+    zh: "\u77A7\u77A7\u8FD9\u6811\u4E0A\u7684\u677F\u6817\u554A\u3002\u8981\u662F\u80FD\u8BA9\u6211\u7684\u5B69\u5B50\u6765\u4E0A\u4E00\u9897\uFF0C\u5B83\u8BE5\u6709\u591A\u9AD8\u5174\u554A\uFF01"
+    en: "Look at the chestnuts on that tree. How happy my child would be to have just one!"
     note: ""
     next: 65bd7d3e5fa847c99abdfc183be895b4
     otherwise:
@@ -132,8 +132,8 @@ MonoBehaviour:
     position: {x: 2400, y: 60}
     entry: 0
     speaker: "\u9AD8\u52D2\u8DA3"
-    zh: "\uFF08\u6709\u6CA1\u6709\u529E\u6CD5\u8BA9\u5927\u5BB6\u90FD\u80FD\u5206\u5230\u4E00\u90E8\u5206\u6A61\u5B9E\u5462\uFF1F\uFF09"
-    en: "(Is there a way for everyone to share these acorns?)"
+    zh: "\uFF08\u6709\u6CA1\u6709\u529E\u6CD5\u8BA9\u5927\u5BB6\u90FD\u80FD\u5206\u5230\u4E00\u90E8\u5206\u677F\u6817\u5462\uFF1F\uFF09"
+    en: "(Is there a way for everyone to share these chestnuts?)"
     note: ""
     next: cd2eab92f2b54d15b2d17d03c6331c88
     otherwise:
@@ -146,8 +146,8 @@ MonoBehaviour:
     position: {x: 2660, y: 60}
     entry: 0
     speaker: "\u9AD8\u52D2\u8DA3"
-    zh: "\uFF08\u8FD9\u91CC\u8BF4\u4E0D\u5B9A\u80FD\u6709\u628A\u6A61\u5B9E\u5F04\u4E0B\u6765\u7684\u5DE5\u5177\u3002\uFF09"
-    en: "(Perhaps there is a tool nearby that could bring the acorns down.)"
+    zh: "\uFF08\u8FD9\u91CC\u8BF4\u4E0D\u5B9A\u80FD\u6709\u628A\u677F\u6817\u5F04\u4E0B\u6765\u7684\u5DE5\u5177\u3002\uFF09"
+    en: "(Perhaps there is a tool nearby that could bring the chestnuts down.)"
     note: ""
     next: beat4-introduction-end
     otherwise:
@@ -160,8 +160,8 @@ MonoBehaviour:
     position: {x: 320, y: 1320}
     entry: 0
     speaker: "\u9AD8\u52D2\u8DA3"
-    zh: "\uFF08\u7528\u65A7\u5934\u628A\u5927\u6A61\u5B9E\u5288\u6210\u4E24\u534A\u4E86\u3002\uFF09"
-    en: "(The axe has split the great acorn in two.)"
+    zh: "\uFF08\u7528\u65A7\u5934\u628A\u5927\u677F\u6817\u5288\u6210\u4E24\u534A\u4E86\u3002\uFF09"
+    en: "(The axe has split the great chestnut in two.)"
     note: "\u4fdd\u7559\u539f\u6709\u77ed\u53e5\uff1b\u672c\u8f6e\u4e0d\u4e32\u5165\u521d\u89c1\uff0c\u5c1a\u672a\u7ed1\u5b9a\u73b0\u573a\u4ea4\u4e92\u3002"
     next: beat4-unused-line-end
     otherwise:

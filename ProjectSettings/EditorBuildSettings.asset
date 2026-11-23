@@ -20,7 +20,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Ivan/Scenes/Beat_4 Bear and Pig.unity
     guid: 3af32b3d6894b5541943202ae1b1f8fe
+  - enabled: 0
+    path: Assets/PicoMR/DongbaPicoMR.unity
+    guid: 0a275acc106adbf478dcdc77c76df91c
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: f2c577a706a298a49aa113c3fa78dee9, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+    Unity.XR.PXR.Settings: {fileID: 11400000, guid: 3ea35239496a57f42931203d7e431136, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 7c85f73a6b4acc747a3fd7f495c3c1db, type: 2}
   m_UseUCBPForAssetBundles: 0

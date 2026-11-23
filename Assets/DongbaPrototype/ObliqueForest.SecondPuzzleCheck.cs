@@ -119,10 +119,17 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var halves=(IList)SecondField(puzzle,"m_halves");
         SecondAssert(halves.Count==2,"Real axe/nut trigger splits fruit into two pushable halves");
         if(halves.Count!=2){yield return SecondShot("failed-fruit-split");Application.Quit(1);yield break;}
-        foreach(var half in halves){
-            var target=SecondField(half,"Target");var targetZone=(Beat4TriggerZone)SecondField(target,"Zone");var sphere=targetZone.GetComponent<SphereCollider>();
+        var beasts=(IList)SecondField(puzzle,"m_beasts");
+        for(int i=0;i<halves.Count;i++){
+            var half=halves[i];
+            var target=beasts[1-i];var targetZone=(Beat4TriggerZone)SecondField(target,"Zone");var sphere=targetZone.GetComponent<SphereCollider>();
             var root=(Transform)SecondField(half,"Root");var foodBody=root.GetComponent<Rigidbody>();
             foodBody.position=targetZone.transform.TransformPoint(sphere.center);foodBody.linearVelocity=Vector3.zero;Physics.SyncTransforms();yield return new WaitForFixedUpdate();yield return new WaitForSeconds(.25f);
+            SecondAssert((bool)SecondField(target,"HasFood"),"Either chestnut half feeds the opposite beast");
+            SecondAssert(display.IsPlaying,"Feeding starts the authored acknowledgement dialogue");
+            display.CompleteCurrentLine();yield return SecondAdvance(keyboard,.2f);display.CompleteCurrentLine();yield return null;
+            SecondAssert(display.SubtitleText.text.Contains(i==0?"垫垫肚子":"好心人"),"Correct beast responds to receiving chestnut");
+            yield return SecondShot("fed-beast-"+i);yield return SecondAdvance(keyboard,1.8f);
         }
         yield return SecondWait(()=>puzzle.IsSolved,12);
         SecondAssert(puzzle.IsSolved&&!puzzle.IsJourneyCompleted&&reelPortalHost.InLevel,"Feeding both beasts opens path but does not prematurely leave before grain");
