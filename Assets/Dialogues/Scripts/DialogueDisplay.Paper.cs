@@ -86,7 +86,7 @@ public partial class DialogueDisplay {
         // Pause obscures the presentation without consuming or restarting its dialogue.
         m_canvas.enabled=DongbaInterface.Instance==null||!DongbaInterface.Instance.ModalOpen;
         UpdatePaperPortrait();
-        if(paperContinue!=null)paperContinue.text=DongbaLanguage.Chinese?"回车   继续":"ENTER   Continue";
+        if(paperContinue!=null)paperContinue.text=DongbaLanguage.Chinese?"任意键   继续":"ANY KEY   Continue";
         var size=((RectTransform)m_canvas.transform).rect.size;
         if(size!=paperLastCanvas){paperLastCanvas=size;ApplyLayout();if(m_text!=null)FitBackgroundToText(m_text.text);}
     }

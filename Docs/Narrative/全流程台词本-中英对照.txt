@@ -198,8 +198,8 @@ EN: The path is still blocked by these boulders.
 EN: Hiss…hiss…
 
 40　高勒趣
-中：他们分开了，目光却还缠在一起……
-EN: They are apart now, but their eyes are still locked.
+中：他们分开了，目光却还缠在一起……刚才那些红色的石头，或许能派上用场。
+EN: They are apart now, but their eyes are still locked... Perhaps those red stones we passed could help.
 
 14. 洞口的线索
 （靠近相应洞口才触发；两句顺序取决于玩家路线。）

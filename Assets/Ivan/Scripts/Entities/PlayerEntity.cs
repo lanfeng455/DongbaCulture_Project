@@ -271,7 +271,7 @@ public class PlayerEntity : SceneEntity
 
     private void Update()
     {
-        if (DongbaPrototype.DongbaInterface.GameplayBlocked) return;
+        if (DongbaPrototype.DongbaInterface.GameplayBlocked || DongbaPrototype.DialogueAdvanceInput.GameplayInputBlocked) return;
         if (!Application.isPlaying || m_isDead)
         {
             return;
@@ -540,6 +540,7 @@ public class PlayerEntity : SceneEntity
 
     private Vector2 ReadMoveInput()
     {
+        if (DongbaPrototype.DialogueAdvanceInput.GameplayInputBlocked) return Vector2.zero;
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null)
         {

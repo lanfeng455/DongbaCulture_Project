@@ -64,7 +64,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     }
     void RefreshContextHUD(){
         if(forestCanvas==null)return;
-        bool explore=InterfaceExploring;
+        bool explore=InterfaceExploring&&!ReelPresentationVisible;
         uiHelpShortcut.SetActive(explore);uiHelpPanel.SetActive(false);uiNoticePanel.SetActive(false);
         bool threatened=damageCooldown>0||health<5;
         if(!threatened&&explore){foreach(var animal in animals)if(animal.health>0&&animal.angry&&Vector3.Distance(Feet,animal.root.position)<4){threatened=true;break;}if(storyBoar!=null&&storyBoar.health>0&&Vector3.Distance(Feet,storyBoar.root.position)<6)threatened=true;}
@@ -80,7 +80,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             if(objectiveDetail!=null)objectiveDetail.text=split>=0?localized.Substring(split+1):"";
             if(chapterNumber!=null)chapterNumber.text=InterfaceChapterNumber;
             if(value!=lastObjective){lastObjective=value;objectiveChangedAt=clock;chapterTab?.Reveal();}
-            if(show&&Keyboard.current!=null&&Keyboard.current.tabKey.wasPressedThisFrame)chapterTab?.Toggle();
+            if(show&&!DialogueAdvanceInput.GameplayInputBlocked&&Keyboard.current!=null&&Keyboard.current.tabKey.wasPressedThisFrame)chapterTab?.Toggle();
             if(objectiveTag!=null)objectiveTag.text=InterfaceChapter;
             if(objectiveFade!=null)objectiveFade.alpha=Mathf.Lerp(.65f,1,Mathf.Clamp01((clock-objectiveChangedAt)/.3f));
         }

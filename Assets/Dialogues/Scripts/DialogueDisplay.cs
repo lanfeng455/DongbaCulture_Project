@@ -117,6 +117,12 @@ public partial class DialogueDisplay : MonoBehaviour
 
     private DialogueLibrarySO.DialogueEntry m_visibleEntry;
     private bool m_revealCurrentLine;
+    private bool m_dialogueVisible, m_manualLineAwaiting, m_externalManualAdvance;
+    private int m_lineShownFrame = -1;
+    public bool AcceptsManualAdvance => isActiveAndEnabled && m_dialogueVisible && m_visibleEntry != null &&
+        (m_manualLineAwaiting || m_externalManualAdvance);
+    public void SetExternalManualAdvance(bool enabled) { m_externalManualAdvance = enabled; }
+    public bool TryConsumeAdvanceInput() => DialogueAdvanceInput.TryConsume(this, m_lineShownFrame);
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
     public TMP_Text SubtitleText => m_text;
     public void SetCharactersPerSecond(float speed) { m_charactersPerSecond = Mathf.Max(1, speed); }
@@ -140,7 +146,7 @@ public partial class DialogueDisplay : MonoBehaviour
         return true;
     }
 
-    // Both range-based and per-row manual dialogue wait for a fresh Enter after reveal.
+    // Both range-based and per-row manual dialogue wait for a fresh key after reveal.
     // GameplayBlocked prevents settings/pause input from advancing the script.
     private async Awaitable WaitForAdvanceInputAsync(CancellationToken token)
     {
@@ -345,6 +351,7 @@ public partial class DialogueDisplay : MonoBehaviour
     public void HideDialogue()
     {
         CancelPlayback();
+        m_externalManualAdvance = false;
         m_visibleEntry = null;
         SetVisible(false);
     }
@@ -419,6 +426,7 @@ public partial class DialogueDisplay : MonoBehaviour
                 // 演出指令行（Content 以 @ 开头）：不进字幕，转给舞台执行
                 if (StageCommandParser.TryParse(entry.content, out StageCommand command))
                 {
+                    m_manualLineAwaiting = false;
                     m_visibleEntry = null;
                     SetVisible(false);
                     await ExecuteStageCommandAsync(command, entry.speaker, token);
@@ -426,7 +434,9 @@ public partial class DialogueDisplay : MonoBehaviour
                 }
 
                 bool lineManual = manual || entry.manualContinue;
-                // Reserve space for the per-row Enter prompt without changing forest-owned timing.
+                m_manualLineAwaiting = lineManual;
+                m_lineShownFrame = Time.frameCount;
+                // Reserve space for the per-row prompt without changing forest-owned timing.
                 SetPaperPresentation(paperAtTop, segmentPaperManual || lineManual);
                 SetVisible(true);
                 m_visibleEntry = entry;
@@ -449,6 +459,8 @@ public partial class DialogueDisplay : MonoBehaviour
                 {
                     await Awaitable.WaitForSecondsAsync(m_delayBetweenLinesInSeconds, token);
                 }
+
+                m_manualLineAwaiting = false;
 
                 // Knowledge is acquired only after a spoken line is actually acknowledged.
                 // Cancellation, typewriter reveal, commands and ad-hoc PlayLine calls do not count.
@@ -497,6 +509,7 @@ public partial class DialogueDisplay : MonoBehaviour
             if (m_playbackGeneration == generation)
             {
                 m_isPlaying = false;
+                m_manualLineAwaiting = false;
                 SetPaperPresentation(paperAtTop, segmentPaperManual);
             }
         }
@@ -565,11 +578,9 @@ public partial class DialogueDisplay : MonoBehaviour
     }
 
     // 打字机：逐字符填充
-    private static bool AdvancePressed()
+    private bool AdvancePressed()
     {
-        var keyboard = UnityEngine.InputSystem.Keyboard.current;
-        return !DongbaInterface.GameplayBlocked && keyboard != null &&
-            (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame);
+        return TryConsumeAdvanceInput();
     }
 
     private async Awaitable TypeLineAsync(string fullLine, CancellationToken token, bool manual = false)
@@ -656,12 +667,14 @@ public partial class DialogueDisplay : MonoBehaviour
             m_playbackCts = null;
         }
         m_isPlaying = false;
+        m_manualLineAwaiting = false;
     }
 
     // 显隐字幕条。immediate = true 跳过渐变直接切（初始化/应急用）。
     // 已在目标透明度时（如连播多句台词）不重播渐入，避免每句闪一下
     private void SetVisible(bool visible, bool immediate = false)
     {
+        m_dialogueVisible = visible;
         if (m_background == null)
         {
             return;

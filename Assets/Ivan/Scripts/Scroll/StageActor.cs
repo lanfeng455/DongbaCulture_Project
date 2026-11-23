@@ -30,7 +30,7 @@ namespace Ivan.Scroll
 
         // 一只演员可能是多张贴图拼的（巨兽、多部件角色），转向要整只一起翻
         private SpriteRenderer[] m_renderers;
-        private bool[] m_baseFlips;
+        private bool[] m_relativeFlips;
         private bool m_isFacingLeft;     // 当前是否朝左，不依赖某一张贴图的 flipX
 
         public string ActorName => m_actorName;
@@ -45,16 +45,17 @@ namespace Ivan.Scroll
                 m_renderer = GetComponentInChildren<SpriteRenderer>();
             }
 
-            // 缓存整只演员的全部贴图；记住各自原始 flipX，翻转时做异或，
-            // 避免把本来就朝左的部件一起翻反
+            // 保存各部件相对主贴图的翻转差异。场景里主贴图可能已经 flipX，
+            // 这个初始姿势不能再叠加到“向左/向右”的绝对指令上。
             m_renderers = GetComponentsInChildren<SpriteRenderer>(true);
-            m_baseFlips = new bool[m_renderers.Length];
+            m_relativeFlips = new bool[m_renderers.Length];
+            bool primaryFlip = m_renderer != null && m_renderer.flipX;
             for (int i = 0; i < m_renderers.Length; i++)
             {
-                m_baseFlips[i] = m_renderers[i].flipX;
+                m_relativeFlips[i] = m_renderers[i].flipX ^ primaryFlip;
             }
 
-            m_isFacingLeft = m_renderer != null && m_renderer.flipX != m_defaultFacesLeft;
+            m_isFacingLeft = primaryFlip ^ m_defaultFacesLeft;
         }
 
         private void OnEnable()
@@ -122,20 +123,21 @@ namespace Ivan.Scroll
             }
 
             m_hasFacingLock = true;
-            m_lockedFaceLeft = (directionX < 0f) != m_defaultFacesLeft;
+            m_lockedFaceLeft = directionX < 0f;
             ApplyFlip(m_lockedFaceLeft);
         }
 
-        // 把整只演员翻到指定朝向；按原始翻转做异或，多贴图角色不会互相打架
+        // faceLeft 始终表示世界朝向；素材朝向只在写入 flipX 时换算一次。
         private void ApplyFlip(bool faceLeft)
         {
             m_isFacingLeft = faceLeft;
             if (m_renderers == null) return;
 
+            bool primaryFlip = faceLeft ^ m_defaultFacesLeft;
             for (int i = 0; i < m_renderers.Length; i++)
             {
                 if (m_renderers[i] == null) continue;
-                m_renderers[i].flipX = m_baseFlips[i] ^ faceLeft;
+                m_renderers[i].flipX = m_relativeFlips[i] ^ primaryFlip;
             }
         }
 

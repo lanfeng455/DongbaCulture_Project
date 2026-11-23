@@ -45,6 +45,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     public float JourneyReelNextCheckpoint=>journeyReelNextCheckpoint;
     public int JourneyReelNextDestinationIndex=>journeyReelNextDestination;
     public string JourneyReelNextScene=>journeyReelNextDestination<JourneyDestinations.Length?JourneyDestinations[journeyReelNextDestination]:null;
+    // Hide forest-only HUD from the first paper fade, including wounded-player health.
+    bool ReelPresentationVisible=>StoryModeEnabled&&(journeyStage==JourneyStage.ScrollTransition||journeyStage==JourneyStage.ScrollWalk||(journeyStage==JourneyStage.EastJourney&&Feet.x>=JourneyReelStart));
     void PrepareJourneyDestination(){
         if(JourneyReelNextScene==null)return;
         if(reelPortalHost==null)reelPortalHost=new GameObject("Reel level handoff").AddComponent<ReelPortalHost>();

@@ -3796,7 +3796,7 @@ Transform:
   m_GameObject: {fileID: 62837392}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 114.85, y: 0, z: -0.7}
+  m_LocalPosition: {x: 114.85, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19843,6 +19843,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2026112201}
+  - component: {fileID: 2026112301}
   - component: {fileID: 343677824}
   - component: {fileID: 343677825}
   m_Layer: 0
@@ -19882,42 +19883,6 @@ MonoBehaviour:
   m_onCompleted:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 466656648}
-        m_TargetAssemblyTypeName: Ivan.Scroll.InkRevealCurtain, Assembly-CSharp
-        m_MethodName: Reveal
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 82309209}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 675953153}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 1539072508}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -139424,6 +139389,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ivan.Puzzle.Puzzle1Presentation
   m_exitX: 95
   m_hintStartX: 49
+--- !u!114 &2026112301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343677823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b27c7ecdc8ab4adb86e3c7f3b90ac0d8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Ivan.Puzzle.Puzzle1ExitJourney
+  m_upperStone: {fileID: 82309209}
+  m_lowerStone: {fileID: 675953153}
+  m_curtain: {fileID: 466656648}
+  m_exitX: 101
+  m_pathCenterZ: 1.45
+  m_pathHalfWidth: 1.95
+  m_panDuration: 1.25
+  m_stoneMoveDuration: 1.8
+  m_returnDuration: 1.15
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -55,6 +55,8 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         var area=Screen.safeArea;safe.anchorMin=new Vector2(area.xMin/Screen.width,area.yMin/Screen.height);safe.anchorMax=new Vector2(area.xMax/Screen.width,area.yMax/Screen.height);
         if(panel!=null){float scale=Mathf.Min(1,(safe.rect.width-32)/panel.sizeDelta.x,(safe.rect.height-32)/panel.sizeDelta.y);panel.localScale=Vector3.one*Mathf.Max(.5f,scale);}
         if(loading)return;
+        // A displayed manual line owns every keyboard press; an already open menu owns its own keys.
+        if(page==Page.None&&!onTitle&&DialogueAdvanceInput.GameplayInputBlocked)return;
         var kb=Keyboard.current;if(kb==null)return;
         if(kb.escapeKey.wasPressedThisFrame){
             if(page!=Page.None)Back();else if(onTitle)Open(Page.Quit);else Open(Page.Pause);return;
@@ -122,9 +124,9 @@ public sealed partial class DongbaInterface : MonoBehaviour {
             var foot=DongbaUIStyle.Label("Return key",menuPage,Choose("ESC  ·  Return to the forest","ESC  ·  回到故事"),new Vector2(54,-588),new Vector2(510,26),16);foot.color=DongbaUIStyle.Muted;
         }else if(page==Page.Help){
             bool puzzle=SceneManager.GetActiveScene().name=="Beat_2_Cleansing_Impurity";
-            string[] keys={"WASD","SPACE","J","E","ENTER","TAB","F8","ESC","H","R"};
-            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Continue dialogue",puzzle?"—":"Expand / fold chapter note","Switch Chinese / English","Pause / back","Controls","Restart the story"};
-            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","继续对白",puzzle?"—":"展开 / 收起章签","切换中英文","暂停 / 返回","操作说明","重新开始故事"};
+            string[] keys={"WASD","SPACE","J","E",Choose("ANY KEY","任意键"),"TAB","F8","ESC","H","R"};
+            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Reveal / continue dialogue",puzzle?"—":"Expand / fold chapter note","Switch Chinese / English","Pause / back","Controls","Restart the story"};
+            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","显示整句 / 继续对白",puzzle?"—":"展开 / 收起章签","切换中英文","暂停 / 返回","操作说明","重新开始故事"};
             int row=0;for(int i=0;i<keys.Length;i++){
                 if(puzzle&&keys[i]=="TAB")continue;
                 var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-row*39),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));

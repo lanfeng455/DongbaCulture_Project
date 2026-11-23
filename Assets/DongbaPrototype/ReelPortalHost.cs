@@ -63,9 +63,9 @@ public class ReelPortalHost:MonoBehaviour {
         if(preparedDialogue!=null)preparedDialogue.ReleaseForSceneHandoff();
         if(forestDialogue!=null&&!busy)forestDialogue.RestoreAfterSceneHandoff(false);
     }
-    static float WalkInput(){if(DongbaInterface.GameplayBlocked)return 0;var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
+    static float WalkInput(){if(DongbaInterface.GameplayBlocked||DialogueAdvanceInput.GameplayInputBlocked)return 0;var k=Keyboard.current;return k==null?0:(k.dKey.isPressed||k.rightArrowKey.isPressed?1:0)-(k.aKey.isPressed||k.leftArrowKey.isPressed?1:0);}
     void WalkPaper(float dt,float weight){walkingPhase+=dt*Mathf.Abs(WalkInput())*11.2f;float angle=Mathf.Sin(walkingPhase)*1.25f*weight;fromActor.rectTransform.localRotation=Quaternion.Euler(0,0,angle);}
-    Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;Beat4Puzzle beat4Director;ObliqueForest forest;Action resume;
+    Material snapshotMaterial;bool busy,completed,restorationRequested;PuzzleDirectorBase director;Puzzle1ExitJourney puzzle1Exit;Beat4Puzzle beat4Director;ObliqueForest forest;Action resume;
     readonly List<GameObject> hiddenRoots=new List<GameObject>();Scene level,forestScene;DialogueDisplay forestDialogue;
     RawImage destinationBackdrop,backdrop,fromActor,toActor;Canvas overlay;RenderTexture backgroundTexture,destinationBackgroundTexture,fromTexture,toTexture;
     CinemachineBrain handoffBrain;CinemachineBrain.UpdateMethods previousBrainUpdate;
@@ -99,8 +99,9 @@ public class ReelPortalHost:MonoBehaviour {
     }
     void UnsubscribeCompletion(){
         if(director!=null)director.PuzzleCompleted-=OnCompleted;
+        if(puzzle1Exit!=null)puzzle1Exit.ExitReached-=OnCompleted;
         if(beat4Director!=null)beat4Director.JourneyCompleted-=OnCompleted;
-        director=null;beat4Director=null;
+        director=null;puzzle1Exit=null;beat4Director=null;
     }
     void RestoreCameraOwnership(){
         if(handoffBrain!=null)handoffBrain.UpdateMethod=previousBrainUpdate;
@@ -234,13 +235,19 @@ public class ReelPortalHost:MonoBehaviour {
             if(director==null)director=root.GetComponentInChildren<PuzzleDirectorBase>(true);
             if(beat4Director==null)beat4Director=root.GetComponentInChildren<Beat4Puzzle>(true);
         }
-        if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
+        if(director is Puzzle1Director){
+            puzzle1Exit=director.GetComponent<Puzzle1ExitJourney>();
+            if(puzzle1Exit!=null){puzzle1Exit.ExitReached+=OnCompleted;completed=puzzle1Exit.HasExited;}
+            else Debug.LogError("Snake puzzle has no player-driven exit; refusing an immediate return on solve.",director);
+        }
+        else if(director!=null){director.PuzzleCompleted+=OnCompleted;completed=director.IsCompleted;}
         if(beat4Director!=null){beat4Director.JourneyCompleted+=OnCompleted;completed|=beat4Director.IsJourneyCompleted;}
         if(destination!=null&&destinationCamera!=null)yield return MatchActor(start,destinationCamera,destination,true);else {Debug.LogError("Missing destination actor/camera for reel match");HideOverlay();ReleaseTextures();}
         if(controller!=null){controller.enabled=true;controller.SetStageMovementLock(false);}InLevel=true;DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);
         while(!completed){yield return null;}
         DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,true);
-        yield return new WaitForSeconds(1);if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
+        if(puzzle1Exit==null)yield return new WaitForSeconds(1);
+        if(controller!=null){controller.SetStageMovementLock(true);controller.enabled=false;}
         start=ActorRect(destinationCamera,destination);BeginOverlay(destinationCamera,destination);destination.forceRenderingOff=true;UnsubscribeCompletion();
         var unload=SceneManager.UnloadSceneAsync(level);while(!unload.isDone)yield return null;
         level=default;preloadedScene=null;preparedDialogue=null;preparedRoots.Clear();StopPreparation();

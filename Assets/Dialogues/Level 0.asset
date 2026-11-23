@@ -189,8 +189,8 @@ MonoBehaviour:
     note: ""
     manualContinue: 0
   - speaker: "Gao"
-    content: "They are apart now, but their eyes are still locked."
-    chineseContent: "\u4ed6\u4eec\u5206\u5f00\u4e86\uff0c\u76ee\u5149\u5374\u8fd8\u7f20\u5728\u4e00\u8d77\u2026\u2026"
+    content: "They are apart now, but their eyes are still locked... Perhaps those red stones we passed could help."
+    chineseContent: "他们分开了，目光却还缠在一起……刚才那些红色的石头，或许能派上用场。"
     note: ""
     manualContinue: 0
   - speaker: "Gao"

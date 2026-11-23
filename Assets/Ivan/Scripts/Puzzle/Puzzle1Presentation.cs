@@ -17,6 +17,7 @@ namespace Ivan.Puzzle
         Puzzle1Director director;
         DioramaPlayerController player;
         BoxCollider exitCollider;
+        Puzzle1ExitJourney exitJourney;
         CanvasGroup hints;
         ReelPortalHost portal;
         Text title, instruction, controls;
@@ -26,7 +27,7 @@ namespace Ivan.Puzzle
         int learnedClues, languageRevision = -1;
         const int HeightClue = 1, GazeClue = 2;
         public float ExitX => m_exitX;
-        public bool Locked => director != null && !director.IsCompleted;
+        public bool Locked => director != null && (!director.IsCompleted || (exitJourney != null && !exitJourney.ExitReady));
         public float HintAlpha => hints == null ? 0 : hints.alpha;
         public string Instruction => instruction == null ? "" : instruction.text;
         public int LearnedClueCount => ((learnedClues & HeightClue) != 0 ? 1 : 0) + ((learnedClues & GazeClue) != 0 ? 1 : 0);
@@ -38,7 +39,7 @@ namespace Ivan.Puzzle
             public float phase;
         }
 
-        void Awake() { director = GetComponent<Puzzle1Director>(); }
+        void Awake() { director = GetComponent<Puzzle1Director>(); exitJourney = GetComponent<Puzzle1ExitJourney>(); }
         void OnEnable() { if (!Gates.Contains(this)) Gates.Add(this); }
         void OnDisable() { Gates.Remove(this); }
         void OnDestroy()
@@ -83,7 +84,9 @@ namespace Ivan.Puzzle
                 gameObject.AddComponent<Puzzle1GuidanceCheck>();
         }
 
-        void OpenExit() { if (exitCollider != null) exitCollider.enabled = false; }
+        void OpenExit() { if (exitCollider != null && !Locked) exitCollider.enabled = false; }
+
+        void LateUpdate() { if (exitCollider != null) exitCollider.enabled = Locked; }
 
         void OnLineCompleted(DialogueLibrarySO library, int index)
         {
@@ -111,14 +114,14 @@ namespace Ivan.Puzzle
             scaler.matchWidthOrHeight = .5f;
             hints = root.GetComponent<CanvasGroup>();
             hints.alpha = 0; hints.blocksRaycasts = false; hints.interactable = false;
-            var card = DongbaUIStyle.Rect("Clue", root.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(30, -26), new Vector2(374, 124));
+            var card = DongbaUIStyle.Rect("Clue", root.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(30, -26), new Vector2(374, 158));
             DongbaUIStyle.Plate(card, new Color(1, 1, 1, .78f));
             title = DongbaUIStyle.Label("Remembered words", card, "", new Vector2(18, -12), new Vector2(338, 26), 16);
             title.color = DongbaUIStyle.Muted;
-            instruction = DongbaUIStyle.Label("Learned clues", card, "", new Vector2(18, -43), new Vector2(338, 68), 20);
-            var strip = DongbaUIStyle.Rect("Controls", root.transform, Vector2.zero, Vector2.zero, new Vector2(30, 24), new Vector2(580, 43));
+            instruction = DongbaUIStyle.Label("Learned clues", card, "", new Vector2(18, -43), new Vector2(338, 102), 20);
+            var strip = DongbaUIStyle.Rect("Controls", root.transform, Vector2.zero, Vector2.zero, new Vector2(30, 24), new Vector2(660, 43));
             DongbaUIStyle.Plate(strip, new Color(1, 1, 1, .91f));
-            controls = DongbaUIStyle.Label("Keys", strip, "", new Vector2(16, -8), new Vector2(548, 30), 18);
+            controls = DongbaUIStyle.Label("Keys", strip, "", new Vector2(16, -8), new Vector2(628, 30), 18);
         }
 
         void AddCaveLight(CaveSlot cave)
@@ -156,9 +159,9 @@ namespace Ivan.Puzzle
                 title.text = zh ? "记下的话" : "REMEMBERED WORDS";
                 instruction.text = (learnedClues & HeightClue) != 0 ? (zh ? "白归高处，黑归低处。" : "White above, black below.") : "";
                 if ((learnedClues & GazeClue) != 0)
-                    instruction.text += (instruction.text.Length > 0 ? "\n" : "") + (zh ? "两蛇始终相望。" : "Neither snake looks away.");
-                controls.text = zh ? "WASD / 方向键  移动　·　Enter  对话　·　Esc  菜单"
-                    : "WASD / Arrows  Move   ·   Enter  Dialogue   ·   Esc  Menu";
+                    instruction.text += (instruction.text.Length > 0 ? "\n" : "") + (zh ? "两蛇始终相望。\n红石或许能派上用场。" : "Neither snake looks away.\nThe red stones may help.");
+                controls.text = zh ? "WASD / 方向键  移动　·　任意键  对话　·　Esc  菜单"
+                    : "WASD / Arrows  Move   ·   Any key  Dialogue   ·   Esc  Menu";
             }
             foreach (var light in caveLights)
             {

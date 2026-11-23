@@ -32,9 +32,11 @@ public partial class ObliqueForest {
         center.x=Mathf.Clamp(center.x,-ForestHalfWidth+visibleHalfWidth,ForestHalfWidth-visibleHalfWidth);
         center.z=Mathf.Clamp(center.z,-ForestHalfDepth+visibleHalfDepth,ForestHalfDepth-visibleHalfDepth);
         if(StoryModeEnabled&&(journeyStage==JourneyStage.Leaving||journeyStage==JourneyStage.EastJourney||journeyStage==JourneyStage.ScrollTransition))center.x=player.position.x;
-        if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=shuConfrontationStarted||captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):Vector3.Lerp(storyFatherRoot.position,knifeDropPoint,.20f);
+        if(StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife&&storyFatherRoot!=null)center=shuConfrontationStarted||captureBeatAge>0?captureCameraCenter:returnWait>0?Vector3.Lerp(player.position,storyFatherRoot.position,.5f):storyFatherRoot.position+Vector3.ClampMagnitude((knifeDropPoint-storyFatherRoot.position)*.20f,2.5f);
         if(StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization))center=HearthPosition+Vector3.forward*1.5f;
-        float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;NarrativeCamera(ref center,ref targetZoom);cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
+        float targetZoom=StoryModeEnabled&&(fatherIntroActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization)?6.6f:StoryModeEnabled&&journeyStage==JourneyStage.ReturnForKnife?6.8f:8.5f;NarrativeCamera(ref center,ref targetZoom);
+        FrameKnifeEncounter(ref center,ref targetZoom);
+        cam.orthographicSize=Mathf.Lerp(cam.orthographicSize,targetZoom,1-Mathf.Exp(-dt*2.2f));
         bool boarShot=StoryModeEnabled&&journeyStage==JourneyStage.BoarPass&&storyBoar!=null;
         if(boarShot)center=ClampBoarViewToPaper(new Vector3(boarPassMoving?Mathf.Max(boarPassView.x,storyBoar.root.position.x):boarPassView.x,0,0));
         var goal=center+CameraOffset;

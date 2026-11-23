@@ -14,6 +14,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly Vector3 BoarClearing=new Vector3(23,0,0);
     static readonly Vector3 DeparturePoint=new Vector3(-7,0,0);
     void ResetStoryJourney(){
+        SetKnifeShotPaper(false);
         ResetForestAudio();
         ResetOpeningSurvey();
         ResetNarrativePreview();ResetRestorationEnding();ResetJourneyReel();ResetForestSubtitles();
@@ -114,6 +115,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     }
     void MoveStoryFatherToward(Vector3 goal,float speed,float dt){
         if(fatherJumpAge>=0)return; // The central tick completes a jump even if AI changes its goal.
+        if(journeyStage==JourneyStage.ReturnForKnife){MoveFatherAlongKnifeRoute(goal,speed,dt);return;}
         var start=storyFatherRoot.position;float river=RiverX(start.z);
         if((start.x-river)*(goal.x-RiverX(goal.z))<0){
             float sign=start.x<river?1:-1;var takeoff=new Vector3(river-sign*1.4f,0,start.z);var landing=new Vector3(river+sign*1.4f,0,start.z);

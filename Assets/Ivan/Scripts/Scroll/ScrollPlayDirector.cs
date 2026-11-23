@@ -47,6 +47,10 @@ namespace Ivan.Scroll
         public PlayMode Mode => m_mode;
         public bool HasFinished => m_finished;
 
+        // The snake puzzle now ends with a camera reveal and a manually walked exit.
+        // Keep the introduction's auto-walk, but never take input back on completion.
+        public void DisableAutomaticCompletionWalk() { m_autoScrollStartX = -1f; }
+
         // 对外的"最终目的地"：配置了卷轴终点就用它，否则用本次自动行走的终点
         public float EndX => m_scrollEndX > 0f ? m_scrollEndX : m_endX;
 

@@ -250,8 +250,8 @@
     },
     {
       "id": "ui.008",
-      "en": "ENTER   Continue",
-      "zh": "回车   继续"
+      "en": "ANY KEY   Continue",
+      "zh": "任意键   继续"
     },
     {
       "id": "ui.009",
@@ -711,9 +711,10 @@
     },
     {
       "id": "puzzle.level0.35",
-      "en": "They are apart now, but their eyes are still locked.",
-      "zh": "他们分开了，目光却还缠在一起……",
+      "en": "They are apart now, but their eyes are still locked... Perhaps those red stones we passed could help.",
+      "zh": "他们分开了，目光却还缠在一起……刚才那些红色的石头，或许能派上用场。",
       "aliases": [
+        "They are apart now, but their eyes are still locked.",
         "If I go to resolve the dispute between these two snakes first, will I also find another way?"
       ]
     },

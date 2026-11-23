@@ -12,6 +12,7 @@ namespace Ivan.Scroll
 
         private void Update()
         {
+            if (DongbaPrototype.DongbaInterface.GameplayBlocked || DongbaPrototype.DialogueAdvanceInput.GameplayInputBlocked) return;
             var kb = UnityEngine.InputSystem.Keyboard.current;
             if (kb == null) return;
 

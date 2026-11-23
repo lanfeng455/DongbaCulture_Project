@@ -27,6 +27,23 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         }
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
     }
+    // Set up the end of the puzzle, not its result: the actual controller must still
+    // walk through the opened stones and invoke the scene's player-driven exit.
+    void PreparePuzzleExitForVerification(PuzzleDirectorBase puzzle){
+        foreach(var sequence in FindObjectsByType<StorySequencePlayer>(FindObjectsSortMode.None))if(sequence.gameObject.scene==puzzle.gameObject.scene)sequence.enabled=false;
+        foreach(var tripwire in FindObjectsByType<StoryTripwire>(FindObjectsSortMode.None))if(tripwire.gameObject.scene==puzzle.gameObject.scene)tripwire.enabled=false;
+        DialogueDisplay.Instance?.HideDialogue();
+        var actor=FindFirstObjectByType<DioramaPlayerController>();
+        if(actor!=null){actor.ClearAutoMoveInput();actor.SetStageMovementLock(false);var p=new Vector3(88,0,0);var body=actor.GetComponent<Rigidbody>();if(body!=null){body.linearVelocity=Vector3.zero;body.position=p;}actor.transform.position=p;Physics.SyncTransforms();}
+        FindFirstObjectByType<ScrollPlayDirector>()?.SetMode(ScrollPlayDirector.PlayMode.Manual);
+    }
+    IEnumerator WalkSolvedPuzzleExitForVerification(PuzzleDirectorBase puzzle,Keyboard keyboard){
+        var exit=puzzle.GetComponent<Puzzle1ExitJourney>();if(exit==null)yield break;
+        yield return SecondWait(()=>exit.ExitReady,12);
+        float deadline=Time.time+9;
+        while(exit!=null&&!exit.HasExited&&Time.time<deadline){keyboard.MakeCurrent();InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));yield return null;}
+        InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
+    }
     IEnumerator CheckSecondPuzzle(){
         Directory.CreateDirectory(SecondCheckFolder);File.WriteAllText(SecondCheckFolder+"/checks.txt","");
         InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
@@ -40,8 +57,19 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         if(!reelPortalHost.InLevel){Application.Quit(1);yield break;}
         float firstProgress=JourneyReelProgress;
         var firstDirector=FindFirstObjectByType<PuzzleDirectorBase>();
-        // Integration fixture only: the first puzzle's completion is emitted to test the handoff.
+        PreparePuzzleExitForVerification(firstDirector);yield return new WaitForSeconds(.35f);
+        // Integration fixture emits solving; exit itself is still driven by actual keyboard walking.
         typeof(PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(firstDirector,null);
+        var firstExit=firstDirector.GetComponent<Puzzle1ExitJourney>();
+        yield return new WaitForSeconds(.4f);
+        SecondAssert(reelPortalHost.InLevel&&firstExit!=null&&!firstExit.HasExited&&!firstExit.ExitReady,"Solving snakes keeps player in level and starts exit reveal");
+        yield return SecondWait(()=>firstExit!=null&&firstExit.ExitReady,12);
+        SecondAssert(firstExit!=null&&firstExit.ExitReady&&firstExit.UpperStoneTravel>4&&firstExit.LowerStoneTravel>4,"Camera shows both gate stones moving aside before control returns");
+        yield return SecondShot("00-opened-stones-player-control");
+        var firstPlayer=FindFirstObjectByType<DioramaPlayerController>();float stillX=firstPlayer.transform.position.x;
+        yield return new WaitForSeconds(1);
+        SecondAssert(reelPortalHost.InLevel&&!firstExit.HasExited&&Mathf.Abs(firstPlayer.transform.position.x-stillX)<.1f,"Standing after solve does not trigger auto-walk or return");
+        yield return WalkSolvedPuzzleExitForVerification(firstDirector,keyboard);
         yield return SecondWait(()=>!reelPortalHost.IsBusy,25);
         SecondAssert(!reelPortalHost.InLevel&&JourneyReelNextDestinationIndex==1&&Mathf.Abs(JourneyReelProgress-firstProgress)<1,"Return preserves original reel position and advances route once");
         SecondAssert(journeyReelIndices[0]>=3,"Return shows continued original page, not page one");

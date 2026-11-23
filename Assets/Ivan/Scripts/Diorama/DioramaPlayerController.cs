@@ -233,6 +233,7 @@ namespace Ivan.Diorama
             float dt = Time.deltaTime;
             m_clock += dt;
 
+            bool dialogueInputBlocked = DongbaPrototype.DialogueAdvanceInput.GameplayInputBlocked;
             var kb = Keyboard.current;
             if (kb == null && !m_useAutoMoveInput) return;
 
@@ -243,7 +244,7 @@ namespace Ivan.Diorama
                 move.x = m_autoMoveInput.x;
                 move.z = m_autoMoveInput.y;
             }
-            else if (kb != null)
+            else if (kb != null && !dialogueInputBlocked)
             {
                 move.x = (kb.dKey.isPressed || kb.rightArrowKey.isPressed ? 1 : 0)
                        - (kb.aKey.isPressed || kb.leftArrowKey.isPressed ? 1 : 0);
@@ -252,7 +253,7 @@ namespace Ivan.Diorama
             }
             move = Vector3.ClampMagnitude(move, 1f);
 
-            if (kb != null && !CameraHandoff)
+            if (kb != null && !CameraHandoff && !m_stageMovementLocked && !dialogueInputBlocked)
             {
                 if (kb.spaceKey.wasPressedThisFrame && m_jumpAge < 0)
                 {
@@ -379,6 +380,9 @@ namespace Ivan.Diorama
         {
             if (m_rigidbody == null) return;
 
+            // FixedUpdate can run before this frame's Update; do not replay a cached movement
+            // sample after a subtitle has claimed keyboard input. Directed cinematic motion remains valid.
+            if (!m_useAutoMoveInput && DongbaPrototype.DialogueAdvanceInput.GameplayInputBlocked) m_moveInput = Vector3.zero;
             Vector3 velocity = m_moveInput * m_moveSpeed;
 
             // 撞退期间由外部速度接管：线性衰减到 0，位移连续可读

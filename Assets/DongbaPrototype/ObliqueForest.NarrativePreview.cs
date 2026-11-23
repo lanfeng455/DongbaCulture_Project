@@ -68,8 +68,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         RefreshLanguagePresentation();
         if(!NarrativePreview)return;
         bool cinematic=StoryModeEnabled&&(NarrativeInputLocked||ManualStoryDialogueActive||fatherIntroActive||RestorationArrivalLocked||journeyStage==JourneyStage.ReturnForKnife);
-        if(hudHealth!=null)hudHealth.transform.parent.gameObject.SetActive(!cinematic);
-        if(hudArea!=null)hudArea.transform.parent.gameObject.SetActive(!cinematic);
+        // RefreshContextHUD owns visibility; a narrative pose must never reopen hidden HUD.
+        if(cinematic||ReelPresentationVisible){if(hudHealth!=null)hudHealth.transform.parent.gameObject.SetActive(false);if(hudArea!=null)hudArea.transform.parent.gameObject.SetActive(false);}
         if(cinematic){if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(false);if(uiCoreHints!=null)uiCoreHints.SetActive(false);if(uiHelpShortcut!=null)uiHelpShortcut.SetActive(false);if(promptPanel!=null)promptPanel.SetActive(false);if(uiNoticePanel!=null)uiNoticePanel.SetActive(false);}
         if(forestSubtitles!=null&&narrativeSubtitleDisplay!=forestSubtitles){narrativeSubtitleDisplay=forestSubtitles;foreach(var canvas in forestSubtitles.GetComponentsInChildren<Canvas>(true))canvas.sortingOrder=30010;}
         if(storyFatherArt==null)return;

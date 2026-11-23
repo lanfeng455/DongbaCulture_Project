@@ -58,7 +58,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         puzzle.PlayLine("UnconfiguredSpeaker","…");yield return null;PortraitCheck("Unknown speaker never inherits previous portrait",puzzle.PaperSpeakerGlyph==null);
         puzzle.HideDialogue();
         var director=FindFirstObjectByType<Ivan.Puzzle.PuzzleDirectorBase>();
-        if(director!=null)typeof(Ivan.Puzzle.PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);
+        if(director!=null){PreparePuzzleExitForVerification(director);yield return new WaitForSeconds(.35f);typeof(Ivan.Puzzle.PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);yield return WalkSolvedPuzzleExitForVerification(director,keyboard);}
         elapsed=0;while((reelPortalHost.InLevel||reelPortalHost.IsBusy)&&elapsed<22){elapsed+=Time.unscaledDeltaTime;yield return null;}
         PortraitCheck("Actual puzzle-to-reel return completed",!reelPortalHost.InLevel&&!reelPortalHost.IsBusy&&gameObject.activeInHierarchy);
         BeginManualStoryDialogue(new[]{FatherIntroLines[1]});yield return new WaitForSeconds(.3f);

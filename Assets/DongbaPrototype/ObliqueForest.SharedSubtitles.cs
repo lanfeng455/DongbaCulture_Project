@@ -13,14 +13,14 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(forestSubtitles==null)forestSubtitles=new GameObject("Shared team story subtitles").AddComponent<DialogueDisplay>();
         // Keep dialogue above the forest HUD and the 20000-based sprite depth range.
         forestSubtitles.SetRenderCamera(cam,forestCanvas.sortingOrder+10);forestSubtitles.SetCharactersPerSecond(ForestSubtitleCharactersPerSecond);
-        forestSubtitleAdvance=UILabel("Shared subtitle advance hint",forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,22),new Vector2(600,30),18,"ENTER   Continue");forestSubtitleAdvance.alignment=TextAnchor.MiddleCenter;forestSubtitleAdvance.color=uiMuted;
+        forestSubtitleAdvance=UILabel("Shared subtitle advance hint",forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,22),new Vector2(600,30),18,"ANY KEY   Continue");forestSubtitleAdvance.alignment=TextAnchor.MiddleCenter;forestSubtitleAdvance.color=uiMuted;
     }
     bool TryCompleteForestSubtitle(){return UseSharedSubtitles&&forestSubtitles!=null&&forestSubtitles.CompleteCurrentLine();}
     void ResetForestSubtitles(){manualStoryLines=null;manualStoryFinished=null;manualStoryIndex=0;forestSubtitleKey=null;if(forestSubtitles!=null)forestSubtitles.HideDialogue();if(forestSubtitleAdvance!=null)forestSubtitleAdvance.gameObject.SetActive(false);}
     void RefreshForestSubtitles(){
         if(OpeningSurveyActive){if(forestSubtitleKey!=null&&forestSubtitles!=null)forestSubtitles.HideDialogue();forestSubtitleKey=null;if(fatherIntroPanel!=null)fatherIntroPanel.SetActive(false);if(forestSubtitleAdvance!=null)forestSubtitleAdvance.gameObject.SetActive(false);return;}
         if(!UseSharedSubtitles&&!fatherIntroActive&&!ManualStoryDialogueActive){if(forestSubtitleKey!=null)ResetForestSubtitles();if(afterCaptureCaption!=null)afterCaptureCaption.enabled=true;return;}
-        EnsureForestSubtitles();forestSubtitles.SetPaperPresentation(journeyStage==JourneyStage.ScrollWalk||eastPaperProgress>.5f||(reelPlayerStyled&&journeyReelGroup!=null&&journeyReelGroup.alpha>.25f),StoryModeEnabled&&(fatherIntroActive||ManualStoryDialogueActive));string speaker="",content="";bool actionAside=false;
+        EnsureForestSubtitles();forestSubtitles.SetExternalManualAdvance(StoryModeEnabled&&(fatherIntroActive||ManualStoryDialogueActive));forestSubtitles.SetPaperPresentation(journeyStage==JourneyStage.ScrollWalk||eastPaperProgress>.5f||(reelPlayerStyled&&journeyReelGroup!=null&&journeyReelGroup.alpha>.25f),StoryModeEnabled&&(fatherIntroActive||ManualStoryDialogueActive));string speaker="",content="";bool actionAside=false;
         if(StoryModeEnabled){
             if(ManualStoryDialogueActive){SplitStoryLine(manualStoryLines[manualStoryIndex],out speaker,out content);}
             else if(fatherIntroActive){

@@ -51,6 +51,7 @@ public sealed partial class DongbaLanguageSwitch : MonoBehaviour {
     void OnDestroy(){if(Instance!=this)return;DongbaLanguage.Changed-=Refresh;SceneManager.sceneLoaded-=BindScene;Instance=null;}
     void Refresh(){label.text=DongbaLanguage.Chinese?"<b>中文</b> / EN   · F8":"中文 / <b>EN</b>   · F8";}
     void Update(){
+        if(!DongbaInterface.GameplayBlocked&&DialogueAdvanceInput.GameplayInputBlocked)return;
         bool pressed=Keyboard.current!=null&&Keyboard.current.f8Key.wasPressedThisFrame;
         var mouse=Mouse.current;
         if(SwitchCanvas.enabled&&mouse!=null&&mouse.leftButton.wasPressedThisFrame&&RectTransformUtility.RectangleContainsScreenPoint(HitRect,mouse.position.ReadValue(),null))pressed=true;

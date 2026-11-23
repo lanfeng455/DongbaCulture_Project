@@ -52,7 +52,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
                 log.AppendLine("Forest scene and controls restored="+(gameObject.activeInHierarchy&&enabled));
                 File.WriteAllText(folder+"/checks.txt",log.ToString());Application.Quit();yield break;
             }
-            if(director!=null)typeof(PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);
+            if(director!=null){PreparePuzzleExitForVerification(director);yield return new WaitForSeconds(.35f);typeof(PuzzleDirectorBase).GetMethod("CompletePuzzle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(director,null);yield return WalkSolvedPuzzleExitForVerification(director,keyboard);}
             age=0;while(reelPortalHost.IsBusy&&age<20){age+=Time.unscaledDeltaTime;yield return null;}
             yield return new WaitForEndOfFrame();CaptureSceneToTexture(folder+"/returned-to-reel.png");
             log.AppendLine("Return matches real actor within 2 pixels="+(reelPortalHost.LastPositionErrorPixels<2&&reelPortalHost.LastHeightErrorPixels<2)+"; position="+reelPortalHost.LastPositionErrorPixels+"; height="+reelPortalHost.LastHeightErrorPixels);
