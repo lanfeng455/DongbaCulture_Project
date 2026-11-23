@@ -138,8 +138,10 @@ namespace Ivan.Puzzle
         [Header("节拍事件（可在 Inspector 挂声音 / 动画）")]
         [Tooltip("板栗裂成两瓣、原板栗退场后触发")]
         [SerializeField] private UnityEvent m_onNutSplit = new();
-        [Tooltip("任意一只巨兽收到食物并开始让路时触发；两只都喂食会各触发一次")]
-        [SerializeField] private UnityEvent m_onBeastFed = new();
+        [Tooltip("熊收到食物并开始让路时触发")]
+        [SerializeField] private UnityEvent m_onBearFed = new();
+        [Tooltip("野猪收到食物并开始让路时触发")]
+        [SerializeField] private UnityEvent m_onBoarFed = new();
         [Tooltip("两只巨兽都让路、空气墙关闭且金粮绊线启用后触发")]
         [SerializeField] private UnityEvent m_onSolved = new();
         [Tooltip("金粮推送结束、停在玩家面前后触发")]
@@ -166,11 +168,10 @@ namespace Ivan.Puzzle
             public StageActor Actor;   // 复用 Beat2 的演员转向（支持多贴图整只翻转）
         }
 
-        // 板栗裂出来的一瓣
+        // 板栗裂出来的一瓣——任意一只未喂食的巨兽都能叼走
         private sealed class Half
         {
             public Transform Root;
-            public Beast Target;
             public bool Delivered;
         }
 
@@ -491,8 +492,6 @@ namespace Ivan.Puzzle
 
                 m_halves.Add(new Half
                 {
-                    // 南那瓣给南边的野猪，北那瓣给北边的熊
-                    Target = m_beasts[i],
                     Root = clone.transform,
                 });
             }
@@ -556,21 +555,25 @@ namespace Ivan.Puzzle
 
         private bool HandleDeliveryEntered(Collider other, Beast beast)
         {
+            // 已经有食物的巨兽不再接半瓣
+            if (beast.HasFood) return false;
+
             var body = other.attachedRigidbody;
             if (body == null) return false;
 
             foreach (var half in m_halves)
             {
-                if (half.Delivered || half.Target != beast || half.Root != body.transform) continue;
+                // 任意未被叼走的半瓣都可以喂给这只巨兽
+                if (half.Delivered || half.Root != body.transform) continue;
 
-                Deliver(half);
+                Deliver(half, beast);
                 return true;
             }
             return false;
         }
 
         // 不传送：果实留在原地，随后跟着巨兽一起走
-        private void Deliver(Half half)
+        private void Deliver(Half half, Beast beast)
         {
             half.Delivered = true;
 
@@ -586,13 +589,13 @@ namespace Ivan.Puzzle
                 obstacle.SetEnabled(false);
             }
 
-            Beast beast = half.Target;
             beast.CarriedRoot = half.Root;
             beast.CarriedOffset = half.Root.position - beast.Root.position;
             beast.HasFood = true;
             beast.IsLeaving = true;
 
-            m_onBeastFed?.Invoke();
+            if (beast.Root.name.Contains("熊")) m_onBearFed?.Invoke();
+            else if (beast.Root.name.Contains("野猪")) m_onBoarFed?.Invoke();
             Debug.Log($"[Beat4Puzzle] 「{beast.Root.name}」叼走食物，开始让路；此后不再撞玩家。", beast.Root);
         }
 
