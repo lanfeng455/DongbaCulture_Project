@@ -6,10 +6,16 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     [Serializable] class JourneyReelLayout {public int tileHeight,totalWidth;public JourneyReelBeat[] beats;}
     JourneyReelLayout journeyReelData;Canvas journeyReelCanvas;CanvasGroup journeyReelGroup;RectTransform journeyReelRoot;RawImage[] journeyReelPanels;int[] journeyReelIndices={-1,-1,-1};
     Material reelPlayerInk,reelOriginalPlayerInk;Vector3 reelOriginalPlayerScale;bool reelPlayerStyled;Vector3 reelLastFeet;float reelStepPhase,reelWalkWeight;
+    // 卷轴纸必须盖住所有森林物件（树/叶最深约 28407），但要在 HUD(30000) 与对白(31000) 之下；
+    // 卷轴演员（白色纸面人）又要盖在卷轴纸之上，所以单独给一档更高的排序
+    const int k_reelCanvasSortingOrder=29500,k_reelActorSortingOrder=29600;
     void RestoreReelPlayer(){if(!reelPlayerStyled)return;playerImage.sharedMaterial=reelOriginalPlayerInk;body.localScale=reelOriginalPlayerScale;body.localPosition=Vector3.zero;body.rotation=billboard;reelPlayerStyled=false;}
     void StyleReelPlayer(float blend){
         if(!reelPlayerStyled){reelOriginalPlayerInk=playerImage.sharedMaterial;reelOriginalPlayerScale=body.localScale;reelPlayerStyled=true;reelLastFeet=Feet;reelStepPhase=reelWalkWeight=0;}
         if(reelPlayerInk==null){reelPlayerInk=new Material(Resources.Load<Shader>("ReelPlayerInk"));reelPlayerInk.SetTexture("_PaperTex",paper);var size=playerImage.sprite.bounds.size;reelPlayerInk.SetVector("_GlyphSize",new Vector4(size.x,size.y,0,0));}reelPlayerInk.SetFloat("_Blend",blend);reelPlayerInk.SetFloat("_PaperDecline",groundMaterial.GetFloat("_Decline"));playerImage.sharedMaterial=reelPlayerInk;
+        // Update 里每帧会把演员排序重置为 DepthOrder，这里在 LateUpdate（UpdateJourneyReel）再盖回来，
+        // 保证卷轴演员始终画在卷轴纸（k_reelCanvasSortingOrder）之上
+        playerImage.sortingOrder=k_reelActorSortingOrder;axe.GetComponent<SpriteRenderer>().sortingOrder=k_reelActorSortingOrder-1;
         float originalHeight=playerImage.sprite.bounds.size.y*reelOriginalPlayerScale.y;
         float factor=(cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
         body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend)*reelActorScale;
@@ -44,7 +50,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(journeyReelCanvas!=null)return;
         journeyReelData=JsonUtility.FromJson<JourneyReelLayout>(Resources.Load<TextAsset>("JourneyReel/timeline").text);
         var go=new GameObject("Journey reel / source image sequence",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(CanvasGroup));
-        journeyReelCanvas=go.GetComponent<Canvas>();journeyReelCanvas.renderMode=RenderMode.ScreenSpaceCamera;journeyReelCanvas.worldCamera=cam;journeyReelCanvas.planeDistance=1;journeyReelCanvas.sortingOrder=-50;
+        journeyReelCanvas=go.GetComponent<Canvas>();journeyReelCanvas.renderMode=RenderMode.ScreenSpaceCamera;journeyReelCanvas.worldCamera=cam;journeyReelCanvas.planeDistance=1;journeyReelCanvas.sortingOrder=k_reelCanvasSortingOrder;
         var scaler=go.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1600,900);scaler.matchWidthOrHeight=.5f;
         journeyReelGroup=go.GetComponent<CanvasGroup>();journeyReelGroup.blocksRaycasts=false;journeyReelGroup.alpha=0;journeyReelRoot=(RectTransform)go.transform;
         var backing=new GameObject("Matching warm paper",typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));backing.transform.SetParent(go.transform,false);var wash=backing.GetComponent<RawImage>();wash.texture=paper;wash.color=new Color(.65f,.54f,.36f);wash.raycastTarget=false;var br=wash.rectTransform;br.anchorMin=Vector2.zero;br.anchorMax=Vector2.one;br.offsetMin=br.offsetMax=Vector2.zero;

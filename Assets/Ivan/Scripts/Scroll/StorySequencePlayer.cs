@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+using DongbaPrototype;
 using Ivan.Diorama;
 
 namespace Ivan.Scroll
@@ -34,6 +35,7 @@ namespace Ivan.Scroll
             Dialogue,
             Wait,
             Event,
+            Graph,
         }
 
         [System.Serializable]
@@ -53,6 +55,12 @@ namespace Ivan.Scroll
 
             [Tooltip("Event 步要调用的方法：把目标物体拖进来选方法（如 EntangledSnakePair.Split）")]
             public UnityEvent m_onEvent = new();
+
+            [Tooltip("Graph 步要播放的对话图资产（Dongba/Dialogue Graph 编辑）")]
+            public ForestDialogueGraph m_graph;
+
+            [Tooltip("Graph 步从哪个入口开始")]
+            public ForestDialogueGraph.Entry m_entry;
         }
 
         [Header("触发")]
@@ -72,6 +80,9 @@ namespace Ivan.Scroll
         private DioramaPlayerController m_player;
         private ScrollPlayDirector m_director;
         private bool m_hasFired;
+
+        public bool HasFired => m_hasFired;
+        public TriggerKind Trigger => m_trigger;
 
         private void Awake()
         {
@@ -102,7 +113,15 @@ namespace Ivan.Scroll
 
         private void Update()
         {
-            if (m_trigger != TriggerKind.CrossX || m_hasFired || m_player == null) return;
+            if (m_trigger != TriggerKind.CrossX || m_hasFired) return;
+
+            // 组件可能被外部先禁用、之后才启用（如谜题打通后才开绊线），
+            // Start 没跑过也要能自己拿到玩家
+            if (m_player == null)
+            {
+                m_player = FindFirstObjectByType<DioramaPlayerController>();
+            }
+            if (m_player == null) return;
 
             if (m_player.transform.position.x >= transform.position.x)
             {
@@ -148,6 +167,8 @@ namespace Ivan.Scroll
                     {
                         case StepKind.Dialogue:
                         {
+                            if (Beat2DebugSkip.IsSkipping) break;   // 剧情跳过：不播对话，直接下一步
+
                             var display = DialogueDisplay.Instance;
                             if (display == null) continue;   // 场景没对话组件：跳过对话步，别卡死序列
 
@@ -162,6 +183,8 @@ namespace Ivan.Scroll
 
                         case StepKind.Wait:
                         {
+                            if (Beat2DebugSkip.IsSkipping) break;   // 剧情跳过：不等，直接下一步
+
                             if (step.m_seconds > 0f)
                             {
                                 await Awaitable.WaitForSecondsAsync(step.m_seconds);
@@ -171,7 +194,24 @@ namespace Ivan.Scroll
 
                         case StepKind.Event:
                         {
-                            step.m_onEvent?.Invoke();
+                            step.m_onEvent?.Invoke();   // 事件步：无论跳过与否都照常触发
+                            break;
+                        }
+
+                        case StepKind.Graph:
+                        {
+                            if (step.m_graph == null) break;
+
+                            var start = step.m_graph.StartFor(step.m_entry);
+                            if (start == null)
+                            {
+                                Debug.LogWarning(
+                                    $"[{GetType().Name}] 图「{step.m_graph.name}」里没有入口 {step.m_entry}，该步跳过。", this);
+                                break;
+                            }
+
+                            // 剧情跳过时对话与等待照旧跳过，事件节点仍会触发（与 Event 步一致）
+                            await DialogueGraphPlayer.PlayAsync(step.m_graph, start.id, Beat2DebugSkip.IsSkipping);
                             break;
                         }
                     }

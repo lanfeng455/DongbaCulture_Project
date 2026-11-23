@@ -7,9 +7,9 @@ namespace DongbaPrototype {
     [CreateAssetMenu(menuName="Dongba/Dialogue Graph", fileName="DialogueGraph")]
     public sealed class ForestDialogueGraph : ScriptableObject {
         public enum Kind { Start, Dialogue, Wait, Event, Branch, End }
-        public enum Entry { MissingKnife, ShuConfrontation }
+        public enum Entry { MissingKnife, ShuConfrontation, BoarPass, GrainGiveaway, GrainPickup }
         public enum Cue { None, NoticeKnife, Hesitate, Depart }
-        public enum Action { FatherSearchKnife, ShuTakeFather }
+        public enum Action { FatherSearchKnife, ShuTakeFather, DeliverGrain }
         [Serializable] public sealed class Node {
             public string id, title;
             public Kind kind;
@@ -23,6 +23,8 @@ namespace DongbaPrototype {
             public Action action;
             public string Text(bool chinese) => chinese ? zh : en;
         }
+        // 森林图保持强校验（每条分支必须以对应森林事件收尾）；谜题图在 Inspector 关掉此开关
+        public bool forestRules=true;
         public List<Node> nodes=new List<Node>();
         public Node Find(string id) => nodes.Find(n=>n!=null&&n.id==id);
         public Node StartFor(Entry entry) => nodes.Find(n=>n!=null&&n.kind==Kind.Start&&n.entry==entry);
@@ -47,7 +49,7 @@ namespace DongbaPrototype {
             foreach(var n in nodes)if(!Acyclic(n,visited,visiting)){errors.Add("连线形成循环。第一版只支持向前推进的流程，请断开回路。");break;}
             if(errors.Count>0)return errors;
             // Every branch must hand control back to the same existing game event exactly once.
-            foreach(var n in nodes)if(n.kind==Kind.Start&&!EndsWithEvent(n,n.entry,0,new Dictionary<string,bool>()))
+            if(forestRules)foreach(var n in nodes)if(n.kind==Kind.Start&&!EndsWithEvent(n,n.entry,0,new Dictionary<string,bool>()))
                 errors.Add(n.title+"：每条分支都必须在结束前执行一次对应事件（父亲找刀／署抓走父亲），事件之后直接连接结束。");
             return errors;
         }

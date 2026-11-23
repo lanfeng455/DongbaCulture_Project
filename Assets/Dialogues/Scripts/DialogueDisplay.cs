@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 using Ivan.Scroll;
@@ -133,17 +134,54 @@ public partial class DialogueDisplay : MonoBehaviour
         return true;
     }
 
-    public void PlayBilingualLine(string speaker, string english, string chinese)
+    // 等玩家按回车推进对白（Manual 列勾选的句子用）。
+    // 提示控件复用纸面样式右下角的「回车 继续」；等待期间菜单打开则不吞按键
+    private async Awaitable WaitForAdvanceInputAsync(CancellationToken token)
+    {
+        if (paperContinue != null && paperStyled)
+        {
+            paperContinue.gameObject.SetActive(true);
+        }
+
+        while (!token.IsCancellationRequested && this != null)
+        {
+            await Awaitable.NextFrameAsync(token);
+
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null) continue;
+            if (DongbaInterface.GameplayBlocked) continue;
+
+            if (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame)
+            {
+                break;
+            }
+        }
+
+        // 提示恢复到全局手动模式的状态，避免影响森林那套 manual 演出
+        if (paperContinue != null && paperStyled)
+        {
+            paperContinue.gameObject.SetActive(paperManual);
+        }
+    }
+
+    public void PlayBilingualLine(string speaker, string english, string chinese, bool manualContinue = false)
     {
         CancelPlayback();
         m_playbackCts = new CancellationTokenSource();
         int generation = ++m_playbackGeneration;
-        var entry = new DialogueLibrarySO.DialogueEntry { speaker = speaker, content = english, chineseContent = chinese };
+        var entry = new DialogueLibrarySO.DialogueEntry
+        {
+            speaker = speaker,
+            content = english,
+            chineseContent = chinese,
+            manualContinue = manualContinue,
+        };
         _ = PlaySegmentAsync(new List<DialogueLibrarySO.DialogueEntry> { entry }, false, 0, m_playbackCts.Token, generation);
     }
 
     // Keep the default overlay for teammate scenes; the forest uses its existing capture camera.
-    public void SetRenderCamera(Camera camera, int sortingOrder = 1100)
+    // 默认 31000：对白要压过卷轴纸(29500)与 HUD(30000)；需要更低层级的调用方自行传参覆盖
+    public void SetRenderCamera(Camera camera, int sortingOrder = 31000)
     {
         EnsureUi();
         m_canvas.renderMode = RenderMode.ScreenSpaceCamera;
@@ -406,8 +444,18 @@ public partial class DialogueDisplay : MonoBehaviour
                     return;
                 }
 
-                // 句间停顿
-                if (m_delayBetweenLinesInSeconds > 0f)
+                // 手动行：打完字停住，亮「回车 继续」提示，等玩家按键再进下一句；
+                // 自动行：按句间停顿走
+                if (entry.manualContinue)
+                {
+                    await WaitForAdvanceInputAsync(token);
+
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                }
+                else if (m_delayBetweenLinesInSeconds > 0f)
                 {
                     await Awaitable.WaitForSecondsAsync(m_delayBetweenLinesInSeconds, token);
                 }
@@ -708,7 +756,7 @@ public partial class DialogueDisplay : MonoBehaviour
             GameObject canvasObject = new GameObject("DialogueCanvas");
             m_canvas = canvasObject.AddComponent<Canvas>();
             m_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            m_canvas.sortingOrder = 1000;
+            m_canvas.sortingOrder = 31000;
 
             canvasObject.AddComponent<GraphicRaycaster>();
         }

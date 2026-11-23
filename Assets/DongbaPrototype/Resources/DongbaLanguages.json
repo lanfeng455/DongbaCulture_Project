@@ -6,6 +6,16 @@
       "zh": "父亲"
     },
     {
+      "id": "speaker.boar",
+      "en": "Boar",
+      "zh": "野猪"
+    },
+    {
+      "id": "speaker.bear",
+      "en": "Bear",
+      "zh": "熊"
+    },
+    {
       "id": "speaker.gaolequ",
       "en": "Gaolequ",
       "zh": "高勒趣",

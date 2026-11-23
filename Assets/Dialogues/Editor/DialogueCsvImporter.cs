@@ -22,13 +22,17 @@ public static class DialogueCsvImporter
     private const string k_headerIndex = "Index";
     private const string k_headerSpeaker = "Speaker";
     private const string k_headerContent = "Content";
+    private const string k_headerChinese = "Chinese";
     private const string k_headerNote = "Note";
+    private const string k_headerManual = "Manual";
 
     // 允许中文表头，方便把模板交给不熟悉英文列名的人填写
     private static readonly string[] k_indexAliases = { "Index", "序号", "编号" };
     private static readonly string[] k_speakerAliases = { "Speaker", "说话人", "角色" };
     private static readonly string[] k_contentAliases = { "Content", "内容", "台词", "文本" };
+    private static readonly string[] k_chineseAliases = { "Chinese", "中文", "中文内容", "ChineseContent" };
     private static readonly string[] k_noteAliases = { "Note", "备注", "说明" };
+    private static readonly string[] k_manualAliases = { "Manual", "手动", "等待输入", "WaitInput" };
 
     // ------------------------------------------------------------------
     // 主入口：选中 CSV → 一键同步
@@ -174,8 +178,8 @@ public static class DialogueCsvImporter
         return library;
     }
 
-    // 读取并解析 CSV；失败返回 null
-    private static List<DialogueLibrarySO.DialogueEntry> ReadEntries(string csvAssetPath)
+    // 读取并解析 CSV；失败返回 null。公开给对话图编辑器的「导入 CSV」复用
+    public static List<DialogueLibrarySO.DialogueEntry> ReadEntries(string csvAssetPath)
     {
         string absolutePath = ToAbsolutePath(csvAssetPath);
         if (string.IsNullOrEmpty(absolutePath) || !File.Exists(absolutePath))
@@ -213,7 +217,9 @@ public static class DialogueCsvImporter
         }
 
         int speakerCol = FindColumn(header, k_speakerAliases);
+        int chineseCol = FindColumn(header, k_chineseAliases);
         int noteCol = FindColumn(header, k_noteAliases);
+        int manualCol = FindColumn(header, k_manualAliases);
 
         List<DialogueLibrarySO.DialogueEntry> entries = new List<DialogueLibrarySO.DialogueEntry>();
         for (int i = 1; i < rows.Count; i++)
@@ -221,7 +227,9 @@ public static class DialogueCsvImporter
             List<string> row = rows[i];
             string speaker = speakerCol >= 0 ? GetCell(row, speakerCol) : string.Empty;
             string content = GetCell(row, contentCol);
+            string chinese = chineseCol >= 0 ? GetCell(row, chineseCol) : string.Empty;
             string note = noteCol >= 0 ? GetCell(row, noteCol) : string.Empty;
+            bool manualContinue = manualCol >= 0 && ParseBool(GetCell(row, manualCol));
 
             // 说话人和内容都空的行视为空行，跳过
             if (string.IsNullOrEmpty(speaker) && string.IsNullOrEmpty(content))
@@ -233,7 +241,9 @@ public static class DialogueCsvImporter
             {
                 speaker = speaker,
                 content = content,
+                chineseContent = chinese,
                 note = note,
+                manualContinue = manualContinue,
             });
         }
 
@@ -277,7 +287,7 @@ public static class DialogueCsvImporter
 
     private static void WriteCsv(DialogueLibrarySO library, string csvAssetPath)
     {
-        List<string> header = new List<string> { k_headerIndex, k_headerSpeaker, k_headerContent, k_headerNote };
+        List<string> header = new List<string> { k_headerIndex, k_headerSpeaker, k_headerContent, k_headerChinese, k_headerNote, k_headerManual };
         List<IReadOnlyList<string>> rows = new List<IReadOnlyList<string>>();
 
         for (int i = 0; i < library.Count; i++)
@@ -288,7 +298,9 @@ public static class DialogueCsvImporter
                 i.ToString(),
                 entry.speaker ?? string.Empty,
                 entry.content ?? string.Empty,
+                entry.chineseContent ?? string.Empty,
                 entry.note ?? string.Empty,
+                entry.manualContinue ? "1" : "0",
             });
         }
 
@@ -344,6 +356,16 @@ public static class DialogueCsvImporter
             return string.Empty;
         }
         return row[column]?.Trim() ?? string.Empty;
+    }
+
+    // Manual 列的布尔解析：Excel 里常见的各种写法都认，其余一律视为未勾选
+    private static bool ParseBool(string cell)
+    {
+        return cell == "1" || cell == "0x1" ||
+               string.Equals(cell, "true", System.StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(cell, "yes", System.StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(cell, "y", System.StringComparison.OrdinalIgnoreCase) ||
+               cell == "是" || cell == "真";
     }
 
     // Assets/Dialogues/x.csv → 绝对路径

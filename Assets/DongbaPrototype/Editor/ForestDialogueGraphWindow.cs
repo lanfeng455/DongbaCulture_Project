@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -19,12 +20,13 @@ namespace DongbaPrototype {
         string connecting;bool falsePort,dragging,panning;int dragGroup;
         ForestDialogueRunner preview;bool previewChinese=true,previewVersion=true;
         string message="",previewEvent="";double lastTick;
+        string importPath;List<DialogueLibrarySO.DialogueEntry> importRows;int importFrom,importTo;
         GUIStyle titleStyle,bodyStyle,smallStyle;
         internal Vector2 GuiOffset {get;private set;}
         readonly string[] kinds={"入口","对话","等待","事件","条件","结束"};
-        readonly string[] entries={"西岸发现丢刀","东岸与署对峙"};
+        readonly string[] entries={"西岸发现丢刀","东岸与署对峙","路过野猪（Beat_4）","金粮交付（Beat_4）","收下金粮（Beat_4）"};
         readonly string[] cues={"无额外动作","发现刀不见了","父亲愣住","父亲准备出发"};
-        readonly string[] actions={"父亲返回东岸找刀","署抓走父亲"};
+        readonly string[] actions={"父亲返回东岸找刀","署抓走父亲","把金粮推给玩家"};
         [MenuItem("Dongba/Dialogue Graph/打开剧情节点编辑器")]
         public static void Open() {
             var w=GetWindow<ForestDialogueGraphWindow>();w.titleContent=new GUIContent("东巴剧情节点");
@@ -56,6 +58,7 @@ namespace DongbaPrototype {
             GUILayout.BeginArea(new Rect(position.width-sidebar+8,52,sidebar-16,position.height-58));
             detailScroll=EditorGUILayout.BeginScrollView(detailScroll);
             DrawDetails();GUILayout.Space(15);DrawPreview();
+            if(importRows!=null){GUILayout.Space(15);DrawImport();}
             EditorGUILayout.EndScrollView();GUILayout.EndArea();
             if(!string.IsNullOrEmpty(message))GUI.Label(new Rect(12,position.height-35,canvas.width-24,32),message,smallStyle);
         }
@@ -70,6 +73,8 @@ namespace DongbaPrototype {
                 if(GUILayout.Button("查看全图",EditorStyles.toolbarButton,GUILayout.Width(72)))FrameAll();
                 if(GUILayout.Button("丢刀段",EditorStyles.toolbarButton,GUILayout.Width(55)))FrameEntry(ForestDialogueGraph.Entry.MissingKnife);
                 if(GUILayout.Button("对峙段",EditorStyles.toolbarButton,GUILayout.Width(55)))FrameEntry(ForestDialogueGraph.Entry.ShuConfrontation);
+                if(GUILayout.Button("野猪段",EditorStyles.toolbarButton,GUILayout.Width(55)))FrameEntry(ForestDialogueGraph.Entry.BoarPass);
+                if(GUILayout.Button("金粮段",EditorStyles.toolbarButton,GUILayout.Width(55)))FrameEntry(ForestDialogueGraph.Entry.GrainGiveaway);
                 GUILayout.FlexibleSpace();
                 if(graph!=null)GUILayout.Label(EditorUtility.IsDirty(graph)?"● 尚未保存":"已保存",EditorStyles.miniLabel);
                 GUILayout.Label(Mathf.RoundToInt(zoom*100)+"%",GUILayout.Width(40));
@@ -80,6 +85,7 @@ namespace DongbaPrototype {
                     foreach(var kind in new[]{ForestDialogueGraph.Kind.Dialogue,ForestDialogueGraph.Kind.Wait,ForestDialogueGraph.Kind.Event,ForestDialogueGraph.Kind.Branch,ForestDialogueGraph.Kind.End}){
                         if(GUILayout.Button(kinds[(int)kind],EditorStyles.toolbarButton,GUILayout.Width(48)))AddNode(kind,new Vector2(100-pan.x,120-pan.y)/zoom);
                     }
+                    if(GUILayout.Button("导入 CSV…",EditorStyles.toolbarButton,GUILayout.Width(80)))PickImportCsv();
                 }
                 GUILayout.FlexibleSpace();GUILayout.Label("拖节点 · 空白拖动画布 · 滚轮缩放 · 点出口再点入口连线",EditorStyles.miniLabel);
             }
@@ -197,6 +203,79 @@ namespace DongbaPrototype {
                 if(GUILayout.Button("实机测试：发现丢刀 → 过河 → 对峙"))PlayInGame(0);
                 if(GUILayout.Button("实机测试：直接从署的质问开始"))PlayInGame(1);
             }
+        }
+        // ---- CSV 导入（通用：任意 CSV 的行区间 → 当前图的对话节点链）----
+        void PickImportCsv() {
+            if(graph==null)return;
+            var absolute=EditorUtility.OpenFilePanel("选择对话 CSV","Assets/Dialogues","csv");
+            if(string.IsNullOrEmpty(absolute))return;
+            var assetPath=ToAssetPath(absolute);
+            if(assetPath==null){EditorUtility.DisplayDialog("不在工程内","请选择 Assets 目录下的 CSV 文件。","OK");return;}
+            var rows=DialogueCsvImporter.ReadEntries(assetPath);
+            if(rows==null||rows.Count==0){EditorUtility.DisplayDialog("没有可导入的行","CSV 里没有有效台词行（需要 Speaker 或 Content 非空）。","OK");return;}
+            importPath=assetPath;importRows=rows;importFrom=0;importTo=rows.Count-1;Repaint();
+        }
+        static string ToAssetPath(string absolute) {
+            string root=Directory.GetParent(Application.dataPath).FullName.Replace('\\','/');
+            absolute=absolute.Replace('\\','/');
+            return absolute.StartsWith(root+"/")?absolute.Substring(root.Length+1):null;
+        }
+        void DrawImport() {
+            if(graph==null){importRows=null;return;}
+            GUILayout.Label("导入 CSV → 对话节点",EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("文件",importPath,EditorStyles.miniLabel);
+            var anchor=graph.Find(selected);
+            if(anchor!=null&&anchor.kind==ForestDialogueGraph.Kind.End)anchor=null;
+            EditorGUILayout.HelpBox(anchor!=null&&anchor.kind==ForestDialogueGraph.Kind.Start
+                ?"选中了入口节点：导入会替换它后面连续的对话节点（遇到等待/事件/条件/结束停下，其后全部保留）。"
+                :anchor!=null?"选中了普通节点：新对话链插入到它后面，原来的后续节点接在新链末尾。"
+                :"未选中节点：生成一条未连线的新链，稍后在画布上手动接。",MessageType.None);
+            importFrom=Mathf.Clamp(EditorGUILayout.IntField("起始行",importFrom),0,importRows.Count-1);
+            importTo=Mathf.Clamp(EditorGUILayout.IntField("结束行",importTo),0,importRows.Count-1);
+            if(importTo<importFrom)importTo=importFrom;
+            var previewText=new System.Text.StringBuilder();int skipped=0;
+            for(int i=importFrom;i<=importTo&&previewText.Length<700;i++) {
+                var r=importRows[i];
+                if((r.content??"").StartsWith("@")){skipped++;continue;}
+                previewText.AppendLine(i+"  "+(string.IsNullOrEmpty(r.speaker)?"旁白":r.speaker)+"："+(string.IsNullOrEmpty(r.chineseContent)?r.content:r.chineseContent));
+            }
+            EditorGUILayout.HelpBox(previewText.ToString()+(skipped>0?"（"+skipped+" 行 @ 指令将跳过：图内不支持）":""),MessageType.None);
+            using(new EditorGUILayout.HorizontalScope()) {
+                if(GUILayout.Button("导入所选区间"))ExecuteImport();
+                if(GUILayout.Button("取消",GUILayout.Width(55))){importRows=null;Repaint();}
+            }
+        }
+        void ExecuteImport() {
+            var anchor=graph.Find(selected);
+            if(anchor!=null&&anchor.kind==ForestDialogueGraph.Kind.End)anchor=null;   // 结束节点没有出口，按未选中处理
+            var created=new List<DuNode>();
+            for(int i=importFrom;i<=importTo;i++) {
+                var r=importRows[i];
+                if((r.content??"").StartsWith("@"))continue;
+                created.Add(new DuNode{id=Guid.NewGuid().ToString("N"),kind=ForestDialogueGraph.Kind.Dialogue,
+                    title=(string.IsNullOrEmpty(r.speaker)?"旁白":r.speaker)+" "+i,speaker=r.speaker??"",
+                    zh=string.IsNullOrEmpty(r.chineseContent)?r.content:r.chineseContent,en=r.content??"",note=r.note??"",seconds=1});
+            }
+            if(created.Count==0){message="所选区间没有可导入的台词行。";importRows=null;Repaint();return;}
+            string terminal=null;
+            Edit("导入对话 CSV",()=>{
+                // 替换模式：吃掉入口后面连续的对话节点，第一个非对话节点成为新链终点。
+                // 若有其他连线绕进这段链（罕见），校验会指出悬空出口
+                if(anchor!=null&&anchor.kind==ForestDialogueGraph.Kind.Start) {
+                    var walk=graph.Find(anchor.next);terminal=anchor.next;
+                    while(walk!=null&&walk.kind==ForestDialogueGraph.Kind.Dialogue){terminal=walk.next;graph.nodes.Remove(walk);walk=graph.Find(terminal);}
+                } else if(anchor!=null) terminal=anchor.next;
+                var at=anchor!=null?anchor.position+new Vector2(260,0):new Vector2(60,60);
+                for(int i=0;i<created.Count;i++) {
+                    var n=created[i];n.position=at+new Vector2(260*i,0);graph.nodes.Add(n);
+                    if(i>0)created[i-1].next=n.id;
+                }
+                if(anchor!=null)anchor.next=created[0].id;
+                created[created.Count-1].next=terminal??"";
+                selected=created[0].id;
+            });
+            message="已导入 "+created.Count+" 个对话节点"+(anchor==null?"（未连线，请手动接上）":"")+"，Ctrl+S 保存后可校验。";
+            importRows=null;Repaint();
         }
         void StartRehearsal(){if(!ValidateGraph())return;var start=graph.Find(selected)??graph.StartFor(ForestDialogueGraph.Entry.MissingKnife);if(start==null)return;
             previewEvent="";preview=new ForestDialogueRunner(graph,()=>previewVersion,n=>{if(n.kind==ForestDialogueGraph.Kind.Event)previewEvent=actions[(int)n.action];});preview.Start(start.id);lastTick=EditorApplication.timeSinceStartup;}

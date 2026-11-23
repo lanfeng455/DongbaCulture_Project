@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c3c456686982df45abd9b1cebe9549e, type: 3}
+  m_Name: Level 2
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueLibrarySO
+  m_entries:
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u9ED1\u718A\u548C\u767D\u91CE\u732A\uFF0C\u4F60\u4EEC\u4E3A\u4F55\u800C\u4E89\u6597\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9ED1\u718A"
+    content: 
+    chineseContent: "\u4EBA\u7C7B\uFF0C\u4F60\u957F\u7740\u4E24\u53EA\u773C\u775B\uFF0C\u9876\u7740\u8FD9\u4E48\u5927\u7684\u8111\u888B\uFF0C\u5374\u8FDE\u773C\u524D\u7684\u5371\u673A\u90FD\u770B\u4E0D\u5230\u5417\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u5317\u98CE\u547C\u5578\uFF0C\u6211\u7684\u65CF\u7FA4\u9700\u8981\u98DF\u7269\u8FC7\u51AC\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9ED1\u718A"
+    content: 
+    chineseContent: "\u77A7\u77A7\u8FD9\u6811\u4E0A\u7684\u6A61\u5B9E\u554A\u3002\u8981\u662F\u80FD\u8BA9\u6211\u7684\u5B69\u5B50\u6765\u4E0A\u4E00\u9897\uFF0C\u5B83\u8BE5\u6709\u591A\u9AD8\u5174\u554A\uFF01"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u9ED1\u718A\u3002\u4F60\u7684\u5B69\u5B50\u9700\u8981\u98DF\u7269\uFF0C\u6211\u7684\u5B69\u5B50\u96BE\u9053\u4E0D\u9700\u8981\u5417\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u8FD9\u91CC\u7684\u6811\u8FD9\u4E48\u591A\uFF0C\u4EB2\u7231\u7684\u718A\u548C\u91CE\u732A\uFF0C\u4F60\u4EEC\u4F55\u5FC5\u4E3A\u4E86\u5176\u4E2D\u7684\u4E00\u68F5\u4E89\u62A2\u5462\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u8FD9\u91CC\u7684\u6811\u662F\u5F88\u591A\uFF0C\u4F46\u80FD\u591F\u7ED3\u679C\u7684\uFF0C\u53EF\u53EA\u6709\u8FD9\u4E00\u68F5\u554A\uFF01"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9ED1\u718A"
+    content: 
+    chineseContent: "\u8981\u662F\u80FD\u5148\u7528\u5B83\u679C\u8179\uFF0C\u6211\u4EEC\u5C31\u80FD\u53BB\u66F4\u8FDC\u7684\u5730\u65B9\u627E\u98DF\u7269\u4E86\u5427\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\uFF08\u6709\u6CA1\u6709\u529E\u6CD5\u8BA9\u5927\u5BB6\u90FD\u80FD\u5206\u5230\u4E00\u90E8\u5206\u6A61\u5B9E\u5462\uFF1F\uFF09"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\uFF08\u8FD9\u91CC\u8BF4\u4E0D\u5B9A\u80FD\u6709\u628A\u6A61\u5B9E\u5F04\u4E0B\u6765\u7684\u5DE5\u5177\u3002\uFF09"
+    note: 
+    manualContinue: 0
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\uFF08\u7528\u65A7\u5934\u628A\u5927\u6A61\u5B9E\u5288\u6210\u4E24\u534A\u4E86\u3002\uFF09"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u8FD9\u70B9\u98DF\u7269\u53EF\u591F\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9ED1\u718A"
+    content: 
+    chineseContent: "\u8DB3\u591F\u57AB\u57AB\u809A\u5B50\u4E86\uFF0C\u53EF\u592A\u8C22\u8C22\u4F60\u4E86\uFF01"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u8FD9\u70B9\u98DF\u7269\u53EF\u591F\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u554A\uFF0C\u5F53\u7136\uFF01\u4F60\u53EF\u771F\u662F\u4E2A\u597D\u5FC3\u4EBA\uFF01"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u8BF7\u7559\u6B65\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u6709\u4EC0\u4E48\u4E8B\u60C5\u5462\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u9AD8\u52D2\u8DA3\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u9AD8\u52D2\u8DA3\u2026\u2026"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u6211\u6B63\u5728\u5BFB\u627E\u6211\u7684\u7236\u4EB2\u4FC4\u9AD8\u52D2\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u6211\u9047\u5230\u4E86\u2026\u2026\u4E00\u53EA\u72D0\u72F8\uFF0C\u5B83\u544A\u8BC9\u6211\uFF0C\u6211\u7684\u7236\u4EB2\u88AB\u7F72\u795E\u6293\u8D70\u4E86\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u60A8\u80FD\u544A\u8BC9\u6211\u60A8\u77E5\u9053\u7684\u4E8B\u60C5\u5417\uFF1F\u8981\u600E\u4E48\u505A\u624D\u80FD\u8BA9\u6211\u7684\u7236\u4EB2\u56DE\u6765\uFF1F"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u7F72\u795E\u2026\u2026\u6211\u5DF2\u7ECF\u5F88\u591A\u5E74\u6CA1\u6709\u53BB\u548C\u4ED6\u89C1\u9762\u4E86\uFF0C\u62B1\u6B49\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u8FD9\u4EFD\u3010\u91D1\u7CAE\u3011\u7ED9\u4F60\u3002\u8FD9\u662F\u4E4B\u524D\u7F72\u795E\u9001\u7ED9\u6211\u4EEC\u7684\u3002\u5B83\u4E0D\u80FD\u5403\uFF0C\u662F\u5F88\u795E\u5723\u7684\u4E1C\u897F\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u5F53\u4F60\u89C1\u5230\u7F72\u795E\u7684\u65F6\u5019\uFF0C\u5C31\u628A\u3010\u91D1\u7CAE\u3011\u7ED9\u4ED6\u770B\u3002\u8BF4\u4E0D\u5B9A\uFF0C\u4ED6\u80FD\u591F\u56DE\u5FC3\u8F6C\u610F\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u9AD8\u52D2\u8DA3"
+    content: 
+    chineseContent: "\u592A\u8C22\u8C22\u60A8\u4E86\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u4F60\u5E2E\u52A9\u6211\u4EEC\u62FF\u5230\u98DF\u7269\uFF0C\u6211\u4EEC\u624D\u5E94\u8BE5\u9053\u8C22\u624D\u5BF9\u3002"
+    note: 
+    manualContinue: 1
+  - speaker: "\u767D\u91CE\u732A"
+    content: 
+    chineseContent: "\u7EE7\u7EED\u524D\u8FDB\u5427\uFF0C\u795D\u4F60\u4E00\u8DEF\u987A\u98CE\uFF01"
+    note: 
+    manualContinue: 1
+  m_linkedCsvPath: Assets/Dialogues/Level 2.csv

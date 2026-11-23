@@ -96,11 +96,11 @@ MonoBehaviour:
       is shady.
     note: 
   - speaker: Gao
-    content: And all white things go up, all black things go down, that's the rule.
+    content: And all WHITE things go up, all BLACK things go down, that's the rule.
     note: 
   - speaker: Gao
-    content: "The snakes are twisting with each other, I can't pass through this
-      way\u2026"
+    content: "The <color=#FFDC88>snakes</color> are twisting with each other, I can't
+      pass through this way\u2026"
     note: 
   - speaker: Gao
     content: "Hey, could you please\u2026"
@@ -112,7 +112,7 @@ MonoBehaviour:
     content: Aha, thanks.
     note: 
   - speaker: Gao
-    content: "Well\u2026the stones seem to be the next trouble."
+    content: "Well\u2026the <color=#FFDC88>stones</color> seem to be the next trouble."
     note: 
   - speaker: Gao
     content: "@\u7B49\u5F851\u79D2"
@@ -124,8 +124,8 @@ MonoBehaviour:
     content: "Hiss\u2026hiss\u2026"
     note: 
   - speaker: Gao
-    content: If I go to resolve the dispute between these two snakes first, will
-      I also find another way?
+    content: If I go to <color=#6AADFF>resolve the dispute</color> between these
+      two snakes first, will I also find another way?
     note: 
   - speaker: Gao
     content: "Maybe\u2026the fox is right."

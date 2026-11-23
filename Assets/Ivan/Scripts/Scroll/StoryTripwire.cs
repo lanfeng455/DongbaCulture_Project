@@ -55,6 +55,9 @@ namespace Ivan.Scroll
             if (m_hasFired) return;
             m_hasFired = true;
 
+            // 剧情跳过：绊线照常 "触发过"（标记 fired，防止重玩重复触发），但不播对话
+            if (Beat2DebugSkip.IsSkipping) return;
+
             var display = DialogueDisplay.Instance;
             if (display == null)
             {

@@ -91,6 +91,11 @@ namespace Ivan.Diorama
         private bool m_useAutoMoveInput;                // 演出导演接管输入时为 true
         private Vector2 m_autoMoveInput;                // 演出导演注入的移动输入（x=右, y=前）
 
+        // 外部撞退：短时接管位移，让"被撞开"是连续滑出去，而不是瞬移
+        private Vector3 m_knockVelocity;
+        private float m_knockRemaining;
+        private float m_knockDuration;
+
         // 演出系统（ScrollPlayDirector）注入自动移动：激活期间替代键盘输入。
         // 传 Vector2.zero 表示原地停住（仍处于接管状态）
         public void SetAutoMoveInput(Vector2 input)
@@ -104,6 +109,21 @@ namespace Ivan.Diorama
         {
             m_useAutoMoveInput = false;
             m_autoMoveInput = Vector2.zero;
+        }
+
+        // 外部撞退：给定初速度与持续时间，FixedUpdate 内按线性衰减驱动刚体。
+        // 不直接写 position，玩家会被"推着滑出去"，能看出是被撞开的
+        public void ApplyKnockback(Vector3 velocity, float duration)
+        {
+            m_knockVelocity = velocity;
+            m_knockDuration = Mathf.Max(0.05f, duration);
+            m_knockRemaining = m_knockDuration;
+        }
+
+        public void ClearKnockback()
+        {
+            m_knockRemaining = 0f;
+            m_knockVelocity = Vector3.zero;
         }
 
         // 演出指令（@向左看/@向右看）锁定玩家朝向：
@@ -360,6 +380,14 @@ namespace Ivan.Diorama
             if (m_rigidbody == null) return;
 
             Vector3 velocity = m_moveInput * m_moveSpeed;
+
+            // 撞退期间由外部速度接管：线性衰减到 0，位移连续可读
+            if (m_knockRemaining > 0f)
+            {
+                m_knockRemaining -= Time.fixedDeltaTime;
+                float weight = Mathf.Clamp01(m_knockRemaining / m_knockDuration);
+                velocity = m_knockVelocity * weight;
+            }
 
             // 可行走区域/矩形边界属于逻辑限制，物理引擎不知道，这里做第二道闸：
             // 下一步越界则尝试拆轴滑动（贴边不卡住），两轴都不行才停住
