@@ -3,7 +3,7 @@
 
 从火塘开场、狩猎、丢刀与抓捕、三天三夜、东行卷轴，到狐狸与两蛇解谜，再到最终返乡恢复自然。
 正文按剧情顺序排，条件分支都保留。括号是阅读备注，不是游戏字幕。以下台词与本轮修改后的游戏文本一致。
-主线及结尾分支共 52 条；另附保留但未接入当前流程的 9 条。不是每条都会在一次游玩中出现。
+主线及结尾分支共 49 条；另附保留但未接入当前流程的 12 条。不是每条都会在一次游玩中出现。
 可以直接修改这份文本后交回同步。修改这个 txt 不会自动修改游戏；森林代码、剧情节点和解谜 CSV 目前仍是三个不同的实际来源。
 
 1. 火塘旁，准备出发
@@ -187,7 +187,7 @@ EN: Hiss…hiss…
 中：啊，谢谢。
 EN: Aha, thanks.
 
-13. 走到巨石前，发现还需要隔开两蛇的视线
+13. 走到巨石前，留意两蛇的目光
 
 38　高勒趣
 中：这些巨石……还是把路堵住了。
@@ -198,33 +198,21 @@ EN: The path is still blocked by these boulders.
 EN: Hiss…hiss…
 
 40　高勒趣
-中：可他们俩还是紧盯着彼此，怎么也推不动。
-EN: But those two are still staring at each other. They will not budge.
-
-41　高勒趣
-中：要是有什么东西能隔在中间，让他们看不见彼此就好了……
-EN: If only something could stand between them, so they could no longer see each other...
-
-42　高勒趣
-中：那些红色的石头……或许能推过去试试。
-EN: Those red stones... perhaps I could push one between them.
-
-43　高勒趣
-中：然后是他们各自的洞。父亲说过：白的在高处，黑的在低处。
-EN: Then their caves. Father said: white above, black below.
+中：他们分开了，目光却还缠在一起……
+EN: They are apart now, but their eyes are still locked.
 
 14. 洞口的线索
 （靠近相应洞口才触发；两句顺序取决于玩家路线。）
 
-44　高勒趣
-（高处的洞，接收白蛇。）
-中：这个洞向阳，在高处。白蛇应该归到这里。
-EN: This sunny cave is higher up. A place for the white snake.
+41　高勒趣
+（向阳、较高的洞。）
+中：这里向阳，比山路高些。
+EN: Sunlight reaches this hollow, above the path.
 
-45　高勒趣
-（低处的洞，接收黑蛇。）
-中：这个洞背阴，在低处。黑蛇应该归到这里。
-EN: This shaded cave is lower down. A place for the black snake.
+42　高勒趣
+（背阴、较低的洞。）
+中：这里背阴，地势也低。
+EN: This hollow lies lower, in the shade.
 
 15. 解谜完成，返回卷轴
 （当前没有新增通关对白。两蛇关卡完成后回到卷轴；后续营救关卡、救出父亲及父亲遇难的独立过程，目前没有已接入的完整台词。）
@@ -232,27 +220,27 @@ EN: This shaded cave is lower down. A place for the black snake.
 16. 最终返乡，面对被破坏的森林
 （下面是项目里已经实现的结尾段台词。它等待最终营救结束后调用；当前两蛇关卡通关不会直接触发这一段。）
 
-46　旁白
+43　旁白
 （返乡旁白。）
 中：父亲终究没能活着回来。高勒趣独自回到了这片树林。
 EN: His father never made it home alive. Gaolequ returned to the forest alone.
 
-47　高勒趣
+44　高勒趣
 （有被砍倒的树桩时使用，与下面“没有树桩”分支二选一。）
 中：那时候，总觉得林子里的东西取不完。
 EN: Back then, I thought the forest would never run out.
 
-48　高勒趣
+45　高勒趣
 （有被砍倒的树桩时使用，与下面“没有树桩”分支二选一。）
 中：先让这里再长出树来吧。
 EN: I'll start by bringing the trees back.
 
-49　高勒趣
+46　高勒趣
 （没有树桩时替换上面两句人物台词；返乡旁白不变。）
 中：这里怎么这么安静……
 EN: It's so quiet here.
 
-50　高勒趣
+47　高勒趣
 （没有树桩时替换上面两句人物台词；返乡旁白不变。）
 中：我会好好照料这片树林。
 EN: I'll care for this forest.
@@ -260,21 +248,36 @@ EN: I'll care for this forest.
 17. 恢复自然后的收尾
 （两句按当前镜头情况二选一，不会连续说。）
 
-51　高勒趣
+48　高勒趣
 （附近有动物，且动物确实出现在镜头中。）
 中：你们回来了。
 EN: You're back.
 
-52　高勒趣
+49　高勒趣
 （镜头中暂时没有返回的动物。）
 中：明天，我再来看看。
 EN: I'll come back tomorrow.
 
 附录 A. 两蛇台词库中保留、当前没有触发的句子
 
-53　高勒趣
+50　高勒趣
 中：也许……狐狸说得对。
 EN: Maybe…the fox is right.
+
+51　高勒趣
+（已停用的旧步骤提示；保留索引，当前关卡不播放。）
+中：要是有什么东西能隔在中间，让他们看不见彼此就好了……
+EN: If only something could stand between them, so they could no longer see each other...
+
+52　高勒趣
+（已停用的旧步骤提示；保留索引，当前关卡不播放。）
+中：那些红色的石头……或许能推过去试试。
+EN: Those red stones... perhaps I could push one between them.
+
+53　高勒趣
+（已停用的旧步骤提示；保留索引，当前关卡不播放。）
+中：然后是他们各自的洞。父亲说过：白的在高处，黑的在低处。
+EN: Then their caves. Father said: white above, black below.
 
 附录 B. 旧环境／神位实验场景保留的台词
 （这 8 句保存在 IntroDialogue，并用于 Environment／Template 场景；这两个场景不在当前 Windows 构建的启用场景列表里。一起列出，避免漏掉项目中现有的台词，但它们不接在上述主线后面。）

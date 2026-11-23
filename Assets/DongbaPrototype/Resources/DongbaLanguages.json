@@ -701,8 +701,8 @@
     },
     {
       "id": "puzzle.level0.35",
-      "en": "But those two are still staring at each other. They will not budge.",
-      "zh": "可他们俩还是紧盯着彼此，怎么也推不动。",
+      "en": "They are apart now, but their eyes are still locked.",
+      "zh": "他们分开了，目光却还缠在一起……",
       "aliases": [
         "If I go to resolve the dispute between these two snakes first, will I also find another way?"
       ]
@@ -714,16 +714,16 @@
     },
     {
       "id": "puzzle.level0.37",
-      "en": "This sunny cave is higher up. A place for the white snake.",
-      "zh": "这个洞向阳，在高处。白蛇应该归到这里。",
+      "en": "Sunlight reaches this hollow, above the path.",
+      "zh": "这里向阳，比山路高些。",
       "aliases": [
         "This is the southern cave."
       ]
     },
     {
       "id": "puzzle.level0.38",
-      "en": "This shaded cave is lower down. A place for the black snake.",
-      "zh": "这个洞背阴，在低处。黑蛇应该归到这里。",
+      "en": "This hollow lies lower, in the shade.",
+      "zh": "这里背阴，地势也低。",
       "aliases": [
         "This is the northern cave."
       ]

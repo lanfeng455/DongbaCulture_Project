@@ -71,6 +71,7 @@ for source,rows in [(puzzle_source,puzzle),(intro_source,intro)]:
         assert row['Index']==str(index)
         assert row['Content']==asset['content'] and row['Speaker']==asset['speaker'],(source,index)
         assert row.get('ChineseContent','')==asset.get('chineseContent',''),(source,index,'Chinese')
+        assert row.get('Note','')==asset.get('note',''),(source,index,'Note')
 
 sections=[]
 records=[]
@@ -134,10 +135,10 @@ section('11. 山间前行，记起父亲的话')
 for i in [25,26,39]:puzzle_line(i)
 section('12. 路被两蛇拦住','两蛇发出嘶声后分开，高勒趣再道谢。')
 for i in [27,28,29,30]:puzzle_line(i)
-section('13. 走到巨石前，发现还需要隔开两蛇的视线')
-for i in [31,34,35,40,41,42]:puzzle_line(i)
+section('13. 走到巨石前，留意两蛇的目光')
+for i in [31,34,35]:puzzle_line(i)
 section('14. 洞口的线索','靠近相应洞口才触发；两句顺序取决于玩家路线。')
-puzzle_line(37,'高处的洞，接收白蛇。');puzzle_line(38,'低处的洞，接收黑蛇。')
+puzzle_line(37,'向阳、较高的洞。');puzzle_line(38,'背阴、较低的洞。')
 section('15. 解谜完成，返回卷轴','当前没有新增通关对白。两蛇关卡完成后回到卷轴；后续营救关卡、救出父亲及父亲遇难的独立过程，目前没有已接入的完整台词。')
 section('16. 最终返乡，面对被破坏的森林','下面是项目里已经实现的结尾段台词。它等待最终营救结束后调用；当前两蛇关卡通关不会直接触发这一段。')
 for index,line in enumerate(array('RestorationArrivalLines')):
@@ -159,6 +160,7 @@ main_count=len(records)
 
 section('附录 A. 两蛇台词库中保留、当前没有触发的句子')
 puzzle_line(36,status='unused')
+for i in [40,41,42]:puzzle_line(i,puzzle[i]['Note'],status='unused')
 section('附录 B. 旧环境／神位实验场景保留的台词','这 8 句保存在 IntroDialogue，并用于 Environment／Template 场景；这两个场景不在当前 Windows 构建的启用场景列表里。一起列出，避免漏掉项目中现有的台词，但它们不接在上述主线后面。')
 for i,row in enumerate(intro):
     en,zh=translated(row['Content'])

@@ -91,8 +91,25 @@ The path is still blocked by these boulders.
 嘶……嘶……
 Hiss…hiss…
 [35] 高勒趣
-可他们俩还是紧盯着彼此，怎么也推不动。
-But those two are still staring at each other. They will not budge.
+他们分开了，目光却还缠在一起……
+They are apart now, but their eyes are still locked.
+
+靠近高处的洞
+[37] 高勒趣
+这里向阳，比山路高些。
+Sunlight reaches this hollow, above the path.
+
+靠近低处的洞
+[38] 高勒趣
+这里背阴，地势也低。
+This hollow lies lower, in the shade.
+
+保留但当前没有触发的旧句
+[36] 高勒趣
+也许……狐狸说得对。
+Maybe…the fox is right.
+
+已停用的旧步骤提示（保留索引，当前关卡不播放）
 [40] 高勒趣
 要是有什么东西能隔在中间，让他们看不见彼此就好了……
 If only something could stand between them, so they could no longer see each other...
@@ -103,25 +120,4 @@ Those red stones... perhaps I could push one between them.
 然后是他们各自的洞。父亲说过：白的在高处，黑的在低处。
 Then their caves. Father said: white above, black below.
 
-靠近高处的洞
-[37] 高勒趣
-这个洞向阳，在高处。白蛇应该归到这里。
-This sunny cave is higher up. A place for the white snake.
-
-靠近低处的洞
-[38] 高勒趣
-这个洞背阴，在低处。黑蛇应该归到这里。
-This shaded cave is lower down. A place for the black snake.
-
-保留但当前没有触发的旧句
-[36] 高勒趣
-也许……狐狸说得对。
-Maybe…the fox is right.
-
-屏幕提示（不是剧情字幕）
-靠近两蛇，看看是什么拦住了山路。
-他们仍盯着彼此，无法推动。试着用红石隔开他们的视线。
-趁他们看不见彼此，推向各自的洞。移动时也要保持视线被挡住。
-白蛇归高处 · 黑蛇归低处
-两蛇已经归位，可以继续向东了。
-WASD / 方向键移动；贴近推动石头与蛇；Enter 对话；Esc 菜单。
+屏幕线索按已读对白记录，不属于剧情字幕；本台词本不列操作提示。

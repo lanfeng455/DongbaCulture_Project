@@ -92220,13 +92220,6 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
-  - m_kind: 0
-    m_fromIndex: 40
-    m_toIndex: 42
-    m_seconds: 0
-    m_onEvent:
-      m_PersistentCalls:
-        m_Calls: []
 --- !u!4 &1541338727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 603742074816925043, guid: e158d14915e6c4b41ac5898f7dffefde, type: 3}

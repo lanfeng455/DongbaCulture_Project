@@ -106,6 +106,11 @@ public partial class DialogueDisplay : MonoBehaviour
     private int m_playbackGeneration;   // 播放代数：被新段打断的旧段收尾时，不得污染新段的 IsPlaying
 
     public bool IsPlaying => m_isPlaying;
+    public DialogueLibrarySO Library => m_dialogueLibrary;
+    public event System.Action<DialogueLibrarySO, int> LibraryLineCompleted;
+    readonly HashSet<KeyValuePair<DialogueLibrarySO, int>> m_completedLines = new();
+    public bool HasCompletedLibraryLine(DialogueLibrarySO library, int index) =>
+        library != null && m_completedLines.Contains(new KeyValuePair<DialogueLibrarySO, int>(library, index));
     public void ReleaseForSceneHandoff(){if(Instance==this)Instance=null;}
     public void RestoreAfterSceneHandoff(bool hide=true){Instance=this;if(hide)HideDialogue();}
 
@@ -260,12 +265,15 @@ public partial class DialogueDisplay : MonoBehaviour
 
         // 收集这一段要播的句子
         List<DialogueLibrarySO.DialogueEntry> segment = new List<DialogueLibrarySO.DialogueEntry>();
+        var sourceIndices = new List<int>();
+        var sourceLibrary = m_dialogueLibrary;
         for (int i = from; i <= to; i++)
         {
             DialogueLibrarySO.DialogueEntry entry = m_dialogueLibrary.GetEntry(i);
             if (entry != null)
             {
                 segment.Add(entry);
+                sourceIndices.Add(i);
             }
         }
 
@@ -278,7 +286,7 @@ public partial class DialogueDisplay : MonoBehaviour
         m_playbackCts = new CancellationTokenSource();
         // 代数 +1：旧段的 finally（取消后下一帧才跑）凭代数识别自己已过期，不再覆盖新段状态
         int generation = ++m_playbackGeneration;
-        _ = PlaySegmentAsync(segment, autoHide, hideDelayInSeconds, m_playbackCts.Token, generation, m_waitForAdvance);
+        _ = PlaySegmentAsync(segment, autoHide, hideDelayInSeconds, m_playbackCts.Token, generation, m_waitForAdvance, sourceLibrary, sourceIndices);
     }
 
     // 播整段对话库（便捷重载）
@@ -373,7 +381,8 @@ public partial class DialogueDisplay : MonoBehaviour
         bool autoHide,
         float hideDelayInSeconds,
         CancellationToken token,
-        int generation, bool manual = false)
+        int generation, bool manual = false,
+        DialogueLibrarySO sourceLibrary = null, List<int> sourceIndices = null)
     {
         m_isPlaying = true;
         if (manual) SetPaperPresentation(false, true);
@@ -381,8 +390,9 @@ public partial class DialogueDisplay : MonoBehaviour
 
         try
         {
-            foreach (DialogueLibrarySO.DialogueEntry entry in segment)
+            for (int position = 0; position < segment.Count; position++)
             {
+                var entry = segment[position];
                 if (token.IsCancellationRequested)
                 {
                     return;
@@ -419,6 +429,17 @@ public partial class DialogueDisplay : MonoBehaviour
                 else if (m_delayBetweenLinesInSeconds > 0f)
                 {
                     await Awaitable.WaitForSecondsAsync(m_delayBetweenLinesInSeconds, token);
+                }
+
+                // Knowledge is acquired only after a spoken line is actually acknowledged.
+                // Cancellation, typewriter reveal, commands and ad-hoc PlayLine calls do not count.
+                token.ThrowIfCancellationRequested();
+                if (m_playbackGeneration != generation) return;
+                if (sourceLibrary != null && sourceIndices != null)
+                {
+                    int index = sourceIndices[position];
+                    if (m_completedLines.Add(new KeyValuePair<DialogueLibrarySO, int>(sourceLibrary, index)))
+                        LibraryLineCompleted?.Invoke(sourceLibrary, index);
                 }
             }
 

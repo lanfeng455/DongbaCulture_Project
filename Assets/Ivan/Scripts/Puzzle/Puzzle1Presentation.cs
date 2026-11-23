@@ -19,13 +19,17 @@ namespace Ivan.Puzzle
         BoxCollider exitCollider;
         CanvasGroup hints;
         ReelPortalHost portal;
-        Text title, instruction, rule, controls;
+        Text title, instruction, controls;
+        DialogueDisplay dialogueDisplay;
+        DialogueLibrarySO clueLibrary;
         readonly List<CaveLight> caveLights = new();
-        int lastState = -1, languageRevision = -1;
+        int learnedClues, languageRevision = -1;
+        const int HeightClue = 1, GazeClue = 2;
         public float ExitX => m_exitX;
         public bool Locked => director != null && !director.IsCompleted;
         public float HintAlpha => hints == null ? 0 : hints.alpha;
         public string Instruction => instruction == null ? "" : instruction.text;
+        public int LearnedClueCount => ((learnedClues & HeightClue) != 0 ? 1 : 0) + ((learnedClues & GazeClue) != 0 ? 1 : 0);
 
         sealed class CaveLight
         {
@@ -37,7 +41,11 @@ namespace Ivan.Puzzle
         void Awake() { director = GetComponent<Puzzle1Director>(); }
         void OnEnable() { if (!Gates.Contains(this)) Gates.Add(this); }
         void OnDisable() { Gates.Remove(this); }
-        void OnDestroy() { if (director != null) director.PuzzleCompleted -= OpenExit; }
+        void OnDestroy()
+        {
+            if (director != null) director.PuzzleCompleted -= OpenExit;
+            if (dialogueDisplay != null) dialogueDisplay.LibraryLineCompleted -= OnLineCompleted;
+        }
 
         public static bool Blocks(Scene scene, Vector3 position, float radius)
         {
@@ -53,6 +61,7 @@ namespace Ivan.Puzzle
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 if (player == null) player = root.GetComponentInChildren<DioramaPlayerController>();
+                if (dialogueDisplay == null) dialogueDisplay = root.GetComponentInChildren<DialogueDisplay>(true);
                 foreach (var cave in root.GetComponentsInChildren<CaveSlot>()) AddCaveLight(cave);
             }
             var wall = new GameObject("Puzzle exit - opens only on completion");
@@ -63,12 +72,31 @@ namespace Ivan.Puzzle
             director.PuzzleCompleted += OpenExit;
             if (director.IsCompleted) OpenExit();
             BuildHints();
+            if (dialogueDisplay != null)
+            {
+                clueLibrary = dialogueDisplay.Library;
+                dialogueDisplay.LibraryLineCompleted += OnLineCompleted;
+                RefreshLearnedClues();
+            }
             portal = FindFirstObjectByType<ReelPortalHost>();
             if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "--puzzle-guidance-check") >= 0)
                 gameObject.AddComponent<Puzzle1GuidanceCheck>();
         }
 
         void OpenExit() { if (exitCollider != null) exitCollider.enabled = false; }
+
+        void OnLineCompleted(DialogueLibrarySO library, int index)
+        {
+            if (library == clueLibrary && (index == 26 || index == 35)) RefreshLearnedClues();
+        }
+
+        void RefreshLearnedClues()
+        {
+            learnedClues = 0;
+            if (dialogueDisplay.HasCompletedLibraryLine(clueLibrary, 26)) learnedClues |= HeightClue;
+            if (dialogueDisplay.HasCompletedLibraryLine(clueLibrary, 35)) learnedClues |= GazeClue;
+            languageRevision = -1;
+        }
 
         void BuildHints()
         {
@@ -83,16 +111,14 @@ namespace Ivan.Puzzle
             scaler.matchWidthOrHeight = .5f;
             hints = root.GetComponent<CanvasGroup>();
             hints.alpha = 0; hints.blocksRaycasts = false; hints.interactable = false;
-            var card = DongbaUIStyle.Rect("Clue", root.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(30, -26), new Vector2(458, 182));
-            DongbaUIStyle.Plate(card, new Color(1, 1, 1, .94f));
-            title = DongbaUIStyle.Label("Stage", card, "", new Vector2(20, -14), new Vector2(418, 32), 22);
-            title.color = DongbaUIStyle.Accent;
-            instruction = DongbaUIStyle.Label("Current clue", card, "", new Vector2(20, -53), new Vector2(418, 66), 22);
-            rule = DongbaUIStyle.Label("White high black low", card, "", new Vector2(20, -133), new Vector2(418, 34), 24);
-            rule.fontStyle = FontStyle.Bold;
-            var strip = DongbaUIStyle.Rect("Controls", root.transform, Vector2.zero, Vector2.zero, new Vector2(30, 24), new Vector2(890, 43));
+            var card = DongbaUIStyle.Rect("Clue", root.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(30, -26), new Vector2(374, 124));
+            DongbaUIStyle.Plate(card, new Color(1, 1, 1, .78f));
+            title = DongbaUIStyle.Label("Remembered words", card, "", new Vector2(18, -12), new Vector2(338, 26), 16);
+            title.color = DongbaUIStyle.Muted;
+            instruction = DongbaUIStyle.Label("Learned clues", card, "", new Vector2(18, -43), new Vector2(338, 68), 20);
+            var strip = DongbaUIStyle.Rect("Controls", root.transform, Vector2.zero, Vector2.zero, new Vector2(30, 24), new Vector2(580, 43));
             DongbaUIStyle.Plate(strip, new Color(1, 1, 1, .91f));
-            controls = DongbaUIStyle.Label("Keys", strip, "", new Vector2(16, -8), new Vector2(858, 30), 19);
+            controls = DongbaUIStyle.Label("Keys", strip, "", new Vector2(16, -8), new Vector2(548, 30), 18);
         }
 
         void AddCaveLight(CaveSlot cave)
@@ -115,34 +141,30 @@ namespace Ivan.Puzzle
         void Update()
         {
             if (player == null || hints == null) return;
-            bool dialogue = DialogueDisplay.Instance != null && DialogueDisplay.Instance.IsPlaying;
-            bool shown = player.transform.position.x >= m_hintStartX &&
+            // A completed range can still have a lingering/fading subtitle on screen.
+            bool dialogue = dialogueDisplay != null && (dialogueDisplay.IsPlaying ||
+                (dialogueDisplay.SubtitlePanel != null && dialogueDisplay.SubtitlePanel.gameObject.activeInHierarchy));
+            bool shown = learnedClues != 0 && !director.IsCompleted && player.transform.position.x >= m_hintStartX &&
                          player.transform.position.x < m_exitX + 6f &&
                          !dialogue && !DongbaInterface.GameplayBlocked &&
                          (portal == null || !portal.PresentationTransitionActive);
             hints.alpha = Mathf.MoveTowards(hints.alpha, shown ? 1 : 0, Time.unscaledDeltaTime * 7);
-            int state = director.IsCompleted ? 3 : !director.HasSplit ? 0 : director.Stage == 2 ? 2 : 1;
-            if (state != lastState || languageRevision != DongbaLanguage.Revision)
+            if (languageRevision != DongbaLanguage.Revision)
             {
-                lastState = state; languageRevision = DongbaLanguage.Revision;
+                languageRevision = DongbaLanguage.Revision;
                 bool zh = DongbaLanguage.Chinese;
-                title.text = zh ? (state == 3 ? "山路已开" : "两蛇相望") : (state == 3 ? "THE WAY IS OPEN" : "THE TWO SNAKES");
-                instruction.text = state switch
-                {
-                    0 => zh ? "靠近两蛇，看看是什么拦住了山路。" : "Approach the snakes blocking the mountain path.",
-                    1 => zh ? "他们仍盯着彼此，无法推动。\n试着用红石隔开他们的视线。" : "They cannot be moved while staring.\nPush a red rock between their eyes.",
-                    2 => zh ? "趁他们看不见彼此，推向各自的洞。\n移动时也要保持视线被挡住。" : "Push each snake into its own cave.\nKeep their line of sight blocked.",
-                    _ => zh ? "两蛇已经归位，可以继续向东了。" : "Both snakes are home. Continue east."
-                };
-                rule.text = zh ? "白蛇归高处　·　黑蛇归低处" : "WHITE ABOVE  /  BLACK BELOW";
-                controls.text = zh ? "WASD / 方向键  移动　·　贴近推动石头与蛇　·　Enter  对话　·　Esc  菜单"
-                    : "WASD / Arrows  Move   ·   Walk into rocks / snakes to push   ·   Enter  Dialogue   ·   Esc  Menu";
+                title.text = zh ? "记下的话" : "REMEMBERED WORDS";
+                instruction.text = (learnedClues & HeightClue) != 0 ? (zh ? "白归高处，黑归低处。" : "White above, black below.") : "";
+                if ((learnedClues & GazeClue) != 0)
+                    instruction.text += (instruction.text.Length > 0 ? "\n" : "") + (zh ? "两蛇始终相望。" : "Neither snake looks away.");
+                controls.text = zh ? "WASD / 方向键  移动　·　Enter  对话　·　Esc  菜单"
+                    : "WASD / Arrows  Move   ·   Enter  Dialogue   ·   Esc  Menu";
             }
             foreach (var light in caveLights)
             {
                 if (light.rim == null) continue;
                 float pulse = .5f + .5f * Mathf.Sin(Time.time * 2.1f + light.phase);
-                bool active = director.HasSplit && !director.IsCompleted;
+                bool active = (learnedClues & HeightClue) != 0 && director.HasSplit && !director.IsCompleted;
                 // A soft edge of the existing pictograph, never a replacement glyph or a beacon.
                 light.rim.transform.localScale = Vector3.one * (1.045f + pulse * .035f);
                 Color tint = light.cave.RequiredSide == SnakeSide.White
