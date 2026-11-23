@@ -17,8 +17,13 @@ namespace DongbaXR
         public XROrigin origin;
         public Camera xrCamera;
         public float worldUnitsPerMetre = 60;
+        public bool playPanoramicOpening = false;
         [Range(1f, 3f)] public float artworkScale = 2f;
+        [Min(.25f)] public float repositionHoldSeconds = .65f;
         const int ScanLayer = 30;
+        const string ScanPrompt = "Look at a clear spot on the floor or table.";
+        const string PlacePrompt = "Right Trigger · Place Forest";
+        const string RepositionPrompt = "Hold Y · Reposition Forest";
         readonly Dictionary<Guid, GameObject> surfaces = new Dictionary<Guid, GameObject>();
         readonly List<XRMeshSubsystem> subsystems = new List<XRMeshSubsystem>();
         readonly List<InputDevice> devices = new List<InputDevice>();
@@ -30,7 +35,13 @@ namespace DongbaXR
         CanvasGroup titleGroup;
         bool titleActive = true, titleTransitioning;
         int mask;
-        bool placed, triggerHeld, resetHeld, startHeld, permission;
+        bool placed, forestStarted, triggerHeld, startHeld, permission;
+        bool repositionArmed;
+        float repositionHeldSeconds;
+        Vector3 scanningOrigin;
+#if UNITY_EDITOR
+        bool simulateTracking;
+#endif
         XRMeshSubsystem meshSubsystem;
         string status = "Allow spatial data access to scan your room";
 
@@ -53,10 +64,13 @@ namespace DongbaXR
             if (forest == null) { Debug.LogError("[DongbaPICO] Forest missing"); yield break; }
             forest.XRTrackingControlsCamera = true;
             forest.XRArtworkScale = artworkScale;
+            mask = xrCamera.cullingMask;
+            if (!playPanoramicOpening) xrCamera.cullingMask = 1 << ScanLayer;
             yield return null;
             foreach (var artwork in FindObjectsByType<DongbaPrototype.XRUprightBillboard>(FindObjectsSortMode.None))
                 artwork.ApplyArtworkScale(artworkScale);
             origin.transform.localScale = Vector3.one * worldUnitsPerMetre;
+            scanningOrigin = origin.transform.position;
             xrCamera.orthographic = false;
             xrCamera.clearFlags = CameraClearFlags.SolidColor;
             xrCamera.backgroundColor = Color.clear;
@@ -71,15 +85,23 @@ namespace DongbaXR
             var ground = GameObject.Find("Stationary paper ground");
             if (ground != null) ground.SetActive(false);
             forest.ConfigureXRHUD(worldUnitsPerMetre);
-            mask = xrCamera.cullingMask;
             xrCamera.cullingMask = mask | (1 << ScanLayer);
             foreach (var renderer in FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
             {
                 forestRenderers.Add(renderer);
                 renderer.enabled = false;
             }
-            CreatePanoramicTitle();
-            xrCamera.backgroundColor = new Color(.92f, .86f, .73f, 1f);
+            titleActive = playPanoramicOpening;
+            if (playPanoramicOpening)
+            {
+                CreatePanoramicTitle();
+                xrCamera.backgroundColor = new Color(.92f, .86f, .73f, 1f);
+            }
+            else
+            {
+                xrCamera.backgroundColor = Color.clear;
+                xrCamera.cullingMask = 1 << ScanLayer;
+            }
             marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             marker.name = "PICO surface placement cursor";
             marker.layer = ScanLayer;
@@ -96,14 +118,15 @@ namespace DongbaXR
             message.alignment = TextAlignment.Center;
             message.fontSize = 40;
             PXR_Manager.EnableVideoSeeThrough = true;
-            status = "Press right A to begin";
+            status = titleActive ? "Press right A to begin" : ScanPrompt;
+            if (!titleActive) RequestSpatialAccess();
         }
         void RequestSpatialAccess()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             PXR_PermissionRequest.RequestUserPermissionMR(
                 _ => status = "Spatial access denied: enable it in app permissions",
-                _ => { permission = true; status = "Look around to scan floor or table"; },
+                _ => { permission = true; status = ScanPrompt; },
                 _ => status = "Spatial access denied: enable it in app permissions");
 #else
             status = "Room scanning requires PICO 4 Ultra";
@@ -124,7 +147,7 @@ namespace DongbaXR
             var headForward = Vector3.ProjectOnPlane(xrCamera.transform.forward, Vector3.up).normalized;
             root.rotation = Quaternion.LookRotation(headForward, Vector3.up);
             AddTitleText(rect, "DONGBA", 88, new Vector2(0, 95));
-            AddTitleText(rect, "东巴", 48, new Vector2(0, 15));
+            AddTitleText(rect, "FOREST", 48, new Vector2(0, 15));
             AddTitleText(rect, "START", 46, new Vector2(0, -100));
             AddTitleText(rect, "Press right controller A", 24, new Vector2(0, -158));
             for (int i = 0; i < 32; i++)
@@ -175,7 +198,7 @@ namespace DongbaXR
             xrCamera.backgroundColor = Color.clear;
             xrCamera.cullingMask = 1 << ScanLayer;
             RequestSpatialAccess();
-            status = permission ? "Look around to scan floor or table" : "Allow spatial access to scan your room";
+            status = permission ? ScanPrompt : "Allow spatial access to scan your room";
         }
         void OnApplicationPause(bool paused)
         {
@@ -224,43 +247,103 @@ namespace DongbaXR
                 if (subsystems.Count > 0) { meshSubsystem = subsystems[0]; meshSubsystem.Start(); }
             }
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller, devices);
-            bool trigger = false, reset = false, start = false;
+            bool trigger = false, start = false;
             foreach (var device in devices)
             {
                 if (device.TryGetFeatureValue(CommonUsages.triggerButton, out bool t)) trigger |= t;
-                if (device.TryGetFeatureValue(CommonUsages.secondaryButton, out bool b)) reset |= b;
+                if (device.TryGetFeatureValue(CommonUsages.trigger, out float pressure)) trigger |= pressure > .65f;
                 if (device.TryGetFeatureValue(CommonUsages.primaryButton, out bool a)) start |= a;
             }
+            var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            bool reposition = left.TryGetFeatureValue(CommonUsages.secondaryButton, out bool y) && y;
             bool confirm = trigger && !triggerHeld;
             if (titleActive && start && !startHeld) StartCoroutine(BeginTitleTransition());
-            if (!titleActive && reset && !resetHeld) { placed = false; origin.transform.position = Vector3.zero; }
-            triggerHeld = trigger; resetHeld = reset; startHeld = start;
+            if (UpdateRepositionInput(reposition, Time.unscaledDeltaTime)) confirm = false;
+            triggerHeld = trigger; startHeld = start;
             var head = InputDevices.GetDeviceAtXRNode(XRNode.Head);
             bool tracked = head.TryGetFeatureValue(CommonUsages.isTracked, out bool tracking) && tracking;
-            forest.XRExperienceReady = placed && tracked && !titleActive;
-            if (!titleActive) xrCamera.cullingMask = placed && tracked ? mask | (1 << ScanLayer) : 1 << ScanLayer;
-            if (placed && !forest.XRExperienceReady && tracked) forest.XRExperienceReady = true;
-            if (placed && !forest.StoryModeEnabled)
-            {
-                foreach (var renderer in forestRenderers) if (renderer != null) renderer.enabled = true;
-                forest.BeginPicoStory();
-            }
+#if UNITY_EDITOR
+            tracked |= simulateTracking;
+#endif
+            UpdatePlacementVisibility(tracked);
             marker.SetActive(false);
             if (!titleActive && !placed && permission && tracked)
             {
-                status = "Look around to scan floor or table";
+                status = ScanPrompt;
                 if (Physics.Raycast(xrCamera.transform.position, xrCamera.transform.forward, out var hit, 8 * worldUnitsPerMetre, 1 << ScanLayer)
                     && Vector3.Dot(hit.normal, Vector3.up) > .9f)
                 {
-                    status = "Right trigger: place forest here";
+                    status = PlacePrompt;
                     marker.SetActive(true); marker.transform.position = hit.point;
-                    if (confirm) { origin.transform.position -= hit.point; placed = true; marker.SetActive(false); }
+                    if (confirm) PlaceOnSurface(hit.point);
                 }
             }
-            if (placed) status = tracked ? "Forest placed | Right B: place again" : "Tracking lost: look around slowly";
-            message.text = titleActive ? (permission ? "Press right A to begin" : "Waiting for spatial access") : status;
+            if (placed) status = tracked ? RepositionPrompt : "Tracking lost: look around slowly";
+            RefreshPlacementMessage();
+        }
+        bool UpdateRepositionInput(bool held, float elapsed)
+        {
+            if (!held || titleActive || !placed)
+            {
+                repositionHeldSeconds = 0;
+                repositionArmed = !held;
+                return false;
+            }
+            if (!repositionArmed) return false;
+            repositionHeldSeconds += elapsed;
+            if (repositionHeldSeconds < repositionHoldSeconds) return false;
+            repositionArmed = false;
+            ResetPlacement();
+            return true;
+        }
+        void PlaceOnSurface(Vector3 worldPoint)
+        {
+            origin.transform.position -= worldPoint;
+            placed = true;
+            marker.SetActive(false);
+            if (!forestStarted)
+            {
+                foreach (var renderer in forestRenderers) if (renderer != null) renderer.enabled = true;
+                forest.BeginPicoStory();
+                forestStarted = true;
+            }
+            UpdatePlacementVisibility(true);
+        }
+
+        void ResetPlacement()
+        {
+            placed = false;
+            origin.transform.position = scanningOrigin;
+            Physics.SyncTransforms();
+            UpdatePlacementVisibility(false);
+            status = ScanPrompt;
+            RefreshPlacementMessage();
+        }
+
+        void UpdatePlacementVisibility(bool tracked)
+        {
+            forest.XRExperienceReady = placed && tracked && !titleActive;
+            if (!titleActive)
+                xrCamera.cullingMask = forest.XRExperienceReady ? mask | (1 << ScanLayer) : 1 << ScanLayer;
+        }
+
+        void RefreshPlacementMessage()
+        {
+            message.text = status;
             message.gameObject.SetActive(!titleActive && !placed);
         }
+
+#if UNITY_EDITOR
+        public void SimulateSurfacePlacementForVerification(Vector3 point)
+        {
+            simulateTracking = true;
+            PlaceOnSurface(point);
+            RefreshPlacementMessage();
+        }
+
+        public bool SimulateRepositionInputForVerification(bool held, float elapsed) =>
+            UpdateRepositionInput(held, elapsed);
+#endif
         void LateUpdate()
         {
             if (forest != null && message != null && !titleActive) forest.UpdateXRHUD(placed, status);

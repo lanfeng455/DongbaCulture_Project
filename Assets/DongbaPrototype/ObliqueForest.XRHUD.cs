@@ -7,7 +7,20 @@ namespace DongbaPrototype
         bool xrPanelPlaced;
         UnityEngine.UI.Text xrPanelStatus;
         UnityEngine.UI.Text xrControllerHints;
+        UnityEngine.UI.Text xrTreeAction;
         float xrUnits;
+
+        string FirstAxeActionPrompt
+        {
+            get
+            {
+                if (fatherIntroActive || ManualStoryDialogueActive) return "A · Continue";
+                if (CanCraftSpear) return "A · Craft a Spear";
+                if (CanCraftFirstAxe) return "A · Craft a Wooden Axe";
+                if (CanTalkToFather) return "A · Talk to Father";
+                return "";
+            }
+        }
 
         void ConfigureWorldXRHUD(float units)
         {
@@ -40,7 +53,12 @@ namespace DongbaPrototype
         {
             if (forestCanvas == null || forestCanvas.renderMode != RenderMode.WorldSpace) return;
             forestCanvas.gameObject.SetActive(placed);
-            if (!placed) { xrPanelPlaced = false; return; }
+            if (!placed)
+            {
+                xrPanelPlaced = false;
+                if (xrTreeAction != null) xrTreeAction.transform.parent.gameObject.SetActive(false);
+                return;
+            }
             var panel = forestCanvas.transform;
             if (!xrPanelPlaced)
             {
@@ -65,7 +83,7 @@ namespace DongbaPrototype
             if (journeyObjective != null) journeyObjective.rectTransform.sizeDelta = new Vector2(784, 92);
             if (hudPrompt != null) hudPrompt.rectTransform.sizeDelta = new Vector2(784, 70);
             if (hudPromptTitle != null) hudPromptTitle.rectTransform.sizeDelta = new Vector2(784, 40);
-            if (hudPrompt != null) hudPrompt.text = hudPrompt.text.Replace("<b>E</b>", "<b>X</b>").Replace("<b>J</b>", "<b>R Trigger</b>");
+            if (hudPrompt != null) hudPrompt.text = hudPrompt.text.Replace("<b>E</b>", "<b>Left Grip</b>").Replace("<b>J</b>", "<b>Right Trigger</b>");
             foreach (var text in panel.GetComponentsInChildren<UnityEngine.UI.Text>(true))
             {
                 text.fontSize = Mathf.Max(text.fontSize, 30);
@@ -85,8 +103,7 @@ namespace DongbaPrototype
             }
             if (xrControllerHints == null)
             {
-                xrControllerHints = UILabel("PICO controller guide", panel, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -932), new Vector2(820, 78), 30,
-                    "Left stick: Move   |   A: Jump / Continue\nR Trigger: Axe   |   X: Care / Feed");
+                xrControllerHints = UILabel("PICO controller guide", panel, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -932), new Vector2(820, 78), 30, "");
                 xrControllerHints.alignment = TextAnchor.MiddleCenter;
             }
             if (xrPanelStatus == null)
@@ -95,6 +112,66 @@ namespace DongbaPrototype
                 xrPanelStatus.alignment = TextAnchor.MiddleCenter;
             }
             xrPanelStatus.text = status;
+            string action = FirstAxeActionPrompt;
+            xrControllerHints.text = "Right Stick · Move     X · Jump" + (action.Length > 0 ? "\n" + action : "");
+            UpdateXRContextHint();
+            DrawRiverHud(panel);
+        }
+
+        void UpdateXRContextHint()
+        {
+            Vector3 anchor = default;
+            string hint = null;
+            if (XRExperienceReady && FirstAxeActive && !fatherIntroActive && !ManualStoryDialogueActive)
+            {
+                var wood = NearestWoodPickup();
+                if (wood != null)
+                {
+                    anchor = wood.position;
+                    hint = wood == riverStone ? "B · Pick Up Stone" : antlerDrops.Contains(wood) ? "B · Pick Up Antler"
+                        : featherDrops.Contains(wood) ? "B · Pick Up Feather" : "B · Pick Up Wood";
+                }
+                else if (attackAge < 0)
+                {
+                    Being target = FindFirstAxeTarget();
+                    if (target != null)
+                    {
+                        anchor = target.root.position;
+                        hint = target.animal ? "Right Trigger · Attack"
+                            : HasCuttingTool ? "Right Trigger · Chop Tree" : "Right Trigger · Ram Tree";
+                    }
+                }
+            }
+
+            if (hint == null)
+            {
+                if (xrTreeAction != null) xrTreeAction.transform.parent.gameObject.SetActive(false);
+                return;
+            }
+            if (xrTreeAction == null)
+            {
+                var element = new GameObject("Nearby action prompt", typeof(RectTransform), typeof(Canvas), typeof(UnityEngine.UI.CanvasScaler));
+                element.transform.SetParent(transform, false);
+                var canvas = element.GetComponent<Canvas>();
+                canvas.renderMode = RenderMode.WorldSpace;
+                canvas.worldCamera = cam;
+                canvas.sortingOrder = 1001;
+                element.GetComponent<UnityEngine.UI.CanvasScaler>().dynamicPixelsPerUnit = 4;
+                var rect = (RectTransform)element.transform;
+                rect.sizeDelta = new Vector2(440, 44);
+                rect.localScale = Vector3.one * (xrUnits * .13f / rect.sizeDelta.x);
+                QuietPaper(rect);
+                xrTreeAction = UILabel("Action control", rect, Vector2.one * .5f, Vector2.one * .5f, Vector2.zero,
+                    new Vector2(426, 41), 25, "");
+                xrTreeAction.alignment = TextAnchor.MiddleCenter;
+            }
+            var card = xrTreeAction.transform.parent;
+            xrTreeAction.text = hint;
+            card.gameObject.SetActive(true);
+            Vector3 towardViewer = Vector3.ProjectOnPlane(cam.transform.position - anchor, Vector3.up);
+            if (towardViewer.sqrMagnitude < .01f) towardViewer = Vector3.back;
+            card.position = anchor + towardViewer.normalized * .8f + Vector3.up * .6f;
+            card.rotation = Quaternion.LookRotation(card.position - cam.transform.position, Vector3.up);
         }
     }
 }

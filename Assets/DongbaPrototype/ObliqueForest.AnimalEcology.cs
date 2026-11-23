@@ -40,7 +40,7 @@ public partial class ObliqueForest {
             for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)navWalk[z*NavW+x]=false;
         }
         // Match the existing root clearances as well as the drawn glyph silhouette.
-        foreach(var plant in plants){float radius=plant.tree?1.08f:.50f;StampNavCircle(plant.home,radius);}
+        foreach(var plant in plants){if(!plant.root.gameObject.activeSelf)continue;float radius=plant.tree?1.08f:.50f;StampNavCircle(plant.home,radius);}
         // Route around other animals instead of repeatedly choosing a blocked corridor.
         foreach(var other in animals){if(other==animal||other.health<=0||other.migrationState==2)continue;
             float ow=other.renderer.sprite.bounds.size.x*other.initialScale.x*other.birth;

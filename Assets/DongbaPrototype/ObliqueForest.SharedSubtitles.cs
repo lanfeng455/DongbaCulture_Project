@@ -17,13 +17,15 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     bool TryCompleteForestSubtitle(){return UseSharedSubtitles&&forestSubtitles!=null&&forestSubtitles.CompleteCurrentLine();}
     void ResetForestSubtitles(){manualStoryLines=null;manualStoryFinished=null;manualStoryIndex=0;forestSubtitleKey=null;if(forestSubtitles!=null)forestSubtitles.HideDialogue();if(forestSubtitleAdvance!=null)forestSubtitleAdvance.gameObject.SetActive(false);}
     void RefreshForestSubtitles(){
-        if(!UseSharedSubtitles&&!fatherIntroActive&&!ManualStoryDialogueActive){if(forestSubtitleKey!=null)ResetForestSubtitles();if(afterCaptureCaption!=null)afterCaptureCaption.enabled=true;return;}
+        bool fatherOpening=FatherOpeningSubtitleVisible;
+        if(!UseSharedSubtitles&&!fatherIntroActive&&!ManualStoryDialogueActive&&!fatherOpening){if(forestSubtitleKey!=null)ResetForestSubtitles();if(afterCaptureCaption!=null)afterCaptureCaption.enabled=true;return;}
         EnsureForestSubtitles();string speaker="",content="";
         if(StoryModeEnabled){
             if(ManualStoryDialogueActive){SplitStoryLine(manualStoryLines[manualStoryIndex],out speaker,out content);}
             else if(fatherIntroActive){
                 var line=FatherIntroLines[Mathf.Clamp(fatherIntroLine,0,FatherIntroLines.Length-1)];int colon=line.IndexOf(':');speaker=colon<0?"Father":line.Substring(0,colon);content=colon<0?line:line.Substring(colon+1).Trim();
-            }else if(journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization){content=afterCaptureCaption!=null?afterCaptureCaption.text:"";}
+            }else if(fatherOpening){speaker="Father";content="We need an axe.";}
+            else if(journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization){content=afterCaptureCaption!=null?afterCaptureCaption.text:"";}
 
         }
         // Preserve the old presenter as a fallback but never render both at the same time.
@@ -34,7 +36,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(content.Length>0){
             if(uiNoticePanel!=null)uiNoticePanel.SetActive(false);
             string key=speaker+"\n"+content;
-            if(forestSubtitleKey!=key){forestSubtitleKey=key;forestSubtitles.PlayLine(speaker,content);if(fatherIntroActive||ManualStoryDialogueActive)forestSubtitles.CompleteCurrentLine();}
+            if(forestSubtitleKey!=key){forestSubtitleKey=key;forestSubtitles.PlayLine(speaker,content);if(fatherIntroActive||ManualStoryDialogueActive||fatherOpening)forestSubtitles.CompleteCurrentLine();}
         }else if(forestSubtitleKey!=null){forestSubtitleKey=null;forestSubtitles.HideDialogue();}
     }
 }}

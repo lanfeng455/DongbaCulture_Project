@@ -108,9 +108,9 @@ public partial class ObliqueForest {
         if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.9f&&p.z>storyHome.position.z-.65f&&p.z<storyHome.position.z+4.2f)return false;
         if(placingForestAnimals&&Vector3.Distance(p,ForestSpawn)<2.6f)return false;
         if(River(p)||Mathf.Abs(p.x)>ForestHalfWidth-1||Mathf.Abs(p.z)>ForestHalfDepth-.8f)return false;
-        foreach(var plant in plants)if(Vector3.Distance(p,plant.home)<(plant.tree?1.0f:.42f))return false;
+        foreach(var plant in plants)if(plant.root.gameObject.activeSelf&&Vector3.Distance(p,plant.home)<(plant.tree?1.0f:.42f))return false;
         foreach(var animal in animals)if(animal!=moving&&animal.health>0&&animal.migrationState!=2&&Vector3.Distance(p,animal.root.position)<.66f)return false;
-        if(!AnimalInkClear(p,moving))return false;
+        if(riversideBoar==null&&!AnimalInkClear(p,moving))return false;
         return true;
     }
 

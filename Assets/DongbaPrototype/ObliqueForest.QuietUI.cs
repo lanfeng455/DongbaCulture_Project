@@ -52,7 +52,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         bool dialogue=RestorationArrivalLocked||fatherIntroActive||ManualStoryDialogueActive||journeyStage==JourneyStage.WaitingAtHearth||journeyStage==JourneyStage.Realization;
         uiHelpShortcut.SetActive(!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiHelpPanel.SetActive(uiHelpOpen&&!dialogue&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);uiCoreHints.SetActive(clock<12&&!dialogue&&!uiHelpOpen&&!AfterCaptureLocked&&storyOpeningState!=StoryOpeningState.CaptureBeat);
         uiNoticePanel.SetActive(!dialogue&&hudNotice.text.Length>0);
-        if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(StoryModeEnabled&&!dialogue&&journeyStage!=JourneyStage.ScrollTransition);
+        if(uiObjectivePanel!=null)uiObjectivePanel.SetActive(StoryModeEnabled&&!dialogue&&journeyStage!=JourneyStage.ScrollTransition&&journeyObjective.text.Length>0);
     }
     void EnsureQuietObjective(){
         if(journeyObjective!=null||forestCanvas==null)return;
@@ -68,6 +68,17 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         progress=UILabel("Dialogue progress",panel,Vector2.zero,Vector2.zero,new Vector2(28,15),new Vector2(180,25),16,"");progress.color=uiMuted;return panel;
     }
     string QuietStoryObjective(){
+        if(FirstAxeActive&&!woodenAxe){
+            if(CanCraftFirstAxe)return $"Wood {carriedWood}/{FirstAxeWoodCost} · Press A to Craft a Wooden Axe";
+            if(looseWood.Count!=0||carriedWood>0)return $"Wood {carriedWood}/{FirstAxeWoodCost}\nApproach dropped wood and press B.";
+            if(!fatherSpoken)return "Approach Father and press A to talk.";
+            return $"Wood 0/{FirstAxeWoodCost}\nKnock on a small tree to gather wood.";
+        }
+        if(FirstAxeActive){
+            int fallenTeachingTrees=0;
+            foreach(var tree in plants)if(IsFirstAxeTeachingTree(tree)&&tree.health<=0)fallenTeachingTrees++;
+            return fallenTeachingTrees<2?"Try your axe on a small tree.":"";
+        }
         if(IsRestorationEnding)return RestorationObjective();
         switch(journeyStage){
             case JourneyStage.Hunting:return "Hunt with Father\nExplore the western woods.";

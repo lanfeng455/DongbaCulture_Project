@@ -10,6 +10,7 @@ namespace DongbaPrototype
         Camera viewer;
         ObliqueForest forest;
         Quaternion authoredFacing, lastWritten;
+        Quaternion worldTilt = Quaternion.identity;
         float roll;
         bool written, artworkScaled;
 
@@ -31,6 +32,8 @@ namespace DongbaPrototype
             artworkScaled = true;
         }
 
+        public void SetWorldTilt(Quaternion tilt) => worldTilt = tilt;
+
         void LateUpdate()
         {
             if (forest == null || !forest.XRTrackingControlsCamera || viewer == null) return;
@@ -44,7 +47,7 @@ namespace DongbaPrototype
             var awayFromViewer = transform.position - viewer.transform.position;
             awayFromViewer.y = 0;
             if (awayFromViewer.sqrMagnitude < .0001f) return;
-            lastWritten = Quaternion.LookRotation(awayFromViewer, Vector3.up) * Quaternion.Euler(0, 0, roll);
+            lastWritten = worldTilt * Quaternion.LookRotation(awayFromViewer, Vector3.up) * Quaternion.Euler(0, 0, roll);
             transform.rotation = lastWritten;
             written = true;
         }

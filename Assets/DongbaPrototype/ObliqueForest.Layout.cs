@@ -117,7 +117,28 @@ public partial class ObliqueForest {
     }
     void UpdateForestPresentation(float dt){
         if(forestCanvas==null)return;UpdateStoryObjectiveHUD();interactionTarget=(RestorationArrivalLocked||AfterCapturePeaceful||fatherIntroActive||storyOpeningState==StoryOpeningState.CaptureBeat)?null:NearestForestInteraction();promptPanel.SetActive(interactionTarget!=null);selectionRing.gameObject.SetActive(interactionTarget!=null);
-        if(interactionTarget!=null){var b=interactionTarget;selectionRing.position=b.root.position;hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";hudPrompt.text=b.animal?(b.age<2?"<b>E</b>   Feed to grow\n<b>J</b>   Attack":"<b>E</b>   Feed / new young\n<b>J</b>   Attack"):b.health<=0?"<b>E</b>   Replant here":b.cultivated?"Tended once\n<b>J</b>   Chop":"<b>E</b>   Tend\n<b>J</b>   Chop";}
+        if(interactionTarget!=null){
+            var b=interactionTarget;
+            selectionRing.position=b.root.position;
+            if(FirstAxeActive){
+                if(b==riversideBoar||b==riversideDeer){
+                    hudPromptTitle.text=b==riversideBoar?"Wild boar":"Deer";
+                    hudPrompt.text=woodenAxe?"<b>Right Trigger</b>   Attack":"";
+                }else if(b.animal){
+                    hudPromptTitle.text=b.age<2?"Young animal":"Forest animal";
+                    hudPrompt.text="<b>Left Grip</b>   Feed";
+                }else if(b.health<=0){
+                    hudPromptTitle.text="Tree stump";
+                    hudPrompt.text="<b>Left Grip</b>   Replant here";
+                }else{
+                    hudPromptTitle.text=IsFirstAxeTeachingTree(b)?"Small tree":"Forest tree";
+                    hudPrompt.text="<b>Left Grip</b>   Tend";
+                }
+            }else{
+                hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";
+                hudPrompt.text=b.animal?(b.age<2?"<b>E</b>   Feed to grow\n<b>J</b>   Attack":"<b>E</b>   Feed / new young\n<b>J</b>   Attack"):b.health<=0?"<b>E</b>   Replant here":b.cultivated?"Tended once\n<b>J</b>   Chop":"<b>E</b>   Tend\n<b>J</b>   Chop";
+            }
+        }
         if(displayedHealth!=health){displayedHealth=health;hudHealth.text="Health";}hudNotice.text=noticeTime>0?notice:flourishAge>=0?"The forest is flourishing":"";
         float bank=Feet.x-RiverX(Feet.z);hudArea.text=InScrollWorld?"Rescue scroll":Feet.x<-28?"Western woods":Feet.x>28?"Eastern woods":Mathf.Abs(bank)<2.5f?"Riverbank":Feet.z>7?"Northern woods":Feet.z<-7?"Southern woods":"Open woodland";RefreshQuietHUD();
     }

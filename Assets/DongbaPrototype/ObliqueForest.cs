@@ -93,6 +93,7 @@ public partial class ObliqueForest : MonoBehaviour {
         var floor=GameObject.Find("Stationary paper ground");if(floor!=null)floor.transform.localScale=new Vector3(9.2f,1,4.2f);
         for(int i=0;i<animals.Count;i++){animals[i].populationRegion=PopulationRegion(animals[i].home.x);populationCapacity[animals[i].populationRegion]++;}populationCheckAt=3.5f;
         FollowPlayerCamera(100); SetupForestHUD();
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--firstaxe-check")>=0)StartCoroutine(CheckFirstAxe());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shared-subtitles-check")>=0)StartCoroutine(CheckSharedSubtitles());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--boar-marker-check")>=0)StartCoroutine(CheckBoarMarker());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--shu-confrontation-check")>=0)StartCoroutine(CheckShuConfrontation());
@@ -138,25 +139,33 @@ public partial class ObliqueForest : MonoBehaviour {
     void AddPlant(Vector3 p,bool tree,int index){AddDictionaryPlant(p,tree,index);}
     void AddAnimal(Vector3 p,int species=-1){AddDictionaryAnimal(p,species);}
     bool Free(Vector3 p){if(StoryModeEnabled&&journeyStage==JourneyStage.EastJourney&&p.x>=JourneyReelStart)return p.x<=JourneyReelStart+510&&Mathf.Abs(p.z)<=ForestHalfDepth;if(InScrollWorld)return p.x>=94&&p.x<=124&&Mathf.Abs(p.z-70)<=3.5f;if(storyHearth!=null&&Mathf.Abs(p.x-HearthPosition.x)<.50f&&Mathf.Abs(p.z-HearthPosition.z)<.28f)return false;if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.2f&&Mathf.Abs(p.z-storyHome.position.z)<.65f)return false;if(Mathf.Abs(p.x)>ForestHalfWidth||Mathf.Abs(p.z)>ForestHalfDepth)return false;if(jumpAge<0&&River(p))return false;foreach(var b in plants)if(b.tree&&b.health>0){if(Vector3.Distance(p,b.home)<.50f)return false;}return true;}
-    void Update(){if(player==null)return;RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked;var kb=Keyboard.current;HandleQuietHUDInput(kb);if(kb!=null&&kb.escapeKey.wasPressedThisFrame){ExitPrototype();return;}if(kb!=null&&kb.rKey.wasPressedThisFrame){RestartRun();return;}if(kb!=null&&kb.enterKey.wasPressedThisFrame){if(fatherIntroActive)AdvanceFatherIntro();else if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();}Vector3 move=Vector3.zero;if(kb!=null){if(kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0)jumpAge=0;if(!storyInputLocked&&eastPaperProgress<=0&&(kb.jKey.wasPressedThisFrame||kb.enterKey.wasPressedThisFrame)&&attackAge<0){attackAge=0;hit=false;}if(!storyInputLocked&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
+    void Update(){
+        if(player==null)return;
+        if(XRTrackingControlsCamera&&!XRExperienceReady){
+            ReadXRInput(Vector3.zero,true);
+            if(FirstAxeActive)UpdateFirstAxeAttack(0);
+            return;
+        }
+        RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked;var kb=Keyboard.current;HandleQuietHUDInput(kb);if(kb!=null&&kb.escapeKey.wasPressedThisFrame){ExitPrototype();return;}if(kb!=null&&kb.rKey.wasPressedThisFrame){RestartRun();return;}if(kb!=null&&kb.enterKey.wasPressedThisFrame){if(fatherIntroActive)AdvanceFatherIntro();else if(ManualStoryDialogueActive)AdvanceManualStoryDialogue();}Vector3 move=Vector3.zero;if(kb!=null){if(kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0)jumpAge=0;if(!storyInputLocked&&eastPaperProgress<=0&&(kb.jKey.wasPressedThisFrame||kb.enterKey.wasPressedThisFrame)&&attackAge<0){attackAge=0;hit=false;}if(!storyInputLocked&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
         move=ReadXRInput(move,storyInputLocked);
-        if(storyInputLocked)move=Vector3.zero;
+        if(storyInputLocked||(FirstAxeActive&&!HasCuttingTool&&attackAge>=0))move=Vector3.zero;
         if(ecologyPreviewWalking)move=ecologyPreviewDirection;Vector3 previousFeet=Feet;move=Vector3.ClampMagnitude(move,1);if(move.sqrMagnitude>0){if(attackAge<0){heading=move;if(move.x!=0)facing=move.x>0?1:-1;}var p=Feet+move*4*dt;if(Free(p))player.position=p;}
         if(!River(Feet))lastDryPosition=Feet;
         float hop=0;if(jumpAge>=0){jumpAge+=dt;hop=Mathf.Sin(Mathf.Clamp01(jumpAge/.85f)*Mathf.PI)*1.45f;if(jumpAge>=.85f){jumpAge=-1;if(River(Feet)){player.position=lastDryPosition;Tell("Back to the riverbank");}}}
         UpdateFlowerTrail(previousFeet,move,dt);
         body.localPosition=new Vector3(0,hop+.015f*Mathf.Sin(clock*3.4f),0);playerImage.flipX=facing<0;playerImage.color=damageCooldown>0?new Color(1,.55f,.45f):Color.white;
         hand.localPosition=PlayerHandLocalPosition();
-        if(attackAge>=0){attackAge+=dt;axe.gameObject.SetActive(true);axe.localPosition=Vector3.zero;float swing=attackAge<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,attackAge/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(attackAge-.16f)/.3f));axe.localRotation=Quaternion.Euler(0,0,facing*swing);var axeScale=axe.localScale;axeScale.x=Mathf.Abs(axeScale.x)*facing;axe.localScale=axeScale;if(attackAge>.25f&&!hit){hit=true;StrikeTrees();StrikeStoryBoar();foreach(var b in animals){Vector3 d=b.root.position-Feet;if(b.health>0&&d.magnitude<2&&Vector3.Dot(d.normalized,heading)>.15f){ApplyEcologyHit(b);b.angry=true;var p=b.root.position+heading*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);}}}if(attackAge>.62f){attackAge=-1;axe.gameObject.SetActive(false);}}
+        if(FirstAxeActive)UpdateFirstAxeAttack(dt);
+        else if(attackAge>=0){attackAge+=dt;axe.gameObject.SetActive(true);axe.localPosition=Vector3.zero;float swing=attackAge<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,attackAge/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(attackAge-.16f)/.3f));axe.localRotation=Quaternion.Euler(0,0,facing*swing);var axeScale=axe.localScale;axeScale.x=Mathf.Abs(axeScale.x)*facing;axe.localScale=axeScale;if(attackAge>.25f&&!hit){hit=true;StrikeTrees();StrikeStoryBoar();foreach(var b in animals){Vector3 d=b.root.position-Feet;if(b.health>0&&d.magnitude<2&&Vector3.Dot(d.normalized,heading)>.15f){ApplyEcologyHit(b);b.angry=true;var p=b.root.position+heading*.35f;if(ClearAnimalStep(p,b))b.root.position=p;if(b.health<=0)b.root.gameObject.SetActive(false);}}}if(attackAge>.62f){attackAge=-1;axe.gameObject.SetActive(false);}}
         foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;
-            if(b.tree){bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
+            if(b.tree){bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);bool directed=FirstAxeActive&&ApplyFirstAxeTreeTilt(b);b.art.rotation=stump||directed?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,RiverGrassAngle(b,angle));b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=wiltedRiverPlants.Contains(b)?new Color(.62f,.54f,.47f):SmallPlantTint();}
             b.renderer.sortingOrder=100-Mathf.RoundToInt(b.home.z*10);if(!b.tree)Fade(b);
         }
         playerImage.sortingOrder=100-Mathf.RoundToInt(Feet.z*10);axe.GetComponent<SpriteRenderer>().sortingOrder=playerImage.sortingOrder+1;
-        if(!tonePreviewFreezeAnimals&&!AfterCapturePeaceful)foreach(var b in animals)UpdateAnimalEcology(b,dt,hop);
-        UpdatePopulation(dt);UpdateEcologyParticles(dt);UpdateStoryFatherFollow(dt);
+        if(!tonePreviewFreezeAnimals&&!AfterCapturePeaceful)foreach(var b in animals){if(RiversideAnimal(b))UpdateRiversideAnimal(b,dt);else UpdateAnimalEcology(b,dt,hop);}
+        if(riversideBoar==null)UpdatePopulation(dt);UpdateEcologyParticles(dt);UpdateStoryFatherFollow(dt);
         for(int i=0;i<water.Count;i++)water[i].position=waterOrigins[i]+Vector3.right*(.06f*Mathf.Sin(clock*Mathf.PI*2/2.2f-i*.35f));
-        FollowPlayerCamera(dt);UpdateForestPresentation(dt);
+        UpdateFirstAxe(previousFeet,dt);UpdateRiverOpening();if(FirstAxeActive)UpdateFirstAxeRig(hop);FollowPlayerCamera(dt);UpdateForestPresentation(dt);
     }
     void RestartRun(){
         interactionTarget=null;ecologyPreviewWalking=false;tonePreviewFreezeAnimals=false;
@@ -344,10 +353,10 @@ public partial class ObliqueForest : MonoBehaviour {
         float height=tree.leafHeight01!=null&&layer<tree.leafHeight01.Length?tree.leafHeight01[layer]:.5f;
         return Mathf.Lerp(.87f,.18f,height)+Mathf.Repeat(tree.phase*.173f,.025f);
     }
-    void SpawnFallingLeaf(Being tree,int group){
+    void SpawnFallingLeaf(Being tree,int group,Vector3? origin=null){
         EcologyParticle p=null;for(int i=0;i<fallingLeaves.Count;i++)if(!fallingLeaves[i].transform.gameObject.activeSelf){p=fallingLeaves[i];break;}if(p==null)return;
         var layers=treeGlyphSets[tree.glyphKey];p.renderer.sprite=layers.pieces[group];p.renderer.enabled=true;p.renderer.color=Color.white;p.renderer.sortingOrder=tree.renderer.sortingOrder+1;
-        p.transform.position=tree.art.TransformPoint(layers.pieceOffsets[group]);p.initialRotation=tree.art.rotation;p.transform.rotation=p.initialRotation;p.transform.localScale=tree.art.lossyScale;p.age=0;p.duration=1.25f+(group%3)*.12f;p.spin=(group%2==0?1:-1)*(42f+group*7f);
+        p.transform.position=origin??tree.art.TransformPoint(layers.pieceOffsets[group]);p.initialRotation=tree.art.rotation;p.transform.rotation=p.initialRotation;p.transform.localScale=tree.art.lossyScale*(origin.HasValue?.45f:1f);p.age=0;p.duration=1.25f+(group%3)*.12f;p.spin=(group%2==0?1:-1)*(42f+group*7f);
         p.velocity=Vector3.down*(.30f+(group%3)*.08f)+cam.transform.right*((group%2==0?1:-1)*(.18f+(group%3)*.04f));p.transform.gameObject.SetActive(true);
     }
     float FlowerInkOpacity(){return Mathf.Lerp(.15f,1f,Mathf.InverseLerp(1,6,Balance));}
@@ -441,10 +450,11 @@ public partial class ObliqueForest : MonoBehaviour {
         else{if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);storyOpeningState=StoryOpeningState.Off;Tell("Sandbox Mode enabled");}
         ResetStoryJourney();
     }
-    public void BeginPicoStory(){StoryModeEnabled=true;if(storyFatherRoot==null)CreateStoryFather();RestartRun();}
-    void UpdateStoryMode(float dt){AdvanceFatherRiverJump(dt);UpdateStoryJourney(dt);}
+    public void BeginPicoStory(){StoryModeEnabled=true;if(storyFatherRoot==null)CreateStoryFather();RestartRun();SetupRiverside();if(riversideBoar!=null)SetupFirstAxe();}
+    void UpdateStoryMode(float dt){AdvanceFatherRiverJump(dt);if(riversideBoar==null)UpdateStoryJourney(dt);}
     void UpdateStoryFatherFollow(float dt){
         if(!StoryModeEnabled||storyOpeningState!=StoryOpeningState.Following||storyFatherRoot==null)return;
+        if(FollowRiversideFather(dt))return;
         if(UpdateFatherHuntAI(dt))return;
         Vector3 back=heading.sqrMagnitude>.01f?-heading.normalized:Vector3.left;
         Vector3 goal=Feet+back*1.35f+new Vector3(0,0,-.18f);
@@ -454,7 +464,7 @@ public partial class ObliqueForest : MonoBehaviour {
         if(!StoryModeEnabled||StoryFatherGlyph!=null||storyFatherRoot==null||!storyFatherRoot.gameObject.activeSelf)return;
         Vector3 screen=cam.WorldToScreenPoint(storyFatherRoot.position+Vector3.up*.55f);if(screen.z<=0)return;
         if(storyPlaceholderStyle==null){storyPlaceholderStyle=new GUIStyle(GUI.skin.label);storyPlaceholderStyle.fontSize=Mathf.Clamp(Screen.height/65,12,20);storyPlaceholderStyle.fontStyle=FontStyle.Bold;storyPlaceholderStyle.normal.textColor=new Color(.27f,.17f,.09f);storyPlaceholderStyle.alignment=TextAnchor.MiddleCenter;}
-        GUI.Label(new Rect(screen.x-75,Screen.height-screen.y-25,150,24),"父亲（形象占位）",storyPlaceholderStyle);
+        GUI.Label(new Rect(screen.x-75,Screen.height-screen.y-25,150,24),"Father",storyPlaceholderStyle);
     }
     IEnumerator CheckCultivationOnce(){
         yield return null;Directory.CreateDirectory("Verification");var report=new System.Text.StringBuilder();
