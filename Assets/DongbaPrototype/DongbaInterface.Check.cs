@@ -14,7 +14,8 @@ public sealed partial class DongbaInterface {
     internal readonly List<string> checks=new List<string>();internal int checkFailures;
     int originalMute,originalLocale;float originalVolume;Keyboard checkKeyboard;Mouse checkMouse;
     IEnumerator Start(){
-        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-check")<0&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")<0)yield break;
+        bool helpPreview=Array.IndexOf(Environment.GetCommandLineArgs(),"--help-layout-preview")>=0;
+        if(!helpPreview&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-check")<0&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")<0)yield break;
         Application.runInBackground=true;
         // Hidden test launches can lose native input focus during screenshots/resize.
         // Isolate injected events from the user's physical keyboard and OS focus resets.
@@ -27,7 +28,19 @@ public sealed partial class DongbaInterface {
         Screen.SetResolution(1598,898,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.2f);
         Screen.SetResolution(1600,900,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.3f);
         bool title=Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")>=0;
-        yield return RunChecksSafely(title?CheckTitle():CheckForestWhenReady());
+        yield return RunChecksSafely(helpPreview?CaptureHelpLayout():title?CheckTitle():CheckForestWhenReady());
+    }
+    IEnumerator CaptureHelpLayout(){
+        DongbaLanguage.Set(DongbaLocale.English,false);
+        yield return KeyPress(Key.H);
+        Check("H opens current Help menu",page==Page.Help);
+        yield return Snap("help-language-en");CheckLayout("English Help",menuPage);
+        yield return KeyPress(Key.F8);
+        Check("F8 switches language while Help remains open",DongbaLanguage.Chinese&&page==Page.Help);
+        yield return Snap("help-language-zh");CheckLayout("Chinese Help",menuPage);
+        Screen.SetResolution(1280,720,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.4f);
+        yield return Snap("help-language-zh-720");CheckLayout("Chinese Help 720p",menuPage);
+        yield return KeyPress(Key.F8);yield return Snap("help-language-en-720");CheckLayout("English Help 720p",menuPage);
     }
     IEnumerator RunChecksSafely(IEnumerator routine){
         var stack=new Stack<IEnumerator>();stack.Push(routine);

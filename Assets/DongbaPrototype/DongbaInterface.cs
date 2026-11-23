@@ -122,14 +122,14 @@ public sealed partial class DongbaInterface : MonoBehaviour {
             var foot=DongbaUIStyle.Label("Return key",menuPage,Choose("ESC  ·  Return to the forest","ESC  ·  回到故事"),new Vector2(54,-588),new Vector2(510,26),16);foot.color=DongbaUIStyle.Muted;
         }else if(page==Page.Help){
             bool puzzle=SceneManager.GetActiveScene().name=="Beat_2_Cleansing_Impurity";
-            string[] keys={"WASD","SPACE","J","E","ENTER","TAB","ESC","H","R"};
-            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Continue dialogue",puzzle?"—":"Expand / fold chapter note","Pause / back","Controls","Restart the story"};
-            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","继续对白",puzzle?"—":"展开 / 收起章签","暂停 / 返回","操作说明","重新开始故事"};
+            string[] keys={"WASD","SPACE","J","E","ENTER","TAB","F8","ESC","H","R"};
+            string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Continue dialogue",puzzle?"—":"Expand / fold chapter note","Switch Chinese / English","Pause / back","Controls","Restart the story"};
+            string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","继续对白",puzzle?"—":"展开 / 收起章签","切换中英文","暂停 / 返回","操作说明","重新开始故事"};
             int row=0;for(int i=0;i<keys.Length;i++){
                 if(puzzle&&keys[i]=="TAB")continue;
-                var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-row*43),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));
+                var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-row*39),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));
                 var key=DongbaUIStyle.Label("Key text",badge,keys[i],new Vector2(4,-4),new Vector2(78,26),16);key.alignment=TextAnchor.MiddleCenter;key.color=DongbaUIStyle.Accent;
-                DongbaUIStyle.Label("Control action",menuPage,Choose(en[i],zh[i]),new Vector2(146,-156-row*43),new Vector2(436,34),22);row++;
+                DongbaUIStyle.Label("Control action",menuPage,Choose(en[i],zh[i]),new Vector2(146,-156-row*39),new Vector2(436,34),22);row++;
             }
             MenuButton("Back",566,Back);
         }else if(page==Page.Settings){
