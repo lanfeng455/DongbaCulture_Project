@@ -41,7 +41,11 @@ namespace DongbaPrototype
         public void UpdateXRHUD(bool placed, string status)
         {
             if (forestCanvas == null || forestCanvas.renderMode != RenderMode.WorldSpace) return;
-            forestCanvas.gameObject.SetActive(placed);
+            if(forestSubtitles!=null){
+                forestSubtitles.ConfigureHeadsetPresentation(cam,xrUnits);
+                forestSubtitles.SetHeadsetPresentationVisible(placed&&XRExperienceReady);
+            }
+            forestCanvas.gameObject.SetActive(placed&&XRExperienceReady);
             if (!placed)
             {
                 xrPanelPlaced = false;
@@ -63,7 +67,7 @@ namespace DongbaPrototype
             away.y = 0;
             if (away.sqrMagnitude > .001f) panel.rotation = Quaternion.LookRotation(away, Vector3.up);
             // Desktop manuscript tabs have a different layout. Keep their logic, present
-            // only the MR summary and the same subtitle display in this spatial panel.
+            // only the MR summary here; our subtitle strip belongs to the headset view.
             foreach (Transform child in panel)
                 if (!child.name.StartsWith("PICO ") && child.name != "DialogueCanvas")
                     child.gameObject.SetActive(false);
@@ -77,14 +81,11 @@ namespace DongbaPrototype
             }
             xrSummary.text = "DONGBA / FOREST\n" + QuietStoryObjective();
             xrContext.text = interactionTarget == null ? "" :
-                (interactionTarget.animal ? "Forest animal" : interactionTarget.health <= 0 ? "Tree stump" : "Forest tree") +
+                (interactionTarget.animal ? AnimalDisplayName(interactionTarget) : interactionTarget.health <= 0 ? "Tree stump" : "Forest tree") +
                 "\nX · Care / feed     Right Trigger · " + "Axe";
-            if (forestSubtitles != null) forestSubtitles.AttachToWorldPanel((RectTransform)panel);
-            if (forestSubtitleAdvance != null)
-            {
-                XRPanelRect(forestSubtitleAdvance.transform, 880, 44);
-                forestSubtitleAdvance.text = "A   Continue";
-            }
+            // The subtitle and its A prompt use our own paper presentation in the
+            // lower view. Do not duplicate it on the optional side control panel.
+            if(forestSubtitleAdvance!=null)forestSubtitleAdvance.gameObject.SetActive(false);
             if (xrControllerHints == null)
             {
                 xrControllerHints = UILabel("PICO controller guide", panel, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -932), new Vector2(820, 78), 30, "");

@@ -41,6 +41,7 @@ public partial class DialogueDisplay {
         }
     }
     public void SetPaperPresentation(bool top,bool manual){
+        if(UsesHeadsetPresentation)top=false;
         if(m_canvas==null||m_background==null)return;
         bool changed=!paperStyled||paperAtTop!=top||paperManual!=manual;
         paperStyled=true;paperAtTop=top;paperManual=manual;
@@ -59,6 +60,7 @@ public partial class DialogueDisplay {
         if(m_background.GetComponent<UnityEngine.UI.Shadow>()==null)DongbaUIStyle.EdgeShadow(m_background,.18f);
         m_text.alignment=TextAlignmentOptions.TopLeft;m_text.fontSize=m_fontSize;m_text.color=m_textColor;m_text.raycastTarget=false;
         UpdatePaperPortrait(true);
+        ApplyHeadsetReadability();
         ApplyLayout();if(m_visibleEntry!=null){m_text.text=FormatLine(m_visibleEntry);FitBackgroundToText(m_text.text);}
     }
     void UpdatePaperPortrait(bool force=false){
@@ -84,9 +86,9 @@ public partial class DialogueDisplay {
     void LateUpdate(){
         if(!paperStyled||m_canvas==null)return;
         // Pause obscures the presentation without consuming or restarting its dialogue.
-        m_canvas.enabled=DongbaInterface.Instance==null||!DongbaInterface.Instance.ModalOpen;
+        m_canvas.enabled=(!UsesHeadsetPresentation||headsetPresentationVisible)&&(DongbaInterface.Instance==null||!DongbaInterface.Instance.ModalOpen);
         UpdatePaperPortrait();
-        if(paperContinue!=null)paperContinue.text=DongbaLanguage.Chinese?"任意键   继续":"ANY KEY   Continue";
+        if(paperContinue!=null)paperContinue.text=UsesHeadsetPresentation?HeadsetContinuePrompt:DongbaLanguage.Chinese?"任意键   继续":"ANY KEY   Continue";
         var size=((RectTransform)m_canvas.transform).rect.size;
         if(size!=paperLastCanvas){paperLastCanvas=size;ApplyLayout();if(m_text!=null)FitBackgroundToText(m_text.text);}
     }

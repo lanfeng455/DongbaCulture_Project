@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace DongbaPrototype {
 public partial class ObliqueForest {
-    [Serializable] class GlyphRecord { public string key,label,source,sha256; public int x,y,width,height; }
+    [Serializable] class GlyphRecord { public string key,label,labelEn,source,sha256; public int x,y,width,height; }
     [Serializable] class LayoutLayer { public string key; public float x,y,height; public bool tree; }
     [Serializable] class LayoutCluster { public string name; public LayoutLayer[] layers,marks; }
     [Serializable] class GlyphCatalog { public GlyphRecord[] glyphs; public LayoutCluster[] clusters; }
@@ -15,6 +15,15 @@ public partial class ObliqueForest {
     readonly Dictionary<string,string> dictionaryLabels=new Dictionary<string,string>();
     readonly List<int> loadedClusterIndices=new List<int>();
     const int AnimalKinds=12;
+    readonly string[] animalNamesZh=new string[AnimalKinds],animalNamesEn=new string[AnimalKinds];
+    readonly string[] youngAnimalNamesZh=new string[AnimalKinds],youngAnimalNamesEn=new string[AnimalKinds];
+    string AnimalDisplayName(Being animal){
+        if(animal==storyBoar)return DongbaLanguage.Text("Great boar");
+        int kind=animal.speciesIndex;
+        if(kind<0||kind>=AnimalKinds)return DongbaInterface.Choose("Unidentified animal glyph","待辨识动物字形");
+        return animal.age<2?(DongbaLanguage.Chinese?youngAnimalNamesZh[kind]:youngAnimalNamesEn[kind])
+            :(DongbaLanguage.Chinese?animalNamesZh[kind]:animalNamesEn[kind]);
+    }
 
     [Serializable] class PieceRecord { public string key; public float x,y; }
     [Serializable] class PieceCatalog { public PieceRecord[] pieces; }
@@ -46,6 +55,10 @@ public partial class ObliqueForest {
             if(texture==null)throw new InvalidOperationException("Missing glyph "+entry.key);
             var sprite=Sprite.Create(texture,new Rect(entry.x,entry.y,entry.width,entry.height),new Vector2(.5f,0),100);
             sprite.name=entry.label;dictionarySprites.Add(entry.key,sprite);dictionaryLabels.Add(entry.key,entry.label);
+            if(entry.key.StartsWith("animal_")&&int.TryParse(entry.key.Substring(7),out int kind)&&kind>=0&&kind<AnimalKinds){
+                animalNamesZh[kind]=entry.label;animalNamesEn[kind]=string.IsNullOrWhiteSpace(entry.labelEn)?entry.label:entry.labelEn;
+                youngAnimalNamesZh[kind]=entry.label+"（幼兽）";youngAnimalNamesEn[kind]=animalNamesEn[kind]+" (young)";
+            }
         }
     }
 

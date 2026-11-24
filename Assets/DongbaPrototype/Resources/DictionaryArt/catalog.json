@@ -98,7 +98,8 @@
       "width": 95,
       "height": 56,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\鸭.png",
-      "sha256": "18db0f652d58edd3a8ab390db1b445eeda02c7ee3386fcb8bff1c57251cff460"
+      "sha256": "18db0f652d58edd3a8ab390db1b445eeda02c7ee3386fcb8bff1c57251cff460",
+      "labelEn": "Duck"
     },
     {
       "key": "animal_01",
@@ -108,7 +109,8 @@
       "width": 91,
       "height": 67,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\野鸭.png",
-      "sha256": "a51b508b20f8653e055779e6b23073f349cea4a3024eb8b4a4b3c7b16fd05338"
+      "sha256": "a51b508b20f8653e055779e6b23073f349cea4a3024eb8b4a4b3c7b16fd05338",
+      "labelEn": "Wild duck"
     },
     {
       "key": "animal_02",
@@ -118,7 +120,8 @@
       "width": 97,
       "height": 68,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\鹅.png",
-      "sha256": "fde4f3a1c8721356ae0b9248658e02ca94b16ea28b0363943a91e8033d7fccda"
+      "sha256": "fde4f3a1c8721356ae0b9248658e02ca94b16ea28b0363943a91e8033d7fccda",
+      "labelEn": "Goose"
     },
     {
       "key": "animal_03",
@@ -128,7 +131,8 @@
       "width": 61,
       "height": 61,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\箐鸡.png",
-      "sha256": "3291465fc47e03d51ab04f2afca24794dfe216db36adf712ea160c4a40bcaaf6"
+      "sha256": "3291465fc47e03d51ab04f2afca24794dfe216db36adf712ea160c4a40bcaaf6",
+      "labelEn": "Qingji bird"
     },
     {
       "key": "animal_04",
@@ -138,7 +142,8 @@
       "width": 120,
       "height": 98,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\猫.png",
-      "sha256": "385e55e67bfe61733158fd70aca8dc0a7f7e0e129f36e633641fb0336e9c7431"
+      "sha256": "385e55e67bfe61733158fd70aca8dc0a7f7e0e129f36e633641fb0336e9c7431",
+      "labelEn": "Cat"
     },
     {
       "key": "animal_05",
@@ -148,7 +153,8 @@
       "width": 137,
       "height": 90,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\兔子.png",
-      "sha256": "b71ad71690d2c82c9ac329fab240cb15418155965a8f516f7a4b95395ef79a13"
+      "sha256": "b71ad71690d2c82c9ac329fab240cb15418155965a8f516f7a4b95395ef79a13",
+      "labelEn": "Rabbit"
     },
     {
       "key": "animal_06",
@@ -158,7 +164,8 @@
       "width": 140,
       "height": 91,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\狐狸.png",
-      "sha256": "25864925cef1b3e79b07bd917050a02df7f2e42509bb0bbc25d62b7139b760d1"
+      "sha256": "25864925cef1b3e79b07bd917050a02df7f2e42509bb0bbc25d62b7139b760d1",
+      "labelEn": "Fox"
     },
     {
       "key": "animal_07",
@@ -168,7 +175,8 @@
       "width": 117,
       "height": 84,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\野猫.png",
-      "sha256": "e681c932d448b9920ee7bcc9ef6c75593a2c33df0b598c8b97ff3dd2eb28cff4"
+      "sha256": "e681c932d448b9920ee7bcc9ef6c75593a2c33df0b598c8b97ff3dd2eb28cff4",
+      "labelEn": "Wildcat"
     },
     {
       "key": "animal_08",
@@ -178,7 +186,8 @@
       "width": 109,
       "height": 111,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\驴子.png",
-      "sha256": "c1ab89c0f09306f8bc7ba03a631964bac8c1531cebeb487463fab90ed26609db"
+      "sha256": "c1ab89c0f09306f8bc7ba03a631964bac8c1531cebeb487463fab90ed26609db",
+      "labelEn": "Donkey"
     },
     {
       "key": "animal_09",
@@ -188,7 +197,8 @@
       "width": 146,
       "height": 65,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\猪.png",
-      "sha256": "7ee5faec427d221220b08b9ceded152579b0869941b5497f4e6e6fc74eba08be"
+      "sha256": "7ee5faec427d221220b08b9ceded152579b0869941b5497f4e6e6fc74eba08be",
+      "labelEn": "Pig"
     },
     {
       "key": "animal_10",
@@ -198,7 +208,8 @@
       "width": 107,
       "height": 102,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\牛犊.png",
-      "sha256": "fca9136ad7625e4036ca807fe9c63d9f604468da8ea35a74931245b646ad6202"
+      "sha256": "fca9136ad7625e4036ca807fe9c63d9f604468da8ea35a74931245b646ad6202",
+      "labelEn": "Calf"
     },
     {
       "key": "animal_11",
@@ -208,7 +219,8 @@
       "width": 141,
       "height": 72,
       "source": "ArtPreview\\场景素材组合_15\\动物筛选\\松鼠.png",
-      "sha256": "2b18c24ed300a778c89041af1d6282581a53705e1cfd7b595585e11e934f3256"
+      "sha256": "2b18c24ed300a778c89041af1d6282581a53705e1cfd7b595585e11e934f3256",
+      "labelEn": "Squirrel"
     },
     {
       "key": "mark_00",

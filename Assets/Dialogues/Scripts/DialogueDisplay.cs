@@ -125,33 +125,6 @@ public partial class DialogueDisplay : MonoBehaviour
     public bool TryConsumeAdvanceInput() => DialogueAdvanceInput.TryConsume(this, m_lineShownFrame);
     public bool IsTyping => m_isPlaying && m_text != null && m_text.maxVisibleCharacters < m_text.textInfo.characterCount;
     public TMP_Text SubtitleText => m_text;
-    private bool m_attachedToWorldPanel;
-
-    public void AttachToWorldPanel(RectTransform parent)
-    {
-        if (m_attachedToWorldPanel || parent == null) return;
-        EnsureUi();
-        m_attachedToWorldPanel = true;
-        m_canvas.renderMode = RenderMode.WorldSpace;
-        m_canvas.worldCamera = Camera.main;
-        var rect = (RectTransform)m_canvas.transform;
-        rect.SetParent(parent, false);
-        rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f);
-        rect.pivot = new Vector2(.5f, .5f);
-        rect.anchoredPosition = new Vector2(0, -270);
-        rect.localRotation = Quaternion.identity;
-        rect.sizeDelta = new Vector2(900, 260);
-        rect.localScale = Vector3.one;
-        var scaler = m_canvas.GetComponent<UnityEngine.UI.CanvasScaler>();
-        if (scaler != null) scaler.dynamicPixelsPerUnit = 4;
-        m_widthRatio = .94f;
-        m_bottomMarginInPixels = 0;
-        m_minHeightInPixels = 210;
-        m_fontSize = 36;
-        m_background.rectTransform.anchorMin = m_background.rectTransform.anchorMax = new Vector2(.5f, .5f);
-        m_background.rectTransform.pivot = new Vector2(.5f, .5f);
-        ApplyLayout();
-    }
     public void SetCharactersPerSecond(float speed) { m_charactersPerSecond = Mathf.Max(1, speed); }
     [SerializeField] private bool m_waitForAdvance;
 
@@ -412,6 +385,7 @@ public partial class DialogueDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
+        ReleaseHeadsetPresentation();
         DongbaLanguage.Changed -= RefreshLanguage;
         CancelPlayback();
         m_fadeCts?.Cancel();

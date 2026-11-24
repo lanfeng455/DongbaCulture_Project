@@ -17,7 +17,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }return mesh;
     }
     void PrepareAxeContact(){foreach(var b in plants)if(b.tree)ContactMesh(treeGlyphSets[b.glyphKey].trunk);foreach(var b in animals)ContactMesh(b.renderer.sprite);}
-    void BeginAxeAttack(){attackAge=0;hit=false;sampledAttackAge=-1;swingContacts.Clear();swingFacing=facing;swingDirection=Vector3.right*swingFacing;}
+    void BeginAxeAttack(){CompletePlayerTurnForAttack();attackAge=0;hit=false;sampledAttackAge=-1;swingContacts.Clear();swingFacing=facing;swingDirection=Vector3.right*swingFacing;}
     static float AxeSwing(float age){return age<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,age/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(age-.16f)/.3f));}
     void PoseAxe(float age){axe.localRotation=Quaternion.Euler(0,0,swingFacing*AxeSwing(age));var scale=axe.localScale;scale.x=Mathf.Abs(scale.x)*swingFacing;axe.localScale=scale;}
     void UpdateAxeAttack(float dt){

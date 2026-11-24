@@ -46,8 +46,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var b=interactionTarget;selectionRing.position=b.root.position;
         if(interactionGlyph!=null)interactionGlyph.sprite=b.animal?b.renderer.sprite:b.health<=0?b.stumpGlyph:b.fullGlyph;
         var line=selectionRing.GetComponent<LineRenderer>();line.startColor=line.endColor=DongbaUIStyle.Accent;line.widthMultiplier=.035f;
-        // The marker and card use exactly the same target as E; the title does not imply an unverified species.
-        hudPromptTitle.text=b.animal?(b.age<2?"Young animal":"Forest animal"):b.health<=0?"Tree stump":"Forest tree";
+        // The title follows the same dictionary record as the sprite and the actual E target.
+        hudPromptTitle.text=b.animal?AnimalDisplayName(b):b.health<=0?"Tree stump":"Forest tree";
         string care;
         if(b.animal){
             care=clock<b.careReady?"Eating — please wait":b.age<2?"E   Feed to grow":"E   Feed / new young";
