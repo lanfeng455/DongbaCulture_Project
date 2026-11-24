@@ -65,6 +65,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     }
     void RefreshContextHUD(){
         if(forestCanvas==null)return;
+        // The MR view owns its notes; desktop LateUpdate must not reopen PC tabs.
+        if(XRTrackingControlsCamera)return;
         bool explore=InterfaceExploring&&!ReelPresentationVisible;
         uiHelpShortcut.SetActive(explore);uiHelpPanel.SetActive(false);uiNoticePanel.SetActive(false);
         bool threatened=damageCooldown>0||health<5;

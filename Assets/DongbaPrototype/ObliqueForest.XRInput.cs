@@ -38,6 +38,7 @@ namespace DongbaPrototype
             bool connectedChanged = !xrLeftDevice.Equals(left) || !xrRightDevice.Equals(right);
             xrLeftDevice = left; xrRightDevice = right;
             left.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 stick);
+            UpdateXRHelpInput(XRButton(right,CommonUsages.secondaryButton),XRExperienceReady&&xrWasReady&&!connectedChanged&&!storyLocked);
             bool language=XRButton(right,CommonUsages.primary2DAxisClick);
             return ProcessXRInput(stick,jump,attack,care,language,storyLocked,connectedChanged);
         }

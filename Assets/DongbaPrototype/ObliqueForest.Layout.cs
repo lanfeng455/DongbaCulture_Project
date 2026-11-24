@@ -78,7 +78,7 @@ public partial class ObliqueForest {
             float h=3.8f+(float)rng.NextDouble()*1.0f;
             if(!TreeGlyphClear(p,dictionarySprites[trunk.key],h*ForestTreeScale))continue;
             var tree=AddDictionaryPlant(p,true,index,trunk.key,h*ForestTreeScale);tree.inkOpacity=1;tree.renderer.color=Color.white;added++;
-            AddUndergrowth(p,index,trunk,rng,1+(int)(rng.NextDouble()*3));if(added%3==1&&layout.marks.Length>0)AddSparseMark(p,layout.marks[(int)(rng.NextDouble()*layout.marks.Length)],rng);
+            AddUndergrowth(p,index,trunk,rng,(XRTrackingControlsCamera?2:1)+(int)(rng.NextDouble()*3));if(added%3==1&&layout.marks.Length>0)AddSparseMark(p,layout.marks[(int)(rng.NextDouble()*layout.marks.Length)],rng);
         }
     }
     bool TreeGlyphClear(Vector3 p,Sprite glyph,float height){
@@ -105,7 +105,11 @@ public partial class ObliqueForest {
         Vector3[] spots={new Vector3(-32,0,-.2f),new Vector3(-33.8f,0,.9f),new Vector3(-30.6f,0,1.2f),new Vector3(-19,0,-1.1f),new Vector3(-20.6f,0,.3f),new Vector3(-17.2f,0,.6f),new Vector3(-8,0,-3f),new Vector3(-9.3f,0,-1.7f),new Vector3(-7,0,4.2f),new Vector3(-9,0,4.7f),new Vector3(8,0,-3.6f),new Vector3(9.5f,0,-2.6f),new Vector3(7,0,-1.4f),new Vector3(8,0,4f),new Vector3(9.4f,0,3.1f),new Vector3(6.5f,0,2.6f),new Vector3(11,0,-2),new Vector3(12.5f,0,1),new Vector3(13.5f,0,3.8f),new Vector3(32,0,-.8f),new Vector3(33.5f,0,.4f),new Vector3(-38,0,0),new Vector3(-37,0,-1.8f),new Vector3(38,0,.2f),new Vector3(37,0,-1.7f)};
         placingForestAnimals=true;for(int i=0;i<spots.Length;i++){var p=spots[i];if(!ClearAnimalStep(p)&&!FindLocal(p,.35f,1.9f,i,true,out p))continue;AddAnimal(p,i%12);}placingForestAnimals=false;
     }
-    Rect ProjectedInkRect(Vector3 foot,float width,float height){var p=cam.WorldToScreenPoint(foot);float pixels=cam.pixelHeight/(cam.orthographicSize*2);return new Rect(p.x-width*pixels*.5f,p.y,width*pixels,height*pixels);}
+    Rect ProjectedInkRect(Vector3 foot,float width,float height){
+        // Layout / navigation must not change with the viewer's head position,
+        // perspective FOV or zero-height startup pose. Use the authored plan in MR.
+        if(XRTrackingControlsCamera)return new Rect(foot.x-width*.5f,foot.z*.6292f,width,height);
+        var p=cam.WorldToScreenPoint(foot);float pixels=cam.pixelHeight/(cam.orthographicSize*2);return new Rect(p.x-width*pixels*.5f,p.y,width*pixels,height*pixels);}
     bool AnimalInkClear(Vector3 p,Being moving=null){
         float w=moving==null?1.05f:moving.renderer.sprite.bounds.size.x*moving.initialScale.x*moving.birth;float h=moving==null?1f:moving.renderer.sprite.bounds.size.y*moving.initialScale.y*moving.birth;var ink=ProjectedInkRect(p,w,h);
         foreach(var plant in plants)if(plant.health>0){var size=plant.fullGlyph.bounds.size;var s=plant.art.localScale;if(ink.Overlaps(ProjectedInkRect(plant.home,size.x*s.x*.92f,size.y*s.y*.95f)))return false;}

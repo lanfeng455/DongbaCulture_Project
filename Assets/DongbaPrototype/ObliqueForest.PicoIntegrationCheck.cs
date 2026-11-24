@@ -90,6 +90,54 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         cam.stereoTargetEye=StereoTargetEyeMask.None;yield return null;
         Directory.CreateDirectory("Verification/pico-integration");
         CaptureSceneToTexture("Verification/pico-integration/forest.png");
+        // View-space notes retain their angles when the user turns or repositions.
+        var hud=(RectTransform)forestCanvas.transform;
+        Check(hud.parent==cam.transform&&Mathf.Abs(hud.localPosition.x)<.001f,"MR notes are centred on the viewing camera, not a panel to the right of the map");
+        var layoutBefore=ProjectedInkRect(new Vector3(-12,0,4),3,4);
+        var beforeHead=cam.transform.rotation;cam.transform.rotation*=Quaternion.Euler(0,65,0);
+        Check(ProjectedInkRect(new Vector3(-12,0,4),3,4)==layoutBefore,"MR forest spacing and animal clearance are independent of head direction");
+        cam.transform.rotation=beforeHead;
+        bool notesInside=true;var noteCorners=new Vector3[4];
+        foreach(var note in new[]{xrObjectiveNote,xrContextNote,xrHelpNote}){
+            note.GetWorldCorners(noteCorners);
+            foreach(var corner in noteCorners){var q=cam.WorldToViewportPoint(corner);notesInside&=q.x>.06f&&q.x<.94f&&q.y>.06f&&q.y<.94f;}
+        }
+        Check(notesInside,"Objective, nearby action and controls fit within normal view safe margins");
+        UpdateXRHelpInput(false,true);UpdateXRHelpInput(true,true);UpdateXRHUD(true,"");
+        Check(xrHelpOpen&&xrHelpNote.gameObject.activeSelf&&!xrContextNote.gameObject.activeSelf,"B unfolds controls without stacking interaction UI");
+        UpdateXRHelpInput(true,true);Check(xrHelpOpen,"Holding B does not flicker the controls");
+        DongbaLanguage.Set(DongbaLocale.Chinese,false);UpdateXRHUD(true,"");yield return null;
+        Check(xrControllerHints.text.Contains("切换中英"),"MR controls include the bilingual switch in Chinese");
+        CaptureSceneToTexture("Verification/pico-integration/controls-zh.png");
+        DongbaLanguage.Set(DongbaLocale.English,false);UpdateXRHUD(true,"");yield return null;
+        CaptureSceneToTexture("Verification/pico-integration/controls-en.png");
+        UpdateXRHelpInput(false,true);UpdateXRHelpInput(true,true);UpdateXRHUD(true,"");
+        Check(!xrHelpOpen&&!xrHelpNote.gameObject.activeSelf,"B folds the guide back away");
+        var savedFatherIntro=fatherIntroActive;fatherIntroActive=true;UpdateXRHUD(true,"");
+        Check(!xrObjectiveNote.gameObject.activeSelf&&!xrContextNote.gameObject.activeSelf&&!xrPanelStatus.gameObject.activeSelf,"Dialogue keeps the view clear of objective, context and help tab");
+        fatherIntroActive=savedFatherIntro;UpdateXRHUD(true,"");
+        Check(groundMaterial.shader.name=="Dongba/XR Forest Paper"&&xrPaperCoverage!=null,"MR uses a single baked porous-paper coverage mask");
+        bool finitePlants=true;foreach(var plant in plants)finitePlants&=!float.IsNaN(plant.home.z)&&!float.IsInfinity(plant.home.z);
+        Check(finitePlants&&plants.FindAll(p=>p.tree).Count>40,"MR woodland contains finite, connected forest groups");
+        report.AppendLine("MR trees="+plants.FindAll(p=>p.tree).Count+" undergrowth="+plants.FindAll(p=>!p.tree).Count+" animals="+animals.Count);
+        // Neutral room surface is a verification backdrop, not part of the game.
+        var backdrop=GameObject.CreatePrimitive(PrimitiveType.Plane);backdrop.name="Verification only / room surface";
+        backdrop.transform.position=new Vector3(0,-.3f,0);backdrop.transform.localScale=new Vector3(30,1,30);
+        var roomMat=new Material(Shader.Find("Unlit/Color"));roomMat.color=new Color(.47f,.52f,.53f);backdrop.GetComponent<Renderer>().sharedMaterial=roomMat;
+        cam.backgroundColor=new Color(.47f,.52f,.53f,0);
+        cam.transform.position=new Vector3(-3,36,-46);cam.transform.LookAt(new Vector3(-7,0,-2.5f));
+        yield return null;yield return null;
+        CaptureSceneToTexture("Verification/pico-integration/mr-overview.png");
+        cam.transform.position=new Vector3(-12,17,-20);cam.transform.LookAt(new Vector3(-9,0,-2.5f));
+        var nearCat=animals.Find(b=>b.speciesIndex==4);player.position=nearCat.root.position+Vector3.left*.9f;UpdateXRHUD(true,"");
+        yield return null;yield return null;CaptureSceneToTexture("Verification/pico-integration/mr-close.png");
+        Check(xrContextNote.gameObject.activeSelf&&interactionTarget!=null,"Nearby-object name and controller actions appear during real proximity selection");
+        DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return null;yield return null;
+        CaptureSceneToTexture("Verification/pico-integration/mr-close-zh.png");
+        DongbaLanguage.Set(DongbaLocale.English,false);
+        bool desktopHidden=true;foreach(Transform child in forestCanvas.transform)if(!child.name.StartsWith("PICO ")&&child.name!="DialogueCanvas")desktopHidden&=!child.gameObject.activeSelf;
+        Check(desktopHidden,"Desktop HUD stays hidden after the complete LateUpdate sequence");
+        Destroy(backdrop);Destroy(roomMat);cam.backgroundColor=Color.clear;
         Check(cam.backgroundColor.a==0&&!cam.allowHDR&&!cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>().renderPostProcessing,"MR camera preserves transparent room background without HDR/post-processing");
         // Test the actual rendered alpha, not just the inspector's background colour.
         int savedMask=cam.cullingMask;cam.cullingMask=0;

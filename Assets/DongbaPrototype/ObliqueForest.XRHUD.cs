@@ -1,15 +1,15 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DongbaPrototype
 {
     public partial class ObliqueForest
     {
-        bool xrPanelPlaced;
-        UnityEngine.UI.Text xrPanelStatus;
-        UnityEngine.UI.Text xrControllerHints;
-        UnityEngine.UI.Text xrTreeAction;
         float xrUnits;
-        UnityEngine.UI.Text xrSummary, xrContext;
+        Text xrSummary, xrContext, xrControllerHints, xrPanelStatus, xrHealth;
+        RectTransform xrObjectiveNote, xrContextNote, xrHelpNote, xrControlsTab, xrHealthNote;
+        Material xrHudInk;
+        bool xrHelpOpen, xrHelpHeld;
 
         void ConfigureWorldXRHUD(float units)
         {
@@ -17,87 +17,95 @@ namespace DongbaPrototype
             xrUnits = units;
             forestCanvas.renderMode = RenderMode.WorldSpace;
             forestCanvas.worldCamera = cam;
-            var scaler = forestCanvas.GetComponent<UnityEngine.UI.CanvasScaler>();
-            scaler.enabled = true;
-            scaler.dynamicPixelsPerUnit = 4;
+            var scaler = forestCanvas.GetComponent<CanvasScaler>();
+            scaler.enabled = true; scaler.dynamicPixelsPerUnit = 4;
             scaler.referencePixelsPerUnit = 100;
             var rect = (RectTransform)forestCanvas.transform;
-            rect.SetParent(null, false);
-            rect.sizeDelta = new Vector2(900, 1100);
-            rect.localScale = Vector3.one * (units * .68f / 900);
+            rect.SetParent(cam.transform, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one * .5f;
+            rect.sizeDelta = new Vector2(1000, 760);
+            float localUnits = units / Mathf.Max(.0001f, cam.transform.lossyScale.x);
+            rect.localScale = Vector3.one * (.84f / 1000 * localUnits);
+            rect.localPosition = new Vector3(0, 0, 1.1f) * localUnits;
+            rect.localRotation = Quaternion.identity;
             forestCanvas.gameObject.SetActive(false);
         }
 
-        static void XRPanelRect(Transform item, float top, float height)
+        RectTransform XRNote(string name, Vector2 position, Vector2 size)
         {
-            if (item == null) return;
-            var rect = item as RectTransform;
-            rect.anchorMin = rect.anchorMax = new Vector2(.5f, 1);
-            rect.pivot = new Vector2(.5f, 1);
-            rect.anchoredPosition = new Vector2(0, -top);
-            rect.sizeDelta = new Vector2(852, height);
+            var rect = UIBlock("PICO " + name, forestCanvas.transform, Vector2.one*.5f, Vector2.one*.5f, position, size);
+            var paper = rect.gameObject.AddComponent<Image>();
+            paper.sprite = DongbaUIStyle.ManuscriptPaper; paper.type = Image.Type.Sliced;
+            paper.color = new Color(1,1,1,.94f); paper.raycastTarget = false; paper.material = xrHudInk;
+            return rect;
+        }
+
+        Text XRNoteText(string name, RectTransform parent, Vector2 position, Vector2 size, int fontSize)
+        {
+            var label=UILabel(name,parent,Vector2.one*.5f,Vector2.one*.5f,position,size,fontSize,"");
+            label.alignment=TextAnchor.MiddleCenter;label.material=xrHudInk;
+            return label;
+        }
+
+        void EnsureXRNotes()
+        {
+            if (xrSummary != null) return;
+            xrHudInk = new Material(Shader.Find("Dongba/Headset Paper UI"));
+            xrObjectiveNote=XRNote("chapter note",new Vector2(0,300),new Vector2(760,112));
+            xrSummary=XRNoteText("Chapter",xrObjectiveNote,new Vector2(0,-2),new Vector2(700,88),30);
+            var stroke=DongbaUIStyle.Stroke(xrObjectiveNote,new Vector2(28,-9),new Vector2(58,3),new Color(.49f,.22f,.12f));stroke.material=xrHudInk;
+            xrContextNote=XRNote("nearby note",new Vector2(0,-230),new Vector2(700,126));
+            xrContext=XRNoteText("Nearby action",xrContextNote,Vector2.zero,new Vector2(650,108),30);
+            xrHelpNote=XRNote("folded controls",new Vector2(0,0),new Vector2(760,410));
+            xrControllerHints=XRNoteText("Controller guide",xrHelpNote,Vector2.zero,new Vector2(688,350),29);
+            xrControlsTab=XRNote("controls tab",new Vector2(0,-360),new Vector2(300,52));
+            xrPanelStatus=XRNoteText("Help tab",xrControlsTab,Vector2.zero,new Vector2(274,40),25);
+            xrHealthNote=XRNote("health note",new Vector2(0,215),new Vector2(230,48));
+            xrHealth=XRNoteText("Health",xrHealthNote,Vector2.zero,new Vector2(204,36),25);
+        }
+
+        void UpdateXRHelpInput(bool pressed, bool ready)
+        {
+            if(ready&&pressed&&!xrHelpHeld)xrHelpOpen=!xrHelpOpen;
+            xrHelpHeld=pressed;
+            if(!ready)xrHelpOpen=false;
         }
 
         public void UpdateXRHUD(bool placed, string status)
         {
-            if (forestCanvas == null || forestCanvas.renderMode != RenderMode.WorldSpace) return;
+            if(forestCanvas==null||forestCanvas.renderMode!=RenderMode.WorldSpace)return;
             if(forestSubtitles!=null){
                 forestSubtitles.ConfigureHeadsetPresentation(cam,xrUnits);
                 forestSubtitles.SetHeadsetPresentationVisible(placed&&XRExperienceReady);
             }
-            forestCanvas.gameObject.SetActive(placed&&XRExperienceReady);
-            if (!placed)
-            {
-                xrPanelPlaced = false;
-                if (xrTreeAction != null) xrTreeAction.transform.parent.gameObject.SetActive(false);
-                return;
+            bool ready=placed&&XRExperienceReady;
+            forestCanvas.gameObject.SetActive(ready);
+            if(!ready){xrHelpOpen=false;return;}
+            foreach(Transform child in forestCanvas.transform)
+                if(!child.name.StartsWith("PICO ")&&child.name!="DialogueCanvas")child.gameObject.SetActive(false);
+            EnsureXRNotes();
+            bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
+            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue;
+            if(!exploring)xrHelpOpen=false;
+            string objective=DongbaLanguage.Text(QuietStoryObjective());
+            xrSummary.text=objective;
+            xrObjectiveNote.gameObject.SetActive(exploring&&StoryModeEnabled&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
+            xrContextNote.gameObject.SetActive(exploring&&interactionTarget!=null&&!xrHelpOpen);
+            if(interactionTarget!=null){
+                string name=interactionTarget.animal?AnimalDisplayName(interactionTarget):DongbaLanguage.Text(interactionTarget.health<=0?"Tree stump":"Forest tree");
+                string care=interactionTarget.animal?DongbaInterface.Choose("Feed","喂养"):interactionTarget.health<=0?DongbaInterface.Choose("Replant","补种"):DongbaInterface.Choose("Care","培育");
+                xrContext.text=name+"\nX  "+care+DongbaInterface.Choose("    R Trigger  Axe","    右扳机  挥斧");
             }
-            var panel = forestCanvas.transform;
-            if (!xrPanelPlaced)
-            {
-                var towardViewer = cam.transform.position;
-                towardViewer.y = 0;
-                if (towardViewer.sqrMagnitude < .01f) towardViewer = Vector3.back;
-                towardViewer.Normalize();
-                var side = Vector3.Cross(Vector3.up, -towardViewer);
-                panel.position = (side * 1.02f + towardViewer * .25f + Vector3.up * .48f) * xrUnits;
-                xrPanelPlaced = true;
-            }
-            var away = panel.position - cam.transform.position;
-            away.y = 0;
-            if (away.sqrMagnitude > .001f) panel.rotation = Quaternion.LookRotation(away, Vector3.up);
-            // Desktop manuscript tabs have a different layout. Keep their logic, present
-            // only the MR summary here; our subtitle strip belongs to the headset view.
-            foreach (Transform child in panel)
-                if (!child.name.StartsWith("PICO ") && child.name != "DialogueCanvas")
-                    child.gameObject.SetActive(false);
-            if (xrSummary == null) {
-                xrSummary = UILabel("PICO objective", panel, new Vector2(.5f,1), new Vector2(.5f,1),
-                    new Vector2(0,-70), new Vector2(820,230), 36, "");
-                xrSummary.alignment = TextAnchor.UpperCenter;
-                xrContext = UILabel("PICO nearby interaction", panel, new Vector2(.5f,1), new Vector2(.5f,1),
-                    new Vector2(0,-350), new Vector2(820,160), 32, "");
-                xrContext.alignment = TextAnchor.UpperCenter;
-            }
-            xrSummary.text = "DONGBA / FOREST\n" + QuietStoryObjective();
-            xrContext.text = interactionTarget == null ? "" :
-                (interactionTarget.animal ? AnimalDisplayName(interactionTarget) : interactionTarget.health <= 0 ? "Tree stump" : "Forest tree") +
-                "\nX · Care / feed     Right Trigger · " + "Axe";
-            // The subtitle and its A prompt use our own paper presentation in the
-            // lower view. Do not duplicate it on the optional side control panel.
+            xrHelpNote.gameObject.SetActive(exploring&&xrHelpOpen);
+            xrControllerHints.text=DongbaInterface.Choose(
+                "CONTROLS\n\nLeft stick   Move\nA   Jump / Continue dialogue\nRight Trigger   Axe     X   Care / Feed\nHold Y   Reposition forest\nRight stick click   English / 中文\n\nB   Close",
+                "操作\n\n左摇杆  移动\nA  跳跃／继续对话\n右扳机  挥斧     X  培育／喂养\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n\nB  收起");
+            xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
+            xrControlsTab.gameObject.SetActive(exploring);
+            xrPanelStatus.gameObject.SetActive(exploring);
+            xrHealth.text=DongbaInterface.Choose("Health  ","生命  ")+health+" / 5";
+            xrHealthNote.gameObject.SetActive(exploring&&health<5&&!xrHelpOpen);
             if(forestSubtitleAdvance!=null)forestSubtitleAdvance.gameObject.SetActive(false);
-            if (xrControllerHints == null)
-            {
-                xrControllerHints = UILabel("PICO controller guide", panel, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -932), new Vector2(820, 78), 30, "");
-                xrControllerHints.alignment = TextAnchor.MiddleCenter;
-            }
-            if (xrPanelStatus == null)
-            {
-                xrPanelStatus = UILabel("PICO placement status", panel, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -1020), new Vector2(820, 60), 30, "");
-                xrPanelStatus.alignment = TextAnchor.MiddleCenter;
-            }
-            xrPanelStatus.text = status;
-            xrControllerHints.text = "Left stick: Move | A: Jump / Continue\nR Trigger: Axe | X: Care / Feed | Hold Y: Reposition | R stick click: EN / 中文";
         }
     }
 }

@@ -99,12 +99,12 @@ public partial class ObliqueForest {
         foreach(var layer in layout.layers){
             if(layer.tree)continue;
             // Project the approved screen layout onto the ground. Every glyph stays camera-facing.
-            var p=center+new Vector3((layer.x-342)*unit*spreadX+((float)placement.NextDouble()-.5f)*.24f,0,(390-layer.y)*unit/cam.transform.up.z*spreadZ+((float)placement.NextDouble()-.5f)*.28f);
+            var p=center+new Vector3((layer.x-342)*unit*spreadX+((float)placement.NextDouble()-.5f)*.24f,0,(390-layer.y)*unit/(XRTrackingControlsCamera ? .6292f : cam.transform.up.z)*spreadZ+((float)placement.NextDouble()-.5f)*.28f);
             AddDictionaryPlant(p,false,index,layer.key,layer.height*unit*(.92f+(float)placement.NextDouble()*.16f));
         }
         foreach(var mark in layout.marks){
             if(mark.key=="mark_00")continue;
-            var p=center+new Vector3((mark.x-342)*unit,0,(390-mark.y)*unit/cam.transform.up.z);
+            var p=center+new Vector3((mark.x-342)*unit,0,(390-mark.y)*unit/(XRTrackingControlsCamera ? .6292f : cam.transform.up.z));
             var anchor=new GameObject("Ground decoration (not a Dongba character)").transform;anchor.position=p;
             var art=Billboard("Ground strokes",anchor,dictionarySprites[mark.key],Mathf.Max(.015f,mark.height*unit));
             art.GetComponent<SpriteRenderer>().sortingOrder=GroundDepthOrder(p.z);

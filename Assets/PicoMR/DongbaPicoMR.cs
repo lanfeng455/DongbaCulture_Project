@@ -19,6 +19,7 @@ namespace DongbaXR
         public Camera xrCamera;
         public float worldUnitsPerMetre = 60;
         public bool playPanoramicOpening = false;
+        [Range(0f,1f)] public float paperOpacity = .9f;
         [Range(1f, 3f)] public float artworkScale = 1f;
         [Min(.25f)] public float repositionHoldSeconds = .65f;
         const int ScanLayer = 30;
@@ -87,6 +88,7 @@ namespace DongbaXR
             pose.updateType = TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
             // Preserve our paper ground: it is part of the forest, not an alternate MR floor.
             forest.ConfigureXRHUD(worldUnitsPerMetre);
+            forest.ConfigureXRPaper(paperOpacity);
             xrCamera.cullingMask = mask | (1 << ScanLayer);
             foreach (var renderer in FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
             {
