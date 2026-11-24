@@ -73,7 +73,7 @@ public partial class ObliqueForest : MonoBehaviour {
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--narrative-capture-preview")>=0)StartCoroutine(PreviewNarrativeCapture());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--narrative-check")>=0)StartCoroutine(CheckNarrativePreview());
         if(NarrativePreview||Array.IndexOf(Environment.GetCommandLineArgs(),"--story-mode-preview")>=0)StoryModeEnabled=true;
-        cam=Camera.main; cam.orthographic=!XRTrackingControlsCamera; cam.orthographicSize=8.5f; if(!XRTrackingControlsCamera){cam.transform.position=new Vector3(0,17,-20);cam.transform.LookAt(new Vector3(0,0,1));} cam.clearFlags=CameraClearFlags.SolidColor; cam.backgroundColor=new Color(.9f,.85f,.73f); billboard=cam.transform.rotation;
+        cam=Camera.main; cam.orthographic=!XRTrackingControlsCamera; cam.orthographicSize=8.5f; if(!XRTrackingControlsCamera){cam.transform.position=new Vector3(0,17,-20);cam.transform.LookAt(new Vector3(0,0,1));} cam.clearFlags=CameraClearFlags.SolidColor; cam.backgroundColor=XRTrackingControlsCamera?Color.clear:new Color(.9f,.85f,.73f); billboard=cam.transform.rotation;
         rootGrowthInk=new Material(Resources.Load<Shader>("RootGrowthInk"));plainTreeInk=new Material(Shader.Find("Sprites/Default"));
         LoadDictionaryArt(); MakePaper(); Ground(); SetupFlourish(); // Wind glyph effect disabled; source asset retained.
         player=new GameObject("Player foot anchor").transform; player.position=ForestSpawn;lastDryPosition=player.position;

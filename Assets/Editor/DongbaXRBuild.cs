@@ -36,7 +36,15 @@ namespace DongbaXR.Editor
             Require(DongbaPicoSetup.ScenePath);
             DongbaPicoSetup.ConfigureLoader();
             AssetDatabase.SaveAssets();
-            Build(DongbaPicoSetup.ScenePath, "Dongba-PICO-MR.apk");
+            // Required by the PICO compositor / URP to reveal the real room.
+            // Scope the setting to this build; do not change desktop defaults.
+            bool previousAlpha = PlayerSettings.preserveFramebufferAlpha;
+            try
+            {
+                PlayerSettings.preserveFramebufferAlpha = true;
+                Build(DongbaPicoSetup.ScenePath, "Dongba-PICO-MR.apk");
+            }
+            finally { PlayerSettings.preserveFramebufferAlpha = previousAlpha; }
         }
 
         static void Build(string scene, string apk)

@@ -90,7 +90,63 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         cam.stereoTargetEye=StereoTargetEyeMask.None;yield return null;
         Directory.CreateDirectory("Verification/pico-integration");
         CaptureSceneToTexture("Verification/pico-integration/forest.png");
-        report.AppendLine("Editor simulated placement/controller checks only; no PICO headset or Android build toolchain present.");
+        Check(cam.backgroundColor.a==0&&!cam.allowHDR&&!cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>().renderPostProcessing,"MR camera preserves transparent room background without HDR/post-processing");
+        // Test the actual rendered alpha, not just the inspector's background colour.
+        int savedMask=cam.cullingMask;cam.cullingMask=0;
+        var savedTarget=cam.targetTexture;var savedActive=RenderTexture.active;
+        var alphaTarget=new RenderTexture(32,32,24,RenderTextureFormat.ARGB32);
+        var alphaPixels=new Texture2D(32,32,TextureFormat.RGBA32,false);
+        try{
+            cam.targetTexture=alphaTarget;cam.Render();RenderTexture.active=alphaTarget;
+            alphaPixels.ReadPixels(new Rect(0,0,32,32),0,0);alphaPixels.Apply();
+            Check(alphaPixels.GetPixel(16,16).a<.01f,"Empty MR view renders transparent pixels for the passthrough compositor");
+        }finally{cam.targetTexture=savedTarget;RenderTexture.active=savedActive;cam.cullingMask=savedMask;alphaTarget.Release();Destroy(alphaTarget);Destroy(alphaPixels);}
+
+        // Reproduce the reported freeze: a head-tracked perspective pose cannot
+        // ever satisfy the desktop shot's camera target or orthographic size.
+        var mrSpots=new[]{ForestSpawn,new Vector3(-44,0,0)};
+        for(int shot=0;shot<mrSpots.Length;shot++){
+            RestartRun();fatherIntroActive=false;ResetForestSubtitles();
+            player.position=mrSpots[shot];lastDryPosition=Feet;
+            storyFatherRoot.position=Feet+Vector3.right*1.5f;
+            cam.transform.position=new Vector3(-3,36,-46);cam.transform.LookAt(new Vector3(-7,0,0));
+            cam.orthographicSize=6.6f;var headPosition=cam.transform.position;var headRotation=cam.transform.rotation;
+            while(Balance>StoryCaptureBalanceThreshold)RegisterDamage();
+            yield return null;yield return null;
+            Check(journeyStage==JourneyStage.BoarPass,"Ecology threshold starts MR boar pass at location "+shot);
+            var initialBoar=storyBoar.root.position;
+            yield return new WaitForSeconds(.9f);
+            Check(boarPassMoving&&storyBoar.root.gameObject.activeSelf&&storyBoar.root.position.x>initialBoar.x,"MR boar appears and runs without waiting for PC camera at location "+shot);
+            if(shot==0)CaptureSceneToTexture("Verification/pico-integration/boar-pass.png");
+            float wait=0;bool onPaper=true,jumped=false;
+            while(journeyStage==JourneyStage.BoarPass&&wait<8f){
+                wait+=Time.deltaTime;
+                onPaper&=Mathf.Abs(storyBoar.root.position.x)<ForestHalfWidth&&Mathf.Abs(storyBoar.root.position.z)<ForestHalfDepth;
+                jumped|=storyBoar.art.localPosition.y>.5f;
+                yield return null;
+            }
+            Check(boarPassComplete&&onPaper&&jumped,"MR boar crosses river on paper and reaches the east clearing at location "+shot);
+            Check(Vector3.Distance(cam.transform.position,headPosition)<.001f&&Quaternion.Angle(cam.transform.rotation,headRotation)<.01f,"Cutscene never moves the tracked camera at location "+shot);
+            wait=0;while(!ManualStoryDialogueActive&&wait<5){wait+=Time.deltaTime;yield return null;}
+            Check(ManualStoryDialogueActive,"Hunting invitation follows the MR pass at location "+shot);
+            for(int i=0;i<16&&ManualStoryDialogueActive;i++){
+                forestSubtitles.CompleteCurrentLine();xrSimA=true;yield return null;yield return null;
+                xrSimA=false;yield return null;yield return null;
+            }
+            Check(journeyStage==JourneyStage.Boar&&!ManualStoryDialogueActive,"Controller A completes invitation and unlocks play at location "+shot);
+            player.position=new Vector3(-6,0,0);start=Feet;
+            yield return new WaitForSeconds(.3f);xrSimStick=Vector2.right;yield return new WaitForSeconds(.3f);xrSimStick=Vector2.zero;
+            Check(Vector3.Distance(Feet,start)>.2f,"Player movement resumes after MR threshold event at location "+shot);
+        }
+        // The desktop shot still waits for its own camera and then completes.
+        XRTrackingControlsCamera=false;RestartRun();fatherIntroActive=false;ResetForestSubtitles();
+        player.position=ForestSpawn;storyFatherRoot.position=Feet+Vector3.left;
+        cam.orthographic=true;cam.orthographicSize=6.6f;cam.transform.position=ForestSpawn+CameraOffset;
+        cam.transform.rotation=Quaternion.LookRotation(-CameraOffset,Vector3.up);
+        while(Balance>StoryCaptureBalanceThreshold)RegisterDamage();yield return null;yield return null;
+        float desktopWait=0;while(journeyStage==JourneyStage.BoarPass&&desktopWait<12){desktopWait+=Time.deltaTime;yield return null;}
+        Check(boarPassComplete,"Desktop camera-framed boar pass still completes");
+        report.AppendLine("Editor simulated placement/controller checks only; actual headset behaviour is verified separately.");
         File.WriteAllText("Verification/pico-integration/checks.txt",report.ToString());
         UnityEditor.EditorApplication.Exit(passed?0:1);
     }

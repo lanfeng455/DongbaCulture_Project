@@ -6,6 +6,9 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     const float HomeStoryZoom=6.6f;
     Transform storyHearth;Transform storyHome;float boarPassAge;Vector3 boarPassStart;bool boarPassComplete;
     Vector3 boarPassView;bool boarPassMoving;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public string PicoStoryDiagnostic => journeyStage.ToString()+" / ecology="+Balance+" / boarMoving="+boarPassMoving+" / dialogue="+(fatherIntroActive||ManualStoryDialogueActive);
+#endif
     void BeginBoarPass(){
         SpawnStoryBoar();journeyStage=JourneyStage.BoarPass;fatherHuntTarget=null;fatherSwingAge=-1;
         boarPassAge=0;boarPassComplete=boarPassMoving=false;
@@ -14,6 +17,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         float westView=-ForestHalfWidth+halfView+2*halfGlyph+1;
         boarPassView=new Vector3(Mathf.Clamp(Feet.x,westView,Mathf.Max(westView,RiverX(0)-2)),0,0);
         boarPassStart=new Vector3(boarPassView.x-halfView-halfGlyph-.5f,0,0);
+        // The MR viewer owns the camera. Stage the pass on the paper itself,
+        // west of the player / river, rather than outside a desktop viewport.
+        if(XRTrackingControlsCamera)
+            boarPassStart=new Vector3(Mathf.Clamp(Mathf.Min(Feet.x-10f,RiverX(0)-8f),-ForestHalfWidth+halfGlyph+1,BoarClearing.x-12),0,0);
         storyBoar.root.position=boarPassStart;storyBoar.root.gameObject.SetActive(false);
     }
     Vector3 ClampBoarViewToPaper(Vector3 center){
@@ -32,8 +39,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     void UpdateBoarPass(float dt){
         boarPassAge+=dt;
         if(!boarPassMoving){
-            // First look into the forest. Reveal only once the start is safely off camera.
-            if(boarPassAge<.55f||Vector3.Distance(cam.transform.position-CameraOffset,ClampBoarViewToPaper(boarPassView))>.3f||Mathf.Abs(cam.orthographicSize-8.5f)>.1f)return;
+            // Only the desktop camera is moved by this shot. A tracked camera must
+            // never gate story progress on a PC position or orthographic zoom.
+            if(boarPassAge<.55f)return;
+            if(!XRTrackingControlsCamera&&(Vector3.Distance(cam.transform.position-CameraOffset,ClampBoarViewToPaper(boarPassView))>.3f||Mathf.Abs(cam.orthographicSize-8.5f)>.1f))return;
             boarPassMoving=true;storyBoar.root.gameObject.SetActive(true);
         }
         storyBoar.root.position=Vector3.MoveTowards(storyBoar.root.position,BoarClearing,13*dt);

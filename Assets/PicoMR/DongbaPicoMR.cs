@@ -6,6 +6,7 @@ using Unity.XR.CoreUtils;
 using Unity.XR.PXR;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using UnityEngine.XR;
 
@@ -70,6 +71,10 @@ namespace DongbaXR
             origin.transform.localScale = Vector3.one * worldUnitsPerMetre;
             scanningOrigin = origin.transform.position;
             xrCamera.orthographic = false;
+            // Passthrough is composited underneath the eye buffer. Keep alpha
+            // intact; desktop HDR / post-processing may produce an opaque buffer.
+            xrCamera.allowHDR = false;
+            xrCamera.GetUniversalAdditionalCameraData().renderPostProcessing = false;
             xrCamera.clearFlags = CameraClearFlags.SolidColor;
             xrCamera.backgroundColor = Color.clear;
             xrCamera.nearClipPlane = .01f * worldUnitsPerMetre;
@@ -123,7 +128,7 @@ namespace DongbaXR
 #if UNITY_ANDROID && !UNITY_EDITOR
             PXR_PermissionRequest.RequestUserPermissionMR(
                 _ => status = "Spatial access denied: enable it in app permissions",
-                _ => { permission = true; status = ScanPrompt; },
+                _ => { permission = true; status = ScanPrompt; Debug.Log("[DongbaPICO] Spatial permission granted"); },
                 _ => status = "Spatial access denied: enable it in app permissions");
 #else
             status = "Room scanning requires PICO 4 Ultra";
@@ -297,6 +302,7 @@ namespace DongbaXR
         {
             origin.transform.position -= worldPoint;
             placed = true;
+            Debug.Log("[DongbaPICO] Forest placed on scanned surface");
             marker.SetActive(false);
             if (!forestStarted)
             {
@@ -310,6 +316,7 @@ namespace DongbaXR
         void ResetPlacement()
         {
             placed = false;
+            Debug.Log("[DongbaPICO] Forest reposition requested");
             origin.transform.position = scanningOrigin;
             Physics.SyncTransforms();
             UpdatePlacementVisibility(false);
