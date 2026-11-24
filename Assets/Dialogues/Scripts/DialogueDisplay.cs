@@ -441,6 +441,7 @@ public partial class DialogueDisplay : MonoBehaviour
                 SetPaperPresentation(paperAtTop, segmentPaperManual || lineManual);
                 SetVisible(true);
                 m_visibleEntry = entry;
+                Ivan.Scroll.StageActorRegistry.ReactToLine(entry.speaker);
                 UpdatePaperPortrait();
                 string line = FormatLine(entry);
                 await TypeLineAsync(line, token, lineManual);

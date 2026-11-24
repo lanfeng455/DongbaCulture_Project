@@ -11,7 +11,7 @@ namespace Ivan.Diorama
     //   J / Enter      挥斧（前方 2m 内的树，3 斧砍倒）
     //   E              谜题交互优先；没有可交互目标时才是喂食（动物）/ 补种（树桩）
     // 相机在 LateUpdate 中跟随玩家，保持组员原版的 (0,17,-20) 正交偏移。
-    public class DioramaPlayerController : MonoBehaviour
+    public partial class DioramaPlayerController : MonoBehaviour
     {
         private const float k_jumpDuration = 0.85f;
         private const float k_attackDuration = 0.62f;
@@ -73,9 +73,6 @@ namespace Ivan.Diorama
         [Tooltip("左右转向时「压扁→翻面→弹回」的时长（秒）；0 = 立即翻转")]
         [SerializeField] private float m_turnDuration = 0.14f;
 
-        private int m_renderedFacing = 1;   // 实际渲染的朝向（转身动画压扁到 0 时才换面）
-        private float m_turnAge = -1f;      // >= 0 表示正在转身
-        private float m_bodyBaseScaleX = 1f; // body 的基准缩放，转身压扁在此基础上做
 
         // 演出锁定优先；未锁定时用移动朝向
         private int EffectiveFacing => m_stageFacing != 0 ? m_stageFacing : m_facing;
@@ -115,6 +112,7 @@ namespace Ivan.Diorama
         // 不直接写 position，玩家会被"推着滑出去"，能看出是被撞开的
         public void ApplyKnockback(Vector3 velocity, float duration)
         {
+            m_paperMotion.Hurt(velocity.x);
             m_knockVelocity = velocity;
             m_knockDuration = Mathf.Max(0.05f, duration);
             m_knockRemaining = m_knockDuration;
@@ -151,7 +149,7 @@ namespace Ivan.Diorama
             if (m_body != null)
             {
                 m_bodyImage = m_body.GetComponent<SpriteRenderer>();
-                m_bodyBaseScaleX = m_body.localScale.x;
+                m_paperBaseScale=m_body.localScale;m_paperBaseRotation=m_body.localRotation;m_paperMotion.Reset();
             }
             if (m_axe != null)
             {
@@ -263,13 +261,18 @@ namespace Ivan.Diorama
                 }
                 if (kb.jKey.wasPressedThisFrame && m_attackAge < 0)
                 {
+                    if(move.x!=0){m_stageFacing=0;m_facing=move.x>0?1:-1;}
+                    if(move.sqrMagnitude>0)m_heading=move;
+                    m_attackDirection=EffectiveFacing;m_paperTurn.Snap(m_attackDirection);
                     m_attackAge = 0f;
                     m_hitDone = false;
                 }
                 if (kb.eKey.wasPressedThisFrame)
                 {
                     // 谜题交互优先；没有可交互目标时保持原有的喂食/补种行为
-                    if (m_puzzleInteractor == null || !m_puzzleInteractor.TryInteract())
+                    bool used=m_puzzleInteractor!=null&&m_puzzleInteractor.TryInteract();
+                    if(used)m_paperMotion.Care();
+                    if (!used)
                     {
                         Care();
                     }
@@ -325,7 +328,12 @@ namespace Ivan.Diorama
             // —— 身体浮动与朝向（组员 Line 135 简化）——
             if (m_body != null)
             {
-                m_body.localPosition = new Vector3(0f, hop + 0.015f * Mathf.Sin(m_clock * 3.4f), 0f);
+                m_body.localPosition = new Vector3(0f, hop, 0f);
+                m_body.localScale=m_paperBaseScale;m_body.localRotation=m_paperBaseRotation;
+                var pose=m_paperMotion.Tick(dt,transform.position,m_attackAge>=0?m_attackDirection:EffectiveFacing,m_jumpAge,m_attackAge<0?-1:m_attackAge+dt);
+                AddPushPose(ref pose,dt);
+                // Handoff owns the cut-out size and placement; no secondary animation fights it.
+                if(!CameraHandoff){m_body.localPosition+=Vector3.up*pose.lift;m_body.localScale=Vector3.Scale(m_paperBaseScale,pose.scale);m_body.localRotation=m_paperBaseRotation*Quaternion.Euler(0,0,pose.roll);}
                 if (m_bodyImage != null)
                 {
                     // 演出朝向锁定（@向左看/@向右看）优先于移动朝向；转向走压扁翻面过渡
@@ -353,9 +361,9 @@ namespace Ivan.Diorama
                     float swing = m_attackAge < 0.16f
                         ? Mathf.Lerp(20f, 85f, Mathf.SmoothStep(0f, 1f, m_attackAge / 0.16f))
                         : Mathf.Lerp(85f, -110f, Mathf.SmoothStep(0f, 1f, (m_attackAge - 0.16f) / 0.3f));
-                    m_axe.localRotation = Quaternion.Euler(0f, 0f, EffectiveFacing * swing);
+                    m_axe.localRotation = Quaternion.Euler(0f, 0f, m_attackDirection * swing);
                     var axeScale = m_axe.localScale;
-                    axeScale.x = Mathf.Abs(axeScale.x) * EffectiveFacing;
+                    axeScale.x = Mathf.Abs(axeScale.x) * m_attackDirection;
                     m_axe.localScale = axeScale;
                 }
                 if (m_attackAge > 0.25f && !m_hitDone)
@@ -492,57 +500,10 @@ namespace Ivan.Diorama
         // 扁平纸片小人直接 flipX 会很生硬；键盘移动和演出 @向左看/@向右看 共用这条路径
         private void UpdateTurnVisual()
         {
-            int targetFacing = EffectiveFacing;
-            float half = m_turnDuration * 0.5f;
-
-            // 朝向变了且没在转身：开始一段转身（时长为 0 则直接翻）
-            if (targetFacing != m_renderedFacing && m_turnAge < 0f)
-            {
-                if (m_turnDuration <= 0f)
-                {
-                    m_renderedFacing = targetFacing;
-                }
-                else
-                {
-                    m_turnAge = 0f;
-                }
-            }
-
-            float scaleX = 1f;
-            if (m_turnAge >= 0f)
-            {
-                // 前半程方向又变回来了：取消本次转身
-                if (targetFacing == m_renderedFacing && m_turnAge < half)
-                {
-                    m_turnAge = -1f;
-                }
-                else
-                {
-                    m_turnAge += Time.deltaTime;
-                    if (m_turnAge < half)
-                    {
-                        scaleX = Mathf.Lerp(1f, 0f, m_turnAge / half);
-                    }
-                    else
-                    {
-                        // 中点翻面：读取当下的目标朝向，转身途中反悔也能自然衔接
-                        m_renderedFacing = targetFacing;
-                        if (m_turnAge < m_turnDuration)
-                        {
-                            scaleX = Mathf.Lerp(0f, 1f, (m_turnAge - half) / half);
-                        }
-                        else
-                        {
-                            m_turnAge = -1f;
-                        }
-                    }
-                }
-            }
-
-            Vector3 scale = m_body.localScale;
-            scale.x = m_bodyBaseScaleX * scaleX;
-            m_body.localScale = scale;
-            m_bodyImage.flipX = m_renderedFacing < 0;
+            if(m_attackAge>=0)m_paperTurn.Snap(m_attackDirection);
+            else m_paperTurn.Tick(EffectiveFacing,Time.deltaTime,Mathf.Max(.20f,m_turnDuration));
+            var scale=m_body.localScale;scale.x*=m_paperTurn.Width;m_body.localScale=scale;
+            m_bodyImage.flipX=m_paperTurn.Facing<0;
         }
 
         // 河带只在开启 m_riverBlocksMovement 时视为不可走。
@@ -604,6 +565,7 @@ namespace Ivan.Diorama
             if (bestAnimal != null)
             {
                 bestAnimal.Feed();
+                m_paperMotion.Care();
                 return;
             }
 
@@ -614,6 +576,7 @@ namespace Ivan.Diorama
                 if (Vector3.Distance(tree.transform.position, transform.position) < k_interactRange)
                 {
                     tree.Replant();
+                    m_paperMotion.Care();
                     return;
                 }
             }

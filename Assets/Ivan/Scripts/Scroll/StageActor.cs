@@ -10,7 +10,7 @@ namespace Ivan.Scroll
     // 同名只认最新注册的一个。
     [DisallowMultipleComponent]
     [AddComponentMenu("Scroll/Stage Actor")]
-    public class StageActor : MonoBehaviour
+    public partial class StageActor : MonoBehaviour
     {
         [Tooltip("演员名，必须与对话表 Speaker 列一致（不分大小写）")]
         [SerializeField] private string m_actorName = "Fox";
@@ -56,6 +56,7 @@ namespace Ivan.Scroll
             }
 
             m_isFacingLeft = primaryFlip ^ m_defaultFacesLeft;
+            InitializePaperMotion();
         }
 
         private void OnEnable()
@@ -65,11 +66,14 @@ namespace Ivan.Scroll
 
         private void OnDisable()
         {
+            RestorePaperPose();
             StageActorRegistry.Unregister(this);
         }
 
         private void Update()
         {
+            if(DongbaPrototype.DongbaInterface.GameplayBlocked)return;
+            RestorePaperPose();
             if (m_hasMoveTarget)
             {
                 // 定点移动：朝目标局部 X 走，到达即停（装饰性行走，不参与物理碰撞）
@@ -98,6 +102,7 @@ namespace Ivan.Scroll
             {
                 ApplyFlip(m_lockedFaceLeft);
             }
+            ApplyPaperPose();
         }
 
         private bool IsFacingLeft => m_isFacingLeft;
@@ -214,6 +219,11 @@ namespace Ivan.Scroll
         {
             if (actor == null) return;
             s_byName.Remove(actor.ActorName.Trim().ToLowerInvariant());
+        }
+
+        public static void ReactToLine(string speaker)
+        {
+            if(!string.IsNullOrWhiteSpace(speaker)&&s_byName.TryGetValue(speaker.Trim().ToLowerInvariant(),out var actor)&&actor!=null&&actor.isActiveAndEnabled)actor.ReactToSpeech();
         }
 
         public static StageActor Find(string speaker)

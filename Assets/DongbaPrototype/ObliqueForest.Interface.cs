@@ -23,6 +23,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         PerformCare();
         string result=oldHealth<=0&&target.health>0?"Replanted":!oldCultivated&&target.cultivated?"Tended":oldAge<target.age?"Fed — growing":animals.Count>oldCount?"Fed — young animal nearby":null;
         if(result==null)return;
+        playerMotion.Care();
         resultTarget=target;resultText=result;resultUntil=clock+1.8f;taughtCare=true;
     }
     void BuildInteractionPolish(){

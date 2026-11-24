@@ -101,6 +101,8 @@ public partial class ObliqueForest : MonoBehaviour {
 #if UNITY_EDITOR
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--pico-integration-check")>=0)StartCoroutine(CheckPicoIntegration());
 #endif
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--puzzle-motion-check")>=0){var test=new GameObject("Paper motion test").AddComponent<PaperPuzzleMotionCheck>();DontDestroyOnLoad(test);test.StartCoroutine(test.Run());}
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--character-feel-check")>=0)StartCoroutine(CheckCharacterFeel());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--character-presentation-check")>=0)StartCoroutine(CheckCharacterPresentation());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--subtitle-portraits-check")>=0)BeginSubtitlePortraitCheck();
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--dialogue-any-key-check")>=0)StartCoroutine(CheckAnyKeyDialogue());
@@ -174,7 +176,7 @@ public partial class ObliqueForest : MonoBehaviour {
         UpdateInterfaceTutorial(move,false,false);if(!River(Feet))lastDryPosition=Feet;
         float hop=0;if(jumpAge>=0){jumpAge+=dt;hop=Mathf.Sin(Mathf.Clamp01(jumpAge/.85f)*Mathf.PI)*1.45f;if(jumpAge>=.85f){jumpAge=-1;PlayForestLanding(Feet,true);if(River(Feet)){player.position=lastDryPosition;}}}
         UpdateFlowerTrail(previousFeet,move,dt);
-        body.localPosition=new Vector3(0,hop+.015f*Mathf.Sin(clock*3.4f),0);UpdatePlayerTurn(dt);playerImage.color=damageCooldown>0?new Color(1,.55f,.45f):Color.white;
+        body.localPosition=new Vector3(0,hop,0);body.rotation=billboard;UpdatePlayerTurn(dt);TickPlayerMotion(dt);playerImage.color=damageCooldown>0?new Color(1,.55f,.45f):Color.white;
         hand.localPosition=PlayerHandLocalPosition();
         UpdateAxeAttack(dt);
         foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;

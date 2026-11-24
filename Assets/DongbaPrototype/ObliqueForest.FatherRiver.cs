@@ -11,7 +11,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     }
     void UpdateFatherVisualPose(){
         if(storyFatherArt==null||storyFatherImage==null||!storyFatherRoot.gameObject.activeInHierarchy)return;
-        float lift=fatherJumpAge>=0?Mathf.Sin(fatherJumpAge/FatherRiverJumpDuration*Mathf.PI)*1.45f:carryStarted?0:.02f*Mathf.Sin(clock*2.4f+storyFather.phase);
+        float lift=fatherJumpAge>=0?Mathf.Sin(fatherJumpAge/FatherRiverJumpDuration*Mathf.PI)*1.45f:0;
         storyFatherArt.localPosition=Vector3.up*lift;
         if(!carryStarted)storyFatherImage.sortingOrder=DepthOrder(storyFatherRoot.position.z);
     }
@@ -36,16 +36,18 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             storyFatherRoot.position=start;storyFatherArt.localPosition=Vector3.zero;fatherJumpAge=-1;fatherHuntTarget=null;captureBeatAge=0;returnWait=100;
             knifeDropPoint=end+Vector3.right*10;player.position=start+new Vector3(-2,0,-3);FollowPlayerCamera(100);
             MoveStoryFatherToward(end,2.7f,1f/30);
-            bool began=fatherJumpAge>=0;float age=0,maxLift=0;bool groundedOverWater=false,interrupted=false;
+            bool began=fatherJumpAge>=0;var plannedLanding=fatherJumpTo;float age=0,maxLift=0;bool groundedOverWater=false,interrupted=false,landed=false;
             while(age<1.05f){
                 // Do not call movement again: jump must finish without depending on the caller/AI.
                 if(scenario==3&&age>.2f&&!interrupted){journeyStage=JourneyStage.Hunting;fatherIntroActive=true;fatherHuntTarget=null;interrupted=true;}
                 yield return new WaitForEndOfFrame();maxLift=Mathf.Max(maxLift,storyFatherArt.localPosition.y);
+                // Knife-route AI continues walking as soon as it lands; observe the crossing end,
+                // not an obsolete expectation that it remains at the destination 0.2 seconds later.
+                landed|=fatherJumpAge<0&&!River(storyFatherRoot.position)&&Vector3.Distance(storyFatherRoot.position,plannedLanding)<.15f&&Mathf.Abs(storyFatherArt.localPosition.y)<.04f;
                 if(River(storyFatherRoot.position)&&storyFatherArt.localPosition.y<.25f)groundedOverWater=true;
                 if(storyFatherArt.localPosition.y>1.4f)CaptureRiverApexOnce(folder,scenario);
                 CaptureSceneToTexture(folder+"/frames/"+(frame++).ToString("D4")+".png",960,540);age+=Time.deltaTime;
             }
-            bool landed=fatherJumpAge<0&&Vector3.Distance(storyFatherRoot.position,end)<.01f&&Mathf.Abs(storyFatherArt.localPosition.y)<.03f;
             bool pass=began&&landed&&maxLift>1.4f&&!groundedOverWater;allVisible&=pass;
             File.AppendAllText(folder+"/checks.txt",names[scenario]+"="+pass+"; max visible lift="+maxLift.ToString("F3")+"; landing="+landed+"\n");
         }

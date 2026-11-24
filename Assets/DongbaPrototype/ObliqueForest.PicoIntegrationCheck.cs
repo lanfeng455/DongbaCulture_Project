@@ -57,6 +57,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         player.position=new Vector3(-6,0,0);var start=Feet;
         xrSimStick=Vector2.right;yield return new WaitForSeconds(.25f);xrSimStick=Vector2.zero;yield return null;
         Check(Vector3.Distance(start,Feet)>.2f,"Controller moves the original protagonist");
+        Check(playerMotion.MovingWeight>.2f,"MR joystick movement drives the shared paper walking pose");
         yield return new WaitForSeconds(.4f);
         xrSimStick=Vector2.left;yield return null;yield return null;
         Check(playerTurn.Width<.99f,"MR joystick uses the same smooth paper turn as PC");
@@ -69,6 +70,12 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         xrSimStick=Vector2.zero;
         Check(attackAge>=0&&axe.gameObject.activeSelf,"Right trigger invokes the existing axe attack");
         xrSimTrigger=false;yield return new WaitForSeconds(.8f);
+        xrSimA=true;yield return null;xrSimA=false;yield return new WaitForSeconds(.24f);
+        Check(jumpAge>=0&&body.localPosition.y>.7f,"MR A jump retains the same visible paper arc");
+        yield return new WaitForSeconds(.65f);
+        Check(playerMotion.Current.scale.y<.99f,"MR landing uses the shared compression / recovery");
+        yield return new WaitForSeconds(.4f);
+        Check(playerMotion.Current.scale.y>.99f&&Mathf.Abs(body.position.x-Feet.x)<.001f,"MR character settles at its fixed foot anchor");
         int balance=Balance;
         pico.SimulateRepositionInputForVerification(false,0);
         pico.SimulateRepositionInputForVerification(true,pico.repositionHoldSeconds+.1f);
