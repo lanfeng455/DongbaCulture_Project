@@ -133,9 +133,9 @@ public partial class ObliqueForest {
         RefreshQuietHUD();
     }
     Being NearestForestInteraction(){
-        Being near=null;float best=1.8f*InteractionRange;foreach(var b in plants)if(b.tree){float d=Vector3.Distance(Feet,b.home);if(d<best){best=d;near=b;}}
-        foreach(var b in animals)if(b.health>0&&b.migrationState!=2&&b.root.gameObject.activeInHierarchy){float d=Vector3.Distance(Feet,b.root.position);if(d<best){best=d;near=b;}}
-        if(interactionTarget!=null&&interactionTarget.root.gameObject.activeInHierarchy&&(!interactionTarget.animal||(interactionTarget.health>0&&interactionTarget.migrationState!=2))){float current=Vector3.Distance(Feet,interactionTarget.root.position);if(current<1.8f*InteractionRange&&current<best+.18f)return interactionTarget;}return near;
+        Being near=null;float best=1.8f*InteractionRange;foreach(var b in plants)if(b.tree&&ForestTargetAvailable(b)){float d=Vector3.Distance(Feet,b.home);if(d<best){best=d;near=b;}}
+        foreach(var b in animals)if(ForestTargetAvailable(b)&&b.health>0&&b.migrationState!=2&&b.root.gameObject.activeInHierarchy){float d=Vector3.Distance(Feet,b.root.position);if(d<best){best=d;near=b;}}
+        if(ForestTargetAvailable(interactionTarget)&&interactionTarget.root.gameObject.activeInHierarchy&&(!interactionTarget.animal||(interactionTarget.health>0&&interactionTarget.migrationState!=2))){float current=Vector3.Distance(Feet,interactionTarget.root.position);if(current<1.8f*InteractionRange&&current<best+.18f)return interactionTarget;}return near;
     }
     IEnumerator CaptureForestLayout(){
         Directory.CreateDirectory("Verification");yield return new WaitForSeconds(2);

@@ -102,6 +102,7 @@ public partial class ObliqueForest : MonoBehaviour {
 #if UNITY_EDITOR
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--pico-integration-check")>=0)StartCoroutine(CheckPicoIntegration());
 #endif
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-interaction-check")>=0)StartCoroutine(CheckStoryInteractionPermissions());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--puzzle-motion-check")>=0){var test=new GameObject("Paper motion test").AddComponent<PaperPuzzleMotionCheck>();DontDestroyOnLoad(test);test.StartCoroutine(test.Run());}
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--character-feel-check")>=0)StartCoroutine(CheckCharacterFeel());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--character-presentation-check")>=0)StartCoroutine(CheckCharacterPresentation());
@@ -170,7 +171,7 @@ public partial class ObliqueForest : MonoBehaviour {
     void AddPlant(Vector3 p,bool tree,int index){AddDictionaryPlant(p,tree,index);}
     void AddAnimal(Vector3 p,int species=-1){AddDictionaryAnimal(p,species);}
     bool Free(Vector3 p){if(StoryModeEnabled&&journeyStage==JourneyStage.EastJourney&&p.x>=JourneyReelStart)return p.x<=JourneyReelStart+510&&Mathf.Abs(p.z)<=ForestHalfDepth;if(InScrollWorld)return p.x>=94&&p.x<=124&&Mathf.Abs(p.z-70)<=3.5f;if(storyHearth!=null&&storyHearth.gameObject.activeInHierarchy&&Mathf.Abs(p.x-HearthPosition.x)<.50f&&Mathf.Abs(p.z-HearthPosition.z)<.28f)return false;if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.2f&&Mathf.Abs(p.z-storyHome.position.z)<.65f)return false;if(Mathf.Abs(p.x)>ForestHalfWidth||Mathf.Abs(p.z)>ForestHalfDepth)return false;if(jumpAge<0&&River(p))return false;foreach(var b in plants)if(b.tree&&b.health>0){if(Vector3.Distance(p,b.home)<.50f)return false;}return true;}
-    void Update(){if(player==null)return;if(XRTrackingControlsCamera&&!XRExperienceReady){ReadXRInput(Vector3.zero,true);return;}if(DongbaInterface.GameplayBlocked){UpdateForestPresentation(0);return;}RestoreCharacterTurnScales();RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateOpeningSurvey(dt);UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked||NarrativeInputLocked;var kb=Keyboard.current;if((fatherIntroActive||ManualStoryDialogueActive)&&!OpeningSurveyActive&&forestSubtitles!=null&&forestSubtitles.TryConsumeAdvanceInput()){if(!TryCompleteForestSubtitle()){if(fatherIntroActive)AdvanceFatherIntro();else AdvanceManualStoryDialogue();}}storyInputLocked|=DialogueAdvanceInput.GameplayInputBlocked;Vector3 move=Vector3.zero;if(kb!=null&&!DialogueAdvanceInput.GameplayInputBlocked){if((Application.isEditor||Debug.isDebugBuild)&&kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0){jumpAge=0;taughtJump=true;PlayForestSfx("jump",Feet);}if(!storyInputLocked&&eastPaperProgress<=0&&kb.jKey.wasPressedThisFrame&&attackAge<0){if(move.sqrMagnitude>0){heading=move.normalized;if(move.x!=0)facing=move.x>0?1:-1;}BeginAxeAttack();taughtAxe=true;}if(!storyInputLocked&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
+    void Update(){if(player==null)return;if(XRTrackingControlsCamera&&!XRExperienceReady){ReadXRInput(Vector3.zero,true);return;}if(DongbaInterface.GameplayBlocked){UpdateForestPresentation(0);return;}RestoreCharacterTurnScales();RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateOpeningSurvey(dt);UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked||NarrativeInputLocked;var kb=Keyboard.current;if((fatherIntroActive||ManualStoryDialogueActive)&&!OpeningSurveyActive&&forestSubtitles!=null&&forestSubtitles.TryConsumeAdvanceInput()){if(!TryCompleteForestSubtitle()){if(fatherIntroActive)AdvanceFatherIntro();else AdvanceManualStoryDialogue();}}storyInputLocked|=DialogueAdvanceInput.GameplayInputBlocked;Vector3 move=Vector3.zero;if(kb!=null&&!DialogueAdvanceInput.GameplayInputBlocked){if((Application.isEditor||Debug.isDebugBuild)&&kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0){jumpAge=0;taughtJump=true;PlayForestSfx("jump",Feet);}if(!storyInputLocked&&ForestDamageAvailable&&eastPaperProgress<=0&&kb.jKey.wasPressedThisFrame&&attackAge<0){if(move.sqrMagnitude>0){heading=move.normalized;if(move.x!=0)facing=move.x>0?1:-1;}BeginAxeAttack();taughtAxe=true;}if(!storyInputLocked&&ForestCareAvailable&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
         move=ReadXRInput(move,storyInputLocked);
         if(storyInputLocked)move=Vector3.zero;
         if(ecologyPreviewWalking)move=ecologyPreviewDirection;Vector3 previousFeet=Feet;move=Vector3.ClampMagnitude(move,1);if(move.sqrMagnitude>0){if(attackAge<0){heading=move;if(move.x!=0)facing=move.x>0?1:-1;}var p=Feet+move*4*dt;if(Free(p))player.position=p;}
@@ -240,7 +241,7 @@ public partial class ObliqueForest : MonoBehaviour {
             if(Free(step)){player.position=step;lastDryPosition=step;return;}
         }
     }
-    void PerformCare(){ClearCareLimit();Being nearest=NearestForestInteraction();if(nearest==null)return;if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayForestSfx("plant",nearest.home);PlayNaxiWordVoice("tree",nearest);}else {GrowAround(nearest);}}}
+    void PerformCare(){if(!ForestCareAvailable)return;ClearCareLimit();Being nearest=NearestForestInteraction();if(nearest==null)return;if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayForestSfx("plant",nearest.home);PlayNaxiWordVoice("tree",nearest);}else {GrowAround(nearest);}}}
     bool FindLocal(Vector3 origin,float min,float max,int seed,bool animal,out Vector3 found){
         for(int i=0;i<48;i++){float angle=(seed*1.73f+i*2.39996f);float radius=Mathf.Lerp(min,max,(i%7)/6f);var p=origin+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius);
             if(Mathf.Abs(p.x)>ForestHalfWidth-1.2f||Mathf.Abs(p.z)>ForestHalfDepth-1.0f||River(p)||Mathf.Abs(p.x-RiverX(p.z))<1.35f)continue;
@@ -252,6 +253,7 @@ public partial class ObliqueForest : MonoBehaviour {
     }
     [Min(25)] public int AnimalPopulationLimit=64;
     void Feed(Being b){
+        if(!ForestCareAvailable)return;
         if(clock<b.careReady){ShowCareLimit(b,"Still feeding");return;}
         if(b.age<2){BeginFeedingResponse(b);b.age++;b.careReady=clock+1.5f;if(b.age==2)RegisterCare();PlayForestSfx("feed",b.root.position);PlayNaxiWordVoice("animal_"+b.speciesIndex.ToString("00"),b);return;}
         int living=0;foreach(var a in animals)if(a.health>0)living++;
@@ -262,6 +264,7 @@ public partial class ObliqueForest : MonoBehaviour {
         }else ShowCareLimit(b,"No room nearby");
     }
     void GrowAround(Being b){
+        if(!ForestCareAvailable)return;
         if(b.cultivated){ShowCareLimit(b,"Already tended");return;}
         if(clock<b.careReady){ShowCareLimit(b,"Still growing");return;}int count=0;
         for(int i=0;i<4;i++)if(FindLocal(b.home,.75f,2.0f,plants.Count+i,false,out var p)){AddPlant(p,false,plants.Count);var sprout=plants[plants.Count-1];sprout.art.localScale=sprout.initialScale*.08f;sprout.renderer.color=new Color(1,1,1,.92f);BeginSproutReveal(sprout,count);count++;}
@@ -314,7 +317,7 @@ public partial class ObliqueForest : MonoBehaviour {
     }
     void RegisterDamage(){damageCount++;}
     void ApplyEcologyHit(Being target){
-        if(target.health<=0)return;
+        if(!ForestDamageAvailable||target.health<=0)return;
         if(target.animal){EndAnimalVisit(target);target.migrationState=0;target.fleeing=false;target.socialReadyAt=clock+30;}
         target.health--;PlayForestHit(target);
         // One ecological loss per felled tree / killed animal, never per axe hit.

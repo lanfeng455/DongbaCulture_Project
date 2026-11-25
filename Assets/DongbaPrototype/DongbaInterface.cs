@@ -131,6 +131,11 @@ public sealed partial class DongbaInterface : MonoBehaviour {
             string[] keys={"WASD","SPACE","J","E",Choose("ANY KEY","任意键"),"TAB","F8","ESC","H","R"};
             string[] en={"Move / Arrow keys","Jump",puzzle?"Attack":"Chop / attack",puzzle?"Interact with nearby objects":"Tend / replant / feed","Reveal / continue dialogue",puzzle?"—":"Expand / fold chapter note","Switch Chinese / English","Pause / back","Controls","Restart the story"};
             string[] zh={"移动 / 方向键","跳跃",puzzle?"攻击":"砍伐 / 攻击",puzzle?"与附近对象交互":"照料 / 补种 / 喂养","显示整句 / 继续对白",puzzle?"—":"展开 / 收起章签","切换中英文","暂停 / 返回","操作说明","重新开始故事"};
+            // Forest-only permissions must not replace the teammate puzzles' own controls.
+            if(forest!=null&&forest.isActiveAndEnabled&&(SceneManager.GetActiveScene().name=="ObliqueForest"||SceneManager.GetActiveScene().name=="DongbaPicoMR")){
+                if(!forest.ForestCareAvailable){en[3]="Care unlocks on your return";zh[3]="归来后解锁培育修复";}
+                if(!forest.ForestDamageAvailable){en[2]="Axe put away in this chapter";zh[2]="此阶段收起斧头";}
+            }
             int row=0;for(int i=0;i<keys.Length;i++){
                 if((puzzle&&keys[i]=="TAB")||(Sandbox&&i==4))continue;
                 if(Sandbox&&i==5){en[i]="Expand / fold forest note";zh[i]="展开 / 收起林间札记";}

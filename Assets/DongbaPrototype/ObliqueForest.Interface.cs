@@ -18,6 +18,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     public void RestartFromInterface(){StartForestMode(StoryModeEnabled);}
     void ResetInterfaceRun(){taughtMove=taughtJump=taughtAxe=taughtCare=endingAcknowledged=false;tutorialOrigin=ForestSpawn;resultTarget=null;resultText="";lastObjective=null;lastBoarHealth=6;boarHurtAt=-10;}
     void Care(){
+        if(!ForestCareAvailable)return;
         var target=NearestForestInteraction();if(target==null)return;
         int oldHealth=target.health,oldAge=target.age,oldCount=animals.Count;bool oldCultivated=target.cultivated;
         PerformCare();
@@ -41,7 +42,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(jump)taughtJump=true;if(attack)taughtAxe=true;
     }
     void RefreshInteractionCard(){
-        bool visible=InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0&&interactionTarget!=null;
+        bool visible=InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0&&ForestTargetAvailable(interactionTarget);
         promptPanel.SetActive(visible);selectionRing.gameObject.SetActive(visible);
         if(!visible)return;
         var b=interactionTarget;selectionRing.position=b.root.position;
@@ -53,14 +54,16 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(b.animal){
             care=clock<b.careReady?"Eating — please wait":b.age<2?"E   Feed to grow":"E   Feed / new young";
         }else care=b.health<=0?"E   Replant here":b.cultivated?"Already tended":clock<b.careReady?"Growing — please wait":"E   Tend";
-        hudPrompt.text=care+(b.health>0?(b.animal?"\nJ   Attack":"\nJ   Chop"):"");
+        string attack=ForestDamageAvailable&&b.health>0?(b.animal?"J   Attack":"J   Chop"):"";
+        string careAction=ForestCareAvailable?care:"";
         bool waitingLimit=careLimitText=="Still feeding"||careLimitText=="Still growing";
-        if(b==careLimitTarget&&clock<careLimitUntil&&(!waitingLimit||clock<b.careReady))hudPrompt.text=careLimitText+(b.health>0?(b.animal?"\nJ   Attack":"\nJ   Chop"):"");
+        if(ForestCareAvailable&&b==careLimitTarget&&clock<careLimitUntil&&(!waitingLimit||clock<b.careReady))careAction=careLimitText;
+        hudPrompt.text=careAction+(careAction.Length>0&&attack.Length>0?"\n":"")+attack;
         interactionResult.text=b==resultTarget&&clock<resultUntil?resultText:"";
         // The ink strip counts down the real remaining cooldown, in a three-second range.
         // No new growth/feeding timer is introduced by the interface.
         float remaining=Mathf.Max(0,b.careReady-clock);
-        interactionWait.transform.parent.gameObject.SetActive(remaining>0&&(b.animal||!b.cultivated));
+        interactionWait.transform.parent.gameObject.SetActive(ForestCareAvailable&&remaining>0&&(b.animal||!b.cultivated));
         interactionWait.fillAmount=Mathf.Clamp01(remaining/3f);
     }
     void RefreshContextHUD(){

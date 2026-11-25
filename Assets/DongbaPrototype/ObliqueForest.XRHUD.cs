@@ -91,16 +91,18 @@ namespace DongbaPrototype
             string objective=StoryModeEnabled?DongbaLanguage.Text(QuietStoryObjective()):DongbaInterface.Choose("Sandbox Mode","沙盒模式")+" · "+SandboxState;
             xrSummary.text=objective;
             xrObjectiveNote.gameObject.SetActive(exploring&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
-            xrContextNote.gameObject.SetActive(exploring&&interactionTarget!=null&&!xrHelpOpen);
+            xrContextNote.gameObject.SetActive(exploring&&ForestTargetAvailable(interactionTarget)&&!xrHelpOpen);
             if(interactionTarget!=null){
                 string name=interactionTarget.animal?AnimalDisplayName(interactionTarget):DongbaLanguage.Text(interactionTarget.health<=0?"Tree stump":"Forest tree");
                 string care=interactionTarget.animal?DongbaInterface.Choose("Feed","喂养"):interactionTarget.health<=0?DongbaInterface.Choose("Replant","补种"):DongbaInterface.Choose("Care","培育");
-                xrContext.text=name+"\nX  "+care+DongbaInterface.Choose("    R Trigger  Axe","    右扳机  挥斧");
+                string actions=ForestCareAvailable?"X  "+care:"";
+                if(ForestDamageAvailable&&interactionTarget.health>0)actions+=(actions.Length>0?"    ":"")+DongbaInterface.Choose("R Trigger  Axe","右扳机  挥斧");
+                xrContext.text=name+"\n"+actions;
             }
             xrHelpNote.gameObject.SetActive(exploring&&xrHelpOpen);
             xrControllerHints.text=DongbaInterface.Choose(
-                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\nRight Trigger   Axe     X   Care / Feed\nHold Y   Reposition forest\nRight stick click   English / 中文\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
-                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n右扳机  挥斧     X  培育／喂养\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
+                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\n"+XRForestActionGuide+"\nHold Y   Reposition forest\nRight stick click   English / 中文\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
+                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n"+XRForestActionGuide+"\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
             xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
             xrControlsTab.gameObject.SetActive(exploring);
             xrPanelStatus.gameObject.SetActive(exploring);

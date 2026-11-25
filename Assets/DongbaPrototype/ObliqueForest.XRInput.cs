@@ -72,12 +72,12 @@ namespace DongbaPrototype
             if(languageDown&&!dialogue)DongbaLanguage.Set(DongbaLanguage.Chinese?DongbaLocale.English:DongbaLocale.Chinese,true);
             if(!storyLocked&&!dialogue&&armed){
                 if(jumpDown&&jumpAge<0){jumpAge=0;PlayForestSfx("jump",Feet);}
-                if(attackDown&&eastPaperProgress<=0&&attackAge<0){
+                if(attackDown&&ForestDamageAvailable&&eastPaperProgress<=0&&attackAge<0){
                     var desired=XRStickMovement(stick);
                     if(desired.sqrMagnitude>0){heading=desired.normalized;if(Mathf.Abs(desired.x)>.001f)facing=desired.x>0?1:-1;}
                     BeginAxeAttack();
                 }
-                if(careDown&&eastPaperProgress<=0)Care();
+                if(careDown&&ForestCareAvailable&&eastPaperProgress<=0)Care();
             }
             if(storyLocked||dialogue||!armed)return Vector3.zero;
             return XRStickMovement(stick);
