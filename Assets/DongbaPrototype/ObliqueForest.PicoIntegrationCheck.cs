@@ -193,6 +193,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         xrSimStick=Vector2.zero;xrSimA=xrSimX=xrSimTrigger=false;
         yield return VerifySandbox(Check);
         yield return VerifyStoryInteractionPermissions(Check);
+        yield return VerifyLivingWeather(Check);
         xrHelpOpen=true;xrModeHold=xrRestartHold=0;
         xrSimX=true;yield return new WaitForSecondsRealtime(1.2f);xrSimX=false;
         ProcessXRInput(Vector2.zero,false,false,false,false,false,false);

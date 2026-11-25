@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 namespace DongbaPrototype {
 public partial class ObliqueForest : MonoBehaviour {
-    class Being { public SpriteRenderer groundRange; public MaterialPropertyBlock groundRangeProperties; public float groundRangeVitality=1; public Sprite fullGlyph,stumpGlyph; public Transform root,art,shadow; public SpriteRenderer renderer; public SpriteRenderer[] leafImages,greenLeafImages; public float[] leafAmounts,leafHeight01; public bool[] leafAttached; public Vector3 home; public string glyphKey; public float phase,inkOpacity=1,stumpScale,opacity=1,migrationTimer; public bool animal,angry,tree,cultivated,fleeing; public int fatherHalfHits; public int age=2,speciesIndex,clusterIndex,populationRegion,migrationState,visitOrder; public float fall,shake,follow,careReady,birth=1,targetScale=1; public Vector3 initialScale,initialShadowScale; public int health=3,growth; public float proximityFleeUntil,nextProximityFleeAt; public float cooldown,protectedUntil,socialReadyAt,navRefresh,moveSpeed,blockedTime; public Vector3 navGoal,socialOffset; public List<Vector3> route; public int routeIndex; }
+    class Being { public SpriteRenderer groundRange; public MaterialPropertyBlock groundRangeProperties; public float groundRangeVitality=1; public Sprite fullGlyph,stumpGlyph; public Transform root,art,shadow; public SpriteRenderer renderer; public SpriteRenderer[] leafImages,greenLeafImages; public float[] leafAmounts,leafHeight01; public bool[] leafAttached; public Vector3 home; public string glyphKey; public float phase,inkOpacity=1,stumpScale,opacity=1,migrationTimer; public bool animal,angry,tree,cultivated,fleeing,windBroken; public int fatherHalfHits; public int age=2,speciesIndex,clusterIndex,populationRegion,migrationState,visitOrder; public float fall,shake,follow,careReady,birth=1,targetScale=1; public Vector3 initialScale,initialShadowScale; public int health=3,growth; public float proximityFleeUntil,nextProximityFleeAt; public float cooldown,protectedUntil,socialReadyAt,navRefresh,moveSpeed,blockedTime; public Vector3 navGoal,socialOffset; public List<Vector3> route; public int routeIndex; }
     class TreeGlyphSet { public Sprite trunk; public Sprite[] leaves=new Sprite[6],greenLeaves=new Sprite[6],pieces=new Sprite[6]; public Vector3[] pieceOffsets=new Vector3[6]; }
     class EcologyParticle { public Transform transform; public SpriteRenderer renderer; public float age,duration,spin,scale,inkOpacity; public Vector3 velocity; public Quaternion initialRotation; public bool flower; }
     readonly List<Being> plants=new List<Being>(),animals=new List<Being>();
@@ -60,13 +60,6 @@ public partial class ObliqueForest : MonoBehaviour {
     readonly Vector3[] moteOrigins=new Vector3[128];
     readonly float[] moteSizes=new float[128],moteSpeeds=new float[128];
     Sprite goldenInk,fallingInk;
-    [Header("Withering wind glyphs")]
-    [Range(.1f,.8f)] public float WitheringWindOpacity=.65f;
-    [Range(4f,12f)] public float WitheringWindPassSeconds=7f;
-    readonly Transform[] witheringWindGlyphs=new Transform[4];
-    readonly SpriteRenderer[] witheringWindImages=new SpriteRenderer[4];
-    readonly float[] witheringWindPhases=new float[4],witheringWindDepths=new float[4],witheringWindScales=new float[4];
-    Sprite witheringWindSprite;
     Vector3 Feet { get { return player.position; } }
     void Start(){
         Application.runInBackground=true; Application.targetFrameRate=60; QualitySettings.vSyncCount=0;
@@ -76,13 +69,13 @@ public partial class ObliqueForest : MonoBehaviour {
         if(DongbaInterface.Instance!=null&&DongbaInterface.Instance.PendingForestMode.HasValue)StoryModeEnabled=DongbaInterface.Instance.PendingForestMode.Value;
         cam=Camera.main; cam.orthographic=!XRTrackingControlsCamera; cam.orthographicSize=8.5f; if(!XRTrackingControlsCamera){cam.transform.position=new Vector3(0,17,-20);cam.transform.LookAt(new Vector3(0,0,1));} cam.clearFlags=CameraClearFlags.SolidColor; cam.backgroundColor=XRTrackingControlsCamera?Color.clear:new Color(.9f,.85f,.73f); billboard=cam.transform.rotation;
         rootGrowthInk=new Material(Resources.Load<Shader>("RootGrowthInk"));plainTreeInk=new Material(Shader.Find("Sprites/Default"));
-        LoadDictionaryArt(); MakePaper(); Ground(); SetupFlourish(); // Wind glyph effect disabled; source asset retained.
+        LoadDictionaryArt(); MakePaper(); Ground(); SetupFlourish();
         player=new GameObject("Player foot anchor").transform; player.position=ForestSpawn;lastDryPosition=player.position;
         // This user-provided glyph is foot-centered in its transparent canvas; keep its full inscription intact.
         body=Billboard("Player glyph",player,Get("player_glyph"),1.8f); playerImage=body.GetComponent<SpriteRenderer>();
         Billboard("Ground shadow",player,shadow,.8f,true);
         axe=Billboard("Axe",player,Get("axe_glyph"),1.05f); axe.GetComponent<SpriteRenderer>().sprite=Sprite.Create(axe.GetComponent<SpriteRenderer>().sprite.texture,new Rect(0,0,axe.GetComponent<SpriteRenderer>().sprite.texture.width,axe.GetComponent<SpriteRenderer>().sprite.texture.height),AxeGripAnchorNormalized,100);hand=new GameObject("Hand - visible glyph endpoint").transform;hand.SetParent(body,false);hand.localPosition=PlayerHandLocalPosition();axe.SetParent(hand,true);axe.localPosition=Vector3.zero;axe.localRotation=Quaternion.identity;axe.GetComponent<SpriteRenderer>().material=new Material(Resources.Load<Shader>("InkStroke"));axe.gameObject.SetActive(false);
-        ComposeForest();EnsureStoryHome();
+        ComposeForest();SetupLivingWeather();EnsureStoryHome();
         var layout=new System.Random(148);
         PlaceForestAnimals();
         initialPlantCount=plants.Count;initialAnimalCount=animals.Count;
@@ -102,6 +95,8 @@ public partial class ObliqueForest : MonoBehaviour {
 #if UNITY_EDITOR
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--pico-integration-check")>=0)StartCoroutine(CheckPicoIntegration());
 #endif
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--living-weather-check")>=0)StartCoroutine(CheckLivingWeather());
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--living-weather-preview")>=0)StartCoroutine(PreviewLivingWeather());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--story-interaction-check")>=0)StartCoroutine(CheckStoryInteractionPermissions());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--puzzle-motion-check")>=0){var test=new GameObject("Paper motion test").AddComponent<PaperPuzzleMotionCheck>();DontDestroyOnLoad(test);test.StartCoroutine(test.Run());}
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--character-feel-check")>=0)StartCoroutine(CheckCharacterFeel());
@@ -171,7 +166,7 @@ public partial class ObliqueForest : MonoBehaviour {
     void AddPlant(Vector3 p,bool tree,int index){AddDictionaryPlant(p,tree,index);}
     void AddAnimal(Vector3 p,int species=-1){AddDictionaryAnimal(p,species);}
     bool Free(Vector3 p){if(StoryModeEnabled&&journeyStage==JourneyStage.EastJourney&&p.x>=JourneyReelStart)return p.x<=JourneyReelStart+510&&Mathf.Abs(p.z)<=ForestHalfDepth;if(InScrollWorld)return p.x>=94&&p.x<=124&&Mathf.Abs(p.z-70)<=3.5f;if(storyHearth!=null&&storyHearth.gameObject.activeInHierarchy&&Mathf.Abs(p.x-HearthPosition.x)<.50f&&Mathf.Abs(p.z-HearthPosition.z)<.28f)return false;if(storyHome!=null&&storyHome.gameObject.activeSelf&&Mathf.Abs(p.x-storyHome.position.x)<1.2f&&Mathf.Abs(p.z-storyHome.position.z)<.65f)return false;if(Mathf.Abs(p.x)>ForestHalfWidth||Mathf.Abs(p.z)>ForestHalfDepth)return false;if(jumpAge<0&&River(p))return false;foreach(var b in plants)if(b.tree&&b.health>0){if(Vector3.Distance(p,b.home)<.50f)return false;}return true;}
-    void Update(){if(player==null)return;if(XRTrackingControlsCamera&&!XRExperienceReady){ReadXRInput(Vector3.zero,true);return;}if(DongbaInterface.GameplayBlocked){UpdateForestPresentation(0);return;}RestoreCharacterTurnScales();RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;damageCooldown-=dt;noticeTime-=dt;UpdateOpeningSurvey(dt);UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked||NarrativeInputLocked;var kb=Keyboard.current;if((fatherIntroActive||ManualStoryDialogueActive)&&!OpeningSurveyActive&&forestSubtitles!=null&&forestSubtitles.TryConsumeAdvanceInput()){if(!TryCompleteForestSubtitle()){if(fatherIntroActive)AdvanceFatherIntro();else AdvanceManualStoryDialogue();}}storyInputLocked|=DialogueAdvanceInput.GameplayInputBlocked;Vector3 move=Vector3.zero;if(kb!=null&&!DialogueAdvanceInput.GameplayInputBlocked){if((Application.isEditor||Debug.isDebugBuild)&&kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0){jumpAge=0;taughtJump=true;PlayForestSfx("jump",Feet);}if(!storyInputLocked&&ForestDamageAvailable&&eastPaperProgress<=0&&kb.jKey.wasPressedThisFrame&&attackAge<0){if(move.sqrMagnitude>0){heading=move.normalized;if(move.x!=0)facing=move.x>0?1:-1;}BeginAxeAttack();taughtAxe=true;}if(!storyInputLocked&&ForestCareAvailable&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
+    void Update(){if(player==null)return;if(XRTrackingControlsCamera&&!XRExperienceReady){ReadXRInput(Vector3.zero,true);return;}if(DongbaInterface.GameplayBlocked){UpdateForestPresentation(0);return;}RestoreCharacterTurnScales();RestoreJourneyInk();float dt=Time.deltaTime;UpdateFlourish(dt);clock+=dt;TickLivingWind(dt);damageCooldown-=dt;noticeTime-=dt;UpdateOpeningSurvey(dt);UpdateStoryMode(dt);bool storyInputLocked=storyOpeningState==StoryOpeningState.CaptureBeat||fatherIntroActive||ManualStoryDialogueActive||RestorationArrivalLocked||journeyStage==JourneyStage.BoarPass||AfterCaptureLocked||NarrativeInputLocked;var kb=Keyboard.current;if((fatherIntroActive||ManualStoryDialogueActive)&&!OpeningSurveyActive&&forestSubtitles!=null&&forestSubtitles.TryConsumeAdvanceInput()){if(!TryCompleteForestSubtitle()){if(fatherIntroActive)AdvanceFatherIntro();else AdvanceManualStoryDialogue();}}storyInputLocked|=DialogueAdvanceInput.GameplayInputBlocked;Vector3 move=Vector3.zero;if(kb!=null&&!DialogueAdvanceInput.GameplayInputBlocked){if((Application.isEditor||Debug.isDebugBuild)&&kb.f5Key.wasPressedThisFrame)SetStoryModeEnabled(!StoryModeEnabled);move.x=(kb.dKey.isPressed||kb.rightArrowKey.isPressed?1:0)-(kb.aKey.isPressed||kb.leftArrowKey.isPressed?1:0);move.z=(kb.wKey.isPressed||kb.upArrowKey.isPressed?1:0)-(kb.sKey.isPressed||kb.downArrowKey.isPressed?1:0);if(!storyInputLocked&&kb.spaceKey.wasPressedThisFrame&&jumpAge<0){jumpAge=0;taughtJump=true;PlayForestSfx("jump",Feet);}if(!storyInputLocked&&ForestDamageAvailable&&eastPaperProgress<=0&&kb.jKey.wasPressedThisFrame&&attackAge<0){if(move.sqrMagnitude>0){heading=move.normalized;if(move.x!=0)facing=move.x>0?1:-1;}BeginAxeAttack();taughtAxe=true;}if(!storyInputLocked&&ForestCareAvailable&&eastPaperProgress<=0&&kb.eKey.wasPressedThisFrame)Care();}
         move=ReadXRInput(move,storyInputLocked);
         if(storyInputLocked)move=Vector3.zero;
         if(ecologyPreviewWalking)move=ecologyPreviewDirection;Vector3 previousFeet=Feet;move=Vector3.ClampMagnitude(move,1);if(move.sqrMagnitude>0){if(attackAge<0){heading=move;if(move.x!=0)facing=move.x>0?1:-1;}var p=Feet+move*4*dt;if(Free(p))player.position=p;}
@@ -180,25 +175,25 @@ public partial class ObliqueForest : MonoBehaviour {
         UpdateFlowerTrail(previousFeet,move,dt);
         body.localPosition=new Vector3(0,hop,0);body.rotation=billboard;UpdatePlayerTurn(dt);TickPlayerMotion(dt);playerImage.color=damageCooldown>0?new Color(1,.55f,.45f):Color.white;
         hand.localPosition=PlayerHandLocalPosition();
-        UpdateAxeAttack(dt);
-        foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=Mathf.Sin(clock*Mathf.PI*2/2.2f-b.phase)*1.3f+Mathf.Sin(clock*65)*b.shake*14;
-            if(b.tree){if(b.health>0&&b.targetScale<1)b.targetScale=Mathf.MoveTowards(b.targetScale,1,.65f*dt/Mathf.Max(4,ReplantedTreeGrowSeconds));bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?b.stumpGlyph:treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
+        UpdateAxeAttack(dt);UpdateLivingWeather(dt);
+        foreach(var b in plants){b.shake=Mathf.Max(0,b.shake-dt);if(b.health<=0)b.fall=Mathf.Min(1,b.fall+dt*1.8f);float angle=LivingPlantAngle(b);
+            if(b.tree){if(b.health>0&&b.targetScale<1)b.targetScale=Mathf.MoveTowards(b.targetScale,1,.65f*dt/Mathf.Max(4,ReplantedTreeGrowSeconds));bool stump=b.health<=0&&b.fall>=1;b.renderer.sprite=stump?(b.windBroken?breakArt[b.glyphKey].lower:b.stumpGlyph):treeGlyphSets[b.glyphKey].trunk;b.renderer.sharedMaterial=stump?plainTreeInk:rootGrowthInk;var tint=TreeTrunkTint();tint.a=b.health<=0&&!stump?(1-Mathf.SmoothStep(0,1,b.fall))*b.inkOpacity:b.inkOpacity;b.renderer.color=tint;UpdateTreeLeaves(b,dt,stump);b.art.rotation=stump?billboard:billboard*Quaternion.Euler(0,0,angle+b.fall*82);if(stump){b.art.localScale=b.windBroken?b.initialScale:Vector3.one*b.stumpScale;if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale*.48f;}else{b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}}else{b.art.rotation=billboard*Quaternion.Euler(0,0,angle);b.art.localScale=Vector3.Lerp(b.art.localScale,b.initialScale*b.targetScale,1-Mathf.Exp(-dt*3));b.renderer.color=SmallPlantTint();}
             b.renderer.sortingOrder=DepthOrder(b.home.z);if(!b.tree)Fade(b);UpdateCarePlantMoment(b);
         }
         playerImage.sortingOrder=DepthOrder(Feet.z);axe.GetComponent<SpriteRenderer>().sortingOrder=playerImage.sortingOrder+k_DepthOrderStride-1;
         if(!tonePreviewFreezeAnimals&&!AfterCapturePeaceful)foreach(var b in animals)UpdateAnimalEcology(b,dt,hop);
         UpdatePopulation(dt);UpdateEcologyParticles(dt);UpdateStoryFatherFollow(dt);
-        for(int i=0;i<water.Count;i++)water[i].position=waterOrigins[i]+Vector3.right*(.06f*Mathf.Sin(clock*Mathf.PI*2/2.2f-i*.35f));
+        for(int i=0;i<water.Count;i++)water[i].position=waterOrigins[i]+Vector3.right*(.06f*Mathf.Sin(ecologyWindPhase-i*.35f));
         FollowPlayerCamera(dt);UpdateForestPresentation(dt);
     }
     void RestartRun(){
-        ResetCharacterTurns();
+        ResetCharacterTurns();ResetLivingWeather();
         ResetInterfaceRun();
         ResetForestDetails();ClearCareLimit();interactionTarget=null;ecologyPreviewWalking=false;tonePreviewFreezeAnimals=false;
         for(int i=plants.Count-1;i>=initialPlantCount;i--){if(plants[i].root!=null)Destroy(plants[i].root.gameObject);plants.RemoveAt(i);}
         for(int i=animals.Count-1;i>=initialAnimalCount;i--){if(animals[i].root!=null)Destroy(animals[i].root.gameObject);animals.RemoveAt(i);}
         foreach(var b in plants){
-            b.health=3;b.fall=0;b.shake=0;b.cultivated=false;b.growth=0;b.careReady=0;b.cooldown=0;b.targetScale=1;b.inkOpacity=1;b.root.position=b.home;b.root.gameObject.SetActive(true);
+            b.health=3;b.windBroken=false;b.fall=0;b.shake=0;b.cultivated=false;b.growth=0;b.careReady=0;b.cooldown=0;b.targetScale=1;b.inkOpacity=1;b.root.position=b.home;b.root.gameObject.SetActive(true);
             b.art.localPosition=Vector3.zero;b.art.rotation=billboard;b.art.localScale=b.initialScale;b.renderer.sprite=b.tree?treeGlyphSets[b.glyphKey].trunk:b.fullGlyph;b.renderer.color=Color.white;b.renderer.flipX=false;
             if(b.tree){b.renderer.sharedMaterial=rootGrowthInk;for(int i=0;i<b.leafImages.Length;i++){b.leafAmounts[i]=1;b.leafAttached[i]=true;b.leafImages[i].transform.localPosition=Vector3.zero;b.leafImages[i].transform.localScale=Vector3.one;b.leafImages[i].enabled=true;b.leafImages[i].color=Color.white;b.greenLeafImages[i].enabled=false;}if(b.shadow!=null)b.shadow.localScale=b.initialShadowScale;}
             if(b.groundRange!=null){b.groundRangeVitality=1;b.groundRangeProperties.SetFloat("_Vitality",1);b.groundRange.SetPropertyBlock(b.groundRangeProperties);}
@@ -209,8 +204,6 @@ public partial class ObliqueForest : MonoBehaviour {
         }
         foreach(var p in flowerTrail)if(p.transform!=null)p.transform.gameObject.SetActive(false);
         foreach(var p in fallingLeaves)if(p.transform!=null)p.transform.gameObject.SetActive(false);
-        foreach(var glyph in witheringWindGlyphs)if(glyph!=null)glyph.gameObject.SetActive(false);
-        foreach(var image in witheringWindImages)if(image!=null)image.enabled=false;
         for(int i=0;i<water.Count;i++)water[i].position=waterOrigins[i];
         Array.Clear(populationCapacity,0,populationCapacity.Length);foreach(var a in animals){a.populationRegion=PopulationRegion(a.home.x);populationCapacity[a.populationRegion]++;}
         careCount=damageCount=0;ecologyVisual=greenHeight=greenVelocity=0;flourishAge=-1;clock=0;
@@ -241,7 +234,7 @@ public partial class ObliqueForest : MonoBehaviour {
             if(Free(step)){player.position=step;lastDryPosition=step;return;}
         }
     }
-    void PerformCare(){if(!ForestCareAvailable)return;ClearCareLimit();Being nearest=NearestForestInteraction();if(nearest==null)return;if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayForestSfx("plant",nearest.home);PlayNaxiWordVoice("tree",nearest);}else {GrowAround(nearest);}}}
+    void PerformCare(){if(!ForestCareAvailable)return;ClearCareLimit();Being nearest=NearestForestInteraction();if(nearest==null)return;if(nearest.animal){Feed(nearest);}else{if(nearest.health<=0){nearest.windBroken=false;nearest.health=3;nearest.fall=0;nearest.targetScale=.35f;nearest.art.localScale=nearest.initialScale*.35f;nearest.art.rotation=billboard;nearest.renderer.sprite=nearest.fullGlyph;var freshColor=nearest.renderer.color;freshColor.a=1;nearest.renderer.color=freshColor;nearest.growth=0;nearest.careReady=clock+1;ClearReplantedFooting(nearest);RegisterCare();PlayForestSfx("plant",nearest.home);PlayNaxiWordVoice("tree",nearest);}else {GrowAround(nearest);}}}
     bool FindLocal(Vector3 origin,float min,float max,int seed,bool animal,out Vector3 found){
         for(int i=0;i<48;i++){float angle=(seed*1.73f+i*2.39996f);float radius=Mathf.Lerp(min,max,(i%7)/6f);var p=origin+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius);
             if(Mathf.Abs(p.x)>ForestHalfWidth-1.2f||Mathf.Abs(p.z)>ForestHalfDepth-1.0f||River(p)||Mathf.Abs(p.x-RiverX(p.z))<1.35f)continue;
@@ -294,7 +287,6 @@ public partial class ObliqueForest : MonoBehaviour {
         for(int i=0;i<256;i++)fallingLeaves.Add(CreateEcologyParticle("Falling original tree stroke",false));
     }
     EcologyParticle CreateEcologyParticle(string name,bool flower){var t=new GameObject(name).transform;t.rotation=billboard;var r=t.gameObject.AddComponent<SpriteRenderer>();if(flower)r.sharedMaterial=flowerInk;r.sortingOrder=0;r.enabled=false;t.gameObject.SetActive(false);return new EcologyParticle{transform=t,renderer=r,flower=flower};}
-    // Former wind-glyph creation and animation removed; original texture retained.
     // Hand coordinates are in the upright glyph plane, not the world's vertical plane.
     Vector3 PlayerHandLocalPosition(){
         if(playerImage==null||playerImage.sprite==null)return Vector3.zero;
@@ -441,25 +433,7 @@ public partial class ObliqueForest : MonoBehaviour {
     int PopulationRegion(float x){return Mathf.Clamp(Mathf.FloorToInt((x+ForestHalfWidth)/(2*ForestHalfWidth)*populationRegionCount),0,populationRegionCount-1);}
     SpriteRenderer Wash(Vector3 p,float size,Color color){var t=new GameObject("Soft ground ink").transform;t.position=p+Vector3.up*.02f;t.rotation=Quaternion.Euler(90,0,0);t.localScale=new Vector3(size,size*.7f,1);var r=t.gameObject.AddComponent<SpriteRenderer>();r.sprite=shadow;r.color=color;r.sortingOrder=-85;return r;}
     void SayDuringAction(string line){notice=line;noticeTime=2.5f;}
-    void DrawWitheringWindGlyphs(){
-        if(cam==null||witheringWindSprite==null)return;
-        float pixelsPerUnit=Screen.height/(cam.orthographicSize*2f);
-        Texture texture=witheringWindSprite.texture;
-        Vector2 glyphSize=witheringWindSprite.bounds.size;
-        Color previous=GUI.color;
-        for(int i=0;i<witheringWindGlyphs.Length;i++){
-            if(!witheringWindGlyphs[i].gameObject.activeSelf)continue;
-            Vector3 screen=cam.WorldToScreenPoint(witheringWindGlyphs[i].position);
-            if(screen.z<=0)continue;
-            float width=glyphSize.x*witheringWindGlyphs[i].localScale.x*pixelsPerUnit*1.35f;
-            float height=glyphSize.y*witheringWindGlyphs[i].localScale.y*pixelsPerUnit*1.35f;
-            float decline=Mathf.InverseLerp(0f,.5f,-ecologyVisual);
-            GUI.color=new Color(1,1,1,Mathf.Lerp(.52f,.84f,decline));
-            GUI.DrawTexture(new Rect(screen.x-width*.5f,Screen.height-screen.y-height*.5f,width,height),texture,ScaleMode.StretchToFill,true);
-        }
-        GUI.color=previous;
-    }
-    void OnGUI(){DrawWitheringWindGlyphs();DrawStoryFatherPlaceholder();}
+    void OnGUI(){DrawStoryFatherPlaceholder();}
     void CreateStoryFather(){
         storyFather=new Being{animal=true,age=2,birth=1,phase=2.17f,route=new List<Vector3>(96)};
         storyFatherRoot=new GameObject("Story Father foot anchor").transform;
@@ -613,8 +587,8 @@ public partial class ObliqueForest : MonoBehaviour {
         File.AppendAllText("Verification/oblique-smoke.txt","\nFelling="+felled+"; replanting="+replanted+"; feeding="+fed+"; newborn adjacent="+(newbornDistance<=1.36f)+"; newborn distance="+newbornDistance.ToString("F2")+"; trees opaque="+opaque+"; local propagation="+(propagated&&local));
         while(Balance<FlourishThreshold)RegisterCare();yield return new WaitForSeconds(6);bool sustained=flourishAge>=0;RegisterDamage();yield return new WaitForSeconds(2);bool stopped=flourishAge<0;while(Balance>-8)RegisterDamage();yield return new WaitForSeconds(2);bool negative=ecologyVisual<0;
         ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-withering-wind.png"));
-        int visibleWindGlyphs=0;foreach(var glyph in witheringWindGlyphs)if(glyph!=null&&glyph.gameObject.activeSelf)visibleWindGlyphs++;
-        File.AppendAllText("Verification/oblique-smoke.txt","\nPersistent positive="+sustained+"; stops below threshold="+stopped+"; negative feedback="+negative+"; wind glyphs visible="+visibleWindGlyphs+"/"+witheringWindGlyphs.Length);
+        int visibleWindGlyphs=0;foreach(var glyph in stormMarks)if(glyph.root.gameObject.activeSelf)visibleWindGlyphs++;
+        File.AppendAllText("Verification/oblique-smoke.txt","\nPersistent positive="+sustained+"; stops below threshold="+stopped+"; negative feedback="+negative+"; wind glyphs visible="+visibleWindGlyphs+"/"+stormMarks.Count);
         File.AppendAllText("Verification/oblique-smoke.txt","; ecology="+ecologyVisual.ToString("0.00")+"; balance="+Balance);
         while(Balance<FlourishThreshold)RegisterCare();
         player.position=ForestSpawn;yield return new WaitForSeconds(2);ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-after-care.png"));yield return new WaitForSeconds(1);attackAge=0;hit=false;yield return new WaitForSeconds(.2f);ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-axe-right.png"));bool rightGrip=Vector3.Distance(axe.position,HandPosition())<.001f;yield return new WaitForSeconds(.8f);facing=-1;heading=Vector3.left;attackAge=0;hit=false;yield return new WaitForSeconds(.2f);ScreenCapture.CaptureScreenshot(Path.GetFullPath("Verification/oblique-axe-left.png"));bool leftGrip=Vector3.Distance(axe.position,HandPosition())<.001f;File.AppendAllText("Verification/oblique-smoke.txt","\nRight grip="+rightGrip+"; left grip="+leftGrip);yield return new WaitForSeconds(1);
