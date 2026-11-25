@@ -9,13 +9,13 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     Image boarHealthFill;int lastBoarHealth=6;float boarHurtAt=-10;
     bool ForestCinematic=>fatherIntroActive||ManualStoryDialogueActive||NarrativeInputLocked||RestorationArrivalLocked||AfterCaptureLocked||journeyStage==JourneyStage.ReturnForKnife||journeyStage==JourneyStage.BoarPass||storyOpeningState==StoryOpeningState.CaptureBeat||storyCurtain>.01f||(noticeTime>0&&!string.IsNullOrEmpty(notice));
     bool InterfaceExploring=>!ForestCinematic&&!DongbaInterface.GameplayBlocked;
-    public string InterfaceChapterNumber=>IsRestorationEnding?"III":journeyStage>=JourneyStage.Captured?"II":"I";
-    public string InterfaceChapter=>IsRestorationEnding?DongbaInterface.Choose("THE RETURN","归来"):journeyStage>=JourneyStage.Captured?DongbaInterface.Choose("THE JOURNEY","寻父"):DongbaInterface.Choose("THE HUNT","入林");
+    public string InterfaceChapterNumber=>!StoryModeEnabled?"~":IsRestorationEnding?"III":journeyStage>=JourneyStage.Captured?"II":"I";
+    public string InterfaceChapter=>!StoryModeEnabled?DongbaInterface.Choose("SANDBOX MODE","沙盒模式"):IsRestorationEnding?DongbaInterface.Choose("THE RETURN","归来"):journeyStage>=JourneyStage.Captured?DongbaInterface.Choose("THE JOURNEY","寻父"):DongbaInterface.Choose("THE HUNT","入林");
     public bool InterfaceFatherPresent=>storyFatherRoot!=null&&storyFatherRoot.gameObject.activeInHierarchy;
     public Sprite InterfaceFatherSprite=>StoryFatherGlyph;
     public bool InterfaceEndingReady=>journeyStage==JourneyStage.RestorationComplete&&!ManualStoryDialogueActive&&narrativeBeat==NarrativeBeat.None&&!narrativeClosingDialogue&&!endingAcknowledged;
     public void AcknowledgeEndingInterface(){endingAcknowledged=true;}
-    public void RestartFromInterface(){SetStoryModeEnabled(true);RestartRun();}
+    public void RestartFromInterface(){StartForestMode(StoryModeEnabled);}
     void ResetInterfaceRun(){taughtMove=taughtJump=taughtAxe=taughtCare=endingAcknowledged=false;tutorialOrigin=ForestSpawn;resultTarget=null;resultText="";lastObjective=null;lastBoarHealth=6;boarHurtAt=-10;}
     void Care(){
         var target=NearestForestInteraction();if(target==null)return;
@@ -75,8 +75,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         hudArea.transform.parent.gameObject.SetActive(false);uiMode.gameObject.SetActive(false);
         for(int i=0;i<uiHealthPips.Length;i++)uiHealthPips[i].color=i<health?DongbaUIStyle.Accent:new Color(.37f,.30f,.21f,.2f);
         if(uiObjectivePanel!=null){
-            string value=QuietStoryObjective();
-            bool show=StoryModeEnabled&&explore&&!string.IsNullOrEmpty(value)&&!(journeyStage==JourneyStage.RestorationComplete&&endingAcknowledged);
+            string value=StoryModeEnabled?QuietStoryObjective():SandboxNote;
+            bool show=explore&&!string.IsNullOrEmpty(value)&&!(journeyStage==JourneyStage.RestorationComplete&&endingAcknowledged);
             uiObjectivePanel.SetActive(show);
             string localized=DongbaLanguage.Text(value);
             int split=localized.IndexOf('\n');journeyObjective.text=split>=0?localized.Substring(0,split):localized;
@@ -93,6 +93,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
             if(!taughtMove)hint="WASD / Arrows   Move";
             else if(!taughtJump&&Mathf.Abs(Feet.x-RiverX(Feet.z))<4)hint="SPACE   Jump across the river";
             else if(!taughtAxe&&journeyStage==JourneyStage.Hunting)hint="J   Swing the axe";
+            else if(!taughtCare&&!StoryModeEnabled)hint="Approach a plant or animal, then press E to care.";
             else if(!taughtCare&&IsRestorationEnding)hint="Approach a stump, then press E to replant.";
         }
         if(firstStepHint!=null)firstStepHint.text=hint;uiCoreHints.SetActive(hint.Length>0);

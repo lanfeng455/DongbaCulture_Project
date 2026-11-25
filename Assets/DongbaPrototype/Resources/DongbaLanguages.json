@@ -1127,6 +1127,36 @@
       "id": "speaker.white_boar",
       "en": "White Boar",
       "zh": "白野猪"
+    },
+    {
+      "id": "sandbox_201",
+      "en": "Sandbox Mode",
+      "zh": "沙盒模式"
+    },
+    {
+      "id": "sandbox_202",
+      "en": "Restart forest",
+      "zh": "重新开始森林"
+    },
+    {
+      "id": "sandbox_203",
+      "en": "Restart the forest?",
+      "zh": "重新开始森林？"
+    },
+    {
+      "id": "sandbox_204",
+      "en": "Reset the forest, animals and ecology to their initial state. This run will be lost.",
+      "zh": "将森林、动物和生态恢复到最初状态。本次进度将清空。"
+    },
+    {
+      "id": "sandbox_205",
+      "en": "Approach a plant or animal, then press E to care.",
+      "zh": "走近植物或动物，按 E 培育或喂养。"
+    },
+    {
+      "id": "sandbox_title_caption",
+      "en": "ENTER THE FOREST",
+      "zh": "走入象形之森"
     }
   ]
 }

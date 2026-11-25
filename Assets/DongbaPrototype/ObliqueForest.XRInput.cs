@@ -52,6 +52,17 @@ namespace DongbaPrototype
             bool languageDown=armed&&language&&!xrLanguageHeld;
             xrJumpHeld=jump;xrAttackHeld=attack;xrCareHeld=care;xrLanguageHeld=language;xrWasReady=XRExperienceReady;
             if(!XRExperienceReady)return Vector3.zero;
+            // The folded controls own these holds; releasing cannot leak into feed/jump.
+            if(xrHelpOpen){
+                xrModeHold=care?xrModeHold+Time.unscaledDeltaTime:0;
+                xrRestartHold=jump?xrRestartHold+Time.unscaledDeltaTime:0;
+                if(xrModeHold>=1f||xrRestartHold>=1f){
+                    bool story=xrModeHold>=1f?!StoryModeEnabled:StoryModeEnabled;
+                    xrModeHold=xrRestartHold=0;StartForestMode(story);
+                }
+                return Vector3.zero;
+            }
+            xrModeHold=xrRestartHold=0;
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
             if(jumpDown&&dialogue){
                 if(!TryCompleteForestSubtitle()){

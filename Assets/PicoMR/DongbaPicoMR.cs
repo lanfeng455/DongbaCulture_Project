@@ -19,6 +19,8 @@ namespace DongbaXR
         public Camera xrCamera;
         public float worldUnitsPerMetre = 60;
         public bool playPanoramicOpening = false;
+        public bool startInSandbox = false;
+        bool modeHeld;
         [Range(0f,1f)] public float paperOpacity = .9f;
         [Range(1f, 3f)] public float artworkScale = 1f;
         [Min(.25f)] public float repositionHoldSeconds = .65f;
@@ -31,7 +33,7 @@ namespace DongbaXR
         readonly List<InputDevice> devices = new List<InputDevice>();
         ObliqueForest forest;
         GameObject marker;
-        TextMesh message;
+        Text message;
         readonly List<SpriteRenderer> forestRenderers = new List<SpriteRenderer>();
         readonly List<SpriteRenderer> titleTrees = new List<SpriteRenderer>();
         CanvasGroup titleGroup;
@@ -112,15 +114,17 @@ namespace DongbaXR
             Destroy(marker.GetComponent<Collider>());
             marker.transform.localScale = Vector3.one * .025f * worldUnitsPerMetre;
             marker.SetActive(false);
-            var label = new GameObject("PICO MR status", typeof(TextMesh));
-            label.layer = ScanLayer;
-            label.transform.SetParent(xrCamera.transform, false);
-            label.transform.localPosition = new Vector3(0, -.18f, .65f);
-            label.transform.localScale = Vector3.one * .002f;
-            message = label.GetComponent<TextMesh>();
-            message.anchor = TextAnchor.MiddleCenter;
-            message.alignment = TextAlignment.Center;
-            message.fontSize = 40;
+            var label = new GameObject("PICO placement and mode",typeof(RectTransform),typeof(Canvas));
+            label.layer=ScanLayer;label.transform.SetParent(xrCamera.transform,false);
+            var scanCanvas=label.GetComponent<Canvas>();scanCanvas.renderMode=RenderMode.WorldSpace;
+            var rect=label.GetComponent<RectTransform>();rect.sizeDelta=new Vector2(800,260);
+            rect.localScale=Vector3.one*(.65f/800);rect.localPosition=new Vector3(0,-.12f,.9f);
+            var textObject=new GameObject("Mode selection",typeof(RectTransform),typeof(Text));
+            textObject.layer=ScanLayer;textObject.transform.SetParent(rect,false);
+            var textRect=textObject.GetComponent<RectTransform>();textRect.anchorMin=Vector2.zero;textRect.anchorMax=Vector2.one;textRect.offsetMin=textRect.offsetMax=Vector2.zero;
+            message=textObject.GetComponent<Text>();message.fontSize=32;message.alignment=TextAnchor.MiddleCenter;
+            message.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");message.color=new Color(.96f,.92f,.82f);message.raycastTarget=false;
+            var shadow=textObject.AddComponent<Shadow>();shadow.effectColor=new Color(.08f,.05f,.02f,.85f);shadow.effectDistance=new Vector2(1.5f,-1.5f);
             PXR_Manager.EnableVideoSeeThrough = true;
             status = titleActive ? "Press right A to begin" : ScanPrompt;
             if (!titleActive) RequestSpatialAccess();
@@ -260,6 +264,7 @@ namespace DongbaXR
             }
             var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
             bool reposition = left.TryGetFeatureValue(CommonUsages.secondaryButton, out bool y) && y;
+            ProcessModeChoice(left.TryGetFeatureValue(CommonUsages.primaryButton,out bool x)&&x);
             bool confirm = trigger && !triggerHeld;
             if (titleActive && start && !startHeld) StartCoroutine(BeginTitleTransition());
             if (UpdateRepositionInput(reposition, Time.unscaledDeltaTime)) confirm = false;
@@ -309,7 +314,7 @@ namespace DongbaXR
             if (!forestStarted)
             {
                 foreach (var renderer in forestRenderers) if (renderer != null) renderer.enabled = true;
-                forest.BeginPicoStory();
+                forest.StartForestMode(!startInSandbox);
                 forestStarted = true;
             }
             UpdatePlacementVisibility(true);
@@ -333,13 +338,21 @@ namespace DongbaXR
                 xrCamera.cullingMask = forest.XRExperienceReady ? mask | (1 << ScanLayer) : 1 << ScanLayer;
         }
 
+        void ProcessModeChoice(bool held) {
+            if(!forestStarted&&!titleActive&&held&&!modeHeld)startInSandbox=!startInSandbox;
+            modeHeld=held;
+        }
         void RefreshPlacementMessage()
         {
-            message.text = status;
+            string prompt=status==ScanPrompt?DongbaInterface.Choose("Look at a clear spot on the floor or table.","看向地面或桌面的一块空处。"):status==PlacePrompt?DongbaInterface.Choose("Right Trigger · Place forest","右扳机 · 放置森林"):status;
+            string mode=forestStarted?(forest.StoryModeEnabled?DongbaInterface.Choose("Story Mode","剧情模式"):DongbaInterface.Choose("Sandbox Mode","沙盒模式")):(startInSandbox?DongbaInterface.Choose("Sandbox Mode","沙盒模式"):DongbaInterface.Choose("Story Mode","剧情模式"));
+            message.font=DongbaLanguage.Chinese?DongbaLanguage.ChineseUIFont:Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            message.text=mode+"\n"+(!forestStarted?DongbaInterface.Choose("X · Switch Story / Sandbox\n\n","X · 切换剧情／沙盒\n\n"):"\n")+prompt;
             message.gameObject.SetActive(!titleActive && !placed);
         }
 
 #if UNITY_EDITOR
+        public void SimulateModeChoiceForVerification(bool held){ProcessModeChoice(held);RefreshPlacementMessage();}
         public void SimulateSurfacePlacementForVerification(Vector3 point)
         {
             simulateTracking = true;

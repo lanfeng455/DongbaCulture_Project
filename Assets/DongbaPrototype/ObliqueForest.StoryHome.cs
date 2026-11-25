@@ -4,7 +4,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     static readonly Vector3 FatherHomeStart=new Vector3(-10.05f,0,-2.65f);
     static readonly Vector3 HomeStoryCenter=HearthPosition+Vector3.forward*1.5f;
     const float HomeStoryZoom=6.6f;
-    Transform storyHearth;Transform storyHome;float boarPassAge;Vector3 boarPassStart;bool boarPassComplete;
+    Transform storyHearth;Transform storyHome;Transform storyHomeContact;float boarPassAge;Vector3 boarPassStart;bool boarPassComplete;
     Vector3 boarPassView;bool boarPassMoving;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public string PicoStoryDiagnostic => journeyStage.ToString()+" / ecology="+Balance+" / boarMoving="+boarPassMoving+" / dialogue="+(fatherIntroActive||ManualStoryDialogueActive);
@@ -31,10 +31,12 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         return center;
     }
     void EnsureStoryHome(){if(storyHome==null){storyHome=Billboard("Family home / dictionary grass house PDF338",null,Get("home_glyph"),2.65f);storyHome.position=new Vector3(-8.5f,0,-.8f);storyHome.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(4f)+k_DepthOrderStride-1;storyHome.GetComponent<SpriteRenderer>().sharedMaterial=new Material(Resources.Load<Shader>("HouseWash"));
-        var contact=Sprite.Create(soft,new Rect(0,0,64,64),new Vector2(.5f,.5f),64);var ground=Billboard("House ground contact / neutral ink wash",null,contact,2.85f,true);ground.position=storyHome.position+new Vector3(0,.025f,-.25f);var size=ground.localScale;size.y*=.52f;ground.localScale=size;ground.GetComponent<SpriteRenderer>().color=new Color(.31f,.28f,.20f,.35f);
+        var contact=Sprite.Create(soft,new Rect(0,0,64,64),new Vector2(.5f,.5f),64);var ground=Billboard("House ground contact / neutral ink wash",null,contact,2.85f,true);storyHomeContact=ground;ground.position=storyHome.position+new Vector3(0,.025f,-.25f);var size=ground.localScale;size.y*=.52f;ground.localScale=size;ground.GetComponent<SpriteRenderer>().color=new Color(.31f,.28f,.20f,.35f);
         AddDictionaryPlant(storyHome.position+new Vector3(-1.65f,0,-.55f),false,1100,"plant_06",.38f);
         AddDictionaryPlant(storyHome.position+new Vector3(1.7f,0,-.42f),false,1101,"plant_07",.42f);}if(storyHome!=null)storyHome.gameObject.SetActive(true);
         if(storyHearth==null){storyHearth=Billboard("Family hearth / dictionary PDF312 printed240",null,Get("hearth_glyph"),.68f);storyHearth.position=HearthPosition;storyHearth.GetComponent<SpriteRenderer>().sortingOrder=DepthOrder(HearthPosition.z);}
+        storyHome.gameObject.SetActive(StoryModeEnabled);storyHearth.gameObject.SetActive(StoryModeEnabled);
+        if(storyHomeContact!=null)storyHomeContact.gameObject.SetActive(StoryModeEnabled);
     }
     void UpdateBoarPass(float dt){
         boarPassAge+=dt;

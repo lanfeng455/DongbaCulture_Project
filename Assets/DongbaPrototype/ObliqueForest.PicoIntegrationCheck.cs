@@ -11,6 +11,10 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var pico=FindFirstObjectByType<DongbaXR.DongbaPicoMR>();
         Check(pico!=null&&XRTrackingControlsCamera&&!XRExperienceReady,"MR environment waits for surface placement");
         Check(XRArtworkScale==1f&&MaxFriendlyAnimals==6,"MR keeps current forest proportions and animal settings");
+        pico.SimulateModeChoiceForVerification(false);pico.SimulateModeChoiceForVerification(true);
+        Check(pico.startInSandbox,"X selects sandbox before placement");pico.SimulateModeChoiceForVerification(true);
+        Check(pico.startInSandbox,"Holding X does not cycle the mode repeatedly");
+        pico.SimulateModeChoiceForVerification(false);pico.SimulateModeChoiceForVerification(true);pico.SimulateModeChoiceForVerification(false);
         int originalAnimals=animals.Count,originalPlants=plants.Count;
         pico.SimulateSurfacePlacementForVerification(new Vector3(2,0,3));
         yield return null;
@@ -186,6 +190,12 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             yield return new WaitForSeconds(.3f);xrSimStick=Vector2.right;yield return new WaitForSeconds(.3f);xrSimStick=Vector2.zero;
             Check(Vector3.Distance(Feet,start)>.2f,"Player movement resumes after MR threshold event at location "+shot);
         }
+        xrSimStick=Vector2.zero;xrSimA=xrSimX=xrSimTrigger=false;
+        yield return VerifySandbox(Check);
+        xrHelpOpen=true;xrModeHold=xrRestartHold=0;
+        xrSimX=true;yield return new WaitForSecondsRealtime(1.2f);xrSimX=false;
+        ProcessXRInput(Vector2.zero,false,false,false,false,false,false);
+        Check(StoryModeEnabled&&fatherIntroActive&&storyHome.gameObject.activeSelf,"MR hold X switches from sandbox to a fresh story");
         // The desktop shot still waits for its own camera and then completes.
         XRTrackingControlsCamera=false;RestartRun();fatherIntroActive=false;ResetForestSubtitles();
         player.position=ForestSpawn;storyFatherRoot.position=Feet+Vector3.left;

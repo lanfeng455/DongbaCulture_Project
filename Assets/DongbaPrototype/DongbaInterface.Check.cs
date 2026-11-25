@@ -10,12 +10,13 @@ using UnityEngine.UI;
 
 namespace DongbaPrototype {
 public sealed partial class DongbaInterface {
-    internal const string CheckFolder="Verification/title-ink-20261121";
+    internal static readonly string CheckFolder=Array.IndexOf(Environment.GetCommandLineArgs(),"--sandbox-test")>=0?"Verification/sandbox":"Verification/title-ink-20261121";
     internal readonly List<string> checks=new List<string>();internal int checkFailures;
     int originalMute,originalLocale;float originalVolume;Keyboard checkKeyboard;Mouse checkMouse;
     IEnumerator Start(){
         bool helpPreview=Array.IndexOf(Environment.GetCommandLineArgs(),"--help-layout-preview")>=0;
-        if(!helpPreview&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-check")<0&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")<0)yield break;
+        bool sandbox=Array.IndexOf(Environment.GetCommandLineArgs(),"--sandbox-test")>=0;
+        if(!sandbox&&!helpPreview&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-check")<0&&Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")<0)yield break;
         Application.runInBackground=true;
         // Hidden test launches can lose native input focus during screenshots/resize.
         // Isolate injected events from the user's physical keyboard and OS focus resets.
@@ -28,7 +29,7 @@ public sealed partial class DongbaInterface {
         Screen.SetResolution(1598,898,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.2f);
         Screen.SetResolution(1600,900,FullScreenMode.Windowed);yield return new WaitForSecondsRealtime(.3f);
         bool title=Array.IndexOf(Environment.GetCommandLineArgs(),"--interface-title-test")>=0;
-        yield return RunChecksSafely(helpPreview?CaptureHelpLayout():title?CheckTitle():CheckForestWhenReady());
+        yield return RunChecksSafely(sandbox?CheckSandboxEntry():helpPreview?CaptureHelpLayout():title?CheckTitle():CheckForestWhenReady());
     }
     IEnumerator CaptureHelpLayout(){
         DongbaLanguage.Set(DongbaLocale.English,false);
@@ -88,7 +89,7 @@ public sealed partial class DongbaInterface {
     }
     IEnumerator CheckTitle(){
         DongbaLanguage.Set(DongbaLocale.English,false);yield return null;
-        Check("Original title retained with three real actions",onTitle&&titleMenu!=null&&titleTransition!=null&&titleMenu.GetComponentsInChildren<Button>().Length==3);
+        Check("Original title retained with four real actions",onTitle&&titleMenu!=null&&titleTransition!=null&&titleMenu.GetComponentsInChildren<Button>().Length==4);
         bool originalInk=false;
         foreach(var volume in FindObjectsByType<UnityEngine.Rendering.Volume>(FindObjectsSortMode.None))if(volume.gameObject.scene==SceneManager.GetActiveScene()&&volume.sharedProfile!=null&&volume.sharedProfile.TryGet<UnityEngine.Rendering.Universal.Vignette>(out var vignette))originalInk|=vignette.active&&vignette.intensity.value>.4f;
         Check("Original title ink composition retained",originalInk&&titleMenu.transform.Find("Front cover leaf")==null);

@@ -10,6 +10,7 @@ namespace DongbaPrototype
         RectTransform xrObjectiveNote, xrContextNote, xrHelpNote, xrControlsTab, xrHealthNote;
         Material xrHudInk;
         bool xrHelpOpen, xrHelpHeld;
+        float xrModeHold,xrRestartHold;
 
         void ConfigureWorldXRHUD(float units)
         {
@@ -56,8 +57,8 @@ namespace DongbaPrototype
             var stroke=DongbaUIStyle.Stroke(xrObjectiveNote,new Vector2(28,-9),new Vector2(58,3),new Color(.49f,.22f,.12f));stroke.material=xrHudInk;
             xrContextNote=XRNote("nearby note",new Vector2(0,-230),new Vector2(700,126));
             xrContext=XRNoteText("Nearby action",xrContextNote,Vector2.zero,new Vector2(650,108),30);
-            xrHelpNote=XRNote("folded controls",new Vector2(0,0),new Vector2(760,410));
-            xrControllerHints=XRNoteText("Controller guide",xrHelpNote,Vector2.zero,new Vector2(688,350),29);
+            xrHelpNote=XRNote("folded controls",new Vector2(0,0),new Vector2(760,520));
+            xrControllerHints=XRNoteText("Controller guide",xrHelpNote,Vector2.zero,new Vector2(688,480),28);
             xrControlsTab=XRNote("controls tab",new Vector2(0,-360),new Vector2(300,52));
             xrPanelStatus=XRNoteText("Help tab",xrControlsTab,Vector2.zero,new Vector2(274,40),25);
             xrHealthNote=XRNote("health note",new Vector2(0,215),new Vector2(230,48));
@@ -87,9 +88,9 @@ namespace DongbaPrototype
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
             bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue;
             if(!exploring)xrHelpOpen=false;
-            string objective=DongbaLanguage.Text(QuietStoryObjective());
+            string objective=StoryModeEnabled?DongbaLanguage.Text(QuietStoryObjective()):DongbaInterface.Choose("Sandbox Mode","沙盒模式")+" · "+SandboxState;
             xrSummary.text=objective;
-            xrObjectiveNote.gameObject.SetActive(exploring&&StoryModeEnabled&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
+            xrObjectiveNote.gameObject.SetActive(exploring&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
             xrContextNote.gameObject.SetActive(exploring&&interactionTarget!=null&&!xrHelpOpen);
             if(interactionTarget!=null){
                 string name=interactionTarget.animal?AnimalDisplayName(interactionTarget):DongbaLanguage.Text(interactionTarget.health<=0?"Tree stump":"Forest tree");
@@ -98,8 +99,8 @@ namespace DongbaPrototype
             }
             xrHelpNote.gameObject.SetActive(exploring&&xrHelpOpen);
             xrControllerHints.text=DongbaInterface.Choose(
-                "CONTROLS\n\nLeft stick   Move\nA   Jump / Continue dialogue\nRight Trigger   Axe     X   Care / Feed\nHold Y   Reposition forest\nRight stick click   English / 中文\n\nB   Close",
-                "操作\n\n左摇杆  移动\nA  跳跃／继续对话\n右扳机  挥斧     X  培育／喂养\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n\nB  收起");
+                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\nRight Trigger   Axe     X   Care / Feed\nHold Y   Reposition forest\nRight stick click   English / 中文\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
+                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n右扳机  挥斧     X  培育／喂养\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
             xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
             xrControlsTab.gameObject.SetActive(exploring);
             xrPanelStatus.gameObject.SetActive(exploring);
