@@ -29,6 +29,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         Destroy(groundMaterial);groundMaterial=xrPaperMaterial;
     }
     void OnDestroy(){
+        ReleaseStormMeshes();
         if(xrPaperCoverage!=null)Destroy(xrPaperCoverage);
         if(xrPaperMaterial!=null)Destroy(xrPaperMaterial);
         if(xrHudInk!=null)Destroy(xrHudInk);

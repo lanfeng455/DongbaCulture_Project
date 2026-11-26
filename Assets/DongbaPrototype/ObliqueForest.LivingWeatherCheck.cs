@@ -22,7 +22,8 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         while(Balance<FlourishThreshold)RegisterCare();
         yield return SampleWeatherFrames(8,"flourishing");
         check(LivingWindPeriod<1.8f&&weatherLife>.8f,"Flourishing accelerates the shared wind beat gradually");
-        check(weatherFruitCount>0,"Flourishing drops fruit from visible trees"); if(XRTrackingControlsCamera)CaptureSceneToTexture("Verification/pico-integration/weather-flourishing.png");
+        check(weatherFruitCount>0,"Flourishing drops fruit from visible trees");
+        check(fruitShakesObserved>0&&largestFruitShake>1&&largestFruitShake<1.7f,"Fruit release adds a short restrained root-anchored shiver"); if(XRTrackingControlsCamera)CaptureSceneToTexture("Verification/pico-integration/weather-flourishing.png");
         check(tree.root.position==rootBefore,"Tree roots remain fixed during faster sway");
         check(weatherWindCount==0&&stormBrokenCount==0,"Flourishing never emits storm wind or snaps trees");
         int before=damageCount;var victim=animals.First(b=>b.health>0);ApplyEcologyHit(victim);ApplyEcologyHit(victim);
@@ -32,18 +33,33 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         while(Balance>-14)RegisterDamage();before=damageCount;int careBefore=careCount;
         yield return SampleWeatherFrames(13,"declining");
         check(weatherStorm>.95f&&weatherWindCount>0,"Deep decline continuously sends translucent wind through the forest"); if(XRTrackingControlsCamera)CaptureSceneToTexture("Verification/pico-integration/weather-declining.png");
-        check(stormBrokenCount>0&&stormBrokenCount<=StormBreakLimit,"Severe gusts break a limited number of staggered trees");
+        check(stormBrokenCount>=3&&stormBrokenCount<=StormBreakLimit,"Deep decline produces at least three readable staggered nearby breaks in thirteen seconds");
+        check(furthestStormBreak<=StormBreakRadius&&plants.Where(b=>b.windBroken).All(b=>SameWeatherBank(b.home)),"Breaks stay near the player on the same bank");
+        check(maximumFractureAnchorError<.0001f,"Detached crown starts at the exact deformed fracture point without a vertical jump");
+        check(stormLoadsStarted>=stormBrokenCount,"Every wind fracture starts with a visible bending interval");
         check(damageCount==before&&careCount==careBefore,"Weather does not recursively change ecology scores");
         bool opaque=false;foreach(var mark in stormMarks)opaque|=mark.image.color.a>StormGlyphOpacity+.001f;
         check(!opaque,"World-space wind stays below the configured opacity cap");
         check(plants.Where(b=>b.windBroken).All(b=>b.health==0&&b.root.position==b.home),"Snapped trees keep anchored roots and existing replant interaction");
-        bool exact=true;foreach(var entry in breakArt){var original=treeGlyphSets[entry.Key].trunk;exact&=entry.Value.lower.texture==original.texture&&entry.Value.upper.texture==original.texture&&Mathf.Abs(entry.Value.lower.rect.height+entry.Value.upper.rect.height-original.rect.height)<.01f;}
-        check(exact,"Broken trunk pieces use disjoint crops of the original glyph");
+        bool exact=true,jagged=true,zeroRoot=true;
+        foreach(var entry in breakArt){
+            var art=entry.Value;var original=treeGlyphSets[entry.Key].trunk;
+            exact&=art.lower.texture==original.texture&&art.upper.texture==original.texture&&art.flexibleTrunk.texture==original.texture;
+            var low=art.lower.vertices;var high=art.upper.vertices;
+            for(int x=0;x<33;x++)exact&=Vector2.Distance(low[x*25+24],high[x*25])<.0001f;
+            jagged&=art.seam.Max()-art.seam.Min()>original.rect.height*.05f;
+            zeroRoot&=StormJoint(art).x>0&&art.flexibleTrunk.vertices.Min(v=>v.y)<.001f;
+        }
+        check(exact&&jagged,"Complementary irregular meshes preserve the exact original trunk texture and shared seam");
+        check(zeroRoot,"Curved loading keeps zero displacement at ground level and a bent fracture joint");
         var broken=plants.FirstOrDefault(b=>b.windBroken);
         while(Balance<0)RegisterCare();yield return new WaitForSeconds(7);
+        check(stormLoadingTree==null,"Recovery cancels unfinished wind loading");
         if(broken!=null){player.position=broken.home;interactionTarget=broken;int care=careCount;PerformCare();check(broken.health==3&&!broken.windBroken&&careCount==care+1,"Replanting a wind-broken stump restores the original tree");}
         check(stormMarks.All(b=>!b.root.gameObject.activeSelf),"Wind clears smoothly after ecological recovery");
         check(Mathf.Abs(LivingWindPeriod-2.2f)<.02f,"Recovery restores the normal wind frequency");
+        while(Balance<FlourishThreshold)RegisterCare();yield return new WaitForSeconds(4);
+        check(plants.Where(b=>b.windBroken).All(b=>stormBindings[b].blocks[0].GetFloat("_Growth")==0),"Unreplanted storm stumps stay brown when the rest of the forest flourishes");
         StartForestMode(false);
         check(stormBrokenCount==0&&fruitMarks.All(b=>!b.root.gameObject.activeSelf)&&plants.All(b=>!b.windBroken),"Restart clears all weather state and restores complete glyphs");
         if(!XRTrackingControlsCamera){
@@ -80,7 +96,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
                 File.WriteAllBytes(folder+"/frames/"+frame.ToString("D4")+".jpg",tex.EncodeToJPG(90));
                 cam.targetTexture=prior;RenderTexture.active=active;yield return null;
             }
-            File.WriteAllText(folder+"/preview.txt","Normal -> flourishing -> severe decline -> recovery. 30 fps at normal speed.\nEcology counters are advanced by the capture fixture; character/camera fixed and animals held for comparison.\nFruit spawned="+weatherFruitCount+"; wind passes="+weatherWindCount+"; storm breaks="+stormBrokenCount+"\n");
+            File.WriteAllText(folder+"/preview.txt","Normal -> flourishing -> severe decline -> recovery. 30 fps at normal speed.\nEcology counters are advanced by the capture fixture; character/camera fixed and animals held for comparison.\nFruit spawned="+weatherFruitCount+"; fruit shiver peak="+largestFruitShake.ToString("F2")+" degrees; wind passes="+weatherWindCount+"; storm breaks="+stormBrokenCount+"; maximum break distance="+furthestStormBreak.ToString("F2")+"; fracture anchor error="+maximumFractureAnchorError.ToString("F6")+"\n");
         }finally{Time.captureFramerate=savedRate;tonePreviewFreezeAnimals=false;cam.targetTexture=prior;RenderTexture.active=active;rt.Release();Destroy(rt);Destroy(tex);}
         Application.Quit();
     }

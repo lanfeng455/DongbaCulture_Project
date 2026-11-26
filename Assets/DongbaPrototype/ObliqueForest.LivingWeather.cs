@@ -6,13 +6,14 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     [Range(1.3f,2.2f)] public float FlourishingWindPeriod=1.65f;
     [Range(.08f,.35f)] public float StormGlyphOpacity=.22f;
     [Range(1.5f,6f)] public float FruitDropInterval=2.8f;
-    [Range(1,8)] public int StormBreakLimit=5;
+    [Range(1,20)] public int StormBreakLimit=12;
+    [Range(5,14)] public float StormBreakRadius=12f;
     [Range(.5f,5f)] public float StormTreeLean=3.5f;
 
-    sealed class FruitMark { public Transform root;public SpriteRenderer image;public Vector3 origin,landing;public float age,size; }
+    sealed class FruitMark { public Transform root;public SpriteRenderer image;public Vector3 origin,landing;public float age,size;public Being source;public Vector3 branch;public bool released; }
     sealed class WindMark { public Transform root;public SpriteRenderer image;public Vector3 from,to;public float age,duration; }
-    sealed class BreakArt { public Sprite lower,upper;public float joint; }
-    sealed class BrokenCrown { public Transform root;public SpriteRenderer trunk;public SpriteRenderer[] leaves;public Vector3 origin;public Quaternion rotation;public float age,fallSign; }
+    sealed class BreakArt { public Sprite lower,upper,flexibleTrunk;public Sprite[] flexibleLeaves;public float joint,height;public float[] seam; }
+    sealed class BrokenCrown { public Transform root;public SpriteRenderer trunk;public SpriteRenderer[] leaves;public Vector3 origin;public Quaternion rotation;public float age,fallSign;public Color trunkColor;public Color[] leafColors; }
     readonly List<FruitMark> fruitMarks=new List<FruitMark>();
     readonly List<WindMark> stormMarks=new List<WindMark>();
     readonly List<BrokenCrown> brokenCrowns=new List<BrokenCrown>();
@@ -38,17 +39,12 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             var upright=root.gameObject.AddComponent<XRUprightBillboard>();upright.Initialize(this,cam,billboard);
             root.gameObject.SetActive(false);stormMarks.Add(new WindMark{root=root,image=image});
         }
-        foreach(var entry in treeGlyphSets){
-            var sprite=entry.Value.trunk;var r=sprite.rect;int cut=Mathf.RoundToInt(r.height*.30f);
-            var art=new BreakArt{joint=(cut-sprite.pivot.y)/sprite.pixelsPerUnit};
-            art.lower=Sprite.Create(sprite.texture,new Rect(r.x,r.y,r.width,cut),new Vector2(sprite.pivot.x/r.width,sprite.pivot.y/cut),sprite.pixelsPerUnit);
-            art.upper=Sprite.Create(sprite.texture,new Rect(r.x,r.y+cut,r.width,r.height-cut),new Vector2(sprite.pivot.x/r.width,0),sprite.pixelsPerUnit);
-            breakArt.Add(entry.Key,art);
-        }
+        SetupStormBending();
         for(int i=0;i<6;i++){
             var root=new GameObject("Storm detached original crown").transform;
-            var image=root.gameObject.AddComponent<SpriteRenderer>();
-            var crown=new BrokenCrown{root=root,trunk=image,leaves=new SpriteRenderer[6]};
+            var trunk=new GameObject("Original upper trunk").transform;trunk.SetParent(root,false);
+            var image=trunk.gameObject.AddComponent<SpriteRenderer>();
+            var crown=new BrokenCrown{root=root,trunk=image,leaves=new SpriteRenderer[6],leafColors=new Color[6]};
             for(int j=0;j<6;j++){var part=new GameObject("Original foliage "+j).transform;part.SetParent(root,false);crown.leaves[j]=part.gameObject.AddComponent<SpriteRenderer>();}
             root.gameObject.SetActive(false);brokenCrowns.Add(crown);
         }
@@ -56,6 +52,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     }
 
     void ResetLivingWeather(){
+        ResetStormBending();
         ecologyWindPhase=weatherLife=weatherStorm=weatherGust=0;
         fruitAt=1.4f;windAt=.25f;breakAt=2;fruitSequence=windSequence=stormBrokenCount=weatherFruitCount=weatherWindCount=0;
         foreach(var mark in fruitMarks)mark.root.gameObject.SetActive(false);
@@ -78,7 +75,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         if(!plant.tree)wave=.78f*wave+.22f*Mathf.Sin(ecologyWindPhase*2-delay);
         float amplitude=Mathf.Lerp(1.3f,1.9f,weatherLife);
         float gustLean=weatherStorm*weatherStorm*weatherGust*StormTreeLean;
-        return wave*(amplitude+weatherStorm*.65f)-gustLean+Mathf.Sin(clock*65)*plant.shake*14;
+        return wave*(amplitude+weatherStorm*.65f)-gustLean+FruitReleaseShake(plant)+Mathf.Sin(clock*65)*plant.shake*14;
     }
 
     void UpdateLivingWeather(float dt){
@@ -92,16 +89,15 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         }
         // Wind damage is finite and funded only by the player's existing damage counter.
         // It never increments damageCount or advances narrative thresholds on its own.
-        int quota=Mathf.Min(StormBreakLimit,Mathf.Max(0,damageCount-3)/3);
-        if(weatherStorm>.53f&&Balance<=-5&&weatherGust>.6f&&clock>=breakAt&&stormBrokenCount<quota&&!ManualStoryDialogueActive&&!fatherIntroActive&&!OpeningSurveyActive){
-            var tree=SelectWeatherTree(true,stormBrokenCount);if(tree!=null&&BreakTreeInStorm(tree)){stormBrokenCount++;breakAt=clock+3.4f;}
-        }
+        int quota=Mathf.Min(StormBreakLimit,Mathf.Max(0,damageCount-2));
+        UpdateStormLoading(dt,quota);
         foreach(var fruit in fruitMarks)UpdateFruit(fruit,dt);
         foreach(var wind in stormMarks)UpdateStormWind(wind,dt);
         foreach(var crown in brokenCrowns)UpdateBrokenCrown(crown,dt);
     }
 
     void HideWeatherMarks(){
+        CancelStormLoading(true);
         foreach(var fruit in fruitMarks)fruit.root.gameObject.SetActive(false);
         foreach(var wind in stormMarks)wind.root.gameObject.SetActive(false);
         foreach(var crown in brokenCrowns)crown.root.gameObject.SetActive(false);
@@ -113,14 +109,15 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             var tree=plants[i];if(!tree.tree||tree.health<=0||tree.targetScale<.95f||(breaking&&tree.cultivated)||tree.windBroken)continue;
             Vector3 view=cam.WorldToViewportPoint(tree.home+Vector3.up*1.5f);
             if(view.z<0||view.x<.08f||view.x>.92f||view.y<.15f||view.y>.85f)continue;
-            if(breaking){
+            {
                 var tip=cam.WorldToViewportPoint(tree.art.TransformPoint(Vector3.up*tree.fullGlyph.bounds.max.y));
-                // Choose an entire visible tree, away from the chapter note, so the break can actually be read.
+                // Choose an entire visible tree, away from the chapter note, so both a break and a fruit-release shiver can actually be read.
                 if(tip.z<=0||tip.y>.87f||tip.x<.10f||tip.x>.90f||(tip.x<.34f&&tip.y>.70f))continue;
             }
-            float distance=Vector3.Distance(Feet,tree.home);if(breaking&&(distance<2.2f||distance>19))continue;
+            float distance=Vector3.Distance(Feet,tree.home);
+            if(breaking&&(distance<1.6f||distance>StormBreakRadius||!SameWeatherBank(tree.home)))continue;
             if(!breaking&&distance>24)continue;
-            float candidate=FlowerScatter(i+sequence*19,31)*10+distance*.08f;
+            float candidate=breaking?distance+FlowerScatter(i+sequence*19,31)*.65f:FlowerScatter(i+sequence*19,31)*5+distance*.25f;
             if(candidate<score){score=candidate;selected=tree;}
         }
         return selected;
@@ -131,7 +128,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         FruitMark mark=null;foreach(var item in fruitMarks)if(!item.root.gameObject.activeSelf){mark=item;break;}if(mark==null)return;
         var layers=treeGlyphSets[tree.glyphKey];int group=0;
         for(int i=1;i<tree.leafImages.Length;i++)if(tree.leafAttached[i]&&layers.pieceOffsets[i].y>layers.pieceOffsets[group].y)group=i;
-        mark.origin=tree.art.TransformPoint(layers.pieceOffsets[group]);
+        mark.source=tree;mark.branch=layers.pieceOffsets[group];mark.released=false;
+        mark.origin=tree.art.TransformPoint(mark.branch);
+        if(stormBindings.TryGetValue(tree,out var binding))binding.fruitShakeAt=clock;
         mark.landing=new Vector3(mark.origin.x+.25f,.04f,tree.home.z-.30f);
         mark.age=0;mark.size=.38f/fruitMarkSprite.bounds.size.y;
         mark.root.SetPositionAndRotation(mark.origin,billboard);mark.root.localScale=Vector3.zero;
@@ -142,6 +141,11 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     void UpdateFruit(FruitMark mark,float dt){
         if(!mark.root.gameObject.activeSelf)return;mark.age+=dt;
         const float duration=4.4f;if(mark.age>=duration){mark.root.gameObject.SetActive(false);return;}
+        if(!mark.released){
+            mark.origin=mark.source.art.TransformPoint(mark.branch);
+            mark.landing=new Vector3(mark.origin.x+.25f,.04f,mark.source.home.z-.30f);
+            if(mark.age>=.55f)mark.released=true;
+        }
         float fall=Mathf.Clamp01((mark.age-.55f)/1.15f);
         Vector3 position=Vector3.Lerp(mark.origin,mark.landing,fall*fall);
         if(mark.age>1.7f){float bounce=Mathf.Clamp01((mark.age-1.7f)/.46f);position=mark.landing+Vector3.up*(Mathf.Sin(bounce*Mathf.PI)*.12f);}
@@ -177,18 +181,25 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     bool BreakTreeInStorm(Being tree){
         BrokenCrown crown=null;foreach(var item in brokenCrowns)if(!item.root.gameObject.activeSelf){crown=item;break;}if(crown==null)return false;
         var pieces=breakArt[tree.glyphKey];crown.age=0;crown.fallSign=-1;
-        crown.origin=tree.art.TransformPoint(Vector3.up*pieces.joint);crown.rotation=tree.art.rotation;
+        Vector3 joint=StormJoint(pieces);
+        crown.origin=tree.art.TransformPoint(joint);crown.rotation=tree.art.rotation;
         crown.root.SetPositionAndRotation(crown.origin,crown.rotation);crown.root.localScale=tree.art.lossyScale;
-        crown.trunk.sprite=pieces.upper;crown.trunk.color=tree.renderer.color;crown.trunk.sortingOrder=tree.renderer.sortingOrder;
+        crown.trunk.transform.localPosition=-joint;
+        crown.trunk.sprite=pieces.upper;crown.trunk.color=tree.renderer.color;crown.trunkColor=tree.renderer.color;crown.trunk.sortingOrder=tree.renderer.sortingOrder;
+        SetStormInk(crown.trunk,GetCrownProperties(crown,0),pieces,StormPeakBend(pieces),1,0);
         for(int i=0;i<crown.leaves.Length;i++){
-            var image=crown.leaves[i];var original=tree.leafImages[i];image.sprite=original.sprite;image.color=original.color;
+            var image=crown.leaves[i];var original=tree.leafImages[i];image.sprite=pieces.flexibleLeaves[i];image.color=original.color;crown.leafColors[i]=original.color;
             image.enabled=original.enabled;image.sortingOrder=original.sortingOrder;
-            image.transform.localPosition=original.transform.localPosition-Vector3.up*pieces.joint;image.transform.localRotation=Quaternion.identity;image.transform.localScale=original.transform.localScale;
+            image.transform.localPosition=original.transform.localPosition-joint;image.transform.localRotation=Quaternion.identity;image.transform.localScale=original.transform.localScale;
+            SetStormInk(image,GetCrownProperties(crown,i+1),pieces,StormPeakBend(pieces),original.transform.localScale.x,original.transform.localPosition.y);
         }
         crown.root.gameObject.SetActive(true);
+        maximumFractureAnchorError=Mathf.Max(maximumFractureAnchorError,Vector3.Distance(crown.origin,crown.trunk.transform.TransformPoint(joint)));
         tree.health=0;tree.windBroken=true;tree.fall=1;tree.shake=0;
         foreach(var image in tree.leafImages)image.enabled=false;
-        PlayForestSfx("tree_fall",tree.home);
+        // Reuse the creak/fall tail, skipping the axe-impact transient in tree_fall.
+        if(forestSounds.TryGetValue("tree_fall",out var sound)&&PlayForestClip("storm_break",sound,tree.home,.80f,ForestSoundGroup.Impact))
+            foreach(var voice in forestVoices)if(voice.key=="storm_break"&&voice.point==tree.home)voice.source.time=Mathf.Min(.14f,sound.length*.3f);
         return true;
     }
 
@@ -198,7 +209,8 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         crown.root.rotation=crown.rotation*Quaternion.Euler(0,0,crown.fallSign*86*Mathf.SmoothStep(0,1,u));
         crown.root.position=crown.origin+Vector3.right*(1.15f*u*u)-Vector3.up*(.65f*u*u);
         float alpha=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(1.1f,2.4f,crown.age));
-        crown.trunk.color=new Color(1,1,1,alpha);foreach(var leaf in crown.leaves)leaf.color=new Color(1,1,1,alpha);
+        var tint=crown.trunkColor;tint.a*=alpha;crown.trunk.color=tint;
+        for(int i=0;i<crown.leaves.Length;i++){tint=crown.leafColors[i];tint.a*=alpha;crown.leaves[i].color=tint;}
         if(crown.age>=2.4f)crown.root.gameObject.SetActive(false);
     }
 }}
