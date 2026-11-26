@@ -158,6 +158,17 @@ namespace Ivan.Scroll
         // @以N为速度移动 全局只需设一次，之后所有 @移动到 沿用
         public void MoveTo(float targetX)
         {
+            // 玩家身上的 StageActor：MoveTo 转发给 DioramaPlayerController
+            // 控制器有物理刚体能走真实碰撞，比装饰性 localPosition 移动靠谱
+            var player = GetComponent<DioramaPlayerController>();
+            if (player == null) player = GetComponentInParent<DioramaPlayerController>();
+            if (player != null)
+            {
+                // 玩家父级是 Diorama Scene Root，局部 X == 世界 X
+                player.SetStageMoveTarget(targetX);
+                return;
+            }
+
             if (m_moveSpeed <= 0f && m_cruiseSpeed > 0f)
             {
                 m_moveSpeed = m_cruiseSpeed;

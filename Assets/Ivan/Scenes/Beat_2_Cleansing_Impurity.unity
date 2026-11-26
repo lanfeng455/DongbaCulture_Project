@@ -9353,6 +9353,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &163115046
 GameObject:
   m_ObjectHideFlags: 0
@@ -10645,6 +10647,8 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+    m_graph: {fileID: 0}
+    m_entry: 0
 --- !u!1001 &186088403
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10895,6 +10899,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &191911734
 GameObject:
   m_ObjectHideFlags: 0
@@ -19087,6 +19093,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &329385571
 GameObject:
   m_ObjectHideFlags: 0
@@ -19358,6 +19366,11 @@ PrefabInstance:
 --- !u!4 &331459598 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2134226685107755026, guid: e873dc5fffe296e4fab13d9ab1048859, type: 3}
+  m_PrefabInstance: {fileID: 331459597}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &331459599 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2386858687910600204, guid: e873dc5fffe296e4fab13d9ab1048859, type: 3}
   m_PrefabInstance: {fileID: 331459597}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &334642644 stripped
@@ -19648,6 +19661,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &341479914
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22887,6 +22902,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &405075267
 SpriteRenderer:
   serializedVersion: 2
@@ -25057,6 +25074,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &444879856 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6665990056663840802, guid: 09e8293868f627d41a039f945542bd04, type: 3}
@@ -25172,6 +25191,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &446217813
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25792,6 +25813,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &460982497
 SpriteRenderer:
   serializedVersion: 2
@@ -31832,6 +31855,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &584074244
 SpriteRenderer:
   serializedVersion: 2
@@ -33904,6 +33929,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &627186366
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37648,6 +37675,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &690846311
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38188,6 +38217,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &699797312
 GameObject:
   m_ObjectHideFlags: 0
@@ -38394,6 +38425,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &700421137
 GameObject:
   m_ObjectHideFlags: 0
@@ -39645,6 +39678,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &712360465 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6665990056663840802, guid: 09e8293868f627d41a039f945542bd04, type: 3}
@@ -41612,6 +41647,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &749280244
 GameObject:
   m_ObjectHideFlags: 0
@@ -41900,6 +41937,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &753632834 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6665990056663840802, guid: 09e8293868f627d41a039f945542bd04, type: 3}
@@ -43216,6 +43255,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &775639369
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43528,6 +43569,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &778516911
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44542,10 +44585,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e221025178590b41a6dac5d791f82a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Ivan.Puzzle.SightLineVisual
-  m_from: {fileID: 4847694187702231294}
-  m_to: {fileID: 331459598}
+  m_from: {fileID: 4847694187702231296}
+  m_to: {fileID: 331459599}
   m_width: 0.03
-  m_opacity: 0.18
+  m_opacity: 0.312
   m_clearColor: {r: 0.38, g: 0.86, b: 0.96, a: 1}
   m_blockedColor: {r: 0.95, g: 0.42, b: 0.36, a: 1}
   m_height: 0.12
@@ -44631,8 +44674,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.38039216, g: 0.85882354, b: 0.9607843, a: 0.18039216}
-      key1: {r: 0.38039216, g: 0.85882354, b: 0.9607843, a: 0.18039216}
+      key0: {r: 0.38039216, g: 0.85882354, b: 0.9607843, a: 0.3137255}
+      key1: {r: 0.38039216, g: 0.85882354, b: 0.9607843, a: 0.3137255}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -46983,6 +47026,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &830358350
 SpriteRenderer:
   serializedVersion: 2
@@ -50085,6 +50130,8 @@ MonoBehaviour:
             m_StringArgument: "Audio/BGM/\u5B64\u5C9B\u8BA1\u5212_\u4E0D\u820D"
             m_BoolArgument: 0
           m_CallState: 2
+    m_graph: {fileID: 0}
+    m_entry: 0
 --- !u!4 &883957221 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 603742074816925043, guid: e158d14915e6c4b41ac5898f7dffefde, type: 3}
@@ -51145,6 +51192,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &896325191
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52935,6 +52984,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &911927163
 SpriteRenderer:
   serializedVersion: 2
@@ -56032,6 +56083,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &972258260 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 603742074816925043, guid: e158d14915e6c4b41ac5898f7dffefde, type: 3}
@@ -56275,6 +56328,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &977997997 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6763461562481148930, guid: 68baa15b256fc14408aff18d9d9b45ac, type: 3}
@@ -66373,6 +66428,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &1055527837
 GameObject:
   m_ObjectHideFlags: 0
@@ -70204,6 +70261,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1124057777
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71918,6 +71977,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &1158382288
 GameObject:
   m_ObjectHideFlags: 0
@@ -72487,6 +72548,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &1169712859
 SpriteRenderer:
   serializedVersion: 2
@@ -75914,6 +75977,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1245105493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77909,6 +77974,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1268444925
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78084,6 +78151,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1270137672
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78582,6 +78651,8 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 1
           m_CallState: 2
+    m_graph: {fileID: 0}
+    m_entry: 0
 --- !u!1 &1279017163
 GameObject:
   m_ObjectHideFlags: 0
@@ -79340,6 +79411,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &1287168871
 GameObject:
   m_ObjectHideFlags: 0
@@ -86072,6 +86145,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1390822385
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -86434,6 +86509,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1394017306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -86629,6 +86706,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &1397963535
 SpriteRenderer:
   serializedVersion: 2
@@ -86798,6 +86877,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &1398108048
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -91304,6 +91385,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &1465085092 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 0a734b90f30e44b41bd2a518e5eb7002, type: 3}
@@ -91424,6 +91507,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1 &1468550623
 GameObject:
   m_ObjectHideFlags: 0
@@ -93304,6 +93389,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &1496346838 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 20de6be844380d44a957adca64afa9ed, type: 3}
@@ -95698,6 +95785,8 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+    m_graph: {fileID: 0}
+    m_entry: 0
 --- !u!4 &1541338727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 603742074816925043, guid: e158d14915e6c4b41ac5898f7dffefde, type: 3}
@@ -97676,6 +97765,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &1570568590 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 0dabb35fac7938a4e90c37ea4102ed03, type: 3}
@@ -98296,7 +98387,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c40152a0bfc18d44c9363921acc21c5a, type: 2}
+  - {fileID: 2100000, guid: 048bef0f1ee6ee84ab3db11e6239e458, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -103254,6 +103345,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!212 &1590439136
 SpriteRenderer:
   serializedVersion: 2
@@ -107688,6 +107781,8 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+    m_graph: {fileID: 0}
+    m_entry: 0
 --- !u!4 &1662587938 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 20de6be844380d44a957adca64afa9ed, type: 3}
@@ -111617,6 +111712,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &1738783381 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 20de6be844380d44a957adca64afa9ed, type: 3}
@@ -120061,6 +120158,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &1789131622 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6665990056663840802, guid: 09e8293868f627d41a039f945542bd04, type: 3}
@@ -123813,6 +123912,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &1849435663 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 0a734b90f30e44b41bd2a518e5eb7002, type: 3}
@@ -130266,6 +130367,8 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+    m_graph: {fileID: 0}
+    m_entry: 0
   - m_kind: 2
     m_fromIndex: 0
     m_toIndex: 0
@@ -130285,6 +130388,8 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+    m_graph: {fileID: 0}
+    m_entry: 0
   - m_kind: 1
     m_fromIndex: 0
     m_toIndex: 0
@@ -130292,6 +130397,8 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+    m_graph: {fileID: 0}
+    m_entry: 0
   - m_kind: 0
     m_fromIndex: 30
     m_toIndex: 30
@@ -130299,6 +130406,8 @@ MonoBehaviour:
     m_onEvent:
       m_PersistentCalls:
         m_Calls: []
+    m_graph: {fileID: 0}
+    m_entry: 0
   - m_kind: 2
     m_fromIndex: 0
     m_toIndex: 0
@@ -130318,6 +130427,8 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 1
           m_CallState: 2
+    m_graph: {fileID: 0}
+    m_entry: 0
 --- !u!1001 &1979685187
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -133132,6 +133243,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!4 &2045897248 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 384416800480567509, guid: 20de6be844380d44a957adca64afa9ed, type: 3}
@@ -138474,6 +138587,8 @@ MonoBehaviour:
   m_centerOffset: {x: 0, y: 0, z: 0}
   m_radiusOverride: 0
   m_maxAutoRadius: 5
+  m_excludeRendererNames:
+  - Shadow
 --- !u!1001 &2911737404386545115
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -139202,6 +139317,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3af4cc634d04944c9f290777f2a55ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Ivan.Puzzle.SnakeActor
+--- !u!4 &4847694187702231296 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2386858687910600204, guid: e873dc5fffe296e4fab13d9ab1048859, type: 3}
+  m_PrefabInstance: {fileID: 4847694187702231293}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6326518620251753795
 PrefabInstance:
   m_ObjectHideFlags: 0

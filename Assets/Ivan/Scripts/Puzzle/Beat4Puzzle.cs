@@ -98,14 +98,24 @@ namespace Ivan.Puzzle
         [SerializeField] private float m_treePunchDuration = 0.4f;
 
         [Header("撞退（防跳关）")]
-        [Tooltip("未喂食巨兽的攻击半径（米），玩家进入就被撞回去")]
+        [Tooltip("防线厚度（米）：玩家进入空气墙前这么远就被撞开")]
         [SerializeField] private float m_threatRadius = 2.4f;
-        [Tooltip("撞退初速度（米/秒）")]
+        [Tooltip("巨兽一次撞击把玩家往左推开的距离（米）")]
+        [SerializeField] private float m_knockDistance = 2.6f;
+        [Tooltip("撞退初速度（米/秒），只用于果实落地时推开玩家那一下")]
         [SerializeField] private float m_knockSpeed = 7.5f;
         [Tooltip("撞退持续时间（秒），越长滑得越远、越容易看清")]
         [SerializeField] private float m_knockDuration = 0.34f;
         [Tooltip("两次撞退之间的冷却（秒）")]
         [SerializeField] private float m_knockCooldown = 0.6f;
+
+        [Header("撞人动作（视觉）")]
+        [Tooltip("巨兽扑向玩家的距离（米）")]
+        [SerializeField] private float m_bumpDistance = 0.9f;
+        [Tooltip("扑出去的时间（秒）")]
+        [SerializeField] private float m_bumpOutDuration = 0.12f;
+        [Tooltip("弹回原位的时间（秒）")]
+        [SerializeField] private float m_bumpBackDuration = 0.3f;
 
         [Header("空气墙（场景实物，两只巨兽让路后关闭）")]
         [Tooltip("场景里已挂好 BoxCollider 的空气墙物体名；这里只负责在解谜后关掉它")]
@@ -166,6 +176,11 @@ namespace Ivan.Puzzle
             public Beat4TriggerZone Zone;
             public Func<Collider, bool> EnterHandler;
             public StageActor Actor;   // 复用 Beat2 的演员转向（支持多贴图整只翻转）
+
+            // 撞人动作：<0 表示不在动作中；否则按「扑出 → 弹回」两段插值
+            public float BumpAge = -1f;
+            public Vector3 BumpOrigin;
+            public Vector3 BumpPeak;
         }
 
         // 板栗裂出来的一瓣——任意一只未喂食的巨兽都能叼走
@@ -302,12 +317,45 @@ namespace Ivan.Puzzle
 
         private void Update()
         {
-            // 撞退优先：玩家进入攻击范围时先处理撞人，再推进冲撞节奏
+            // 撞退优先：玩家进入防线时先处理撞人，再推进冲撞节奏
             ProcessKnockback();
+            ProcessBeastBumps();
             ProcessChargeCycle();
             ProcessBeastLeaving();
             ProcessCarriedFood();
             CheckSolved();
+        }
+
+        // 撞人动作：扑向玩家再弹回原位（纯位移插值，不触发任何判定）
+        private void ProcessBeastBumps()
+        {
+            float dt = Time.deltaTime;
+
+            foreach (var beast in m_beasts)
+            {
+                if (beast.BumpAge < 0f) continue;
+
+                beast.BumpAge += dt;
+                float backStart = m_bumpOutDuration;
+
+                if (beast.BumpAge < backStart)
+                {
+                    float t = Mathf.Clamp01(beast.BumpAge / Mathf.Max(0.01f, backStart));
+                    beast.Root.position = Vector3.Lerp(beast.BumpOrigin, beast.BumpPeak,
+                                                       Mathf.SmoothStep(0f, 1f, t));
+                }
+                else if (beast.BumpAge < backStart + m_bumpBackDuration)
+                {
+                    float t = Mathf.Clamp01((beast.BumpAge - backStart) / Mathf.Max(0.01f, m_bumpBackDuration));
+                    beast.Root.position = Vector3.Lerp(beast.BumpPeak, beast.BumpOrigin,
+                                                       Mathf.SmoothStep(0f, 1f, t));
+                }
+                else
+                {
+                    beast.Root.position = beast.BumpOrigin;
+                    beast.BumpAge = -1f;
+                }
+            }
         }
 
         // ---------- 斧头劈板栗 ----------
@@ -613,6 +661,7 @@ namespace Ivan.Puzzle
             {
                 if (beast.HasFood || beast.IsLeaving) continue;
                 if (beast == m_chargingBeast) continue;
+                if (beast.BumpAge >= 0f) continue;   // 正在扑人，位置由动作接管
 
                 MoveBeast(beast, beast.BackSpot, m_backOffSpeed, dt);
             }
@@ -625,7 +674,7 @@ namespace Ivan.Puzzle
                 Beast next = PickChargeableBeast();
                 if (next == null) return;
 
-                // 玩家正在攻击范围里：先撞人，不冲撞树
+                // 玩家正在攻击范围里：先专心把人撞开，不冲撞树
                 if (IsPlayerInsideThreat(next)) return;
 
                 m_chargingBeast = next;
@@ -678,6 +727,7 @@ namespace Ivan.Puzzle
                 int index = (m_nextBeastIndex + i) % m_beasts.Count;
                 Beast beast = m_beasts[index];
                 if (beast.HasFood || beast.IsLeaving) continue;
+                if (beast.BumpAge >= 0f) continue;   // 正在扑人，别派它去撞树
 
                 m_nextBeastIndex = (index + 1) % m_beasts.Count;
                 return beast;
@@ -962,6 +1012,9 @@ namespace Ivan.Puzzle
 
         // ---------- 撞退（防跳关） ----------
 
+        // 玩家一进攻击范围就立刻把人朝左撞开，不走蓄力 / 后退流程。
+        // 方向固定为世界 -X：玩家是从左边过来的，任何角度都要被顶回左边，
+        // 否则按「远离巨兽」算，玩家站在巨兽南北侧时会被顺着 Z 推走，甚至往右滑一点
         private void ProcessKnockback()
         {
             if (m_controller == null) return;
@@ -975,27 +1028,66 @@ namespace Ivan.Puzzle
 
                 beast.NextKnockTime = Time.time + m_knockCooldown;
 
-                Vector3 away = m_controller.transform.position - beast.Root.position;
-                away.y = 0f;
-                if (away.sqrMagnitude < 0.0001f)
+                // 纯左向，Y 清零；稍微掺一点远离巨兽的 Z，避免被沿墙推着走时穿进巨兽身体
+                Vector3 sideways = m_controller.transform.position - beast.Root.position;
+                sideways.y = 0f;
+                float sideSign = Mathf.Abs(sideways.z) > 0.01f ? Mathf.Sign(sideways.z) : 0f;
+                Vector3 direction = new Vector3(-1f, 0f, sideSign * 0.25f).normalized;
+
+                // 巨兽转头看向闯入的玩家，读起来是"它发现你了"
+                if (beast.Actor != null)
                 {
-                    away = -beast.OutwardDir;
+                    beast.Actor.Face(sideways.x < 0f ? -1f : 1f);
                 }
 
-                m_controller.ApplyKnockback(away.normalized * m_knockSpeed, m_knockDuration);
-                Debug.Log($"[Beat4Puzzle] 玩家进入「{beast.Root.name}」的攻击范围，被撞退。", beast.Root);
+                // 撞人动作：先扑向玩家再弹回原位。动作纯插值，不改防线判定，
+                // 所以扑出去 / 弹回来的过程中也不会给玩家开出可钻的缺口
+                Vector3 bumpDir = sideways.sqrMagnitude > 0.0001f ? sideways.normalized : Vector3.left;
+                bumpDir.y = 0f;
+                beast.BumpOrigin = beast.Root.position;
+                beast.BumpPeak = beast.BumpOrigin + bumpDir * m_bumpDistance;
+                beast.BumpAge = 0f;
+
+                // 这只巨兽如果在冲树途中，立刻放弃冲撞专心扑人
+                if (beast == m_chargingBeast)
+                {
+                    m_chargingBeast = null;
+                    m_chargeAge = 0f;
+                    m_chargePhase = ChargePhase.Dash;
+                }
+
+                // 撞退速度按「推开的距离」反算：线性衰减下位移 = 初速 × 时长 / 2
+                float knockSpeed = 2f * m_knockDistance / Mathf.Max(0.05f, m_knockDuration);
+                m_controller.ApplyKnockback(direction * knockSpeed, m_knockDuration);
+                SpawnDust(m_controller.transform.position, 3);
+                Debug.Log($"[Beat4Puzzle] 玩家进入「{beast.Root.name}」的防线，被朝左撞开。", beast.Root);
+                return;   // 一帧只撞一次：两只巨兽的防线重叠，避免叠加两次推力
             }
         }
 
+        // 防线判定：巨兽守的是整条通道，不是自己脚下的小圈。
+        // 两只巨兽一南一北分开站位，玩家从中间走廊就能一路走到空气墙，
+        // 按「到巨兽的距离」永远打不到人；所以改用空气墙那条线做防线：
+        // 进入墙前 m_threatRadius 的横带（Z 覆盖墙的宽度）就算闯入
         private bool IsPlayerInsideThreat(Beast beast)
         {
             if (m_controller == null) return false;
 
             Vector3 player = m_controller.transform.position;
+
+            if (m_airWall != null)
+            {
+                const float k_laneMargin = 1.5f;
+                Bounds wall = m_airWall.bounds;
+                bool inLane = player.z >= wall.min.z - k_laneMargin &&
+                              player.z <= wall.max.z + k_laneMargin;
+                return inLane && player.x >= wall.min.x - m_threatRadius;
+            }
+
+            // 场景里没有空气墙时，退回按巨兽自身的球形距离
             player.y = 0f;
             Vector3 center = beast.Root.position;
             center.y = 0f;
-
             return Vector3.Distance(player, center) <= m_threatRadius;
         }
 

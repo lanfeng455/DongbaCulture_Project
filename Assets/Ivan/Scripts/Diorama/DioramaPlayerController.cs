@@ -56,8 +56,36 @@ namespace Ivan.Diorama
         [Tooltip("谜题交互（按 E 优先触发谜题交互，没有可交互目标才走喂食/补种）")]
         [SerializeField] private PuzzleInteractor m_puzzleInteractor;
 
+        private bool m_cameraHandoff;
+        private Transform m_handoffSavedTarget;   // handoff 前的 Cinemachine 跟踪目标，恢复时接回
+
         // The handoff owns the lens, but leaves the existing movement/collision motor running.
-        public bool CameraHandoff { get; set; }
+        // 项目里相机实际由 CinemachineBrain + CinemachineCamera 驱动（本组件 m_camera 留空，
+        // LateUpdate 的内置跟随根本没在跑），所以 handoff 必须同时摘掉虚拟相机的跟踪目标，
+        // 相机才会真正停在原地；@恢复相机跟随 再把目标接回去
+        public bool CameraHandoff
+        {
+            get => m_cameraHandoff;
+            set
+            {
+                if (m_cameraHandoff == value) return;
+                m_cameraHandoff = value;
+
+                var vcam = FindFirstObjectByType<Unity.Cinemachine.CinemachineCamera>();
+                if (vcam == null) return;
+
+                if (value)
+                {
+                    m_handoffSavedTarget = vcam.Follow;
+                    vcam.Follow = null;   // 无跟踪目标：相机停在当前位置
+                }
+                else if (m_handoffSavedTarget != null)
+                {
+                    vcam.Follow = m_handoffSavedTarget;
+                    m_handoffSavedTarget = null;
+                }
+            }
+        }
         public SpriteRenderer BodyRenderer=>m_bodyImage;
         private SpriteRenderer m_bodyImage;
         private SpriteRenderer m_axeImage;
@@ -66,6 +94,8 @@ namespace Ivan.Diorama
         private int m_facing = 1;
         private int m_stageFacing = 0;      // 演出朝向锁定：0 = 未锁定，±1 = StageActor 锁定的朝向
         private bool m_stageMovementLocked; // 演出移动锁：Story Sequence Player 演出期间禁止玩家移动
+        private bool m_hasStageMoveTarget;  // 演出定点移动进行中
+        private float m_stageMoveTargetX;   // 目标 X（世界坐标，和 StageActor.MoveTo 一致）
         private float m_cameraBaseZ;        // Z 锁定时相机所在的 Z（取场景里相机的初始 Z）
         private bool m_cameraBaseZCaptured;
 
@@ -140,6 +170,21 @@ namespace Ivan.Diorama
         {
             m_stageMovementLocked = locked;
         }
+
+        // 演出定点移动：@移动到X 在玩家身上时转发到这里。
+        // 目标 X 是世界坐标；StageActor.MoveTo 传过来的是父级局部坐标，
+        // 但玩家的父级就是 Diorama Scene Root，局部 X 等于世界 X，所以直接用
+        public void SetStageMoveTarget(float worldX)
+        {
+            m_stageMoveTargetX = worldX;
+            m_hasStageMoveTarget = true;
+
+            // 朝目标转
+            m_stageFacing = worldX >= transform.position.x ? 1 : -1;
+        }
+
+        // 演出定点移动是否已到达；让 DialogueDisplay 在 @移动到 行上 await
+        public bool HasReachedStageMoveTarget => !m_hasStageMoveTarget;
 
         public Vector3 BoundCenter => m_boundCenter;
         public float HalfWidth => m_halfWidth;
@@ -373,6 +418,10 @@ namespace Ivan.Diorama
             }
         }
 
+        // 演出路径所在的 Z：场地的"上下"是 Z 轴（非 Y），谜题区站位会偏离主路，
+        // 演出移动时对角线走回 (目标X, Z=0) 而不是只改 X
+        private const float k_stagePathZ = 0f;
+
         // 速度驱动移动：树、门、河面等阻挡全部交给物理碰撞，天然支持贴墙滑动；
         // 以后加"解锁的门"只需开关门自己的 Collider，这里不用改
         private void FixedUpdate()
@@ -381,8 +430,32 @@ namespace Ivan.Diorama
 
             Vector3 velocity = m_moveInput * m_moveSpeed;
 
+            // 演出定点移动：比键盘输入和移动锁优先级高，是"导演让你走你就得走"
+            if (m_hasStageMoveTarget)
+            {
+                Vector2 current = new Vector2(m_rigidbody.position.x, m_rigidbody.position.z);
+                Vector2 target = new Vector2(m_stageMoveTargetX, k_stagePathZ);
+                Vector2 toTarget = target - current;
+                float stepDistance = m_moveSpeed * Time.fixedDeltaTime;
+
+                // 到达或过了就停
+                if (toTarget.magnitude <= stepDistance)
+                {
+                    m_rigidbody.position = new Vector3(target.x, m_rigidbody.position.y, target.y);
+                    m_hasStageMoveTarget = false;
+                    // 到位后看向右边（剧情前进方向），从右侧走回来不会一直脸朝左；
+                    // 需要别的朝向时在对话表里跟一行 @向左看 / @向右看 即可覆盖
+                    m_stageFacing = 1;
+                    velocity = Vector3.zero;
+                }
+                else
+                {
+                    Vector2 direction = toTarget.normalized;
+                    velocity = new Vector3(direction.x, 0f, direction.y) * m_moveSpeed;
+                }
+            }
             // 撞退期间由外部速度接管：线性衰减到 0，位移连续可读
-            if (m_knockRemaining > 0f)
+            else if (m_knockRemaining > 0f)
             {
                 m_knockRemaining -= Time.fixedDeltaTime;
                 float weight = Mathf.Clamp01(m_knockRemaining / m_knockDuration);

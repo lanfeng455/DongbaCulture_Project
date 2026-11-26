@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ivan.Diorama
@@ -60,6 +61,11 @@ namespace Ivan.Diorama
         [Tooltip("自动推导半径的上限（米）。超过说明精灵四边形远大于可见图案，" +
                  "会截断并警告；之后请移除本组件（装饰物）或用 Radius Override 指定")]
         [SerializeField] private float m_maxAutoRadius = 5f;
+
+        [Tooltip("名字在这个列表里的子物体 Renderer（SpriteRenderer / MeshRenderer）" +
+                 "会被 ComputeWorldBounds 跳过。典型用途：排除 Shadow / Outline 等装饰层，" +
+                 "让碰撞体尺寸只由主字形决定")]
+        [SerializeField] private string[] m_excludeRendererNames = { "Shadow" };
 
         private Collider m_collider;
         private float m_baseRadius;     // 自动推导时的原始尺寸，供临时改尺寸后恢复
@@ -153,14 +159,29 @@ namespace Ivan.Diorama
 
         private Bounds ComputeWorldBounds()
         {
-            var renderers = GetComponentsInChildren<Renderer>();
-            if (renderers.Length == 0)
+            var renderers = GetComponentsInChildren<Renderer>(true);
+
+            // 跳过 Shadow / Outline 等装饰层——它们不应该影响碰撞体尺寸
+            var excluded = new HashSet<string>(m_excludeRendererNames ?? Array.Empty<string>());
+            var included = new List<Renderer>(renderers.Length);
+            foreach (var r in renderers)
             {
-                // 没有渲染器时给 1m 默认占位，避免零尺寸碰撞体
+                if (excluded.Contains(r.gameObject.name)) continue;
+                included.Add(r);
+            }
+
+            if (included.Count == 0)
+            {
+                // 全部被排除时退回去找未排除的；还没有的话给 1m 默认占位
+                included = new List<Renderer>(renderers);
+            }
+            if (included.Count == 0)
+            {
                 return new Bounds(transform.position, Vector3.one);
             }
-            Bounds b = renderers[0].bounds;
-            foreach (var r in renderers)
+
+            Bounds b = included[0].bounds;
+            foreach (var r in included)
             {
                 b.Encapsulate(r.bounds);
             }

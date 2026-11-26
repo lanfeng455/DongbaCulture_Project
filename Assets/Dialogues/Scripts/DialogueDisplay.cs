@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 using Ivan.Scroll;
+using Ivan.Diorama;
 using DongbaPrototype;
 
 // 对话显示：场景级单例，负责把 DialogueLibrarySO 里的某段对话
@@ -542,14 +543,26 @@ public partial class DialogueDisplay : MonoBehaviour
                 {
                     actor.MoveTo(command.Value);
 
+                    // 玩家身上的 StageActor：MoveTo 转发给了 DioramaPlayerController，
+                    // actor.HasReachedMoveTarget 永远是 true，要等 player.HasReachedStageMoveTarget
+                    var player = actor.GetComponent<DioramaPlayerController>();
+                    if (player == null) player = actor.GetComponentInParent<DioramaPlayerController>();
+
                     // 走到目标才继续下一行（对话流停在指令行上，字幕隐藏中）；
                     // 演员中途被销毁时视为到达，避免对话流被吊死
-                    while (actor != null && !actor.HasReachedMoveTarget)
+                    while (true)
                     {
-                        if (token.IsCancellationRequested)
+                        if (token.IsCancellationRequested) return;
+
+                        if (player != null)
                         {
-                            return;
+                            if (player.HasReachedStageMoveTarget) break;
                         }
+                        else
+                        {
+                            if (actor == null || actor.HasReachedMoveTarget) break;
+                        }
+
                         await Awaitable.NextFrameAsync(token);
                     }
                 }
@@ -559,6 +572,26 @@ public partial class DialogueDisplay : MonoBehaviour
             case StageCommandType.Hide:
                 StageActorRegistry.Find(speaker)?.Hide();
                 break;
+
+            case StageCommandType.StopCameraFollow:
+            {
+                var player = FindFirstObjectByType<DioramaPlayerController>();
+                if (player != null)
+                {
+                    player.CameraHandoff = true;
+                }
+                break;
+            }
+
+            case StageCommandType.ResumeCameraFollow:
+            {
+                var player = FindFirstObjectByType<DioramaPlayerController>();
+                if (player != null)
+                {
+                    player.CameraHandoff = false;
+                }
+                break;
+            }
         }
     }
 

@@ -12,6 +12,8 @@ namespace Ivan.Scroll
         Stop,
         MoveTo,
         Hide,
+        StopCameraFollow,   // 相机取消跟随玩家，由外部接管
+        ResumeCameraFollow, // 恢复相机跟随玩家
     }
 
     public readonly struct StageCommand
@@ -61,6 +63,17 @@ namespace Ivan.Scroll
             if (text.StartsWith("隐藏"))
             {
                 command = new StageCommand(StageCommandType.Hide, 0f);
+                return true;
+            }
+            // 「停止相机跟随」必须排在「停止」前面，否则会被前缀抢先匹配成 Stop
+            if (text.StartsWith("停止相机跟随") || text.StartsWith("停止跟随相机"))
+            {
+                command = new StageCommand(StageCommandType.StopCameraFollow, 0f);
+                return true;
+            }
+            if (text.StartsWith("恢复相机跟随") || text.StartsWith("恢复跟随相机"))
+            {
+                command = new StageCommand(StageCommandType.ResumeCameraFollow, 0f);
                 return true;
             }
             if (text.StartsWith("停止"))
