@@ -91,6 +91,17 @@ namespace DongbaPrototype
             var secondTree = firstAxeTeachingTrees[1];
             if (firstTree == null || secondTree == null) throw new InvalidOperationException("Both teaching trees must exist.");
             Check("Both teaching trees start with three durability", firstTree.health == 3 && secondTree.health == 3);
+            bool circularReach = true;
+            for (int direction = 0; direction < 8; direction++)
+            {
+                Vector3 radial = Quaternion.Euler(0, direction * 45, 0) * Vector3.right;
+                player.position = firstTree.home - radial * (BareHandRange * .8f);
+                heading = -radial;
+                circularReach &= IsFirstAxeTargetInReach(firstTree, out _);
+            }
+            Check("Targets in all eight directions are in range even when facing away", circularReach);
+            player.position = firstTree.home - Vector3.right * (BareHandRange + .05f);
+            Check("Circular attack still rejects targets outside its radius", !IsFirstAxeTargetInReach(firstTree, out _));
             cam.backgroundColor = new Color(.83f, .80f, .72f);
             cam.fieldOfView = 60;
             var center = firstTree.home + Vector3.up;

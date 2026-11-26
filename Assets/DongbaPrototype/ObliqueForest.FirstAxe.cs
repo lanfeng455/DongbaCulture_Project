@@ -246,7 +246,8 @@ namespace DongbaPrototype
             Vector3 delta = Vector3.ProjectOnPlane(targetPosition - Feet, Vector3.up);
             distance = delta.magnitude;
             float reach = HasCuttingTool ? (selectedSlot == 1 ? .85f : AxeRangeSteps) * RiversideStep : BareHandRange;
-            return distance <= reach && Vector3.Dot(delta.normalized, heading.normalized) > .15f;
+            // PICO attacks select the nearest valid target inside a horizontal circle.
+            return distance <= reach;
         }
 
         Being FindFirstAxeTarget()
