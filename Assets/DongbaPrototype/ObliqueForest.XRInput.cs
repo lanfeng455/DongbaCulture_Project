@@ -38,7 +38,8 @@ namespace DongbaPrototype
             bool connectedChanged = !xrLeftDevice.Equals(left) || !xrRightDevice.Equals(right);
             xrLeftDevice = left; xrRightDevice = right;
             left.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 stick);
-            UpdateXRHelpInput(XRButton(right,CommonUsages.secondaryButton),XRExperienceReady&&xrWasReady&&!connectedChanged&&!storyLocked);
+            ReadNatureXR(left,right,XRExperienceReady&&xrWasReady&&!connectedChanged&&!storyLocked);
+            UpdateXRHelpInput(XRButton(right,CommonUsages.secondaryButton),!NatureOwnsInput&&XRExperienceReady&&xrWasReady&&!connectedChanged&&!storyLocked);
             bool language=XRButton(right,CommonUsages.primary2DAxisClick);
             return ProcessXRInput(stick,jump,attack,care,language,storyLocked,connectedChanged);
         }
@@ -70,6 +71,7 @@ namespace DongbaPrototype
                 }
             }
             if(languageDown&&!dialogue)DongbaLanguage.Set(DongbaLanguage.Chinese?DongbaLocale.English:DongbaLocale.Chinese,true);
+            if(NatureOwnsInput)return armed&&!storyLocked?XRStickMovement(stick):Vector3.zero;
             if(!storyLocked&&!dialogue&&armed){
                 if(jumpDown&&jumpAge<0){jumpAge=0;PlayForestSfx("jump",Feet);}
                 if(attackDown&&ForestDamageAvailable&&eastPaperProgress<=0&&attackAge<0){

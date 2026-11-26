@@ -6,10 +6,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     readonly List<Being> circleAnimals=new List<Being>(3);
     const float CircleRadius=2.8f,CircleSpeed=.48f;
     void UpdateFlourishingCircle(){
-        for(int i=circleAnimals.Count-1;i>=0;i--){var a=circleAnimals[i];if(!friendlyWeather||!animals.Contains(a)||a.health<=0||a.angry||a.follow<=0||a.migrationState!=0||Vector3.Distance(a.root.position,Feet)>FriendlyRadius+4)circleAnimals.RemoveAt(i);}
+        for(int i=circleAnimals.Count-1;i>=0;i--){var a=circleAnimals[i];if(a.editBusy||a.editResident||!friendlyWeather||!animals.Contains(a)||a.health<=0||a.angry||a.follow<=0||a.migrationState!=0||Vector3.Distance(a.root.position,Feet)>FriendlyRadius+4)circleAnimals.RemoveAt(i);}
         if(!friendlyWeather)return;
         while(circleAnimals.Count<3){Being nearest=null;float distance=FriendlyRadius;
-            foreach(var a in animals){if(a.health<=0||a.angry||a.follow<=0||a.migrationState!=0||circleAnimals.Contains(a))continue;float d=Vector3.Distance(a.root.position,Feet);if(d<distance){nearest=a;distance=d;}}
+            foreach(var a in animals){if(a.editBusy||a.editResident||a.health<=0||a.angry||a.follow<=0||a.migrationState!=0||circleAnimals.Contains(a))continue;float d=Vector3.Distance(a.root.position,Feet);if(d<distance){nearest=a;distance=d;}}
             if(nearest==null)break;circleAnimals.Add(nearest);
         }
     }
@@ -46,7 +46,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         return true;
     }
     bool CircleStepClear(Vector3 p,Being b){
-        if(!AnimalTerrainClear(p))return false;
+        if(!AnimalTerrainClear(p)||NatureReserved(p,b))return false;
         foreach(var plant in plants)if(Vector3.Distance(p,plant.home)<AnimalPlantRadius(plant))return false;
         foreach(var other in animals)if(other!=b&&other.health>0&&other.migrationState!=2){
             float distance=Vector3.Distance(p,other.root.position);if(distance>=.95f)continue;

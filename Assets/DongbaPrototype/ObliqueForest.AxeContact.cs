@@ -21,7 +21,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     static float AxeSwing(float age){return age<.16f?Mathf.Lerp(20,85,Mathf.SmoothStep(0,1,age/.16f)):Mathf.Lerp(85,-110,Mathf.SmoothStep(0,1,(age-.16f)/.3f));}
     void PoseAxe(float age){axe.localRotation=Quaternion.Euler(0,0,swingFacing*AxeSwing(age));var scale=axe.localScale;scale.x=Mathf.Abs(scale.x)*swingFacing;axe.localScale=scale;}
     void UpdateAxeAttack(float dt){
-        if(!ForestDamageAvailable){attackAge=sampledAttackAge=-1;swingContacts.Clear();axe.gameObject.SetActive(false);return;}
+        if(!ForestDamageAvailable||NatureEditorOpen){attackAge=sampledAttackAge=-1;swingContacts.Clear();axe.gameObject.SetActive(false);return;}
         if(attackAge<0){sampledAttackAge=-1;return;}
         if(sampledAttackAge<0){swingContacts.Clear();swingFacing=facing;swingDirection=Vector3.right*swingFacing;sampledAttackAge=0;previousGrip=HandPosition();}
         if(attackAge<.16f&&attackAge+dt>=.16f)PlayForestVariant("axe",3,HandPosition());
@@ -46,7 +46,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(attackAge>.62f){attackAge=-1;sampledAttackAge=-1;axe.gameObject.SetActive(false);}
     }
     void TryAxeContact(Being b){
-        if(b.health<=0||!b.root.gameObject.activeInHierarchy||swingContacts.Contains(b)||Vector3.Distance(b.root.position,Feet)>6)return;
+        if(b.editBusy||b.health<=0||!b.root.gameObject.activeInHierarchy||swingContacts.Contains(b)||Vector3.Distance(b.root.position,Feet)>6)return;
         // Prevent hits on a different ground-depth row merely overlapping on screen.
         if(Mathf.Abs(b.root.position.z-Feet.z)>1.45f)return;
         var mesh=ContactMesh(b.renderer.sprite);

@@ -86,7 +86,7 @@ namespace DongbaPrototype
                 if(!child.name.StartsWith("PICO ")&&child.name!="DialogueCanvas")child.gameObject.SetActive(false);
             EnsureXRNotes();
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
-            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue;
+            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen;
             if(!exploring)xrHelpOpen=false;
             string objective=StoryModeEnabled?DongbaLanguage.Text(QuietStoryObjective()):DongbaInterface.Choose("Sandbox Mode","沙盒模式")+" · "+SandboxState;
             xrSummary.text=objective;
@@ -101,8 +101,8 @@ namespace DongbaPrototype
             }
             xrHelpNote.gameObject.SetActive(exploring&&xrHelpOpen);
             xrControllerHints.text=DongbaInterface.Choose(
-                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\n"+XRForestActionGuide+"\nHold Y   Reposition forest\nRight stick click   English / 中文\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
-                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n"+XRForestActionGuide+"\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
+                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\n"+XRForestActionGuide+"\nHold Y   Reposition forest\nRight stick click   English / 中文\nLeft stick click   Nature invitations (sandbox)\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
+                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n"+XRForestActionGuide+"\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n按下左摇杆  自然邀请（沙盒）\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
             xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
             xrControlsTab.gameObject.SetActive(exploring);
             xrPanelStatus.gameObject.SetActive(exploring);

@@ -129,7 +129,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
 
     void ApplyLivingTreePresentation(){
         foreach(var entry in stormBindings){
-            var tree=entry.Key;var binding=entry.Value;var art=breakArt[tree.glyphKey];
+            var tree=entry.Key;if(tree.editBusy||!tree.root.gameObject.activeSelf)continue;var binding=entry.Value;var art=breakArt[tree.glyphKey];
             bool loading=tree==stormLoadingTree&&tree.health>0;
             if(!loading&&!tree.windBroken){RestoreStormTree(tree,binding);continue;}
             binding.applied=true;

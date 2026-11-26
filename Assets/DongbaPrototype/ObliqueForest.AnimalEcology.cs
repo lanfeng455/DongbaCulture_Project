@@ -28,6 +28,7 @@ public partial class ObliqueForest {
         // Navigation and per-frame motion use ground footprints, not the projected canopy.
         // Screen-space ink clearance is retained for initial placement, not used as an invisible wall.
         for(int n=0;n<NavN;n++){var p=NavPoint(n);navWalk[n]=AnimalTerrainClear(p);navClosed[n]=false;navCost[n]=float.PositiveInfinity;navParent[n]=-1;}
+        foreach(var motion in natureMotions)if(motion.being!=animal&&motion.action!=NatureAction.Sleep&&motion.action!=NatureAction.Leave)StampNavCircle(motion.to,motion.being.animal?.99f:AnimalPlantRadius(motion.being)+.04f);
         foreach(var plant in plants)StampNavCircle(plant.home,AnimalPlantRadius(plant)+.04f);
         foreach(var other in animals)if(other!=animal&&other.health>0&&other.migrationState!=2)StampNavCircle(other.root.position,.99f);
     }
@@ -84,10 +85,10 @@ public partial class ObliqueForest {
                 // Keep a rotating group: when a new animal is attracted at capacity, the earliest
                 // arrival returns to its home range before the new one takes its place.
                 Being oldest=null;foreach(var a in animals)if(a.follow>0&&!circleAnimals.Contains(a)&&(oldest==null||a.visitOrder<oldest.visitOrder))oldest=a;
-                Being next=null;float best=FriendlyRadius;foreach(var a in animals){float d=Vector3.Distance(a.root.position,Feet);if(a.health<=0||a.migrationState!=0||a.angry||a.age<2||a.follow>0||clock<a.socialReadyAt||clock<a.careReady)continue;if(d<best){best=d;next=a;}}
+                Being next=null;float best=FriendlyRadius;foreach(var a in animals){float d=Vector3.Distance(a.root.position,Feet);if(a.editBusy||a.editResident||a.health<=0||a.migrationState!=0||a.angry||a.age<2||a.follow>0||clock<a.socialReadyAt||clock<a.careReady)continue;if(d<best){best=d;next=a;}}
                 if(oldest!=null&&next!=null){if(TryFriendlyDestination(next,out var goal)&&PlanFriendlyRoute(next,goal)){SendFriendlyAnimalHome(oldest);nextFriendlyRotationAt=clock+8f;next.socialOffset=goal-Feet;next.follow=1;next.visitOrder=++friendlyVisitSequence;next.navRefresh=clock+.4f;visitsStarted++;}else next.socialReadyAt=clock+5;}
             }else if(friendlyWeather&&participants<limit){Being choice=null;float best=FriendlyRadius;
-                foreach(var a in animals){float d=Vector3.Distance(a.root.position,Feet);if(a.health<=0||a.migrationState!=0||a.angry||a.age<2||a.follow>0||clock<a.socialReadyAt||clock<a.careReady)continue;if(d<best){best=d;choice=a;}}
+                foreach(var a in animals){float d=Vector3.Distance(a.root.position,Feet);if(a.editBusy||a.editResident||a.health<=0||a.migrationState!=0||a.angry||a.age<2||a.follow>0||clock<a.socialReadyAt||clock<a.careReady)continue;if(d<best){best=d;choice=a;}}
                 if(choice!=null){if(TryFriendlyDestination(choice,out var goal)&&PlanFriendlyRoute(choice,goal)){choice.socialOffset=goal-Feet;choice.follow=1;choice.visitOrder=++friendlyVisitSequence;choice.navRefresh=clock+.4f;visitsStarted++;}else choice.socialReadyAt=clock+5;}
             }
             if(!friendlyWeather){foreach(var a in animals)if(a.follow>0){EndAnimalVisit(a);break;}}
@@ -102,7 +103,7 @@ public partial class ObliqueForest {
         for(int region=0;region<populationRegionCount;region++){
             int current=0;foreach(var a in animals)if(a.health>0&&a.populationRegion==region&&a.migrationState!=1&&a.migrationState!=2)current++;
             int target=Mathf.Max(populationCapacity[region]>0?1:0,Mathf.CeilToInt(populationCapacity[region]*Mathf.Lerp(1,.15f,decline)));
-            foreach(var a in animals){if(a.health<=0||a.populationRegion!=region)continue;
+            foreach(var a in animals){if(a.editBusy||a.health<=0||a.populationRegion!=region)continue;
                 if(decline>.16f&&current>target&&a.migrationState==0&&!a.angry&&a.age==2&&a.birth>.98f&&clock>=a.protectedUntil&&clock>=a.careReady&&clock>=a.migrationTimer){float score=30-Vector3.Distance(a.root.position,Feet);if(!AnimalOutsideViewAt(a,a.root.position))score+=20;if(score>bestDeparture){bestDeparture=score;departure=a;}}
                 if(current<target&&a.migrationState==2&&AnimalOutsideViewAt(a,a.root.position)&&ClearAnimalStep(a.root.position,a)){float d=Vector3.Distance(a.home,Feet);if(d<bestReturn){bestReturn=d;returner=a;}}
             }
@@ -119,7 +120,7 @@ public partial class ObliqueForest {
         for(int started=0;started<2;started++){
             Being choice=null;float closest=PlayerApproachFleeRadius;
             foreach(var a in animals){
-                if(a.health<=0||a.migrationState==2||a.angry||a.age<2||a.birth<.98f||clock<a.careReady||clock<a.nextProximityFleeAt)continue;
+                if(a.editBusy||a.health<=0||a.migrationState==2||a.angry||a.age<2||a.birth<.98f||clock<a.careReady||clock<a.nextProximityFleeAt)continue;
                 float distance=Vector3.Distance(a.root.position,Feet);if(distance<closest){closest=distance;choice=a;}
             }
             if(choice==null)break;
@@ -144,7 +145,7 @@ public partial class ObliqueForest {
         if(b.route==null)b.route=new List<Vector3>(96);b.route.Clear();b.route.Add(best);b.routeIndex=0;b.navGoal=best;b.blockedTime=0;return true;
     }
     void UpdateAnimalEcology(Being b,float dt,float hop){
-        if(b.health<=0||b.migrationState==2||ManualStoryDialogueActive||fatherIntroActive)return;
+        if(b.editBusy||b.health<=0||b.migrationState==2||ManualStoryDialogueActive||fatherIntroActive)return;
         bool feeding=FeedingResponseActive(b);if(!feeding)b.birth=Mathf.MoveTowards(b.birth,b.age==0?.42f:b.age==1?.7f:1,dt*.65f);b.art.localScale=b.initialScale*b.birth;b.cooldown-=dt;
         if(b.angry){b.proximityFleeUntil=0;b.fleeing=false;if(b.follow>0||b.migrationState!=0){EndAnimalVisit(b);b.migrationState=0;b.fleeing=false;}b.socialReadyAt=clock+20;}
         if(b.follow>0){if(friendlyWeather)b.follow=1;else if(b.visitOrder>0){if(clock>=friendlyReleaseAt+Mathf.Repeat(b.phase,.8f))SendFriendlyAnimalHome(b);}else{b.follow=Mathf.Max(0,b.follow-dt);if(b.follow==0||Vector3.Distance(Feet,b.root.position)>FriendlyRadius+3)EndAnimalVisit(b);}}

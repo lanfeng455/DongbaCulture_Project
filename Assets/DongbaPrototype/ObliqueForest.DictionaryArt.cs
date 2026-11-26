@@ -124,7 +124,7 @@ public partial class ObliqueForest {
         float individualVariation=.96f+((species*7+animals.Count*13)%5)*.02f;float width=kindWidths[species]*readabilityScale[species]*individualVariation;
         float height=Mathf.Max(.44f,width*sprite.bounds.size.y/sprite.bounds.size.x);
         b.art=Billboard("Animal glyph",b.root,sprite,height);b.renderer=b.art.GetComponent<SpriteRenderer>();
-        Billboard("Shadow",b.root,shadow,.55f,true);b.initialScale=b.art.localScale;animals.Add(b);
+        b.shadow=Billboard("Shadow",b.root,shadow,.55f,true);b.initialShadowScale=b.shadow.localScale;b.initialScale=b.art.localScale;animals.Add(b);
     }
 
     bool ClearAnimalStep(Vector3 p,Being moving=null){if(moving!=null&&!placingForestAnimals)return CircleStepClear(p,moving);if((placingForestAnimals||fatherIntroActive)&&Mathf.Abs(p.x-HearthPosition.x)<3.4f&&Mathf.Abs(p.z-HearthPosition.z)<2.4f)return false;

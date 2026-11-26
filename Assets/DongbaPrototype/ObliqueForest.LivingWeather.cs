@@ -106,7 +106,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     Being SelectWeatherTree(bool breaking,int sequence){
         Being selected=null;float score=float.MaxValue;
         for(int i=0;i<plants.Count;i++){
-            var tree=plants[i];if(!tree.tree||tree.health<=0||tree.targetScale<.95f||(breaking&&tree.cultivated)||tree.windBroken)continue;
+            var tree=plants[i];if(tree.editBusy||!tree.tree||tree.health<=0||tree.targetScale<.95f||(breaking&&tree.cultivated)||tree.windBroken)continue;
             Vector3 view=cam.WorldToViewportPoint(tree.home+Vector3.up*1.5f);
             if(view.z<0||view.x<.08f||view.x>.92f||view.y<.15f||view.y>.85f)continue;
             {

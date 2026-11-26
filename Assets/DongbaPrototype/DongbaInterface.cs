@@ -61,6 +61,7 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         if(page==Page.None&&!onTitle&&DialogueAdvanceInput.GameplayInputBlocked)return;
         var kb=Keyboard.current;if(kb==null)return;
         if(kb.escapeKey.wasPressedThisFrame){
+            if(page==Page.None&&forest!=null&&forest.CancelNatureEditor())return;
             if(page!=Page.None)Back();else if(onTitle)Open(Page.Quit);else Open(Page.Pause);return;
         }
         if(page!=Page.None){if(page==Page.Help&&kb.hKey.wasPressedThisFrame)Back();return;}
@@ -137,7 +138,8 @@ public sealed partial class DongbaInterface : MonoBehaviour {
                 if(!forest.ForestDamageAvailable){en[2]="Axe put away in this chapter";zh[2]="此阶段收起斧头";}
             }
             int row=0;for(int i=0;i<keys.Length;i++){
-                if((puzzle&&keys[i]=="TAB")||(Sandbox&&i==4))continue;
+                if(puzzle&&keys[i]=="TAB")continue;
+                if(Sandbox&&i==4){keys[i]="B";en[i]="Nature invitations / Ctrl+Z undo";zh[i]="自然邀请 / Ctrl+Z 撤销";}
                 if(Sandbox&&i==5){en[i]="Expand / fold forest note";zh[i]="展开 / 收起林间札记";}
                 if(Sandbox&&i==9){en[i]="Restart the forest";zh[i]="重新开始森林";}
                 var badge=DongbaUIStyle.Rect("Key "+keys[i],menuPage,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-153-row*39),new Vector2(86,34));DongbaUIStyle.Plate(badge,new Color(.88f,.85f,.77f));
