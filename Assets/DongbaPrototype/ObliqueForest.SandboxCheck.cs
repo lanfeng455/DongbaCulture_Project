@@ -69,6 +69,8 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         marks=flowerMarksSpawned;yield return new WaitForSeconds(.25f);
         check(flowerMarksSpawned==marks,"Stopping creates no new flowers");
         if(XRTrackingControlsCamera){
+            // The first flourishing now asks for an invitation. Dismiss it as a player would before opening controls.
+            if(NatureWelcomeVisible){var aim=new Ray(Feet+Vector3.up*30,Vector3.down);ProcessNatureXR(false,false,false,false,Vector2.zero,aim,true);ProcessNatureXR(false,true,false,false,Vector2.zero,aim,true);yield return null;}
             xrHelpOpen=true;xrModeHold=xrRestartHold=0;
             #if UNITY_EDITOR
             xrSimA=true;yield return new WaitForSecondsRealtime(1.2f);xrSimA=false;

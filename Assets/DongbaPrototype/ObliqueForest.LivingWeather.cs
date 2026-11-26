@@ -75,7 +75,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         if(!plant.tree)wave=.78f*wave+.22f*Mathf.Sin(ecologyWindPhase*2-delay);
         float amplitude=Mathf.Lerp(1.3f,1.9f,weatherLife);
         float gustLean=weatherStorm*weatherStorm*weatherGust*StormTreeLean;
-        return wave*(amplitude+weatherStorm*.65f)-gustLean+FruitReleaseShake(plant)+Mathf.Sin(clock*65)*plant.shake*14;
+        return wave*(amplitude+weatherStorm*.65f)-gustLean+NatureWelcomeAngle(plant)+FruitReleaseShake(plant)+Mathf.Sin(clock*65)*plant.shake*14;
     }
 
     void UpdateLivingWeather(float dt){

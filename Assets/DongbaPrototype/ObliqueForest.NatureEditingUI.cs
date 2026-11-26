@@ -16,7 +16,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     string natureKey,natureUIStamp=""; int natureSpecies,naturePageIndex,natureFocus;
     Vector3 natureCandidate; bool natureHasGround,natureValid,natureToggleHeld,natureBackHeld,natureConfirmHeld,natureUndoHeld;
     float natureNavAt; int natureInputFrame=-1; LineRenderer natureRing,natureRay; SpriteRenderer natureGhost;
-    bool NatureOwnsInput=>NatureEditorOpen||natureInputFrame==Time.frameCount;
+    bool NatureOwnsInput=>NatureEditorOpen||NatureWelcomeOwnsInput||natureInputFrame==Time.frameCount;
     string N(string en,string zh)=>DongbaInterface.Choose(en,zh);
     string NatureName(Being b)=>b.animal?AnimalDisplayName(b):NaturePlantName(b.glyphKey);
     string NaturePlantName(string key){
@@ -44,6 +44,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     void ToggleNatureEditor(){
         if(StoryModeEnabled||DongbaInterface.GameplayBlocked)return;
         if(NatureEditorOpen){CloseNatureEditor();return;}
+        if(NatureAvailable&&NatureFirstHint&&!natureFirstLesson){BeginNatureFirstInvitation();return;}
         NatureEditorOpen=true;natureInputFrame=Time.frameCount;uiHelpOpen=xrHelpOpen=false;natureSelected=null;naturePage=NaturePage.Home;naturePageIndex=0;natureFocus=0;natureUIStamp="";
     }
     public bool CancelNatureEditor(){
@@ -147,9 +148,11 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(0,-295);
         }
         else{naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=Vector2.one;naturePanel.anchoredPosition=new Vector2(-30,-155);naturePanel.localScale=Vector3.one;natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.zero;natureTab.anchoredPosition=new Vector2(218,30);}
+        UpdateNatureWelcome(showing);
         if(!showing||!NatureEditorOpen){natureRing.gameObject.SetActive(false);natureGhost.gameObject.SetActive(false);natureRay.gameObject.SetActive(false);return;}
         string stamp=naturePage+"|"+naturePageIndex+"|"+natureUnlocked+"|"+DongbaLanguage.Revision+"|"+sleepingPlants.Count+"|"+forestCompanions.Count+"|"+natureHistory.Count+"|"+(natureSelected==null?0:NatureIdentity(natureSelected));
         if(natureUIStamp!=stamp){BuildNatureChoices();natureUIStamp=stamp;if(XRTrackingControlsCamera&&xrHudInk!=null)foreach(var graphic in naturePanel.GetComponentsInChildren<Graphic>(true))graphic.material=xrHudInk;}
+        ApplyNatureFirstStep();
         for(int i=0;i<natureButtons.Count;i++)natureButtons[i].targetGraphic.color=XRTrackingControlsCamera&&i==natureFocus?new Color(.58f,.39f,.16f,.28f):new Color(.38f,.28f,.15f,.075f);
         natureStatus.text=clock<natureMessageUntil?N(natureMessageEn,natureMessageZh):N(XRTrackingControlsCamera?"Right stick: choose · A: select · X: undo":"WASD: walk · Ctrl+Z: undo · B: close",XRTrackingControlsCamera?"右摇杆选择 · A 确认 · X 撤销":"WASD 走动 · Ctrl+Z 撤销 · B 收起");
         if(natureMotions.Count>0&&clock>=natureMessageUntil)natureStatus.text=N("Invitations on their way: ","正在回应：")+natureMotions.Count+N(" · You may keep arranging."," · 可继续安排其他伙伴。");
@@ -183,7 +186,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     }
     void UpdateNaturePC(){
         if(!natureReady||XRTrackingControlsCamera)return;
-        var k=Keyboard.current;if(k!=null){if(k.bKey.wasPressedThisFrame)ToggleNatureEditor();if(NatureAvailable&&(k.leftCtrlKey.isPressed||k.rightCtrlKey.isPressed)&&k.zKey.wasPressedThisFrame)UndoNature();}
+        var k=Keyboard.current;
+        if(NatureWelcomeOwnsInput){natureInputFrame=Time.frameCount;if(k!=null&&(k.bKey.wasPressedThisFrame||k.enterKey.wasPressedThisFrame))BeginNatureFirstInvitation();return;}
+        if(k!=null){if(k.bKey.wasPressedThisFrame)ToggleNatureEditor();if(NatureAvailable&&(k.leftCtrlKey.isPressed||k.rightCtrlKey.isPressed)&&k.zKey.wasPressedThisFrame)UndoNature();}
         if(!NatureEditorOpen)return;
         var mouse=Mouse.current;if(mouse==null)return;
         if(mouse.rightButton.wasPressedThisFrame){CancelNatureEditor();return;}
@@ -209,6 +214,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     void ProcessNatureXR(bool toggle,bool back,bool confirm,bool undo,Vector2 navigation,Ray ray,bool ready,bool selectWorld=false){
         bool toggleDown=ready&&toggle&&!natureToggleHeld,backDown=ready&&back&&!natureBackHeld,confirmDown=ready&&confirm&&!natureConfirmHeld,undoDown=ready&&undo&&!natureUndoHeld;
         natureToggleHeld=toggle;natureBackHeld=back;natureConfirmHeld=confirm;natureUndoHeld=undo;
+        if(NatureWelcomeOwnsInput){natureInputFrame=Time.frameCount;if(backDown)DeferNatureWelcome();else if(confirmDown||toggleDown)BeginNatureFirstInvitation();return;}
         if(toggleDown)ToggleNatureEditor();if(!NatureEditorOpen)return;natureInputFrame=Time.frameCount;
         if(backDown){CancelNatureEditor();return;}
         natureHasGround=NatureGround(ray,out natureCandidate);

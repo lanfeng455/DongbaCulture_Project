@@ -42,7 +42,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(jump)taughtJump=true;if(attack)taughtAxe=true;
     }
     void RefreshInteractionCard(){
-        bool visible=!NatureEditorOpen&&InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0&&ForestTargetAvailable(interactionTarget);
+        bool visible=!NatureEditorOpen&&!NatureWelcomeVisible&&InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0&&ForestTargetAvailable(interactionTarget);
         promptPanel.SetActive(visible);selectionRing.gameObject.SetActive(visible);
         if(!visible)return;
         var b=interactionTarget;selectionRing.position=b.root.position;
@@ -79,7 +79,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         for(int i=0;i<uiHealthPips.Length;i++)uiHealthPips[i].color=i<health?DongbaUIStyle.Accent:new Color(.37f,.30f,.21f,.2f);
         if(uiObjectivePanel!=null){
             string value=StoryModeEnabled?QuietStoryObjective():SandboxNote;
-            bool show=explore&&!NatureEditorOpen&&!string.IsNullOrEmpty(value)&&!(journeyStage==JourneyStage.RestorationComplete&&endingAcknowledged);
+            bool show=explore&&!NatureEditorOpen&&!NatureWelcomeVisible&&!string.IsNullOrEmpty(value)&&!(journeyStage==JourneyStage.RestorationComplete&&endingAcknowledged);
             uiObjectivePanel.SetActive(show);
             string localized=DongbaLanguage.Text(value);
             int split=localized.IndexOf('\n');journeyObjective.text=split>=0?localized.Substring(0,split):localized;
@@ -92,7 +92,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         RefreshInteractionCard();
         string hint="";
-        if(explore&&!NatureEditorOpen&&!AfterCapturePeaceful&&!promptPanel.activeSelf){
+        if(explore&&!NatureEditorOpen&&!NatureWelcomeVisible&&!AfterCapturePeaceful&&!promptPanel.activeSelf){
             if(!taughtMove)hint="WASD / Arrows   Move";
             else if(!taughtJump&&Mathf.Abs(Feet.x-RiverX(Feet.z))<4)hint="SPACE   Jump across the river";
             else if(!taughtAxe&&journeyStage==JourneyStage.Hunting)hint="J   Swing the axe";

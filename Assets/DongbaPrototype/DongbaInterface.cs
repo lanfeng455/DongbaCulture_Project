@@ -61,7 +61,7 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         if(page==Page.None&&!onTitle&&DialogueAdvanceInput.GameplayInputBlocked)return;
         var kb=Keyboard.current;if(kb==null)return;
         if(kb.escapeKey.wasPressedThisFrame){
-            if(page==Page.None&&forest!=null&&forest.CancelNatureEditor())return;
+            if(page==Page.None&&forest!=null&&(forest.DismissNatureWelcome()||forest.CancelNatureEditor()))return;
             if(page!=Page.None)Back();else if(onTitle)Open(Page.Quit);else Open(Page.Pause);return;
         }
         if(page!=Page.None){if(page==Page.Help&&kb.hKey.wasPressedThisFrame)Back();return;}

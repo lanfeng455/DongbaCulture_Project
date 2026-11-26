@@ -39,7 +39,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             seed.color=new Color(.28f,.20f,.10f,1);wind.color=new Color(1,1,1,.16f);
             root.gameObject.SetActive(false);natureMarks.Add(new NatureMark{root=root,seed=seed,wind=wind});
         }
-        natureReady=true;BuildNatureUI();
+        natureReady=true;BuildNatureUI();BuildNatureWelcome();
     }
     int NatureIdentity(Being b){if(!natureIdentities.TryGetValue(b,out int id)){id=++natureNextIdentity;natureIdentities.Add(b,id);}return id;}
     void NatureSay(string en,string zh){natureMessageEn=en;natureMessageZh=zh;natureMessage=DongbaInterface.Choose(en,zh);natureMessageUntil=clock+4;}
@@ -55,7 +55,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     }
     void UpdateNatureUnlock(){
         if(StoryModeEnabled){if(NatureEditorOpen)CloseNatureEditor();return;}
-        if(!natureUnlocked&&Balance>=FlourishThreshold){natureUnlocked=true;NatureSay("The forest answers. B: invite and arrange.","森林愿意回应了。按 B，邀请万物一起布置。 ");}
+        if(!natureUnlocked&&Balance>=FlourishThreshold){natureUnlocked=true;BeginNatureWelcome();}
     }
     void NatureWake(Being b){
         sleepingPlants.Remove(b);forestCompanions.Remove(b);
@@ -74,7 +74,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     }
     void ResetNatureEditing(){
         if(!natureReady)return;
-        CloseNatureEditor();foreach(var m in natureMotions)if(m.mark!=null)m.mark.root.gameObject.SetActive(false);natureMotions.Clear();natureHistory.Clear();
+        ResetNatureWelcome();CloseNatureEditor();foreach(var m in natureMotions)if(m.mark!=null)m.mark.root.gameObject.SetActive(false);natureMotions.Clear();natureHistory.Clear();
         var all=new HashSet<Being>(plants);all.UnionWith(animals);all.UnionWith(sleepingPlants);all.UnionWith(forestCompanions);
         foreach(var b in all)if(!natureInitialPlants.Contains(b)&&!natureInitialAnimals.Contains(b))NatureForget(b);
         plants.Clear();plants.AddRange(natureInitialPlants);animals.Clear();animals.AddRange(natureInitialAnimals);
@@ -178,7 +178,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             foreach(var mark in natureMarks)if(!mark.root.gameObject.activeSelf){motion.mark=mark;mark.root.gameObject.SetActive(true);break;}
             if(action==NatureAction.Plant||action==NatureAction.Restore){b.root.position=position;b.art.localScale=Vector3.zero;motion.scale=b.initialScale*b.targetScale;}
         }
-        natureMotions.Add(motion);
+        natureMotions.Add(motion);if(record&&natureFirstLesson)natureFirstResponding=true;
         if(arrives){
             playerMotion.Care();if(Mathf.Abs(position.x-Feet.x)>.1f)facing=position.x>Feet.x?1:-1;PlayForestSfx("feed",Feet);
             Being edgePlant=null;float distance=7;foreach(var plant in plants)if(!plant.editBusy&&plant.health>0){float d=Vector3.Distance(plant.home,gate);if(d<distance){distance=d;edgePlant=plant;}}
@@ -206,7 +206,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             NaturePrepare(b);natureMotions.Add(new NatureMotion{being=b,action=NatureAction.Leave,phase=2,gate=gate,outside=gate+outward*4,to=old.home,scale=b.art.localScale,destroyAfter=old.created});
         }else if(!NatureRequest(action,b,null,0,old.home,false))return false;
         else if(old.created)natureMotions[natureMotions.Count-1].destroyAfter=true;
-        b.editResident=old.resident;natureHistory.RemoveAt(natureHistory.Count-1);NatureSay("Last invitation undone.","已撤销上一次安排。");return true;
+        b.editResident=old.resident;natureHistory.RemoveAt(natureHistory.Count-1);if(!natureFirstComplete)natureFirstResponding=false;NatureSay("Last invitation undone.","已撤销上一次安排。");return true;
     }
     void UpdateNatureMotions(float dt){
         for(int i=natureMotions.Count-1;i>=0;i--){
@@ -219,7 +219,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             else if(m.action==NatureAction.Sleep||m.action==NatureAction.Leave)NatureArchive(b);
             else{
                 NatureSetHome(b,m.to);b.root.position=m.to;b.art.localScale=m.scale;b.art.localPosition=Vector3.zero;
-                if(b.tree)ClearReplantedFooting(b);
+                if(b.tree)ClearReplantedFooting(b);FinishNatureFirstInvitation(b);
                 if(b.groundRange!=null)b.groundRange.enabled=true;
                 if(b.animal){b.editResident=true;b.migrationState=0;b.opacity=1;b.renderer.color=Color.white;b.protectedUntil=Mathf.Max(b.protectedUntil,clock+8);b.navRefresh=clock+1;b.route?.Clear();animalMoments.Remove(b);}
             }

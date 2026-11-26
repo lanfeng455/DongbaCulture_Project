@@ -86,11 +86,11 @@ namespace DongbaPrototype
                 if(!child.name.StartsWith("PICO ")&&child.name!="DialogueCanvas")child.gameObject.SetActive(false);
             EnsureXRNotes();
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
-            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen;
+            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen&&!NatureWelcomeVisible;
             if(!exploring)xrHelpOpen=false;
             string objective=StoryModeEnabled?DongbaLanguage.Text(QuietStoryObjective()):DongbaInterface.Choose("Sandbox Mode","沙盒模式")+" · "+SandboxState;
             xrSummary.text=objective;
-            xrObjectiveNote.gameObject.SetActive(exploring&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
+            xrObjectiveNote.gameObject.SetActive(exploring&&!NatureAnswerNoticeVisible&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
             xrContextNote.gameObject.SetActive(exploring&&ForestTargetAvailable(interactionTarget)&&!xrHelpOpen);
             if(interactionTarget!=null){
                 string name=interactionTarget.animal?AnimalDisplayName(interactionTarget):DongbaLanguage.Text(interactionTarget.health<=0?"Tree stump":"Forest tree");

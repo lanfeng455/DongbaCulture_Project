@@ -63,6 +63,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         Debug.Log("Nature normal-play FPS: "+(frames/elapsed).ToString("F1"));check(frames/elapsed>45,"Nature PC: normal-play update rate above 45 FPS");
     }
     IEnumerator VerifyNatureEditing(Action<bool,string> check){
+        yield return VerifyNatureWelcome(check);
         StartForestMode(false);DongbaInterface.Instance?.Close(false);ResetForestSubtitles();tonePreviewFreezeAnimals=true;
         yield return null;yield return null;
         check(!natureUnlocked&&!StoryModeEnabled,"Nature: fresh sandbox starts locked");
