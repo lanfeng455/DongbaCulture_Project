@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace DongbaPrototype {
 public partial class ObliqueForest {
-    [Serializable] class GlyphRecord { public string key,label,labelEn,source,sha256; public int x,y,width,height; }
+    [Serializable] class GlyphRecord { public string key,label,labelEn,source,sha256; public int x,y,width,height,pdfPage; public bool tree; public float displayHeight; }
     [Serializable] class LayoutLayer { public string key; public float x,y,height; public bool tree; }
     [Serializable] class LayoutCluster { public string name; public LayoutLayer[] layers,marks; }
     [Serializable] class GlyphCatalog { public GlyphRecord[] glyphs; public LayoutCluster[] clusters; }
@@ -14,7 +14,10 @@ public partial class ObliqueForest {
     readonly Dictionary<string,Sprite> dictionarySprites=new Dictionary<string,Sprite>();
     readonly Dictionary<string,string> dictionaryLabels=new Dictionary<string,string>();
     readonly List<int> loadedClusterIndices=new List<int>();
-    const int AnimalKinds=12;
+    const int AnimalKinds=18, InitialAnimalKinds=12;
+    readonly List<string> naturePlantKeys=new List<string>();
+    readonly Dictionary<string,GlyphRecord> natureGlyphRecords=new Dictionary<string,GlyphRecord>();
+    bool NatureTreeKey(string key)=>key=="plant_00"||key=="plant_01"||key=="plant_02"||(key!=null&&natureGlyphRecords.TryGetValue(key,out var g)&&g.tree);
     readonly string[] animalNamesZh=new string[AnimalKinds],animalNamesEn=new string[AnimalKinds];
     readonly string[] youngAnimalNamesZh=new string[AnimalKinds],youngAnimalNamesEn=new string[AnimalKinds];
     string AnimalDisplayName(Being animal){
@@ -51,6 +54,7 @@ public partial class ObliqueForest {
         if(json==null)throw new InvalidOperationException("Missing dictionary-art catalog");
         glyphCatalog=JsonUtility.FromJson<GlyphCatalog>(json.text);
         foreach(var entry in glyphCatalog.glyphs){
+            natureGlyphRecords.Add(entry.key,entry);if(entry.key.StartsWith("plant_"))naturePlantKeys.Add(entry.key);
             var texture=Resources.Load<Texture2D>("DictionaryArt/"+entry.key);
             if(texture==null)throw new InvalidOperationException("Missing glyph "+entry.key);
             var sprite=Sprite.Create(texture,new Rect(entry.x,entry.y,entry.width,entry.height),new Vector2(.5f,0),100);
@@ -61,6 +65,8 @@ public partial class ObliqueForest {
             }
         }
     }
+
+    void PreloadInvitationTrees(){foreach(var key in naturePlantKeys)if(NatureTreeKey(key))TreeLayers(key,dictionarySprites[key]);}
 
     public Sprite GetPicoOpeningGlyph(string key){return dictionarySprites.TryGetValue(key,out var sprite)?sprite:null;}
 
@@ -113,14 +119,14 @@ public partial class ObliqueForest {
     }
 
     void AddDictionaryAnimal(Vector3 p,int species=-1){
-        if(species<0)species=animals.Count%AnimalKinds;
+        if(species<0)species=animals.Count%InitialAnimalKinds;
         string key="animal_"+species.ToString("00");
         var b=new Being{home=p,animal=true,health=2,phase=animals.Count*1.7f,speciesIndex=species,populationRegion=PopulationRegion(p.x)};
         b.root=new GameObject("Peaceful animal / "+dictionaryLabels[key]).transform;b.root.position=p;
         // Selectively boost fine, low-ink adult silhouettes while retaining the base size hierarchy.
         // Values scale uniformly so every source glyph keeps its original proportions.
-        var sprite=dictionarySprites[key];float[] kindWidths={.98f,.96f,1.12f,.98f,1.00f,1.03f,1.18f,.98f,1.32f,1.18f,1.32f,.92f};
-        float[] readabilityScale={1.15f,1.15f,1.00f,1.18f,1.00f,1.15f,1.00f,1.18f,1.00f,1.15f,1.00f,1.18f};
+        var sprite=dictionarySprites[key];float[] kindWidths={.98f,.96f,1.12f,.98f,1.00f,1.03f,1.18f,.98f,1.32f,1.18f,1.32f,.92f,1.30f,1.08f,1.16f,1.28f,1.30f,1.03f};
+        float[] readabilityScale={1.15f,1.15f,1.00f,1.18f,1.00f,1.15f,1.00f,1.18f,1.00f,1.15f,1.00f,1.18f,1.08f,1.08f,1.08f,1.08f,1.00f,1.08f};
         float individualVariation=.96f+((species*7+animals.Count*13)%5)*.02f;float width=kindWidths[species]*readabilityScale[species]*individualVariation;
         float height=Mathf.Max(.44f,width*sprite.bounds.size.y/sprite.bounds.size.x);
         b.art=Billboard("Animal glyph",b.root,sprite,height);b.renderer=b.art.GetComponent<SpriteRenderer>();

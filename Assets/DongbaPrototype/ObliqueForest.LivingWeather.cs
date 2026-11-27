@@ -39,7 +39,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             var upright=root.gameObject.AddComponent<XRUprightBillboard>();upright.Initialize(this,cam,billboard);
             root.gameObject.SetActive(false);stormMarks.Add(new WindMark{root=root,image=image});
         }
-        SetupStormBending();
+        PreloadInvitationTrees();SetupStormBending();
         for(int i=0;i<6;i++){
             var root=new GameObject("Storm detached original crown").transform;
             var trunk=new GameObject("Original upper trunk").transform;trunk.SetParent(root,false);

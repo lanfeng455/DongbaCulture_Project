@@ -21,12 +21,14 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     string NatureName(Being b)=>b.animal?AnimalDisplayName(b):NaturePlantName(b.glyphKey);
     string NaturePlantName(string key){
         if(DongbaLanguage.Chinese)return dictionaryLabels.TryGetValue(key??"",out var label)?label:"植物";
+        if(natureGlyphRecords.TryGetValue(key??"",out var glyph)&&!string.IsNullOrEmpty(glyph.labelEn))return glyph.labelEn;
         switch(key){case "plant_00":return "Pine";case "plant_01":return "Cypress";case "plant_02":return "Fir";case "plant_03":return "Rice";case "plant_04":return "Wheat";case "plant_05":return "Highland barley";case "plant_06":return "Soybean";case "plant_07":return "Garlic";case "plant_08":return "Sorghum";default:return "Plant";}
     }
     string NatureActionName(NatureAction a){switch(a){case NatureAction.Move:return N("Move & root again","邀请移栽");case NatureAction.Plant:return N("Invite a plant","邀请萌芽");case NatureAction.Sleep:return N("Rest as a seed","收拢休眠");case NatureAction.Restore:return N("Awaken this plant","唤醒这株植物");case NatureAction.Range:return N("Choose a living area","安排活动区域");case NatureAction.Leave:return N("Return to the forest","送回林中");case NatureAction.Recall:return N("Call this companion","召回这位伙伴");default:return N("Invite a new companion","招引新伙伴");}}
     void BuildNatureUI(){
         if(forestCanvas.GetComponent<GraphicRaycaster>()==null)forestCanvas.gameObject.AddComponent<GraphicRaycaster>();
         naturePanel=UIBlock("PICO Nature invitation",forestCanvas.transform,Vector2.one,Vector2.one,new Vector2(-30,-155),new Vector2(530,450));
+        natureMenuFade=naturePanel.gameObject.AddComponent<CanvasGroup>();
         var paper=QuietPaper(naturePanel,.98f);paper.raycastTarget=true;DongbaUIStyle.EdgeShadow(paper,.10f);
         DongbaUIStyle.Stroke(naturePanel,new Vector2(22,-22),new Vector2(4,38),uiAccent);
         natureTitle=UILabel("Invitation title",naturePanel,new Vector2(0,1),new Vector2(0,1),new Vector2(40,-18),new Vector2(465,40),27,"");DongbaUIStyle.Serif(natureTitle);
@@ -45,7 +47,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         if(StoryModeEnabled||DongbaInterface.GameplayBlocked)return;
         if(NatureEditorOpen){CloseNatureEditor();return;}
         if(NatureAvailable&&NatureFirstHint&&!natureFirstLesson){BeginNatureFirstInvitation();return;}
-        NatureEditorOpen=true;natureInputFrame=Time.frameCount;uiHelpOpen=xrHelpOpen=false;natureSelected=null;naturePage=NaturePage.Home;naturePageIndex=0;natureFocus=0;natureUIStamp="";
+        NatureEditorOpen=true;natureMenuOpenedAt=Time.unscaledTime;natureInputFrame=Time.frameCount;uiHelpOpen=xrHelpOpen=false;natureSelected=null;naturePage=NaturePage.Home;naturePageIndex=0;natureFocus=0;natureUIStamp="";
     }
     public bool CancelNatureEditor(){
         if(!NatureEditorOpen)return false;
@@ -106,13 +108,13 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             bool plant=naturePage==NaturePage.Plants||naturePage==NaturePage.Sleeping;
             bool archive=naturePage==NaturePage.Sleeping||naturePage==NaturePage.Companions;
             var lives=plant?sleepingPlants:forestCompanions;
-            int count=archive?lives.Count:plant?9:AnimalKinds;int pages=Mathf.Max(1,(count+5)/6);naturePageIndex=Mathf.Clamp(naturePageIndex,0,pages-1);
+            int count=archive?lives.Count:plant?naturePlantKeys.Count:AnimalKinds;int pages=Mathf.Max(1,(count+5)/6);naturePageIndex=Mathf.Clamp(naturePageIndex,0,pages-1);
             title=archive?N(plant?"Sleeping plants":"Forest companions",plant?"休眠植物":"林中伙伴"):N(plant?"Plant pictographs":"Animal pictographs",plant?"植物字形":"动物字形");
-            detail=archive?N("Choose the same individual to return.","选择原来的个体，让它重新回来。"):N("Existing dictionary artwork · choose, then place.","沿用现有字典素材，选中后指定位置。");
+            detail=archive?N("Choose the same individual to return.","选择原来的个体，让它重新回来。"):N("Dictionary pictographs · "+count+" choices. Choose, then place.","字典原字形 · 共 "+count+" 种。选中后指定位置。");
             if(count==0)detail=N("No one is resting here yet.","这里还没有休眠或回林的伙伴。");
             for(int slot=0;slot<6;slot++){
                 int index=naturePageIndex*6+slot;if(index>=count)break;
-                Being b=archive?lives[index]:null;string key=archive?b.glyphKey:(plant?"plant_":"animal_")+index.ToString("00");
+                Being b=archive?lives[index]:null;string key=archive?b.glyphKey:plant?naturePlantKeys[index]:"animal_"+index.ToString("00");
                 Sprite icon=archive?(b.animal?b.renderer.sprite:b.fullGlyph):dictionarySprites[key];
                 string name=archive?NatureName(b)+" #"+NatureIdentity(b):plant?NaturePlantName(key):DongbaLanguage.Chinese?animalNamesZh[index]:animalNamesEn[index];
                 NatureButton(name,new Vector2(slot%2*249,-(slot/2)*55),new Vector2(237,49),()=>NatureChoose(archive?(plant?NatureAction.Restore:NatureAction.Recall):(plant?NatureAction.Plant:NatureAction.Invite),b,key,index),icon);
@@ -148,7 +150,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(0,-295);
         }
         else{naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=Vector2.one;naturePanel.anchoredPosition=new Vector2(-30,-155);naturePanel.localScale=Vector3.one;natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.zero;natureTab.anchoredPosition=new Vector2(218,30);}
-        UpdateNatureWelcome(showing);
+        AnimateNatureMenu(showing);UpdateNatureWelcome(showing);
         if(!showing||!NatureEditorOpen){natureRing.gameObject.SetActive(false);natureGhost.gameObject.SetActive(false);natureRay.gameObject.SetActive(false);return;}
         string stamp=naturePage+"|"+naturePageIndex+"|"+natureUnlocked+"|"+DongbaLanguage.Revision+"|"+sleepingPlants.Count+"|"+forestCompanions.Count+"|"+natureHistory.Count+"|"+(natureSelected==null?0:NatureIdentity(natureSelected));
         if(natureUIStamp!=stamp){BuildNatureChoices();natureUIStamp=stamp;if(XRTrackingControlsCamera&&xrHudInk!=null)foreach(var graphic in naturePanel.GetComponentsInChildren<Graphic>(true))graphic.material=xrHudInk;}
@@ -160,7 +162,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         natureRing.gameObject.SetActive(position&&natureHasGround);natureGhost.gameObject.SetActive(position&&natureHasGround);
         if(position&&natureHasGround){
             bool animal=natureAction==NatureAction.Range||natureAction==NatureAction.Invite||natureAction==NatureAction.Recall;
-            bool tree=natureSelected!=null?natureSelected.tree:natureKey=="plant_00"||natureKey=="plant_01"||natureKey=="plant_02";
+            bool tree=natureSelected!=null?natureSelected.tree:NatureTreeKey(natureKey);
             natureValid=NaturePlacement(natureCandidate,natureSelected,animal,tree,out string reason);
             if(!natureValid)natureStatus.text=reason;
             Color color=natureValid?new Color(.27f,.43f,.26f,.75f):new Color(.64f,.20f,.12f,.8f);
@@ -169,7 +171,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             for(int i=0;i<48;i++){float a=i*Mathf.PI*2/48;natureRing.SetPosition(i,new Vector3(Mathf.Cos(a)*radius,0,Mathf.Sin(a)*radius));}
             Sprite sprite=natureSelected!=null?(animal?natureSelected.renderer.sprite:natureSelected.fullGlyph):dictionarySprites[natureKey];natureGhost.sprite=sprite;
             natureGhost.transform.SetPositionAndRotation(natureCandidate,billboard);
-            natureGhost.transform.localScale=natureSelected!=null?natureSelected.initialScale*(animal?natureSelected.birth:natureSelected.targetScale):Vector3.one*((animal?1:tree?2.3f:.65f)/sprite.bounds.size.y);
+            natureGhost.transform.localScale=natureSelected!=null?natureSelected.initialScale*(animal?natureSelected.birth:natureSelected.targetScale):Vector3.one*((animal?1:natureGlyphRecords.TryGetValue(natureKey,out var record)&&record.displayHeight>0?record.displayHeight:tree?2.3f:.65f)/sprite.bounds.size.y);
             natureGhost.color=new Color(color.r,color.g,color.b,.4f);natureGhost.sortingOrder=DepthOrder(natureCandidate.z)+10;
         }
     }

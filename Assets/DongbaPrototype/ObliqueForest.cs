@@ -94,6 +94,7 @@ public partial class ObliqueForest : MonoBehaviour {
         FollowPlayerCamera(100); SetupForestHUD(); SetupForestAudio();SetupNatureEditing();
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--nature-edit-play-check")>=0)StartCoroutine(PlayNatureEditing());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--nature-edit-check")>=0)StartCoroutine(CheckNatureEditing());
+        if(Array.IndexOf(Environment.GetCommandLineArgs(),"--nature-expansion-preview")>=0)StartCoroutine(PreviewInvitationExpansion());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--nature-welcome-preview")>=0)StartCoroutine(PreviewNatureWelcome());
         if(Array.IndexOf(Environment.GetCommandLineArgs(),"--nature-edit-preview")>=0)StartCoroutine(PreviewNatureEditing());
 #if UNITY_EDITOR

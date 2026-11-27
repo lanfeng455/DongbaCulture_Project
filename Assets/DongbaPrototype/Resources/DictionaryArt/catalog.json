@@ -241,6 +241,286 @@
       "height": 66,
       "source": "ArtPreview\\场景素材组合_15\\地面装饰\\三短竖线草.png",
       "sha256": "8684d165d9acb8846397c069cb6976a2c4fa37ccceed6aad782e73d56ef3a77d"
+    },
+    {
+      "key": "plant_09",
+      "label": "栗",
+      "labelEn": "Chestnut",
+      "x": 10,
+      "y": 10,
+      "width": 221,
+      "height": 169,
+      "source": "用户提供 字典(OCR).pdf / PDF 257 / 印刷 185 / 原页主字形",
+      "sha256": "35e29f123cc1a8e80ca6024a4e871524bfbd96015be1d501262936f56e83cba2",
+      "tree": true,
+      "displayHeight": 2.15,
+      "pdfPage": 257,
+      "sourceBox": [
+        101,
+        256,
+        169,
+        307
+      ]
+    },
+    {
+      "key": "plant_10",
+      "label": "杨柳",
+      "labelEn": "Willow",
+      "x": 10,
+      "y": 10,
+      "width": 276,
+      "height": 217,
+      "source": "用户提供 字典(OCR).pdf / PDF 257 / 印刷 185 / 原页主字形",
+      "sha256": "bb03692e7e76b34363f2b5564c67aec0b3d04aa1361acdb4ca4fd155be4f66ed",
+      "tree": true,
+      "displayHeight": 2.2,
+      "pdfPage": 257,
+      "sourceBox": [
+        101,
+        328,
+        170,
+        390
+      ]
+    },
+    {
+      "key": "plant_11",
+      "label": "花",
+      "labelEn": "Flower",
+      "x": 10,
+      "y": 10,
+      "width": 155,
+      "height": 161,
+      "source": "用户提供 字典(OCR).pdf / PDF 259 / 印刷 187 / 原页主字形",
+      "sha256": "51fce37e604f780283938ce789fef527232eff0cbd9b4d1bb151efdd78e7cc3e",
+      "tree": false,
+      "displayHeight": 0.55,
+      "pdfPage": 259,
+      "sourceBox": [
+        119,
+        497,
+        166,
+        548
+      ]
+    },
+    {
+      "key": "plant_12",
+      "label": "向日葵",
+      "labelEn": "Sunflower",
+      "x": 10,
+      "y": 10,
+      "width": 278,
+      "height": 199,
+      "source": "用户提供 字典(OCR).pdf / PDF 266 / 印刷 194 / 原页主字形",
+      "sha256": "b9c3e33c3e69ea92e95b3ebdf51805b5f9e9472cc9691ca967513f2f65ce02ff",
+      "tree": false,
+      "displayHeight": 0.78,
+      "pdfPage": 266,
+      "sourceBox": [
+        148,
+        611,
+        220,
+        675
+      ]
+    },
+    {
+      "key": "plant_13",
+      "label": "小米",
+      "labelEn": "Millet",
+      "x": 10,
+      "y": 10,
+      "width": 108,
+      "height": 204,
+      "source": "用户提供 字典(OCR).pdf / PDF 266 / 印刷 194 / 原页主字形",
+      "sha256": "a8341e7a8ef491a79f454633312ce583bcc4b76f16bcd8c394e8cb6fa17cacdc",
+      "tree": false,
+      "displayHeight": 0.7,
+      "pdfPage": 266,
+      "sourceBox": [
+        172,
+        268,
+        215,
+        324
+      ]
+    },
+    {
+      "key": "plant_14",
+      "label": "姜",
+      "labelEn": "Ginger",
+      "x": 10,
+      "y": 10,
+      "width": 209,
+      "height": 159,
+      "source": "用户提供 字典(OCR).pdf / PDF 267 / 印刷 195 / 原页主字形",
+      "sha256": "f3ee2b9b87064b460563448f12794ddb56a85351dc519ef65856910c2362f4d4",
+      "tree": false,
+      "displayHeight": 0.51,
+      "pdfPage": 267,
+      "sourceBox": [
+        108,
+        313,
+        170,
+        362
+      ]
+    },
+    {
+      "key": "plant_15",
+      "label": "瓜",
+      "labelEn": "Melon",
+      "x": 10,
+      "y": 10,
+      "width": 225,
+      "height": 140,
+      "source": "用户提供 字典(OCR).pdf / PDF 269 / 印刷 197 / 原页主字形",
+      "sha256": "059ffb072fc87b259d5d501aaae49dc156b46b57704511933d18d219e4d28834",
+      "tree": false,
+      "displayHeight": 0.43,
+      "pdfPage": 269,
+      "sourceBox": [
+        103,
+        513,
+        170,
+        556
+      ]
+    },
+    {
+      "key": "plant_16",
+      "label": "芜菁",
+      "labelEn": "Turnip",
+      "x": 10,
+      "y": 10,
+      "width": 280,
+      "height": 195,
+      "source": "用户提供 字典(OCR).pdf / PDF 269 / 印刷 197 / 原页主字形",
+      "sha256": "824c72ea0d8053890580574968ce4a8472333fe44cdf9aaf371ba106f6fb4e82",
+      "tree": false,
+      "displayHeight": 0.52,
+      "pdfPage": 269,
+      "sourceBox": [
+        100,
+        583,
+        174,
+        641
+      ]
+    },
+    {
+      "key": "animal_12",
+      "label": "马",
+      "labelEn": "Horse",
+      "x": 10,
+      "y": 10,
+      "width": 266,
+      "height": 147,
+      "source": "用户提供 字典(OCR).pdf / PDF 230 / 印刷 158 / 原页主字形",
+      "sha256": "83472eee65f50a847b525c328d5c04ba9d96172f8ff77678f8e870d4cd0d525b",
+      "tree": false,
+      "displayHeight": 1.25,
+      "pdfPage": 230,
+      "sourceBox": [
+        150,
+        192,
+        221,
+        246
+      ]
+    },
+    {
+      "key": "animal_13",
+      "label": "狗",
+      "labelEn": "Dog",
+      "x": 10,
+      "y": 10,
+      "width": 278,
+      "height": 189,
+      "source": "用户提供 字典(OCR).pdf / PDF 234 / 印刷 162 / 原页主字形",
+      "sha256": "c9b1ae65fa8e2e78f80e57130a2256bcec1d1e78b20546e1ffd7738ad77f9b6e",
+      "tree": false,
+      "displayHeight": 1.0,
+      "pdfPage": 234,
+      "sourceBox": [
+        151,
+        657,
+        224,
+        706
+      ]
+    },
+    {
+      "key": "animal_14",
+      "label": "山羊",
+      "labelEn": "Goat",
+      "x": 10,
+      "y": 10,
+      "width": 246,
+      "height": 179,
+      "source": "用户提供 字典(OCR).pdf / PDF 233 / 印刷 161 / 原页主字形",
+      "sha256": "0d06879b485a3476dd5220f43beb5fa3273544f90f7809958e80fcfdaea89975",
+      "tree": false,
+      "displayHeight": 1.08,
+      "pdfPage": 233,
+      "sourceBox": [
+        102,
+        271,
+        175,
+        324
+      ]
+    },
+    {
+      "key": "animal_15",
+      "label": "鹿",
+      "labelEn": "Deer",
+      "x": 10,
+      "y": 10,
+      "width": 269,
+      "height": 181,
+      "source": "用户提供 字典(OCR).pdf / PDF 223 / 印刷 151 / 原页主字形",
+      "sha256": "d50347aa306b06fec1f83549170d5f59c0eaaa94b90123458b2d8a8063779573",
+      "tree": false,
+      "displayHeight": 1.25,
+      "pdfPage": 223,
+      "sourceBox": [
+        101,
+        410,
+        174,
+        465
+      ]
+    },
+    {
+      "key": "animal_16",
+      "label": "熊",
+      "labelEn": "Bear",
+      "x": 10,
+      "y": 10,
+      "width": 270,
+      "height": 163,
+      "source": "用户提供 字典(OCR).pdf / PDF 223 / 印刷 151 / 原页主字形",
+      "sha256": "1a2570bec9a226427453461bd959651576062f1361bdc17d251ab2a279450443",
+      "tree": false,
+      "displayHeight": 1.2,
+      "pdfPage": 223,
+      "sourceBox": [
+        101,
+        663,
+        175,
+        713
+      ]
+    },
+    {
+      "key": "animal_17",
+      "label": "鸡",
+      "labelEn": "Chicken",
+      "x": 10,
+      "y": 10,
+      "width": 260,
+      "height": 192,
+      "source": "用户提供 字典(OCR).pdf / PDF 205 / 印刷 133 / 原页主字形",
+      "sha256": "cb0be5d07c31df4fbc8bb26839054889a7de46796bdba74ab6998bdb4300c9ac",
+      "tree": false,
+      "displayHeight": 0.9,
+      "pdfPage": 205,
+      "sourceBox": [
+        101,
+        424,
+        169,
+        484
+      ]
     }
   ],
   "clusters": [

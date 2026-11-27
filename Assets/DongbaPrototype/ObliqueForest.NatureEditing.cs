@@ -12,7 +12,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     sealed class NatureMotion {
         public Being being; public NatureAction action; public Vector3 from, to, gate, outside;
         public Vector3 scale; public float age, blocked, retry; public int phase;
-        public bool destroyAfter; public NatureMark mark;
+        public bool destroyAfter; public NatureMark mark; public Vector3[] leafPositions,leafScales; public float phaseAge;
     }
     sealed class NatureMark { public Transform root; public SpriteRenderer seed,wind; }
     readonly List<Being> sleepingPlants=new List<Being>(),forestCompanions=new List<Being>();
@@ -150,14 +150,14 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         bool creating=action==NatureAction.Plant||action==NatureAction.Invite;
         if(!creating&&(b==null||b.health<=0||b.editBusy||b.angry))return false;
         if(!creating){bool archived=b.animal?forestCompanions.Contains(b):sleepingPlants.Contains(b);bool restoring=action==NatureAction.Restore||action==NatureAction.Recall;if(restoring!=archived)return false;}
-        bool tree=creating&&!isAnimal?key=="plant_00"||key=="plant_01"||key=="plant_02":b!=null&&b.tree;
+        bool tree=creating&&!isAnimal?NatureTreeKey(key):b!=null&&b.tree;
         bool removing=action==NatureAction.Sleep||action==NatureAction.Leave;
         if(!removing&&!NaturePlacement(position,b,isAnimal,tree,out var invalid)){NatureSay(invalid,invalid);return false;}
         if(creating){
             if(isAnimal){if(animals.Count+forestCompanions.Count>=AnimalPopulationLimit){NatureSay("The forest has enough animal companions for now.","当前伙伴数量已达上限，先调整已有伙伴吧。");return false;}AddDictionaryAnimal(position,species);b=animals[animals.Count-1];populationCapacity[b.populationRegion]++;}
             else{
                 if(plants.Count+sleepingPlants.Count>=initialPlantCount+NatureExtraPlantLimit||!dictionarySprites.ContainsKey(key))return false;
-                float height=tree?2.3f:.65f;foreach(var sample in plants)if(sample.glyphKey==key){height=sample.fullGlyph.bounds.size.y*sample.initialScale.y;break;}
+                float height=natureGlyphRecords.TryGetValue(key,out var recordGlyph)&&recordGlyph.displayHeight>0?recordGlyph.displayHeight:tree?2.3f:.65f;foreach(var sample in plants)if(sample.glyphKey==key){height=sample.fullGlyph.bounds.size.y*sample.initialScale.y;break;}
                 b=AddDictionaryPlant(position,tree,plants.Count,key,height);
                 if(tree){var binding=new StormBinding();for(int i=0;i<7;i++)binding.blocks[i]=new MaterialPropertyBlock();stormBindings[b]=binding;}
             }
@@ -178,7 +178,8 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             foreach(var mark in natureMarks)if(!mark.root.gameObject.activeSelf){motion.mark=mark;mark.root.gameObject.SetActive(true);break;}
             if(action==NatureAction.Plant||action==NatureAction.Restore){b.root.position=position;b.art.localScale=Vector3.zero;motion.scale=b.initialScale*b.targetScale;}
         }
-        natureMotions.Add(motion);if(record&&natureFirstLesson)natureFirstResponding=true;
+        PrepareNaturePresentation(motion);natureMotions.Add(motion);if(record){playerMotion.Care();if(Mathf.Abs(position.x-Feet.x)>.1f&&!removing)facing=position.x>Feet.x?1:-1;if(!arrives)PlayForestSfx("plant",Feet,.75f);}
+        if(record&&natureFirstLesson)natureFirstResponding=true;
         if(arrives){
             playerMotion.Care();if(Mathf.Abs(position.x-Feet.x)>.1f)facing=position.x>Feet.x?1:-1;PlayForestSfx("feed",Feet);
             Being edgePlant=null;float distance=7;foreach(var plant in plants)if(!plant.editBusy&&plant.health>0){float d=Vector3.Distance(plant.home,gate);if(d<distance){distance=d;edgePlant=plant;}}
@@ -187,7 +188,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         NatureSay("An invitation, answered.","邀请已送出。");return true;
     }
     void NatureCancelMotion(Being b){
-        for(int i=natureMotions.Count-1;i>=0;i--)if(natureMotions[i].being==b){var m=natureMotions[i];if(m.mark!=null)m.mark.root.gameObject.SetActive(false);b.art.localScale=m.scale;b.art.localPosition=Vector3.zero;b.root.position=new Vector3(b.root.position.x,0,b.root.position.z);natureMotions.RemoveAt(i);}
+        for(int i=natureMotions.Count-1;i>=0;i--)if(natureMotions[i].being==b){var m=natureMotions[i];RestoreNaturePresentation(m);if(m.mark!=null)m.mark.root.gameObject.SetActive(false);b.art.localScale=m.scale;b.art.localPosition=Vector3.zero;b.root.position=new Vector3(b.root.position.x,0,b.root.position.z);natureMotions.RemoveAt(i);}
         b.editBusy=false;if(b.groundRange!=null)b.groundRange.enabled=true;
     }
     bool UndoNature(){
@@ -213,7 +214,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             var m=natureMotions[i];m.age+=dt;
             bool done=m.being.animal?TickNatureAnimal(m,dt):TickNaturePlant(m);
             if(!done)continue;
-            var b=m.being;b.editBusy=false;
+            var b=m.being;RestoreNaturePresentation(m);b.editBusy=false;
             if(m.mark!=null)m.mark.root.gameObject.SetActive(false);
             if(m.destroyAfter)NatureForget(b);
             else if(m.action==NatureAction.Sleep||m.action==NatureAction.Leave)NatureArchive(b);
@@ -226,27 +227,12 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             natureMotions.RemoveAt(i);natureUIStamp="";
         }
     }
-    bool TickNaturePlant(NatureMotion m){
-        var b=m.being;float u=Mathf.Clamp01(m.age/1.05f),s=Mathf.SmoothStep(0,1,u);
-        if(m.action==NatureAction.Move){b.root.position=Vector3.Lerp(m.from,m.to,s)+Vector3.up*(Mathf.Sin(u*Mathf.PI)*.35f);b.art.localScale=m.scale*(1-.09f*Mathf.Sin(u*Mathf.PI));}
-        else if(m.action==NatureAction.Sleep){b.art.localScale=m.scale*(1-s);}
-        else{float unfold=Mathf.SmoothStep(0,1,Mathf.InverseLerp(.35f,1,u));b.art.localScale=m.scale*unfold;}
-        b.art.rotation=billboard*Quaternion.Euler(0,0,Mathf.Sin(u*Mathf.PI*2)*1.5f);
-        b.renderer.sortingOrder=DepthOrder(b.root.position.z);
-        if(b.leafImages!=null)for(int j=0;j<b.leafImages.Length;j++)b.leafImages[j].sortingOrder=b.renderer.sortingOrder+j+1;
-        if(m.mark!=null){
-            var mark=m.mark;bool arrival=m.action==NatureAction.Plant||m.action==NatureAction.Restore;
-            mark.root.position=arrival?Vector3.Lerp(m.to+new Vector3(-5,1.6f,1),m.to,Mathf.SmoothStep(0,1,u/.42f)):b.root.position;
-            mark.seed.enabled=m.action!=NatureAction.Move;mark.seed.color=new Color(.28f,.20f,.10f,arrival?1-Mathf.SmoothStep(0,1,(u-.4f)/.4f):Mathf.Sin(u*Mathf.PI));
-            mark.seed.sortingOrder=b.renderer.sortingOrder+9;
-            mark.wind.enabled=arrival;mark.wind.color=new Color(1,1,1,.16f*(1-u));mark.wind.transform.localPosition=new Vector3(-.55f,.1f,0);mark.wind.sortingOrder=b.renderer.sortingOrder+8;
-        }
-        return u>=1;
-    }
     bool TickNatureAnimal(NatureMotion m,float dt){
         var b=m.being;bool leaving=m.action==NatureAction.Leave;
         b.art.localScale=b.initialScale*b.birth; m.scale=b.art.localScale;
-        Vector3 previous=b.root.position;float speed=2.5f;
+        Vector3 previous=b.root.position;float speed=2.5f;m.phaseAge+=dt;
+        if(m.phase==3){NatureAnimalAcknowledgement(b,m.phaseAge,.38f);return m.phaseAge>=.38f;}
+        if(m.age<.28f){NatureAnimalAcknowledgement(b,m.age,.28f);return false;}
         if(m.phase==0){
             if(m.age<.4f)return false;
             var next=Vector3.MoveTowards(previous,m.gate,dt*speed);if(NatureBoundaryClear(next,b))b.root.position=next;
@@ -260,7 +246,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             if(Vector3.Distance(b.root.position,m.outside)<.04f)return true;
         }else{
             Vector3 destination=leaving?m.gate:m.to;
-            if(Vector3.Distance(b.root.position,destination)<.16f){if(leaving)m.phase=2;else return true;}
+            if(Vector3.Distance(b.root.position,destination)<.16f){if(leaving)m.phase=2;else{m.phase=3;m.phaseAge=0;}}
             else{
                 if(!HasAnimalRoute(b)&&clock>=m.retry){NatureRoute(b,destination);m.retry=clock+1;}
                 if(HasAnimalRoute(b)){
@@ -272,7 +258,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             b.renderer.color=Color.white;
         }
         Vector3 delta=b.root.position-previous;if(Mathf.Abs(delta.x)>.0001f&&b.speciesIndex!=4)b.renderer.flipX=delta.x<0;
-        b.art.rotation=billboard;b.art.localPosition=Vector3.up*(delta.sqrMagnitude>.000001f?.025f*Mathf.Abs(Mathf.Sin(m.age*9)):0);
+        b.art.rotation=billboard;b.art.localPosition=Vector3.up*(delta.sqrMagnitude>.000001f?.045f*Mathf.Abs(Mathf.Sin(m.age*9)):0);
         b.renderer.sortingOrder=DepthOrder(b.root.position.z);
         if(b.shadow!=null){var image=b.shadow.GetComponent<SpriteRenderer>();var tint=image.color;tint.a=.15f*b.renderer.color.a;image.color=tint;}
         return false;
