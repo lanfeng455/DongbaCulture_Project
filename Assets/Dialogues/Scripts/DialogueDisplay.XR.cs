@@ -14,9 +14,9 @@ public partial class DialogueDisplay
 
     // Reuse our paper strip, portraits, typography and dialogue playback. Only its
     // canvas placement changes for the headset; it no longer belongs to the side HUD.
-    public void ConfigureHeadsetPresentation(Camera camera, float worldUnitsPerMetre)
+    public void ConfigureHeadsetPresentation(Camera camera, Transform readingAnchor)
     {
-        if (camera == null || headsetCamera == camera) return;
+        if (camera == null || readingAnchor == null || (headsetCamera == camera && m_canvas != null && m_canvas.transform.parent == readingAnchor)) return;
         EnsureUi();
         headsetCamera = camera;
         SetPaperPresentation(false, paperManual);
@@ -24,18 +24,16 @@ public partial class DialogueDisplay
         m_canvas.worldCamera = camera;
         m_canvas.sortingOrder = 30010;
         var rect = (RectTransform)m_canvas.transform;
-        rect.SetParent(camera.transform, false);
+        rect.SetParent(readingAnchor, false);
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
         rect.sizeDelta = m_referenceResolution;
-        // 1.35 m wide strip at 1.1 m, below the gaze centre. The portrait and ink
-        // retain exactly the same aspect and padding as the desktop presentation.
-        const float distance = 1.1f, stripWidth = 1.35f, downAngle = 18f;
+        // Same stable world frame as the forest UI, below the playable view.
+        // The shared PC portrait, typewriter, bilingual text and padding remain.
+        const float stripWidth = 1.12f;
         float metresPerPixel = stripWidth / (m_referenceResolution.x * m_widthRatio);
-        float parentUnits = Mathf.Max(.0001f, camera.transform.lossyScale.x);
-        float localUnitsPerMetre = worldUnitsPerMetre / parentUnits;
         float stripCentre = -m_referenceResolution.y * .5f + m_bottomMarginInPixels + m_minHeightInPixels * .5f;
-        rect.localScale = Vector3.one * (metresPerPixel * localUnitsPerMetre);
-        rect.localPosition = new Vector3(0, -distance * Mathf.Tan(downAngle * Mathf.Deg2Rad) - stripCentre * metresPerPixel, distance) * localUnitsPerMetre;
+        rect.localScale = Vector3.one * metresPerPixel;
+        rect.localPosition = new Vector3(0, -.38f - stripCentre * metresPerPixel, -.002f);
         rect.localRotation = Quaternion.identity;
         var scaler = m_canvas.GetComponent<CanvasScaler>();
         scaler.dynamicPixelsPerUnit = 4;

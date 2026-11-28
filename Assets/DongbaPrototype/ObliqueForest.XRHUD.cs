@@ -22,12 +22,12 @@ namespace DongbaPrototype
             scaler.enabled = true; scaler.dynamicPixelsPerUnit = 4;
             scaler.referencePixelsPerUnit = 100;
             var rect = (RectTransform)forestCanvas.transform;
-            rect.SetParent(cam.transform, false);
+            EnsureXRReadingAnchor();
+            rect.SetParent(xrReadingAnchor, false);
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one * .5f;
             rect.sizeDelta = new Vector2(1000, 760);
-            float localUnits = units / Mathf.Max(.0001f, cam.transform.lossyScale.x);
-            rect.localScale = Vector3.one * (.84f / 1000 * localUnits);
-            rect.localPosition = new Vector3(0, 0, 1.1f) * localUnits;
+            rect.localScale = Vector3.one * (1.18f / 1000);
+            rect.localPosition = Vector3.zero;
             rect.localRotation = Quaternion.identity;
             forestCanvas.gameObject.SetActive(false);
         }
@@ -75,8 +75,9 @@ namespace DongbaPrototype
         public void UpdateXRHUD(bool placed, string status)
         {
             if(forestCanvas==null||forestCanvas.renderMode!=RenderMode.WorldSpace)return;
+            if(placed&&XRExperienceReady&&!xrReadingAnchored)AnchorXRReadingFrame();
             if(forestSubtitles!=null){
-                forestSubtitles.ConfigureHeadsetPresentation(cam,xrUnits);
+                forestSubtitles.ConfigureHeadsetPresentation(cam,xrReadingAnchor);
                 forestSubtitles.SetHeadsetPresentationVisible(placed&&XRExperienceReady);
             }
             bool ready=placed&&XRExperienceReady;
@@ -101,8 +102,8 @@ namespace DongbaPrototype
             }
             xrHelpNote.gameObject.SetActive(exploring&&xrHelpOpen);
             xrControllerHints.text=DongbaInterface.Choose(
-                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\n"+XRForestActionGuide+"\nHold Y   Reposition forest\nRight stick click   English / 中文\nLeft stick click   Nature invitations (sandbox)\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
-                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n"+XRForestActionGuide+"\n按住 Y  重新放置森林\n按下右摇杆  切换中英\n按下左摇杆  自然邀请（沙盒）\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
+                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\n"+XRForestActionGuide+"\nHold Y   Reposition forest and UI\nRight stick click   English / 中文\nLeft stick click   Nature invitations (sandbox)\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
+                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n"+XRForestActionGuide+"\n按住 Y  重新放置森林与界面\n按下右摇杆  切换中英\n按下左摇杆  自然邀请（沙盒）\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
             xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
             xrControlsTab.gameObject.SetActive(exploring);
             xrPanelStatus.gameObject.SetActive(exploring);

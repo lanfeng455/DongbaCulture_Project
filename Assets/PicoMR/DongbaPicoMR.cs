@@ -34,6 +34,8 @@ namespace DongbaXR
         ObliqueForest forest;
         GameObject marker;
         Text message;
+        RectTransform scanReadingFrame;
+        bool scanReadingAnchored;
         readonly List<SpriteRenderer> forestRenderers = new List<SpriteRenderer>();
         readonly List<SpriteRenderer> titleTrees = new List<SpriteRenderer>();
         CanvasGroup titleGroup;
@@ -115,16 +117,16 @@ namespace DongbaXR
             marker.transform.localScale = Vector3.one * .025f * worldUnitsPerMetre;
             marker.SetActive(false);
             var label = new GameObject("PICO placement and mode",typeof(RectTransform),typeof(Canvas));
-            label.layer=ScanLayer;label.transform.SetParent(xrCamera.transform,false);
+            label.layer=ScanLayer;label.transform.SetParent(origin.transform,false);
             var scanCanvas=label.GetComponent<Canvas>();scanCanvas.renderMode=RenderMode.WorldSpace;
             var rect=label.GetComponent<RectTransform>();rect.sizeDelta=new Vector2(800,260);
-            rect.localScale=Vector3.one*(.65f/800);rect.localPosition=new Vector3(0,-.12f,.9f);
+            scanReadingFrame=rect;rect.localScale=Vector3.one*(.78f/800);
+            var paper=label.AddComponent<Image>();paper.sprite=DongbaUIStyle.ManuscriptPaper;paper.type=Image.Type.Sliced;paper.color=new Color(.98f,.96f,.89f,.97f);paper.raycastTarget=false;
             var textObject=new GameObject("Mode selection",typeof(RectTransform),typeof(Text));
             textObject.layer=ScanLayer;textObject.transform.SetParent(rect,false);
-            var textRect=textObject.GetComponent<RectTransform>();textRect.anchorMin=Vector2.zero;textRect.anchorMax=Vector2.one;textRect.offsetMin=textRect.offsetMax=Vector2.zero;
+            var textRect=textObject.GetComponent<RectTransform>();textRect.anchorMin=Vector2.zero;textRect.anchorMax=Vector2.one;textRect.offsetMin=new Vector2(28,18);textRect.offsetMax=new Vector2(-28,-18);
             message=textObject.GetComponent<Text>();message.fontSize=32;message.alignment=TextAnchor.MiddleCenter;
-            message.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");message.color=new Color(.96f,.92f,.82f);message.raycastTarget=false;
-            var shadow=textObject.AddComponent<Shadow>();shadow.effectColor=new Color(.08f,.05f,.02f,.85f);shadow.effectDistance=new Vector2(1.5f,-1.5f);
+            message.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");message.color=new Color(.24f,.17f,.10f);message.raycastTarget=false;
             PXR_Manager.EnableVideoSeeThrough = true;
             status = titleActive ? "Press right A to begin" : ScanPrompt;
             if (!titleActive) RequestSpatialAccess();
@@ -274,6 +276,7 @@ namespace DongbaXR
 #if UNITY_EDITOR
             tracked |= simulateTracking;
 #endif
+            if(tracked&&!placed&&!scanReadingAnchored)AnchorScanReadingFrame();
             UpdatePlacementVisibility(tracked);
             marker.SetActive(false);
             if (!titleActive && !placed && permission && tracked)
@@ -317,12 +320,22 @@ namespace DongbaXR
                 forest.StartForestMode(!startInSandbox);
                 forestStarted = true;
             }
+            forest.AnchorXRReadingFrame();
             UpdatePlacementVisibility(true);
+        }
+
+        void AnchorScanReadingFrame(){
+            if(scanReadingFrame==null)return;
+            var forward=xrCamera.transform.forward;var up=Vector3.ProjectOnPlane(Vector3.up,forward);
+            if(up.sqrMagnitude<.001f)up=xrCamera.transform.up;
+            var rotation=Quaternion.LookRotation(forward,up);
+            scanReadingFrame.SetPositionAndRotation(xrCamera.transform.position+rotation*new Vector3(0,-.08f,1.15f)*worldUnitsPerMetre,rotation);
+            scanReadingAnchored=true;
         }
 
         void ResetPlacement()
         {
-            placed = false;
+            placed = false;scanReadingAnchored=false;
             Debug.Log("[DongbaPICO] Forest reposition requested");
             origin.transform.position = scanningOrigin;
             Physics.SyncTransforms();
@@ -348,10 +361,12 @@ namespace DongbaXR
             string mode=forestStarted?(forest.StoryModeEnabled?DongbaInterface.Choose("Story Mode","剧情模式"):DongbaInterface.Choose("Sandbox Mode","沙盒模式")):(startInSandbox?DongbaInterface.Choose("Sandbox Mode","沙盒模式"):DongbaInterface.Choose("Story Mode","剧情模式"));
             message.font=DongbaLanguage.Chinese?DongbaLanguage.ChineseUIFont:Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             message.text=mode+"\n"+(!forestStarted?DongbaInterface.Choose("X · Switch Story / Sandbox\n\n","X · 切换剧情／沙盒\n\n"):"\n")+prompt;
-            message.gameObject.SetActive(!titleActive && !placed);
+            scanReadingFrame.gameObject.SetActive(!titleActive && !placed && scanReadingAnchored);
         }
 
 #if UNITY_EDITOR
+        public Transform ScanReadingFrameForVerification=>scanReadingFrame;
+        public void SimulateScanReadingForVerification(){simulateTracking=true;AnchorScanReadingFrame();RefreshPlacementMessage();}
         public void SimulateModeChoiceForVerification(bool held){ProcessModeChoice(held);RefreshPlacementMessage();}
         public void SimulateSurfacePlacementForVerification(Vector3 point)
         {

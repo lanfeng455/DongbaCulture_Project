@@ -47,7 +47,7 @@ namespace DongbaXR
             elapsed += Time.unscaledDeltaTime;
             frames++;
             if (elapsed < 5f) return;
-            if (forest != null) Debug.Log("[DongbaDevice] Story " + forest.PicoStoryDiagnostic);
+            if (forest != null) {Debug.Log("[DongbaDevice] Story " + forest.PicoStoryDiagnostic);Debug.Log("[DongbaDevice] UI " + forest.XRReadingDiagnostic);}
             Debug.Log($"[DongbaDevice] FPS={frames / elapsed:F1} tracked={tracking} scene={UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
             elapsed = 0; frames = 0;
         }

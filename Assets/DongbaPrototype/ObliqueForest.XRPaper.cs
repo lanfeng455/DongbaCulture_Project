@@ -33,5 +33,6 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         if(xrPaperCoverage!=null)Destroy(xrPaperCoverage);
         if(xrPaperMaterial!=null)Destroy(xrPaperMaterial);
         if(xrHudInk!=null)Destroy(xrHudInk);
+        if(xrReadingAnchor!=null)Destroy(xrReadingAnchor.gameObject);
     }
 }}
