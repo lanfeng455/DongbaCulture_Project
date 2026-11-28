@@ -37,6 +37,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         yield return null;
         yield return null;yield return null;
         xrSimulating=true;
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-paper-check")>=0){StartCoroutine(CheckMRPaper());yield break;}
         if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-story-walk-check")>=0){var runner=new GameObject("MR story walk verification").AddComponent<MRJourneyCheckRunner>();DontDestroyOnLoad(runner);runner.StartCoroutine(CheckMRStoryWalk());yield break;}
         if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-journey-check")>=0){var runner=new GameObject("MR journey verification").AddComponent<MRJourneyCheckRunner>();DontDestroyOnLoad(runner);runner.StartCoroutine(CheckMRJourney());yield break;}
         if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-ui-check-only")>=0){
@@ -146,7 +147,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var savedFatherIntro=fatherIntroActive;fatherIntroActive=true;UpdateXRHUD(true,"");
         Check(!xrObjectiveNote.gameObject.activeSelf&&!xrContextNote.gameObject.activeSelf&&!xrPanelStatus.gameObject.activeSelf,"Dialogue keeps the view clear of objective, context and help tab");
         fatherIntroActive=savedFatherIntro;UpdateXRHUD(true,"");
-        Check(groundMaterial.shader.name=="Dongba/XR Forest Paper"&&xrPaperCoverage!=null,"MR uses a single baked porous-paper coverage mask");
+        Check(groundMaterial.shader.name=="Dongba/XR Forest Paper"&&!groundMaterial.HasProperty("_Coverage"),"MR uses continuous paper without grove/clearing transparency");
         bool finitePlants=true;foreach(var plant in plants)finitePlants&=!float.IsNaN(plant.home.z)&&!float.IsInfinity(plant.home.z);
         Check(finitePlants&&plants.FindAll(p=>p.tree).Count>40,"MR woodland contains finite, connected forest groups");
         report.AppendLine("MR trees="+plants.FindAll(p=>p.tree).Count+" undergrowth="+plants.FindAll(p=>!p.tree).Count+" animals="+animals.Count);
