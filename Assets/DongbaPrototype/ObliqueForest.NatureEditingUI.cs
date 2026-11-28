@@ -142,12 +142,12 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     void UpdateNatureUI(){
         if(!natureReady)return;
         bool showing=!StoryModeEnabled&&!DongbaInterface.GameplayBlocked&&(!XRTrackingControlsCamera||XRExperienceReady);
-        natureTab.gameObject.SetActive(showing&&!NatureEditorOpen);
+        natureTab.gameObject.SetActive(showing&&!NatureEditorOpen&&(!XRTrackingControlsCamera||!xrHelpOpen));
         natureTabText.text=NatureAvailable?N(XRTrackingControlsCamera?"L stick click · Invite":"B   Invite & arrange",XRTrackingControlsCamera?"按左摇杆 · 邀万物入画":"B   邀万物入画"):N("Care unlocks invitations","照料至繁盛 · 解锁邀请");
         naturePanel.gameObject.SetActive(showing&&NatureEditorOpen);
         if(XRTrackingControlsCamera){
-            naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=Vector2.one*.5f;naturePanel.anchoredPosition=new Vector2(0,-125);naturePanel.localScale=Vector3.one*1.18f;
-            natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(0,-295);
+            naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=new Vector2(.5f,1);naturePanel.anchoredPosition=new Vector2(0,-20);naturePanel.localScale=Vector3.one*1.18f;
+            natureTab.anchorMin=natureTab.anchorMax=new Vector2(.5f,1);natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(300,-122);
         }
         else{naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=Vector2.one;naturePanel.anchoredPosition=new Vector2(-30,-155);naturePanel.localScale=Vector3.one;natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.zero;natureTab.anchoredPosition=new Vector2(218,30);}
         AnimateNatureMenu(showing);UpdateNatureWelcome(showing);

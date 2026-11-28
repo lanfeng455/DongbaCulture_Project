@@ -20,6 +20,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var scanHead=cam.transform.rotation;cam.transform.rotation*=Quaternion.Euler(7,25,0);yield return null;yield return null;
         Check(!scan.IsChildOf(cam.transform)&&Vector3.Distance(scan.position,scanPosition)<.001f&&Quaternion.Angle(scan.rotation,scanRotation)<.001f,"Scanning instructions stay fixed while the head turns");
         cam.transform.rotation=scanHead;
+        Directory.CreateDirectory("Verification/mr-box-ui");CaptureSceneToTexture("Verification/mr-box-ui/entry.png");
+        var entryText=scan.GetComponentInChildren<UnityEngine.UI.Text>();
+        Check(entryText.preferredHeight<=entryText.rectTransform.rect.height+1,"MR entry: title, mode and placement prompt fit the paper entrance");
         int originalAnimals=animals.Count,originalPlants=plants.Count;
         pico.SimulateSurfacePlacementForVerification(new Vector3(2,0,3));
         yield return null;
@@ -33,7 +36,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var canvas=forestSubtitles==null?null:forestSubtitles.GetComponentInChildren<Canvas>(true);
         foreach(var candidate in FindObjectsByType<Canvas>(FindObjectsSortMode.None))if(candidate.name=="DialogueCanvas")canvas=candidate;
         Check(canvas!=null&&canvas.gameObject.activeInHierarchy&&canvas.renderMode==RenderMode.WorldSpace,"Shared subtitle canvas visible in MR");
-        Check(canvas.transform.parent==xrReadingAnchor&&!canvas.transform.IsChildOf(cam.transform)&&forestSubtitles.UsesHeadsetPresentation,"Subtitle and HUD share a fixed world frame, not the headset transform");
+        Check(canvas.transform.parent==cam.transform&&forestSubtitles.UsesHeadsetPresentation,"Dialogue follows the head independently of the fixed diorama front");
         Check(forestSubtitles.PaperSpeakerGlyph!=null&&forestSubtitles.SubtitlePanel.GetComponent<UnityEngine.UI.Image>().sprite==DongbaUIStyle.PaperSprite,"Original cut-paper portrait and manuscript strip retained");
         if(cam.TryGetComponent<UnityEngine.SpatialTracking.TrackedPoseDriver>(out var headPose))headPose.enabled=false;
         cam.stereoTargetEye=StereoTargetEyeMask.None;cam.aspect=16f/9;
@@ -42,7 +45,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var corners=new Vector3[4];forestSubtitles.SubtitlePanel.GetWorldCorners(corners);bool inView=true;
         foreach(var corner in corners){var q=cam.WorldToViewportPoint(corner);inView&=q.x>0&&q.x<1&&q.y>0&&q.y<.5f;}
         Check(inView,"Paper strip stays fully inside the lower view");
-        Check(Vector3.Distance(xrReadingAnchor.position,cam.transform.position)/pico.worldUnitsPerMetre>=.749f&&Vector3.Distance(xrReadingAnchor.position,cam.transform.position)/pico.worldUnitsPerMetre<=1.401f,"Reading frame uses a bounded physical depth independent of XR origin scale");
+        Check(Vector3.Dot(xrReadingAnchor.position,xrFrontOutward)>xrFrontBoundary&&xrReadingAnchor.position.y<0,"Reading frame starts beyond the map edge and below the forest ground");
         Directory.CreateDirectory("Verification/pico-integration");
         DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return null;yield return null;forestSubtitles.CompleteCurrentLine();yield return null;
         Check(forestSubtitles.HeadsetContinuePrompt=="A   继续","Chinese uses the headset A prompt");
@@ -53,9 +56,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         // Nearby tabletop geometry would occlude an ordinary world-space subtitle.
         cam.transform.position+=new Vector3(1.5f,0,1);yield return null;
         CaptureSceneToTexture("Verification/pico-integration/subtitle-near-table.png");
-        var subtitleWorld=canvas.transform.position;var subtitleRotation=canvas.transform.rotation;
+        var subtitleLocal=canvas.transform.localPosition;var subtitleRotation=canvas.transform.localRotation;
         cam.transform.rotation*=Quaternion.Euler(0,28,0);yield return null;
-        Check(Vector3.Distance(canvas.transform.position,subtitleWorld)<.001f&&Quaternion.Angle(canvas.transform.rotation,subtitleRotation)<.001f,"Turning the head leaves subtitle world position and orientation unchanged");
+        Check(Vector3.Distance(canvas.transform.localPosition,subtitleLocal)<.001f&&Quaternion.Angle(canvas.transform.localRotation,subtitleRotation)<.001f,"Turning the head keeps dialogue at its readable lower-view position");
         cam.transform.position=new Vector3(-3,36,-46);cam.transform.LookAt(new Vector3(-7,0,-2.5f));
         int before=fatherIntroLine;xrSimA=true;yield return null;yield return null;
         Check(fatherIntroLine==before+1&&jumpAge<0,"Controller A advances one line without jumping");
@@ -113,7 +116,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             note.GetWorldCorners(noteCorners);
             foreach(var corner in noteCorners){var q=cam.WorldToViewportPoint(corner);notesInside&=q.x>.06f&&q.x<.94f&&q.y>.06f&&q.y<.94f;}
         }
-        Check(notesInside,"Objective, nearby action and controls fit within normal view safe margins");
+        Check(XRFrontPanelOutside(xrObjectiveNote)&&XRFrontPanelOutside(xrContextNote)&&XRFrontPanelOutside(xrHelpNote),"Objective, nearby action and controls remain outside the playable forest");
         UpdateXRHelpInput(false,true);UpdateXRHelpInput(true,true);UpdateXRHUD(true,"");
         Check(xrHelpOpen&&xrHelpNote.gameObject.activeSelf&&!xrContextNote.gameObject.activeSelf,"B unfolds controls without stacking interaction UI");
         UpdateXRHelpInput(true,true);Check(xrHelpOpen,"Holding B does not flicker the controls");

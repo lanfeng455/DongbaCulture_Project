@@ -100,7 +100,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         bool visible=showing&&(NatureWelcomeVisible||success);
         natureWelcome.gameObject.SetActive(visible);
         bool eager=NatureAvailable&&!natureFirstComplete;
-        natureTab.sizeDelta=new Vector2(eager?370:325,eager?64:52);
+        natureTab.sizeDelta=new Vector2(eager?370:325,XRTrackingControlsCamera?(eager?78:70):(eager?64:52));
         natureTabText.rectTransform.sizeDelta=natureTab.sizeDelta-new Vector2(22,8);natureTabText.fontSize=eager?21:19;
         natureBookmarkPaper.color=NatureAvailable?new Color(.37f,.26f,.14f,.97f):new Color(1,1,1,.97f);
         natureTabText.color=NatureAvailable?new Color(.99f,.96f,.84f):uiMuted;
@@ -112,8 +112,8 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         float reveal=Mathf.SmoothStep(0,1,(success?clock-natureAnsweredAt:age)/.55f);
         natureWelcomeFade.alpha=reveal*(success?1-Mathf.SmoothStep(0,1,(clock-natureAnsweredAt-3.8f)/.7f):1);
         natureWelcomeFade.blocksRaycasts=!success;natureWelcomeFade.interactable=!success;
-        natureWelcome.anchorMin=natureWelcome.anchorMax=natureWelcome.pivot=new Vector2(.5f,XRTrackingControlsCamera?.5f:0);
-        natureWelcome.anchoredPosition=XRTrackingControlsCamera?new Vector2(0,(success?230:-148)-24*(1-reveal)):new Vector2(0,24-24*(1-reveal));
+        natureWelcome.anchorMin=natureWelcome.anchorMax=new Vector2(.5f,XRTrackingControlsCamera?1:0);natureWelcome.pivot=new Vector2(.5f,XRTrackingControlsCamera?.5f:0);
+        natureWelcome.anchoredPosition=XRTrackingControlsCamera?new Vector2(0,(success?-112:-155)-24*(1-reveal)):new Vector2(0,24-24*(1-reveal));
         natureWelcome.localScale=Vector3.one*(XRTrackingControlsCamera?.96f:1);
         natureWelcomeEyebrow.text=success?N("AN INVITATION, ANSWERED","一次邀请，一次回应"):N("A NEW WAY TO SHAPE THE FOREST","新的能力 · 邀万物入画");
         natureWelcomeTitle.text=success?N("It answered you.","它回应了你的邀请。"):N("The forest answers you.","你照料的森林，回应了你。");
