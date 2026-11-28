@@ -6,7 +6,7 @@ namespace DongbaPrototype
     public partial class ObliqueForest
     {
         float xrUnits;
-        Text xrSummary, xrContext, xrControllerHints, xrPanelStatus, xrHealth;
+        Text xrSummary, xrContext, xrControllerHints, xrPanelStatus, xrHealth, xrGuideTitle, xrGuideActions, xrGuideSettings;
         RectTransform xrObjectiveNote, xrContextNote, xrHelpNote, xrControlsTab, xrHealthNote;
         Material xrHudInk;
         bool xrHelpOpen, xrHelpHeld;
@@ -25,7 +25,7 @@ namespace DongbaPrototype
             EnsureXRReadingAnchor();
             rect.SetParent(xrReadingAnchor, false);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f,1);
-            rect.sizeDelta = new Vector2(1000, 600);
+            rect.sizeDelta = new Vector2(1000, 700);
             rect.localScale = Vector3.one * (1.18f / 1000);
             rect.localPosition = Vector3.zero;
             rect.localRotation = Quaternion.identity;
@@ -44,7 +44,7 @@ namespace DongbaPrototype
         Text XRNoteText(string name, RectTransform parent, Vector2 position, Vector2 size, int fontSize)
         {
             var label=UILabel(name,parent,Vector2.one*.5f,Vector2.one*.5f,position,size,fontSize,"");
-            label.alignment=TextAnchor.MiddleCenter;label.material=xrHudInk;
+            label.alignment=TextAnchor.MiddleLeft;XRReadingText(label,fontSize);
             return label;
         }
 
@@ -52,17 +52,24 @@ namespace DongbaPrototype
         {
             if (xrSummary != null) return;
             xrHudInk = new Material(Shader.Find("Dongba/Headset Paper UI"));
-            xrObjectiveNote=XRNote("chapter note",new Vector2(-200,-65),new Vector2(570,100));
-            xrSummary=XRNoteText("Chapter",xrObjectiveNote,new Vector2(0,-2),new Vector2(520,88),27);
-            var stroke=DongbaUIStyle.Stroke(xrObjectiveNote,new Vector2(28,-9),new Vector2(58,3),new Color(.49f,.22f,.12f));stroke.material=xrHudInk;
-            xrContextNote=XRNote("nearby note",new Vector2(-200,-172),new Vector2(570,96));
-            xrContext=XRNoteText("Nearby action",xrContextNote,Vector2.zero,new Vector2(524,84),26);
-            xrHelpNote=XRNote("folded controls",new Vector2(0,-280),new Vector2(760,520));
-            xrControllerHints=XRNoteText("Controller guide",xrHelpNote,Vector2.zero,new Vector2(688,480),28);
-            xrControlsTab=XRNote("controls tab",new Vector2(300,-42),new Vector2(300,52));
-            xrPanelStatus=XRNoteText("Help tab",xrControlsTab,Vector2.zero,new Vector2(274,40),25);
-            xrHealthNote=XRNote("health note",new Vector2(300,-195),new Vector2(230,48));
-            xrHealth=XRNoteText("Health",xrHealthNote,Vector2.zero,new Vector2(204,36),25);
+            xrObjectiveNote=XRNote("chapter note",new Vector2(0,-180),new Vector2(900,108));
+            xrSummary=XRNoteText("Chapter",xrObjectiveNote,new Vector2(0,-3),new Vector2(824,84),32);
+            var stroke=DongbaUIStyle.Stroke(xrObjectiveNote,new Vector2(30,-20),new Vector2(4,68),new Color(.49f,.22f,.12f));stroke.material=xrHudInk;
+            xrContextNote=XRNote("nearby note",new Vector2(0,-310),new Vector2(900,120));
+            xrContext=XRNoteText("Nearby action",xrContextNote,Vector2.zero,new Vector2(824,100),30);
+            xrHelpNote=XRNote("controls sheet",new Vector2(0,-320),new Vector2(900,600));
+            xrGuideTitle=XRNoteText("Controls heading",xrHelpNote,new Vector2(0,242),new Vector2(820,58),38);
+            xrControllerHints=XRNoteText("Movement and language",xrHelpNote,new Vector2(-218,52),new Vector2(390,262),28);
+            xrControllerHints.alignment=TextAnchor.UpperLeft;xrControllerHints.lineSpacing=1.2f;
+            xrGuideActions=XRNoteText("Inviting and arranging",xrHelpNote,new Vector2(218,52),new Vector2(390,262),28);
+            xrGuideActions.alignment=TextAnchor.UpperLeft;xrGuideActions.lineSpacing=1.2f;
+            xrGuideSettings=XRNoteText("Placement and reset",xrHelpNote,new Vector2(0,-199),new Vector2(820,150),26);
+            xrGuideSettings.lineSpacing=1.2f;
+            var rule=DongbaUIStyle.Stroke(xrHelpNote,new Vector2(38,-408),new Vector2(824,2),new Color(.38f,.28f,.15f,.25f));rule.material=xrHudInk;
+            xrControlsTab=XRNote("controls tab",new Vector2(-232,-430),new Vector2(436,68));
+            xrPanelStatus=XRNoteText("Help tab",xrControlsTab,Vector2.zero,new Vector2(380,56),28);
+            xrHealthNote=XRNote("health note",new Vector2(0,-525),new Vector2(900,58));
+            xrHealth=XRNoteText("Health",xrHealthNote,Vector2.zero,new Vector2(824,48),28);
         }
 
         void UpdateXRHelpInput(bool pressed, bool ready)
@@ -87,7 +94,7 @@ namespace DongbaPrototype
                 if(!child.name.StartsWith("PICO ")&&child.name!="DialogueCanvas")child.gameObject.SetActive(false);
             EnsureXRNotes();
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
-            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen&&!NatureWelcomeVisible;
+            bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen&&!NatureWelcomeVisible&&!NatureAnswerNoticeVisible;
             if(!exploring)xrHelpOpen=false;
             string objective=StoryModeEnabled?DongbaLanguage.Text(QuietStoryObjective()):DongbaInterface.Choose("Sandbox Mode","沙盒模式")+" · "+SandboxState;
             xrSummary.text=objective;
@@ -101,9 +108,19 @@ namespace DongbaPrototype
                 xrContext.text=name+"\n"+actions;
             }
             xrHelpNote.gameObject.SetActive(exploring&&xrHelpOpen);
+            xrGuideTitle.text=DongbaInterface.Choose("Forest controls", "林间操作");
             xrControllerHints.text=DongbaInterface.Choose(
-                (StoryModeEnabled?"STORY MODE":"SANDBOX MODE")+"\n\nLeft stick   Move\nA   Jump / Continue dialogue\n"+XRForestActionGuide+"\nHold Y   Reposition forest and UI\nRight stick click   English / 中文\nLeft stick click   Nature invitations (sandbox)\n\nHold X   "+(StoryModeEnabled?"Start sandbox":"Start story")+" (reset)\nHold A   Restart this mode\nB   Close",
-                (StoryModeEnabled?"剧情模式":"沙盒模式")+"\n\n左摇杆  移动\nA  跳跃／继续对话\n"+XRForestActionGuide+"\n按住 Y  重新放置森林与界面\n按下右摇杆  切换中英\n按下左摇杆  自然邀请（沙盒）\n\n按住 X  "+(StoryModeEnabled?"进入沙盒":"进入剧情")+"（清空本次进度）\n按住 A  重新开始当前模式\nB  收起");
+                "Left stick   Move\nA   Jump / dialogue\n"+XRForestActionGuide+"\nR stick click   Language",
+                "左摇杆　移动\nA　跳跃／继续对白\n"+XRForestActionGuide+"\n按下右摇杆　切换中英");
+            xrGuideActions.text=DongbaInterface.Choose(
+                "L stick click   Invite nature\nIn the invitation menu:\nRight stick   Choose\nA   Confirm    B   Back\nX   Undo",
+                "按下左摇杆　邀万物入画\n邀请菜单中：\n右摇杆　选择\nA　确认　 B　返回\nX　撤销");
+            if(StoryModeEnabled)xrGuideActions.text=DongbaInterface.Choose(
+                "Invitations belong to sandbox.\n\nFollow the story.\nCare returns in the final act.",
+                "自然邀请在沙盒中开放。\n\n跟随故事前行，\n在终章重新照料森林。");
+            xrGuideSettings.text=DongbaInterface.Choose(
+                "Hold Y   Place forest and upper UI again\nHold X   Switch mode (reset)    Hold A   Restart\nB   Close controls",
+                "按住 Y　重新放置森林与上方界面\n按住 X　切换模式（重置）　按住 A　重新开始\nB　收起操作说明");
             xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
             xrControlsTab.gameObject.SetActive(exploring&&!xrHelpOpen);
             xrPanelStatus.gameObject.SetActive(exploring&&!xrHelpOpen);

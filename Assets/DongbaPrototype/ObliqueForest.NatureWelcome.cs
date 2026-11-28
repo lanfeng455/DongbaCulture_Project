@@ -80,6 +80,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         natureFirstComplete=true;natureFirstLesson=natureFirstResponding=natureWelcomePending=false;natureAnsweredAt=clock;
         natureWelcomeGlyph.sprite=being.animal?being.renderer.sprite:being.fullGlyph;
         PlayForestSfx("plant",being.home,.9f);natureUIStamp="";
+        if(XRTrackingControlsCamera)NatureSay("The forest answered. Keep arranging, or close to watch.","森林回应了你。继续布置，或收起菜单看一看。");
         if(XRTrackingControlsCamera&&xrRightDevice.isValid)xrRightDevice.SendHapticImpulse(0,.18f,.09f);
     }
     float NatureWelcomeAngle(Being plant){
@@ -97,7 +98,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             image.transform.rotation=billboard;image.color=new Color(.6f,.65f,.42f,.29f*Mathf.Sin(u*Mathf.PI));image.sortingOrder=DepthOrder(Feet.z)+15;
         }
         bool success=NatureAnswerNoticeVisible;
-        bool visible=showing&&(NatureWelcomeVisible||success);
+        bool visible=showing&&(NatureWelcomeVisible||success&&(!XRTrackingControlsCamera||!NatureEditorOpen&&!xrHelpOpen));
         natureWelcome.gameObject.SetActive(visible);
         bool eager=NatureAvailable&&!natureFirstComplete;
         natureTab.sizeDelta=new Vector2(eager?370:325,XRTrackingControlsCamera?(eager?78:70):(eager?64:52));
@@ -106,6 +107,11 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         natureTabText.color=NatureAvailable?new Color(.99f,.96f,.84f):uiMuted;
         if(eager)natureTabText.text=N(XRTrackingControlsCamera?"NEW · L stick · Invite nature":"NEW · B   Invite nature",XRTrackingControlsCamera?"新能力 · 按左摇杆回应森林":"新能力 · B  邀万物入画");
         float pulse=eager?1+.025f*Mathf.Sin((clock-natureUnlockedAt)*3):1;natureTab.localScale=Vector3.one*pulse;
+        if(XRTrackingControlsCamera){
+            natureTab.sizeDelta=new Vector2(436,68);natureTabText.rectTransform.sizeDelta=new Vector2(396,58);XRReadingText(natureTabText,26);
+            natureTabText.text=eager?N("NEW · L stick · Invite","新能力 · 左摇杆邀请"):NatureAvailable?N("L stick · Invite nature","左摇杆 · 邀万物入画"):N("Care to unlock invitations","照料至繁盛 · 解锁邀请");
+            natureTab.localScale=Vector3.one;
+        }
         if(!visible)return;
         natureWelcomeAccept.gameObject.SetActive(!success);natureWelcomeLater.gameObject.SetActive(!success);
         natureWelcome.sizeDelta=new Vector2(850,success?190:250);
@@ -121,6 +127,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         natureWelcomeAcceptText.text=N(XRTrackingControlsCamera?"A   Make your first invitation":"B   Make your first invitation",XRTrackingControlsCamera?"A  发出第一次邀请":"B  发出第一次邀请");
         natureWelcomeLaterText.text=N(XRTrackingControlsCamera?"B   Later":"Later",XRTrackingControlsCamera?"B  稍后再试":"稍后再试");
         if(XRTrackingControlsCamera&&xrHudInk!=null&&natureWelcomeGlyph.material!=xrHudInk)foreach(var graphic in natureWelcome.GetComponentsInChildren<Graphic>(true))graphic.material=xrHudInk;
+        if(XRTrackingControlsCamera)LayoutXRWelcome(success);
         if(NatureWelcomeVisible)natureTab.gameObject.SetActive(false);
     }
     void ApplyNatureFirstStep(){

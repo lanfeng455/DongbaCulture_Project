@@ -6,7 +6,7 @@ namespace DongbaPrototype {
 [DefaultExecutionOrder(10000)]
 public sealed class DongbaLocalizedLabel : MonoBehaviour {
     Text legacy; TMP_Text tmp;
-    Font originalFont; TMP_FontAsset originalTmpFont;
+    Font originalFont, readingFont; TMP_FontAsset originalTmpFont;
     VerticalWrapMode originalOverflow;
     string source,rendered; int revision=-1;
     public static void Bind(Text text){
@@ -16,6 +16,13 @@ public sealed class DongbaLocalizedLabel : MonoBehaviour {
     public static void SetSourceFont(Text text,Font font){
         text.font=font;var binding=text.GetComponent<DongbaLocalizedLabel>();
         if(binding!=null){binding.originalFont=font;binding.revision=-1;binding.Refresh();}
+    }
+    // Spatial menus opt into a regular, bilingual reading face. PC and subtitles
+    // keep their original art direction; language changes cannot restore Black.
+    public static void SetReadingFont(Text text,Font font){
+        Bind(text);var binding=text.GetComponent<DongbaLocalizedLabel>();
+        if(binding.readingFont==font)return;
+        binding.readingFont=font;binding.revision=-1;binding.Refresh();
     }
     public static void Bind(TMP_Text text){
         if(text.GetComponent<DongbaLocalizedLabel>()!=null)return;
@@ -33,14 +40,14 @@ public sealed class DongbaLocalizedLabel : MonoBehaviour {
         bool changed=actual!=rendered;
         if(changed||source==null)source=actual;
         bool chinese=HasChinese(DongbaLanguage.Text(source));
-        var targetFont=chinese?DongbaLanguage.ChineseUIFont:originalFont;
+        var targetFont=readingFont!=null?readingFont:chinese?DongbaLanguage.ChineseUIFont:originalFont;
         bool fontChanged=legacy!=null&&legacy.font!=targetFont;
         if(!changed&&revision==DongbaLanguage.Revision&&!fontChanged)return;
         revision=DongbaLanguage.Revision;rendered=DongbaLanguage.Text(source);
         if(legacy!=null){
             legacy.font=targetFont;
             // CJK ascenders exceed the old single-line Latin boxes; don't silently hide a line.
-            legacy.verticalOverflow=chinese?VerticalWrapMode.Overflow:originalOverflow;
+            legacy.verticalOverflow=readingFont!=null?VerticalWrapMode.Truncate:chinese?VerticalWrapMode.Overflow:originalOverflow;
             if(legacy.text!=rendered)legacy.text=rendered;
         }else{
             tmp.font=chinese?DongbaLanguage.ChineseSubtitleFont:originalTmpFont;

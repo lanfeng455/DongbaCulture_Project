@@ -142,20 +142,24 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     void UpdateNatureUI(){
         if(!natureReady)return;
         bool showing=!StoryModeEnabled&&!DongbaInterface.GameplayBlocked&&(!XRTrackingControlsCamera||XRExperienceReady);
-        natureTab.gameObject.SetActive(showing&&!NatureEditorOpen&&(!XRTrackingControlsCamera||!xrHelpOpen));
+        natureTab.gameObject.SetActive(showing&&!NatureEditorOpen&&(!XRTrackingControlsCamera||!xrHelpOpen&&!NatureAnswerNoticeVisible));
         natureTabText.text=NatureAvailable?N(XRTrackingControlsCamera?"L stick click · Invite":"B   Invite & arrange",XRTrackingControlsCamera?"按左摇杆 · 邀万物入画":"B   邀万物入画"):N("Care unlocks invitations","照料至繁盛 · 解锁邀请");
         naturePanel.gameObject.SetActive(showing&&NatureEditorOpen);
         if(XRTrackingControlsCamera){
-            naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=new Vector2(.5f,1);naturePanel.anchoredPosition=new Vector2(0,-20);naturePanel.localScale=Vector3.one*1.18f;
-            natureTab.anchorMin=natureTab.anchorMax=new Vector2(.5f,1);natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(300,-122);
+            naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=new Vector2(.5f,1);naturePanel.anchoredPosition=new Vector2(0,-20);naturePanel.localScale=Vector3.one;
+            natureTab.anchorMin=natureTab.anchorMax=new Vector2(.5f,1);natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(232,-430);
         }
         else{naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=Vector2.one;naturePanel.anchoredPosition=new Vector2(-30,-155);naturePanel.localScale=Vector3.one;natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.zero;natureTab.anchoredPosition=new Vector2(218,30);}
         AnimateNatureMenu(showing);UpdateNatureWelcome(showing);
         if(!showing||!NatureEditorOpen){natureRing.gameObject.SetActive(false);natureGhost.gameObject.SetActive(false);natureRay.gameObject.SetActive(false);return;}
         string stamp=naturePage+"|"+naturePageIndex+"|"+natureUnlocked+"|"+DongbaLanguage.Revision+"|"+sleepingPlants.Count+"|"+forestCompanions.Count+"|"+natureHistory.Count+"|"+(natureSelected==null?0:NatureIdentity(natureSelected));
-        if(natureUIStamp!=stamp){BuildNatureChoices();natureUIStamp=stamp;if(XRTrackingControlsCamera&&xrHudInk!=null)foreach(var graphic in naturePanel.GetComponentsInChildren<Graphic>(true))graphic.material=xrHudInk;}
+        if(natureUIStamp!=stamp){BuildNatureChoices();if(XRTrackingControlsCamera)LayoutXRInvitations();natureUIStamp=stamp;if(XRTrackingControlsCamera&&xrHudInk!=null)foreach(var graphic in naturePanel.GetComponentsInChildren<Graphic>(true))graphic.material=xrHudInk;}
         ApplyNatureFirstStep();
-        for(int i=0;i<natureButtons.Count;i++)natureButtons[i].targetGraphic.color=XRTrackingControlsCamera&&i==natureFocus?new Color(.58f,.39f,.16f,.28f):new Color(.38f,.28f,.15f,.075f);
+        for(int i=0;i<natureButtons.Count;i++){
+            bool focused=XRTrackingControlsCamera&&i==natureFocus;
+            natureButtons[i].targetGraphic.color=focused?new Color(.58f,.39f,.16f,.19f):new Color(.38f,.28f,.15f,XRTrackingControlsCamera?.055f:.075f);
+            if(XRTrackingControlsCamera){var mark=natureButtons[i].transform.Find("Reading focus");if(mark!=null)mark.gameObject.SetActive(focused);}
+        }
         natureStatus.text=clock<natureMessageUntil?N(natureMessageEn,natureMessageZh):N(XRTrackingControlsCamera?"Right stick: choose · A: select · X: undo":"WASD: walk · Ctrl+Z: undo · B: close",XRTrackingControlsCamera?"右摇杆选择 · A 确认 · X 撤销":"WASD 走动 · Ctrl+Z 撤销 · B 收起");
         if(natureMotions.Count>0&&clock>=natureMessageUntil)natureStatus.text=N("Invitations on their way: ","正在回应：")+natureMotions.Count+N(" · You may keep arranging."," · 可继续安排其他伙伴。");
         bool position=naturePage==NaturePage.Position;

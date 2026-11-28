@@ -60,7 +60,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         check(plants.Count==count&&!natureFirstComplete&&!natureFirstResponding,"Awakening: early undo leaves no endless waiting lesson");
         NatureChoose(NatureAction.Plant,null,"plant_01");natureCandidate=target;natureHasGround=true;UpdateNatureUI();CommitNatureChoice();added=plants.Last();
         yield return NatureWait(added);yield return null;
-        check(natureFirstComplete&&!natureFirstLesson&&natureWelcome.gameObject.activeSelf,"Awakening: completion feedback appears only when the plant has settled");
+        check(natureFirstComplete&&!natureFirstLesson&&(XRTrackingControlsCamera?NatureEditorOpen&&!natureWelcome.gameObject.activeSelf&&natureMessageUntil>clock:natureWelcome.gameObject.activeSelf),"Awakening: completion feedback appears after settling without overlapping the MR editor");
         check(Balance==score&&natureWelcomeCount==1,"Awakening: welcome and lesson do not award ecology or duplicate objects");
         yield return new WaitForSeconds(.65f);
         if(!XRTrackingControlsCamera)DongbaLanguageCapture.Write(cam,"Verification/nature-welcome/first-answer.png");
