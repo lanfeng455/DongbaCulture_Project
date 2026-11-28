@@ -28,6 +28,11 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         Directory.CreateDirectory("Verification/mr-pc-ui");CaptureSceneToTexture("Verification/mr-pc-ui/entry.png");
 
         int originalAnimals=animals.Count,originalPlants=plants.Count;
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-journey-check")>=0){
+            File.WriteAllText(DeveloperCheckpointPath,"reel");yield return new WaitForSecondsRealtime(.8f);
+            if(!File.Exists(DeveloperCheckpointPath)||XRExperienceReady){Debug.LogError("Checkpoint ran before MR placement");UnityEditor.EditorApplication.Exit(1);yield break;}
+            File.Delete(DeveloperCheckpointPath);Debug.Log("PASS Checkpoint waits for MR placement");
+        }
         pico.SimulateSurfacePlacementForVerification(new Vector3(2,0,3));
         yield return null;
         yield return null;yield return null;
