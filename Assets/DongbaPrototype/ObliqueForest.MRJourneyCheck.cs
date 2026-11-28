@@ -42,7 +42,11 @@ public partial class ObliqueForest {
         int checkpointBalance=Balance,checkpointPlants=plants.Count,checkpointAnimals=animals.Count;
         File.WriteAllText(DeveloperCheckpointPath,"unsupported");yield return new WaitForSecondsRealtime(.8f);
         Check(!File.Exists(DeveloperCheckpointPath)&&journeyStage==JourneyStage.Realization,"Unknown local checkpoint is rejected without moving the player");
+        ReadStorySkipHold(false,true);
+        float holdUntil=Time.realtimeSinceStartup+1.5f;while(Time.realtimeSinceStartup<holdUntil){ReadStorySkipHold(true,true);yield return null;}
+        Check(journeyStage==JourneyStage.EastJourney,"Public MR hold skips the opening to the reel");
         File.WriteAllText(DeveloperCheckpointPath,"reel");
+        yield return new WaitForSecondsRealtime(.7f);
         yield return Wait(()=>journeyStage==JourneyStage.EastJourney,4);yield return null;yield return null;
         Check(!File.Exists(DeveloperCheckpointPath)&&File.ReadAllText(DeveloperCheckpointPath+".result")=="OK reel","One-shot checkpoint command is consumed and acknowledged");
         Check(!fatherIntroActive&&!ManualStoryDialogueActive&&!NarrativeInputLocked&&!AfterCaptureLocked&&!storyFatherRoot.gameObject.activeSelf,"Reel jump releases all story locks and removes father");
@@ -51,6 +55,7 @@ public partial class ObliqueForest {
         Check(Vector3.Distance(Feet,checkpointFeet)<.01f&&journeyStage==JourneyStage.EastJourney&&journeyReelGroup.alpha>.99f&&JourneyReelProgress<journeyReelNextCheckpoint,"Reel stops at a visible playable start without automatic puzzle entry");
         File.Delete(DeveloperCheckpointPath+".result");
         Check(journeyReelCanvas!=null&&journeyReelCanvas.renderMode==RenderMode.WorldSpace,"Reel is a world-space paper stage, never a plane at the eyes");
+        Check(GameObject.Find("Stationary paper ground").GetComponent<Renderer>().forceRenderingOff&&reelHiddenRenderers.Count>20&&!playerImage.forceRenderingOff,"Reel hides forest ground/objects and retains the actor");
         Vector3 fixedPage=journeyReelRoot.position;Quaternion eyeRotation=cam.transform.rotation;
         cam.transform.rotation*=Quaternion.Euler(0,25,0);yield return null;
         Check(Vector3.Distance(journeyReelRoot.position,fixedPage)<.001f&&!journeyReelRoot.IsChildOf(cam.transform),"Head turn cannot move the reel");cam.transform.rotation=eyeRotation;

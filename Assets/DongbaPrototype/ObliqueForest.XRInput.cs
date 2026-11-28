@@ -37,6 +37,7 @@ namespace DongbaPrototype
             bool care = XRButton(left, CommonUsages.primaryButton); // X
             bool connectedChanged = !xrLeftDevice.Equals(left) || !xrRightDevice.Equals(right);
             xrLeftDevice = left; xrRightDevice = right;
+            ReadStorySkipHold(XRButton(right,CommonUsages.secondaryButton),XRExperienceReady&&xrWasReady&&!connectedChanged);
             left.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 stick);
             ReadNatureXR(left,right,XRExperienceReady&&xrWasReady&&!connectedChanged&&!storyLocked);
             UpdateXRHelpInput(XRButton(right,CommonUsages.secondaryButton),!NatureOwnsInput&&XRExperienceReady&&xrWasReady&&!connectedChanged&&!storyLocked);

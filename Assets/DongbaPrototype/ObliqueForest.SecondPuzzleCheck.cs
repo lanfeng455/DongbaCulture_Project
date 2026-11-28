@@ -50,7 +50,15 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var keyboard=InputSystem.AddDevice<Keyboard>();keyboard.MakeCurrent();
         yield return new WaitForSeconds(1);Screen.SetResolution(1598,898,false);yield return new WaitForSeconds(.2f);Screen.SetResolution(1600,900,false);
         DongbaLanguage.Set(DongbaLocale.Chinese,false);SetStoryModeEnabled(true);RestartRun();SkipOpeningForVerification();ResetForestSubtitles();
-        journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(30,0,0);FollowPlayerCamera(100);
+        yield return null;yield return null;
+        SecondAssert(storySkipButton!=null&&storySkipButton.gameObject.activeSelf,"Story skip button is visible in PC story mode");
+        yield return SecondShot("skip-button");
+        storySkipButton.onClick.Invoke();
+        SecondAssert(journeyStage==JourneyStage.Hunting,"First skip click only asks for confirmation");
+        storySkipButton.onClick.Invoke();yield return null;yield return null;
+        SecondAssert(journeyStage==JourneyStage.EastJourney&&!ManualStoryDialogueActive&&!fatherIntroActive,"Confirmed PC skip enters playable reel without dialogue locks");
+        SecondAssert(GameObject.Find("Stationary paper ground").GetComponent<Renderer>().forceRenderingOff&&!playerImage.forceRenderingOff,"PC reel hides the forest and keeps the actor visible");
+        yield return SecondShot("skip-reel");
         InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.D));yield return SecondWait(()=>reelPortalHost.InLevel,45);
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
         SecondAssert(reelPortalHost.InLevel&&SceneManager.GetActiveScene().name=="Beat_2_Cleansing_Impurity","First three pages still enter the two-snakes level");

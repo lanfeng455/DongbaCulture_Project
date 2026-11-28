@@ -59,7 +59,7 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         while(Balance>-10)RegisterDamage();if(storyFatherRoot!=null)storyFatherRoot.gameObject.SetActive(false);
         journeyStage=JourneyStage.EastJourney;EnsureAfterCapturePresentation();EnsureEastPaperContinuation();player.position=new Vector3(28,0,0);FollowPlayerCamera(100);
     }
-    void ResetJourneyReel(){reelActorScale=1;RestoreReelPlayer();journeyReelFocus=0;journeyReelNextDestination=0;journeyReelNextCheckpoint=-1;journeyReelReturnProgress=0;if(journeyReelGroup!=null)journeyReelGroup.alpha=0;}
+    void ResetJourneyReel(){RestoreReelEnvironment();reelActorScale=1;RestoreReelPlayer();journeyReelFocus=0;journeyReelNextDestination=0;journeyReelNextCheckpoint=-1;journeyReelReturnProgress=0;if(journeyReelGroup!=null)journeyReelGroup.alpha=0;}
     void EnsureJourneyReel(){
         if(journeyReelCanvas!=null)return;
         journeyReelData=JsonUtility.FromJson<JourneyReelLayout>(Resources.Load<TextAsset>("JourneyReel/timeline").text);
