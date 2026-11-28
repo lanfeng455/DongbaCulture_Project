@@ -233,7 +233,8 @@ namespace Ivan.Diorama
 
             bool dialogueInputBlocked = DongbaPrototype.DialogueAdvanceInput.GameplayInputBlocked;
             var kb = Keyboard.current;
-            if (kb == null && !m_useAutoMoveInput) return;
+            bool mr = DongbaPrototype.MRPuzzleInput.Active;
+            if (kb == null && !m_useAutoMoveInput && !mr) return;
 
             // —— 移动输入：演出导演的自动输入优先；否则键盘（组员 ObliqueForest.cs Line 129 同款映射）——
             Vector3 move = Vector3.zero;
@@ -242,6 +243,7 @@ namespace Ivan.Diorama
                 move.x = m_autoMoveInput.x;
                 move.z = m_autoMoveInput.y;
             }
+            else if(mr&&!dialogueInputBlocked){move.x=DongbaPrototype.MRPuzzleInput.Move.x;move.z=DongbaPrototype.MRPuzzleInput.Move.y;}
             else if (kb != null && !dialogueInputBlocked)
             {
                 move.x = (kb.dKey.isPressed || kb.rightArrowKey.isPressed ? 1 : 0)
@@ -251,15 +253,15 @@ namespace Ivan.Diorama
             }
             move = Vector3.ClampMagnitude(move, 1f);
 
-            if (kb != null && !CameraHandoff && !m_stageMovementLocked && !dialogueInputBlocked)
+            if ((kb != null || mr) && !CameraHandoff && !m_stageMovementLocked && !dialogueInputBlocked)
             {
-                if (kb.spaceKey.wasPressedThisFrame && m_jumpAge < 0)
+                if (((kb!=null&&kb.spaceKey.wasPressedThisFrame)||(mr&&DongbaPrototype.MRPuzzleInput.JumpPressed)) && m_jumpAge < 0)
                 {
                     m_jumpAge = 0f;
                     // 跳跃期间关闭所有水体碰撞，让玩家能跨过河面（落地时恢复）
                     DioramaRiver.SetWaterEnabled(false);
                 }
-                if (kb.jKey.wasPressedThisFrame && m_attackAge < 0)
+                if (((kb!=null&&kb.jKey.wasPressedThisFrame)||(mr&&DongbaPrototype.MRPuzzleInput.AttackPressed)) && m_attackAge < 0)
                 {
                     if(move.x!=0){m_stageFacing=0;m_facing=move.x>0?1:-1;}
                     if(move.sqrMagnitude>0)m_heading=move;
@@ -267,7 +269,7 @@ namespace Ivan.Diorama
                     m_attackAge = 0f;
                     m_hitDone = false;
                 }
-                if (kb.eKey.wasPressedThisFrame)
+                if (((kb!=null&&kb.eKey.wasPressedThisFrame)||(mr&&DongbaPrototype.MRPuzzleInput.InteractPressed)))
                 {
                     // 谜题交互优先；没有可交互目标时保持原有的喂食/补种行为
                     bool used=m_puzzleInteractor!=null&&m_puzzleInteractor.TryInteract();

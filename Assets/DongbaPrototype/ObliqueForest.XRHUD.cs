@@ -44,6 +44,7 @@ namespace DongbaPrototype
         public void UpdateXRHUD(bool placed, string status)
         {
             if(forestCanvas==null||forestCanvas.renderMode!=RenderMode.WorldSpace)return;
+            if(XRPuzzleActive){forestCanvas.gameObject.SetActive(false);return;}
             if(placed&&XRExperienceReady&&!xrReadingAnchored)AnchorXRReadingFrame();
             if(forestSubtitles!=null){
                 forestSubtitles.ConfigureHeadsetPresentation(cam,xrUnits);

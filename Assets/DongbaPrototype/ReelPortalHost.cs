@@ -9,7 +9,7 @@ using Ivan.Puzzle;
 using Ivan.Diorama;
 using Unity.Cinemachine;
 namespace DongbaPrototype {
-public class ReelPortalHost:MonoBehaviour {
+public partial class ReelPortalHost:MonoBehaviour {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void OpenRequestedPreview(){
         if(SceneManager.GetActiveScene().name!="Title")return;
@@ -22,6 +22,8 @@ public class ReelPortalHost:MonoBehaviour {
     AsyncOperation preload; string preloadedScene; float walkingPhase, reelScroll;
     Coroutine prepareRoutine;bool discardingPrepared,leavingForInterface;
     public float EntryTravel {get;private set;}
+    Camera preparingXREyes;string preparingEyeTag;
+    void RestorePreparedEyes(){if(preparingXREyes!=null)preparingXREyes.tag=preparingEyeTag;preparingXREyes=null;}
     readonly List<GameObject> preparedRoots=new List<GameObject>();DialogueDisplay preparedDialogue;
     public void Prepare(string scene){
         if(IsBusy||!Application.CanStreamedLevelBeLoaded(scene))return;
@@ -35,9 +37,12 @@ public class ReelPortalHost:MonoBehaviour {
         while(pending.progress<.9f)yield return null;
         if(preload!=pending||preloadedScene!=scene||restarting||discardingPrepared)yield break;
         if(!busy&&DialogueDisplay.Instance!=null)forestDialogue=DialogueDisplay.Instance;if(forestDialogue!=null)forestDialogue.ReleaseForSceneHandoff();
+        var xrForest=forest!=null?forest:FindFirstObjectByType<ObliqueForest>();
+        if(xrForest!=null&&xrForest.XRTrackingControlsCamera){preparingXREyes=xrForest.ReelViewCamera;preparingEyeTag=preparingXREyes.tag;preparingXREyes.tag="Untagged";}
         pending.allowSceneActivation=true;prepareRoutine=null;
     }
     void StopPreparation(){
+        RestorePreparedEyes();
         if(prepareRoutine!=null){StopCoroutine(prepareRoutine);prepareRoutine=null;}
         SceneManager.sceneLoaded-=ParkPreparedScene;
     }
@@ -57,9 +62,10 @@ public class ReelPortalHost:MonoBehaviour {
         foreach(var root in scene.GetRootGameObjects()){
             var dialogue=root.GetComponentInChildren<DialogueDisplay>(true);if(dialogue!=null)preparedDialogue=dialogue;
             var camera=root.GetComponentInChildren<Camera>();
-            if(camera!=null){var target=camera.targetTexture;var warm=RenderTexture.GetTemporary(64,64,24);camera.targetTexture=warm;camera.Render();camera.targetTexture=target;RenderTexture.ReleaseTemporary(warm);}
+            if(camera!=null){if(preparingXREyes!=null){camera.stereoTargetEye=StereoTargetEyeMask.None;UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(camera).allowXRRendering=false;}var target=camera.targetTexture;var warm=RenderTexture.GetTemporary(64,64,24);camera.targetTexture=warm;camera.Render();camera.targetTexture=target;RenderTexture.ReleaseTemporary(warm);}
         }
         foreach(var root in scene.GetRootGameObjects())if(root.activeSelf){preparedRoots.Add(root);root.SetActive(false);}
+        RestorePreparedEyes();
         if(preparedDialogue!=null)preparedDialogue.ReleaseForSceneHandoff();
         if(forestDialogue!=null&&!busy)forestDialogue.RestoreAfterSceneHandoff(false);
     }
@@ -89,7 +95,8 @@ public class ReelPortalHost:MonoBehaviour {
         if(!Application.CanStreamedLevelBeLoaded(scene)){Debug.LogError("Reel destination not included in build: "+scene);return false;}
         // Never overwrite an outstanding asynchronous load with a different destination.
         if(preload!=null&&preloadedScene!=scene){Prepare(scene);return false;}
-        forest=source;resume=onReturn;entryRoutine=StartCoroutine(EnterRoutine(scene));return true;
+        if(source.XRTrackingControlsCamera&&preload==null)Prepare(scene);
+        forest=source;resume=onReturn;entryRoutine=StartCoroutine(source.XRTrackingControlsCamera?EnterMRRoutine(scene):EnterRoutine(scene));return true;
     }
     public IEnumerator LeaveForInterface(){
         leavingForInterface=true;
@@ -109,7 +116,7 @@ public class ReelPortalHost:MonoBehaviour {
     }
     IEnumerator RestartForestSession(){
         restarting=true;if(entryRoutine!=null){StopCoroutine(entryRoutine);entryRoutine=null;}
-        UnsubscribeCompletion();StopPreparation();RestoreCameraOwnership();
+        UnsubscribeCompletion();StopPreparation();RestoreCameraOwnership();ReleaseMRStage();
         // An asynchronous load cannot be cancelled. Finish activation before unloading;
         // never leave Unity's scene-operation queue stalled at allowSceneActivation=false.
         if(preload!=null){preload.allowSceneActivation=true;while(!preload.isDone)yield return null;}
@@ -259,5 +266,5 @@ public class ReelPortalHost:MonoBehaviour {
     // Bind only to the final rescue/death sequence, not ordinary puzzle completion.
     public void ReturnToForestForRestoration(){if(!InLevel)return;restorationRequested=true;completed=true;}
     void OnCompleted(){completed=true;}
-    void OnDestroy(){DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);UnsubscribeCompletion();RestoreCameraOwnership();SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
+    void OnDestroy(){ReleaseMRStage();DongbaLanguageSwitch.Instance?.SetPresentationBlocked(this,false);UnsubscribeCompletion();RestoreCameraOwnership();SceneManager.sceneLoaded-=ParkPreparedScene;ReleaseTextures();if(snapshotMaterial!=null)Destroy(snapshotMaterial);}
 }}

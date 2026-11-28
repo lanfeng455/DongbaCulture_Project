@@ -15,13 +15,14 @@ public static class DialogueAdvanceInput {
         get {
             for (int i = heldDialogueKeys.Count - 1; i >= 0; --i)
                 if (!IsUsable(heldDialogueKeys[i]) || !heldDialogueKeys[i].isPressed) heldDialogueKeys.RemoveAt(i);
-            return DialogueActive || consumedFrame == Time.frameCount || heldDialogueKeys.Count > 0;
+            return MRPuzzleInput.MenuOpen || MRPuzzleInput.DialogueHold || DialogueActive || consumedFrame == Time.frameCount || heldDialogueKeys.Count > 0;
         }
     }
 
     internal static bool TryConsume(DialogueDisplay owner, int lineShownFrame) {
-        if (owner == null || !owner.AcceptsManualAdvance || DongbaInterface.GameplayBlocked ||
+        if (MRPuzzleInput.MenuOpen || owner == null || !owner.AcceptsManualAdvance || DongbaInterface.GameplayBlocked ||
             Time.frameCount <= lineShownFrame || consumedFrame == Time.frameCount) return false;
+        if(MRPuzzleInput.Active&&MRPuzzleInput.JumpPressed){consumedFrame=Time.frameCount;MRPuzzleInput.LatchDialogue();return true;}
         var keyboard = Keyboard.current;
         if (keyboard == null || !keyboard.added || !keyboard.enabled) return false;
         // Keyboard.anyKey only has one aggregate edge: scan keys so a new press also

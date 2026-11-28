@@ -87,6 +87,7 @@ namespace DongbaPrototype
         }
 
         Vector3 XRStickMovement(Vector2 stick){
+            if(ReelPresentationVisible) return new Vector3(Mathf.Abs(stick.x)>.18f?stick.x:0,0,0);
             const float deadzone = .18f;
             float magnitude = Mathf.Min(stick.magnitude, 1);
             if (magnitude <= deadzone) return Vector3.zero;

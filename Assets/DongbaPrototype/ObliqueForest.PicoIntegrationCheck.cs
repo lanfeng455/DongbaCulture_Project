@@ -32,6 +32,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         yield return null;
         yield return null;yield return null;
         xrSimulating=true;
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-journey-check")>=0){var runner=new GameObject("MR journey verification").AddComponent<MRJourneyCheckRunner>();DontDestroyOnLoad(runner);runner.StartCoroutine(CheckMRJourney());yield break;}
         if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-ui-check-only")>=0){
             report.Clear();yield return VerifyFixedMRUI(Check);
             File.WriteAllText("Verification/mr-pc-ui/focused-checks.txt",report.ToString());

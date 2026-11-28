@@ -17,14 +17,15 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         // 保证卷轴演员始终画在卷轴纸（k_reelCanvasSortingOrder）之上
         playerImage.sortingOrder=k_reelActorSortingOrder;axe.GetComponent<SpriteRenderer>().sortingOrder=k_reelActorSortingOrder-1;
         float originalHeight=playerImage.sprite.bounds.size.y*reelOriginalPlayerScale.y;
-        float factor=(cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
+        float factor=(XRTrackingControlsCamera ? xrUnits*.22f : cam.orthographicSize*2/3)/Mathf.Max(.01f,originalHeight);
         body.localScale=reelOriginalPlayerScale*Mathf.Lerp(1,factor,blend)*reelActorScale;
         var view=cam.WorldToViewportPoint(player.position);var bottom=cam.ViewportToWorldPoint(new Vector3(view.x,.055f,cam.nearClipPlane+3f));
         float distance=Vector3.Distance(Feet,reelLastFeet);reelLastFeet=Feet;reelStepPhase+=distance*2.8f;
         reelWalkWeight=Mathf.Lerp(reelWalkWeight,distance>.001f?1:0,1-Mathf.Exp(-Time.deltaTime*8));
         float tilt=(Mathf.Sin(reelStepPhase)*1.25f*reelWalkWeight+Mathf.Sin(clock*2.1f)*.22f*(1-reelWalkWeight))*blend;
         float lift=(Mathf.Abs(Mathf.Sin(reelStepPhase))*2.5f*reelWalkWeight+Mathf.Sin(clock*2.1f)*.5f*(1-reelWalkWeight))*cam.orthographicSize*2/Screen.height;
-        body.position=Vector3.Lerp(player.position,bottom,blend)+cam.transform.up*(lift*blend);body.rotation=billboard*Quaternion.Euler(0,0,tilt);
+        if(XRTrackingControlsCamera){bottom=new Vector3(-xrUnits*.22f,xrUnits*.025f,ForestHalfDepth-xrUnits*.018f);lift=Mathf.Abs(Mathf.Sin(reelStepPhase))*.035f*reelWalkWeight;body.position=Vector3.Lerp(player.position,bottom,blend)+Vector3.up*lift;body.rotation=Quaternion.Euler(0,0,tilt);}
+        else {body.position=Vector3.Lerp(player.position,bottom,blend)+cam.transform.up*(lift*blend);body.rotation=billboard*Quaternion.Euler(0,0,tilt);}
     }
 
     public SpriteRenderer ReelActorRenderer=>playerImage;
@@ -67,7 +68,12 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         var scaler=go.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1600,900);scaler.matchWidthOrHeight=.5f;
         journeyReelGroup=go.GetComponent<CanvasGroup>();journeyReelGroup.blocksRaycasts=false;journeyReelGroup.alpha=0;journeyReelRoot=(RectTransform)go.transform;
         var backing=new GameObject("Matching warm paper",typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));backing.transform.SetParent(go.transform,false);var wash=backing.GetComponent<RawImage>();wash.texture=paper;wash.color=new Color(.65f,.54f,.36f);wash.raycastTarget=false;var br=wash.rectTransform;br.anchorMin=Vector2.zero;br.anchorMax=Vector2.one;br.offsetMin=br.offsetMax=Vector2.zero;
-        journeyReelPanels=new RawImage[3];for(int i=0;i<3;i++){var panel=new GameObject("Original reel tile",typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));panel.transform.SetParent(go.transform,false);journeyReelPanels[i]=panel.GetComponent<RawImage>();journeyReelPanels[i].raycastTarget=false;}
+        if(XRTrackingControlsCamera){
+            journeyReelCanvas.renderMode=RenderMode.WorldSpace;scaler.enabled=false;
+            journeyReelRoot.sizeDelta=new Vector2(1600,900);journeyReelRoot.localScale=Vector3.one*(XRStageWidth/1600f);
+            journeyReelRoot.SetPositionAndRotation(XRStageCentre,Quaternion.identity);go.layer=30;go.AddComponent<RectMask2D>();
+        }
+        journeyReelPanels=new RawImage[3];for(int i=0;i<3;i++){var panel=new GameObject("Original reel tile",typeof(RectTransform),typeof(CanvasRenderer),typeof(RawImage));panel.transform.SetParent(go.transform,false);if(XRTrackingControlsCamera)panel.layer=30;journeyReelPanels[i]=panel.GetComponent<RawImage>();journeyReelPanels[i].raycastTarget=false;}
     }
     void UpdateJourneyReel(){
         if(!StoryModeEnabled||(journeyStage!=JourneyStage.EastJourney&&journeyStage!=JourneyStage.ScrollTransition)){RestoreReelPlayer();if(journeyReelGroup!=null)journeyReelGroup.alpha=0;return;}
