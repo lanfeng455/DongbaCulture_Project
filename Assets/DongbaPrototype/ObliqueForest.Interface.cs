@@ -41,15 +41,15 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         if(Vector3.Distance(Feet,tutorialOrigin)>.75f)taughtMove=true;
         if(jump)taughtJump=true;if(attack)taughtAxe=true;
     }
-    void RefreshInteractionCard(){
-        bool visible=!NatureEditorOpen&&!NatureWelcomeVisible&&InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0&&ForestTargetAvailable(interactionTarget);
+    void RefreshInteractionCard(bool headset=false,bool allowed=true){
+        bool visible=allowed&&!NatureEditorOpen&&!NatureWelcomeVisible&&InterfaceExploring&&!AfterCapturePeaceful&&eastPaperProgress<=0&&ForestTargetAvailable(interactionTarget);
         promptPanel.SetActive(visible);selectionRing.gameObject.SetActive(visible);
         if(!visible)return;
         var b=interactionTarget;selectionRing.position=b.root.position;
         if(interactionGlyph!=null)interactionGlyph.sprite=b.animal?b.renderer.sprite:b.health<=0?b.stumpGlyph:b.fullGlyph;
         var line=selectionRing.GetComponent<LineRenderer>();line.startColor=line.endColor=DongbaUIStyle.Accent;line.widthMultiplier=.035f;
         // The title follows the same dictionary record as the sprite and the actual E target.
-        hudPromptTitle.text=b.animal?AnimalDisplayName(b):b.health<=0?"Tree stump":"Forest tree";
+        hudPromptTitle.text=DongbaLanguage.Text(b.animal?AnimalDisplayName(b):b.health<=0?"Tree stump":"Forest tree");
         string care;
         if(b.animal){
             care=clock<b.careReady?"Eating — please wait":b.age<2?"E   Feed to grow":"E   Feed / new young";
@@ -58,6 +58,10 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         string careAction=ForestCareAvailable?care:"";
         bool waitingLimit=careLimitText=="Still feeding"||careLimitText=="Still growing";
         if(ForestCareAvailable&&b==careLimitTarget&&clock<careLimitUntil&&(!waitingLimit||clock<b.careReady))careAction=careLimitText;
+        if(headset){
+            careAction=DongbaLanguage.Text(careAction).Replace("E   ","X  ");
+            attack=attack.Length>0?DongbaInterface.Choose("R Trigger  Axe","右扳机  挥斧"):"";
+        }
         hudPrompt.text=careAction+(careAction.Length>0&&attack.Length>0?"\n":"")+attack;
         interactionResult.text=b==resultTarget&&clock<resultUntil?resultText:"";
         // The ink strip counts down the real remaining cooldown, in a three-second range.

@@ -36,6 +36,15 @@ public static partial class DongbaUIStyle {
         var t=Resources.Load<Texture2D>("ApprovedArt/"+name);if(t==null)return null;
         sprite=Sprite.Create(t,new Rect(0,0,t.width,t.height),Vector2.one*.5f,100);glyphs[name]=sprite;return sprite;
     }
+    // The same two leaves, spine and edge shadow serve desktop and spatial menus.
+    public static RectTransform OpenManuscript(Transform parent,string name,Vector2 anchor,Vector2 position,out RectTransform left,out RectTransform right){
+        var panel=Rect(name,parent,anchor,Vector2.one*.5f,position,new Vector2(970,660));
+        var under=Rect("Underlying leaf",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(6,-7),new Vector2(962,650));var underside=Plate(under,new Color(.84f,.80f,.69f));EdgeShadow(underside,.25f);
+        left=Rect("Story leaf",panel,new Vector2(0,1),new Vector2(0,1),Vector2.zero,new Vector2(348,652));Plate(left,new Color(.94f,.91f,.83f));
+        right=Rect("Menu leaf",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(340,0),new Vector2(630,656));Plate(right,Color.white,true);
+        Stroke(left,new Vector2(329,-25),new Vector2(2,598),new Color(.27f,.18f,.10f,.2f));
+        return panel;
+    }
     public static void EdgeShadow(Image im,float strength=.16f){var s=im.gameObject.AddComponent<Shadow>();s.effectColor=new Color(.16f,.1f,.05f,strength);s.effectDistance=new Vector2(3,-4);s.useGraphicAlpha=true;}
     public static Image Stroke(Transform parent,Vector2 position,Vector2 size,Color color){var r=Rect("Ink rule / interface",parent,new Vector2(0,1),new Vector2(0,1),position,size);var im=r.gameObject.AddComponent<Image>();im.sprite=BrushSprite;im.color=color;im.raycastTarget=false;return im;}
     public static Image Picture(Transform parent,string name,Sprite sprite,Vector2 position,Vector2 size){var r=Rect(name,parent,new Vector2(0,1),new Vector2(0,1),position,size);var im=r.gameObject.AddComponent<Image>();im.sprite=sprite;im.preserveAspect=true;im.raycastTarget=false;return im;}

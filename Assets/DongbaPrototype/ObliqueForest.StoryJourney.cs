@@ -127,7 +127,8 @@ namespace DongbaPrototype {public partial class ObliqueForest {
     }
     void UpdateStoryObjectiveHUD(){
         EnsureQuietObjective();if(journeyObjective==null)return;
-        journeyObjective.text=StoryModeEnabled?QuietStoryObjective():"";DrawBoarTargetMarker();DrawFatherIntro();
+        // Spatial chapter text is owned by RefreshXRChapter; do not clear its sandbox title later in the frame.
+        if(!XRTrackingControlsCamera)journeyObjective.text=StoryModeEnabled?QuietStoryObjective():"";DrawBoarTargetMarker();DrawFatherIntro();
     }
     IEnumerator CheckStoryJourney(){
         yield return new WaitForSeconds(2);SetStoryModeEnabled(true);RestartRun();Directory.CreateDirectory("Verification/story-journey");StartCoroutine(RecordStoryCapture());

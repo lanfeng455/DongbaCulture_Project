@@ -147,7 +147,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         naturePanel.gameObject.SetActive(showing&&NatureEditorOpen);
         if(XRTrackingControlsCamera){
             naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=new Vector2(.5f,1);naturePanel.anchoredPosition=new Vector2(0,-20);naturePanel.localScale=Vector3.one;
-            natureTab.anchorMin=natureTab.anchorMax=new Vector2(.5f,1);natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(232,-430);
+            natureTab.anchorMin=natureTab.anchorMax=new Vector2(.5f,1);natureTab.pivot=Vector2.one*.5f;natureTab.anchoredPosition=new Vector2(140,-644);
         }
         else{naturePanel.anchorMin=naturePanel.anchorMax=naturePanel.pivot=Vector2.one;naturePanel.anchoredPosition=new Vector2(-30,-155);naturePanel.localScale=Vector3.one;natureTab.anchorMin=natureTab.anchorMax=natureTab.pivot=Vector2.zero;natureTab.anchoredPosition=new Vector2(218,30);}
         AnimateNatureMenu(showing);UpdateNatureWelcome(showing);

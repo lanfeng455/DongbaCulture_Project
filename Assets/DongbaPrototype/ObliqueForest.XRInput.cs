@@ -55,6 +55,7 @@ namespace DongbaPrototype
             if(!XRExperienceReady)return Vector3.zero;
             // The folded controls own these holds; releasing cannot leak into feed/jump.
             if(xrHelpOpen){
+                if(languageDown)DongbaLanguage.Set(DongbaLanguage.Chinese?DongbaLocale.English:DongbaLocale.Chinese,true);
                 xrModeHold=care?xrModeHold+Time.unscaledDeltaTime:0;
                 xrRestartHold=jump?xrRestartHold+Time.unscaledDeltaTime:0;
                 if(xrModeHold>=1f||xrRestartHold>=1f){

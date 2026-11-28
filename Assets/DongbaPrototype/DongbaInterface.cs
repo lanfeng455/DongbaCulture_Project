@@ -113,11 +113,7 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         if(modal!=null){modal.SetActive(false);Destroy(modal);}volumeSlider=null;volumeReadout=null;muteButton=null;
         var root=DongbaUIStyle.Rect("Modal "+page,canvas.transform,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero);root.anchorMax=Vector2.one;
         modal=root.gameObject;var shade=modal.AddComponent<Image>();shade.color=new Color(.12f,.095f,.065f,page==Page.Loading?1:.62f);
-        panel=DongbaUIStyle.Rect("Open manuscript",root,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(970,660));
-        var under=DongbaUIStyle.Rect("Underlying leaf",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(6,-7),new Vector2(962,650));var underside=DongbaUIStyle.Plate(under,new Color(.84f,.80f,.69f));DongbaUIStyle.EdgeShadow(underside,.25f);
-        var left=DongbaUIStyle.Rect("Story leaf",panel,new Vector2(0,1),new Vector2(0,1),Vector2.zero,new Vector2(348,652));DongbaUIStyle.Plate(left,new Color(.94f,.91f,.83f));
-        menuPage=DongbaUIStyle.Rect("Menu leaf",panel,new Vector2(0,1),new Vector2(0,1),new Vector2(340,0),new Vector2(630,656));DongbaUIStyle.Plate(menuPage,Color.white,true);
-        DongbaUIStyle.Stroke(left,new Vector2(329,-25),new Vector2(2,598),new Color(.27f,.18f,.10f,.2f));
+        panel=DongbaUIStyle.OpenManuscript(root,"Open manuscript",Vector2.one*.5f,Vector2.zero,out var left,out menuPage);
         BuildStoryLeaf(left);
         var small=DongbaUIStyle.Label("Page caption",menuPage,"DONGBA  /  THE LIVING SCRIPT",new Vector2(38,-27),new Vector2(550,24),13);small.color=DongbaUIStyle.Muted;
         string title=page==Page.Pause?"Paused":page==Page.Help?"Controls":page==Page.Settings?"Settings":page==Page.Restart?(Sandbox?"Restart the forest?":"Restart the story?"):page==Page.ReturnTitle?"Return to the title?":page==Page.Quit?"Quit game?":page==Page.Ending?"Story complete":"Opening the story…";
@@ -164,17 +160,18 @@ public sealed partial class DongbaInterface : MonoBehaviour {
         }
         EnsureEventSystem();SelectFirst(modal);
     }
-    void BuildStoryLeaf(RectTransform leaf){
-        string chapter=forest!=null?forest.InterfaceChapter:Choose("THE HUNT","入林");
+    internal void BuildStoryLeaf(RectTransform leaf,ObliqueForest source=null){
+        var viewForest=source!=null?source:forest;bool viewSandbox=viewForest!=null&&!viewForest.StoryModeEnabled;
+        string chapter=viewForest!=null?viewForest.InterfaceChapter:Choose("THE HUNT","入林");
         var tag=DongbaUIStyle.Rect("Chapter ribbon",leaf,new Vector2(0,1),new Vector2(0,1),new Vector2(34,8),new Vector2(48,100));DongbaUIStyle.Plate(tag,DongbaUIStyle.Accent);
-        var numeral=DongbaUIStyle.Label("Chapter number",tag,forest!=null?forest.InterfaceChapterNumber:"I",new Vector2(4,-26),new Vector2(40,44),28);numeral.color=new Color(.98f,.94f,.82f);numeral.alignment=TextAnchor.MiddleCenter;DongbaUIStyle.Serif(numeral);
+        var numeral=DongbaUIStyle.Label("Chapter number",tag,viewForest!=null?viewForest.InterfaceChapterNumber:"I",new Vector2(4,-26),new Vector2(40,44),28);numeral.color=new Color(.98f,.94f,.82f);numeral.alignment=TextAnchor.MiddleCenter;DongbaUIStyle.Serif(numeral);
         var part=DongbaUIStyle.Label("Current chapter",leaf,chapter,new Vector2(102,-40),new Vector2(212,35),18);part.color=DongbaUIStyle.Accent;
-        var name=DongbaUIStyle.Label("Tale title",leaf,(Sandbox?Choose("A living\nforest","林间生息"):Choose("The Father\nand Son","父与子")),new Vector2(38,-126),new Vector2(278,103),32);DongbaUIStyle.Serif(name);
+        var name=DongbaUIStyle.Label("Tale title",leaf,(viewSandbox?Choose("A living\nforest","林间生息"):Choose("The Father\nand Son","父与子")),new Vector2(38,-126),new Vector2(278,103),32);DongbaUIStyle.Serif(name);
         DongbaUIStyle.Picture(leaf,"Gaolequ / actual game glyph",DongbaUIStyle.Glyph("player_glyph"),new Vector2(55,-262),new Vector2(180,202));
-        if(forest==null||forest.InterfaceFatherPresent)DongbaUIStyle.Picture(leaf,"Father / actual game glyph",forest!=null?forest.InterfaceFatherSprite:DongbaUIStyle.Glyph("father_glyph"),new Vector2(204,-327),new Vector2(78,133));
+        if(viewForest==null||viewForest.InterfaceFatherPresent)DongbaUIStyle.Picture(leaf,"Father / actual game glyph",viewForest!=null?viewForest.InterfaceFatherSprite:DongbaUIStyle.Glyph("father_glyph"),new Vector2(204,-327),new Vector2(78,133));
         DongbaUIStyle.Stroke(leaf,new Vector2(48,-483),new Vector2(245,2),new Color(.3f,.2f,.1f,.42f));
-        if(!Sandbox)DongbaUIStyle.Picture(leaf,"Hearth / existing glyph",DongbaUIStyle.Glyph("hearth_glyph"),new Vector2(129,-505),new Vector2(68,42));
-        var caption=DongbaUIStyle.Label("Cultural context",leaf,(Sandbox?Choose("EXPLORE · CARE · RESTORE","探索 · 照料 · 恢复"):Choose("A NAXI TALE","纳西故事")),new Vector2(38,-585),new Vector2(275,30),15);caption.alignment=TextAnchor.MiddleCenter;caption.color=DongbaUIStyle.Muted;
+        if(!viewSandbox)DongbaUIStyle.Picture(leaf,"Hearth / existing glyph",DongbaUIStyle.Glyph("hearth_glyph"),new Vector2(129,-505),new Vector2(68,42));
+        var caption=DongbaUIStyle.Label("Cultural context",leaf,(viewSandbox?Choose("EXPLORE · CARE · RESTORE","探索 · 照料 · 恢复"):Choose("A NAXI TALE","纳西故事")),new Vector2(38,-585),new Vector2(275,30),15);caption.alignment=TextAnchor.MiddleCenter;caption.color=DongbaUIStyle.Muted;
     }
     Button MenuButton(string text,float y,UnityEngine.Events.UnityAction action,int number=0)=>DongbaUIStyle.Button(menuPage,text,new Vector2(36,-y),new Vector2(548,52),action,number);
     void BuildVolumeSlider(){

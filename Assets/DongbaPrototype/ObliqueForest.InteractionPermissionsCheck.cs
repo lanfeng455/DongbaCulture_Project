@@ -35,8 +35,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         player.position=tree.home+Vector3.back*.65f;lastDryPosition=Feet;interactionTarget=tree;FollowPlayerCamera(100);
         yield return PressForestPermissionKey(Key.E);GrowAround(tree);Feed(adult);
         check(careCount==0&&!tree.cultivated&&plants.Count==originalPlants&&animals.Count==originalAnimals,"E / X and direct care paths cannot grow plants, feed or breed during hunt");
-        interactionTarget=tree;RefreshInteractionCard();if(XRTrackingControlsCamera)UpdateXRHUD(true,"");
+        interactionTarget=tree;RefreshInteractionCard();
         check(!hudPrompt.text.Contains("E   ")&&hudPrompt.text.Contains("J   Chop"),"PC hunting prompt advertises only chopping");
+        if(XRTrackingControlsCamera)UpdateXRHUD(true,"");
         if(XRTrackingControlsCamera)check(!xrContext.text.Contains("X  ")&&xrContext.text.Contains("Axe"),"MR hunting prompt has no care button");
         yield return PermissionScreenshot("hunt-only");
         yield return PressForestPermissionKey(Key.J);check(attackAge>=0,"J / trigger still starts an early-story axe swing");yield return new WaitForSeconds(.8f);
@@ -72,7 +73,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         player.position=tree.home+Vector3.back*.6f;interactionTarget=tree;FollowPlayerCamera(100);yield return null;
         RefreshInteractionCard();if(XRTrackingControlsCamera)UpdateXRHUD(true,"");
         check(!hudPrompt.text.Contains("J   "),"PC restoration prompt removes attack");
-        if(XRTrackingControlsCamera)check(!xrContext.text.Contains("Axe")&&xrContext.text.Contains("X  "),"MR restoration prompt offers care only");
+        if(XRTrackingControlsCamera)check(!xrContext.text.Contains("Axe")&&xrContext.text.Contains("Already tended"),"MR restoration prompt retains tended status and removes attack");
         yield return PermissionScreenshot("return-care-only");
         journeyStage=JourneyStage.RestorationComplete;check(ForestCareAvailable&&!ForestDamageAvailable,"Completed story keeps peaceful restoration available");
         RestartFromInterface();check(StoryModeEnabled&&ForestDamageAvailable&&!ForestCareAvailable&&Balance==0,"Restart story relocks restoration and restores hunting");

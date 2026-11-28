@@ -23,11 +23,20 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         Directory.CreateDirectory("Verification/mr-box-ui");CaptureSceneToTexture("Verification/mr-box-ui/entry.png");
         var entryText=scan.GetComponentInChildren<UnityEngine.UI.Text>();
         Check(entryText.preferredHeight<=entryText.rectTransform.rect.height+1,"MR entry: title, mode and placement prompt fit the paper entrance");
+        bool entryFits=true;Canvas.ForceUpdateCanvases();foreach(var text in scan.GetComponentsInChildren<UnityEngine.UI.Text>()){bool fits=text.preferredHeight<=text.rectTransform.rect.height+.01f;entryFits&=fits;if(!fits)Debug.LogError("MR entry overflow: "+text.name+" preferred="+text.preferredHeight+" box="+text.rectTransform.rect.height);}
+        Check(entryFits&&scan.Find("Entry manuscript/Story leaf")!=null&&System.Array.Exists(scan.GetComponentsInChildren<UnityEngine.UI.Image>(),im=>im.name=="Father / actual game glyph"&&im.sprite!=null),"MR entry: shared manuscript, character and mode leaves fit before placement");
+        Directory.CreateDirectory("Verification/mr-pc-ui");CaptureSceneToTexture("Verification/mr-pc-ui/entry.png");
+
         int originalAnimals=animals.Count,originalPlants=plants.Count;
         pico.SimulateSurfacePlacementForVerification(new Vector3(2,0,3));
         yield return null;
         yield return null;yield return null;
         xrSimulating=true;
+        if(System.Array.IndexOf(System.Environment.GetCommandLineArgs(),"--mr-ui-check-only")>=0){
+            report.Clear();yield return VerifyFixedMRUI(Check);
+            File.WriteAllText("Verification/mr-pc-ui/focused-checks.txt",report.ToString());
+            UnityEditor.EditorApplication.Exit(passed?0:1);yield break;
+        }
         Check(XRExperienceReady&&StoryModeEnabled,"Placement starts our existing father-and-son story");
         Check(animals.Count==originalAnimals&&plants.Count==originalPlants,"Original ecology and layout remain intact; no alternate tutorial");
         Check(!cam.orthographic&&forestCanvas.renderMode==RenderMode.WorldSpace,"Tracked perspective camera and spatial HUD enabled");
@@ -76,7 +85,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         Check(playerTurn.Width<.99f,"MR joystick uses the same smooth paper turn as PC");
         var namedAnimal=animals.Find(b=>b.speciesIndex==4);interactionTarget=namedAnimal;
         DongbaLanguage.Set(DongbaLocale.Chinese,false);UpdateXRHUD(true,"");
-        Check(xrContext.text.StartsWith("猫"),"MR nearby card uses the same dictionary species name");
+        Check(hudPromptTitle.text.StartsWith("猫"),"MR nearby card uses the same dictionary species name");
         xrSimTrigger=true;yield return null;yield return null;
         Check(swingFacing<0&&playerImage.flipX&&playerTurn.Width==1,"Reverse joystick plus trigger locks glyph and axe to one direction");
         Check(Vector3.Distance(axe.position,body.TransformPoint(PlayerHandLocalPosition()))<.001f,"MR hand grip remains aligned during reverse attack");
@@ -121,7 +130,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         Check(xrHelpOpen&&xrHelpNote.gameObject.activeSelf&&!xrContextNote.gameObject.activeSelf,"B unfolds controls without stacking interaction UI");
         UpdateXRHelpInput(true,true);Check(xrHelpOpen,"Holding B does not flicker the controls");
         DongbaLanguage.Set(DongbaLocale.Chinese,false);UpdateXRHUD(true,"");yield return null;
-        Check(xrControllerHints.text.Contains("切换中英"),"MR controls include the bilingual switch in Chinese");
+        Check(xrGuideRows[4].text.Contains("切换中英"),"MR controls include the bilingual switch in Chinese");
         CaptureSceneToTexture("Verification/pico-integration/controls-zh.png");
         DongbaLanguage.Set(DongbaLocale.English,false);UpdateXRHUD(true,"");yield return null;
         CaptureSceneToTexture("Verification/pico-integration/controls-en.png");

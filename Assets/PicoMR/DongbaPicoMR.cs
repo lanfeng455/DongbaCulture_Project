@@ -13,7 +13,7 @@ using UnityEngine.XR;
 namespace DongbaXR
 {
     [DefaultExecutionOrder(-10000)]
-    public sealed class DongbaPicoMR : MonoBehaviour
+    public sealed partial class DongbaPicoMR : MonoBehaviour
     {
         public XROrigin origin;
         public Camera xrCamera;
@@ -118,20 +118,7 @@ namespace DongbaXR
             Destroy(marker.GetComponent<Collider>());
             marker.transform.localScale = Vector3.one * .025f * worldUnitsPerMetre;
             marker.SetActive(false);
-            var label = new GameObject("PICO placement and mode",typeof(RectTransform),typeof(Canvas));
-            label.layer=ScanLayer;label.transform.SetParent(origin.transform,false);
-            var scanCanvas=label.GetComponent<Canvas>();scanCanvas.renderMode=RenderMode.WorldSpace;
-            var rect=label.GetComponent<RectTransform>();rect.sizeDelta=new Vector2(800,390);
-            scanReadingFrame=rect;rect.localScale=Vector3.one*(.78f/800);
-            var paper=label.AddComponent<Image>();paper.sprite=DongbaUIStyle.ManuscriptPaper;paper.type=Image.Type.Sliced;paper.color=new Color(.98f,.96f,.89f,.97f);paper.raycastTarget=false;
-            var textObject=new GameObject("Mode selection",typeof(RectTransform),typeof(Text));
-            textObject.layer=ScanLayer;textObject.transform.SetParent(rect,false);
-            var textRect=textObject.GetComponent<RectTransform>();textRect.anchorMin=Vector2.zero;textRect.anchorMax=Vector2.one;textRect.offsetMin=new Vector2(28,18);textRect.offsetMax=new Vector2(-28,-116);
-            AddTitleText(rect,"DONGBA",50,new Vector2(0,142));
-            AddTitleText(rect,"THE LIVING SCRIPT",22,new Vector2(0,98));
-            foreach(Transform child in rect)child.gameObject.layer=ScanLayer;
-            message=textObject.GetComponent<Text>();message.fontSize=30;message.alignment=TextAnchor.MiddleCenter;
-            message.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");message.color=new Color(.24f,.17f,.10f);message.raycastTarget=false;
+            BuildPlacementManuscript();
             PXR_Manager.EnableVideoSeeThrough = true;
             status = titleActive ? "Press right A to begin" : ScanPrompt;
             if (!titleActive) RequestSpatialAccess();
@@ -376,9 +363,8 @@ namespace DongbaXR
         void RefreshPlacementMessage()
         {
             string prompt=status==ScanPrompt?DongbaInterface.Choose("Look at a clear spot on the floor or table.","看向地面或桌面的一块空处。"):status==PlacePrompt?DongbaInterface.Choose("Right Trigger · Place forest","右扳机 · 放置森林"):status;
-            string mode=forestStarted?(forest.StoryModeEnabled?DongbaInterface.Choose("Story Mode","剧情模式"):DongbaInterface.Choose("Sandbox Mode","沙盒模式")):(startInSandbox?DongbaInterface.Choose("Sandbox Mode","沙盒模式"):DongbaInterface.Choose("Story Mode","剧情模式"));
-            message.font=DongbaLanguage.Chinese?DongbaLanguage.ChineseUIFont:Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            message.text=mode+"\n"+(!forestStarted?DongbaInterface.Choose("X · Switch Story / Sandbox\n\n","X · 切换剧情／沙盒\n\n"):"\n")+prompt;
+            RefreshPlacementManuscript();
+            message.text=prompt;
             scanReadingFrame.gameObject.SetActive(!titleActive && !placed && scanReadingAnchored);
         }
 
@@ -402,6 +388,7 @@ namespace DongbaXR
         }
         void OnDestroy()
         {
+            if (entryInk != null) Destroy(entryInk);
             if (marker != null) Destroy(marker);
             foreach (var go in surfaces.Values) if (go != null) { Destroy(go.GetComponent<MeshCollider>().sharedMesh); Destroy(go); }
         }

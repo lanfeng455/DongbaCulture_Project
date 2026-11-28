@@ -108,7 +108,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         if(eager)natureTabText.text=N(XRTrackingControlsCamera?"NEW · L stick · Invite nature":"NEW · B   Invite nature",XRTrackingControlsCamera?"新能力 · 按左摇杆回应森林":"新能力 · B  邀万物入画");
         float pulse=eager?1+.025f*Mathf.Sin((clock-natureUnlockedAt)*3):1;natureTab.localScale=Vector3.one*pulse;
         if(XRTrackingControlsCamera){
-            natureTab.sizeDelta=new Vector2(436,68);natureTabText.rectTransform.sizeDelta=new Vector2(396,58);XRReadingText(natureTabText,26);
+            natureTab.sizeDelta=new Vector2(620,64);natureTabText.rectTransform.sizeDelta=new Vector2(580,54);XRReadingText(natureTabText,27);
             natureTabText.text=eager?N("NEW · L stick · Invite","新能力 · 左摇杆邀请"):NatureAvailable?N("L stick · Invite nature","左摇杆 · 邀万物入画"):N("Care to unlock invitations","照料至繁盛 · 解锁邀请");
             natureTab.localScale=Vector3.one;
         }

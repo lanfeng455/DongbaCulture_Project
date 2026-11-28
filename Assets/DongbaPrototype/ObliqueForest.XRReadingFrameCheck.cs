@@ -12,10 +12,10 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         return true;
     }
     bool XRReadingFits(RectTransform panel){
-        bool ok=true;
+        Canvas.ForceUpdateCanvases();bool ok=true;
         foreach(var label in panel.GetComponentsInChildren<UnityEngine.UI.Text>()){
             if(!label.isActiveAndEnabled)continue;
-            bool fits=label.font==xrReadingFont&&label.fontSize>=24&&label.preferredHeight<=label.rectTransform.rect.height+1;
+            bool fits=(label.font==xrReadingFont||label.font==DongbaUIStyle.HeadingFont)&&label.fontSize>=24&&label.preferredHeight<=label.rectTransform.rect.height+.01f&&(string.IsNullOrWhiteSpace(label.text)||label.cachedTextGenerator.characterCountVisible>0);
             if(!fits)Debug.LogError("MR reading overflow/font: "+label.name+" text="+label.text+" preferred="+label.preferredHeight+" box="+label.rectTransform.rect.height);
             ok &= fits;
         }
@@ -37,13 +37,25 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         AnchorXRReadingFrame();careCount=FlourishThreshold;yield return null;yield return null;
         UpdateNatureUnlock();DeferNatureWelcome();natureFirstComplete=true;
         DongbaLanguage.Set(DongbaLocale.Chinese,false);UpdateXRHUD(true,"");
-        string folder="Verification/mr-side-ui";Directory.CreateDirectory(folder+"/frames");
+        string folder="Verification/mr-pc-ui";Directory.CreateDirectory(folder+"/frames");
         var basePosition=cam.transform.position;var baseRotation=cam.transform.rotation;
         var anchorPosition=xrReadingAnchor.position;var anchorRotation=xrReadingAnchor.rotation;var anchorScale=xrReadingAnchor.lossyScale;
         int revision=xrReadingRevision;
         yield return new WaitForSeconds(.8f);UpdateNatureUI();
         CaptureSceneToTexture(folder+"/forest-and-side.png");
         check(XRPanelOnForestSide(xrObjectiveNote)&&XRPanelOnForestSide(xrContextNote)&&XRPanelOnForestSide(xrControlsTab)&&XRPanelOnForestSide(natureTab),"MR box: passive notes share the vertical plane at the far forest edge");
+        var nearby=plants.Find(b=>b.tree&&b.health>0);player.position=nearby.home+Vector3.right*.8f;interactionTarget=nearby;
+        cam.transform.LookAt(xrReadingAnchor.TransformPoint(new Vector3(0,-.38f,0)));
+        UpdateXRHUD(true,"");Canvas.ForceUpdateCanvases();CaptureSceneToTexture(folder+"/shared-hud-zh.png");
+        File.WriteAllText(folder+"/hud-content.txt","care="+ForestCareAvailable+" damage="+ForestDamageAvailable+" prompt="+hudPrompt.text+" height="+hudPrompt.preferredHeight+" visible="+hudPrompt.cachedTextGenerator.characterCountVisible);
+        check(interactionGlyph.sprite==nearby.fullGlyph&&xrContextNote.gameObject.activeSelf,"MR shared UI: nearby card displays the actual selected tree pictograph");
+        Care();yield return null;UpdateXRHUD(true,"");Canvas.ForceUpdateCanvases();CaptureSceneToTexture(folder+"/shared-care-zh.png");
+        bool stableChapter=true;for(int frame=0;frame<20;frame++){yield return null;UpdateXRHUD(true,"");Canvas.ForceUpdateCanvases();stableChapter&=!string.IsNullOrEmpty(journeyObjective.text)&&!journeyObjective.text.Contains("\n")&&journeyObjective.cachedTextGenerator.characterCountVisible>0;}
+        check(stableChapter,"MR shared UI: sandbox chapter survives gameplay updates for twenty consecutive gameplay frames");
+        check(xrContextNote.gameObject.activeSelf&&interactionGlyph.sprite==nearby.fullGlyph&&(hudPrompt.text.Contains("已")||hudPrompt.text.Contains("X")),"MR shared UI: care status and exact glyph remain visible through normal gameplay updates");
+        DongbaLanguage.Set(DongbaLocale.English,false);yield return null;UpdateXRHUD(true,"");Canvas.ForceUpdateCanvases();CaptureSceneToTexture(folder+"/shared-hud-en.png");
+        check(!hudPrompt.text.Contains("E   ")&&!hudPrompt.text.Contains("J   "),"MR shared UI: shared interaction card does not advertise desktop keys");
+        DongbaLanguage.Set(DongbaLocale.Chinese,false);player.position=new Vector3(-7,0,-2.5f);UpdateXRHUD(true,"");
         // Look from the bottom towards its upright side, without moving the paper.
         cam.transform.LookAt(xrReadingAnchor.TransformPoint(new Vector3(0,-.38f,0)));
         var glanceRotation=cam.transform.rotation;
@@ -53,11 +65,28 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var floorJoin=xrReadingAnchor.TransformPoint(new Vector3(0,-XRReadingWidthMetres*XRReadingCanvasHeight/1000f,0));
         check(Mathf.Abs(floorJoin.y)<.001f&&Mathf.Abs(floorJoin.z-ForestHalfDepth)<.005f*xrUnits&&Vector3.Dot(xrReadingAnchor.up,Vector3.up)>.999f,"Side UI: bottom meets the forest edge and side is perpendicular to the ground");
         check(xrSideFold.position==floorJoin,"Side UI: paper crease marks the actual floor-side join");
+        check(xrObjectiveNote.gameObject==uiObjectivePanel&&xrContextNote.gameObject==promptPanel&&xrHealthNote==hudHealth.transform.parent,"MR shared UI: actual PC chapter, glyph card and health marks are reused");
+        check(xrObjectiveNote.Find("Chapter bookmark")!=null&&interactionGlyph.transform.parent.name=="Selected glyph leaf"&&uiHealthPips.Length==5,"MR shared UI: chapter ribbon, selected glyph leaf and five ink marks are retained");
+        check(XRReadingFits(xrObjectiveNote)&&XRReadingFits(xrContextNote),"MR shared UI: chapter and object details remain readable");
+        health=3;UpdateXRHUD(true,"");
+        check(xrHealthNote.gameObject.activeSelf&&uiHealthPips[2].color==DongbaUIStyle.Accent&&uiHealthPips[3].color.a<.3f,"MR shared UI: real health uses filled and empty PC ink marks");
+        health=5;
+
         check(forestCanvas.sortingOrder<DepthOrder(ForestHalfDepth),"Side UI: foreground forest artwork renders in front of the far paper side");
         UpdateXRHelpInput(false,true);UpdateXRHelpInput(true,true);UpdateXRHUD(true,"");yield return null;
         check(xrHelpOpen&&!natureTab.gameObject.activeSelf&&!xrControlsTab.gameObject.activeSelf&&XRPanelOnForestSide(xrHelpNote)&&xrReadingRevision==revision,"MR box: controls unfold on the forest side without repositioning");
         CaptureSceneToTexture(folder+"/controls-side.png");
-        check(XRReadingFits(xrHelpNote),"Side UI: controller guide uses regular readable text within its bounds");
+        check(xrHelpNote.Find("Story leaf")!=null&&xrHelpNote.Find("Menu leaf")!=null&&Array.Exists(xrBookStory.GetComponentsInChildren<UnityEngine.UI.Image>(),im=>im.name=="Gaolequ / actual game glyph"),"MR shared UI: controls retain the PC manuscript spread and protagonist illustration");
+
+        check(XRReadingFits(xrHelpNote),"Side UI: controller guide uses readable text within its bounds");
+        check(xrBookStory.Find("Tale title").GetComponent<UnityEngine.UI.Text>().text=="林间生息"&&xrBookStory.Find("Current chapter").GetComponent<UnityEngine.UI.Text>().text=="沙盒模式"&&!Array.Exists(xrBookStory.GetComponentsInChildren<UnityEngine.UI.Image>(),im=>im.name=="Father / actual game glyph"),"MR shared UI: sandbox manuscript uses the active forest mode, without the father story illustration");
+        ProcessXRInput(Vector2.zero,false,false,false,false,false,false);
+        ProcessXRInput(Vector2.zero,false,false,false,true,false,false);UpdateXRHUD(true,"");yield return null;
+        check(!DongbaLanguage.Chinese&&xrHelpOpen&&XRReadingFits(xrHelpNote),"MR shared UI: right-stick click changes language while the controls book is open");
+        CaptureSceneToTexture(folder+"/controls-en.png");
+        ProcessXRInput(Vector2.zero,false,false,false,false,false,false);
+        ProcessXRInput(Vector2.zero,false,false,false,true,false,false);UpdateXRHUD(true,"");yield return null;
+        check(DongbaLanguage.Chinese&&xrHelpOpen,"MR shared UI: the book switches back to Chinese without closing");
         UpdateXRHelpInput(false,true);UpdateXRHelpInput(true,true);UpdateXRHUD(true,"");
         ToggleNatureEditor();NatureGo(NaturePage.Plants);yield return new WaitForSeconds(.4f);
         check(XRPanelOnForestSide(naturePanel),"MR box: expanded invitation catalogue stays outside the forest as well");

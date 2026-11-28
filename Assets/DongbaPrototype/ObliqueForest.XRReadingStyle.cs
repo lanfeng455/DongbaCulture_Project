@@ -3,17 +3,18 @@ using UnityEngine.UI;
 
 namespace DongbaPrototype { public partial class ObliqueForest {
     Font xrReadingFont;
-    void XRReadingText(Text label,int size){
+    void XRReadingText(Text label,int size,Font face=null){
         if(xrReadingFont==null)xrReadingFont=Resources.Load<Font>("Fonts/NotoSansSC-Regular");
-        if(xrReadingFont!=null)DongbaLocalizedLabel.SetReadingFont(label,xrReadingFont);
+        if(face==null)face=xrReadingFont;
+        if(face!=null)DongbaLocalizedLabel.SetReadingFont(label,face);
         label.fontSize=size;label.fontStyle=FontStyle.Normal;label.lineSpacing=1.16f;
         label.resizeTextForBestFit=false;label.verticalOverflow=VerticalWrapMode.Truncate;
         label.material=xrHudInk;
     }
-    void XRTextBox(Text label,float x,float y,float w,float h,int size){
+    void XRTextBox(Text label,float x,float y,float w,float h,int size,bool heading=false){
         var r=label.rectTransform;r.anchorMin=r.anchorMax=r.pivot=new Vector2(0,1);
         r.anchoredPosition=new Vector2(x,y);r.sizeDelta=new Vector2(w,h);
-        XRReadingText(label,size);label.alignment=TextAnchor.UpperLeft;
+        XRReadingText(label,size,heading?DongbaUIStyle.HeadingFont:null);label.alignment=TextAnchor.UpperLeft;
     }
     // Same actions, focus ordering and catalogue; only the headset reading layout
     // changes. The glyph has its own generous cell instead of colliding with text.
@@ -23,7 +24,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         float height=catalog?670:placing?460:550;
         naturePanel.sizeDelta=new Vector2(900,height);
         natureContents.anchoredPosition=new Vector2(34,-188);natureContents.sizeDelta=new Vector2(832,356);
-        XRTextBox(natureTitle,34,-22,832,58,36);
+        XRTextBox(natureTitle,40,-16,826,72,36,true);
         XRTextBox(natureDetail,34,-92,832,88,26);
         XRTextBox(natureStatus,34,-height+90,832,80,24);
         foreach(var button in natureButtons){
@@ -49,7 +50,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         natureWelcome.sizeDelta=new Vector2(900,success?300:430);
         natureWelcome.anchoredPosition=new Vector2(0,-290);natureWelcome.localScale=Vector3.one;
         XRTextBox(natureWelcomeEyebrow,38,-28,824,38,24);
-        XRTextBox(natureWelcomeTitle,38,-88,650,108,38);
+        XRTextBox(natureWelcomeTitle,48,-88,650,108,38,true);
         XRTextBox(natureWelcomeCopy,38,success?-202:-210,824,90,28);
         natureWelcomeGlyph.rectTransform.anchoredPosition=new Vector2(-38,-80);
         natureWelcomeGlyph.rectTransform.sizeDelta=new Vector2(118,114);
