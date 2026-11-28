@@ -2,7 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace DongbaPrototype { public sealed partial class MRPuzzleStage {
     const float TableScale=2.4f;
-    float stageAlpha;Vector3 focus;bool focusSet;
+    float stageAlpha;Vector3 focus,followTarget,panStart,panFocus;bool focusSet,followingPan;
+    // Native metres: the glyph first traverses the fixed paper, then content follows.
+    // Table/glyph scale stays unchanged. Never recentre just because the player stops.
+    const float WalkHalfWidth=8f,WalkHalfDepth=3.6f,FollowSeconds=.38f;
     Ivan.Diorama.DioramaPlayerController actor;
     Transform geometryRoot;MeshRenderer table;Material inkTemplate,tableInk;
     readonly Dictionary<Transform,Transform> mirrors=new();
@@ -37,7 +40,7 @@ namespace DongbaPrototype { public sealed partial class MRPuzzleStage {
     }
     void RegisterGeometry(Renderer source){
         if(source is ParticleSystemRenderer||source.GetComponentInParent<Canvas>()!=null)return;
-        if(actor==null)actor=source.GetComponentInParent<Ivan.Diorama.DioramaPlayerController>();
+        if(actor==null)actor=source.GetComponentInParent<Ivan.Diorama.DioramaPlayerController>(true);
         if(source.name=="Stationary paper ground"){
             if(source.sharedMaterial!=null){tableInk.mainTexture=source.sharedMaterial.mainTexture;tableInk.mainTextureScale=new Vector2(2,1);}
             return;
@@ -64,8 +67,22 @@ namespace DongbaPrototype { public sealed partial class MRPuzzleStage {
         var ray=ViewCamera.ViewportPointToRay(new Vector3(.5f,.5f,0));var plane=new Plane(Vector3.up,Vector3.zero);
         Vector3 desired=plane.Raycast(ray,out var distance)?ray.GetPoint(distance):ViewCamera.transform.position;desired.y=0;
         if(actor!=null)desired.z=Mathf.Clamp(desired.z,actor.transform.position.z-5.5f,actor.transform.position.z+5.5f);
-        // Authored pans shift the scenery on the fixed tabletop. The eye camera is untouched.
-        focus=focusSet?Vector3.Lerp(focus,desired,1-Mathf.Exp(-Time.unscaledDeltaTime/ .28f)):desired;focusSet=true;
+        if(!focusSet){focus=followTarget=desired;focusSet=true;}
+        bool cameraOwned=Ready&&actor!=null&&actor.CameraHandoff;
+        if(cameraOwned){
+            // Explicit route-reveal pans retain their authored displacement. Ordinary
+            // desktop camera following is intentionally not copied to the tabletop.
+            if(!followingPan){panStart=desired;panFocus=focus;followingPan=true;}
+            focus=panFocus+desired-panStart;
+        }else{
+            followingPan=false;
+            if(actor!=null){
+                var feet=actor.transform.position;
+                followTarget.x=Mathf.Clamp(followTarget.x,feet.x-WalkHalfWidth,feet.x+WalkHalfWidth);
+                followTarget.z=Mathf.Clamp(followTarget.z,feet.z-WalkHalfDepth,feet.z+WalkHalfDepth);
+            }
+            focus=Vector3.Lerp(focus,followTarget,1-Mathf.Exp(-Time.unscaledDeltaTime/FollowSeconds));
+        }
         geometryRoot.position=-focus*TableScale;geometryRoot.localScale=Vector3.one*TableScale;
         bool visible=stageAlpha>.001f&&(Source==null||Source.XRExperienceReady);
         table.enabled=visible;tableInk.SetFloat("_StageAlpha",stageAlpha);
