@@ -45,6 +45,7 @@ namespace DongbaXR
         bool repositionArmed;
         float repositionHeldSeconds;
         Vector3 scanningOrigin;
+        Quaternion scanningRotation = Quaternion.identity;
 #if UNITY_EDITOR
         bool simulateTracking;
 #endif
@@ -75,6 +76,7 @@ namespace DongbaXR
                 artwork.ApplyArtworkScale(artworkScale);
             origin.transform.localScale = Vector3.one * worldUnitsPerMetre;
             scanningOrigin = origin.transform.position;
+            scanningRotation = origin.transform.rotation;
             xrCamera.orthographic = false;
             // Passthrough is composited underneath the eye buffer. Keep alpha
             // intact; desktop HDR / post-processing may produce an opaque buffer.
@@ -313,9 +315,22 @@ namespace DongbaXR
         }
         void PlaceOnSurface(Vector3 worldPoint)
         {
-            origin.transform.position -= worldPoint;
+            // Keep the authored forest coordinates (east = +X, front = -Z).
+            // Map the tracked room into that frame with a rigid yaw + translation,
+            // so the surface hit becomes the origin and the viewer is at the front.
+            // Rotating/mirroring forest sprites instead would break world-space AI,
+            // river collisions and the controller ray's scanned-surface alignment.
+            var towardsSurface = Vector3.ProjectOnPlane(worldPoint - xrCamera.transform.position, Vector3.up);
+            if (towardsSurface.sqrMagnitude < .0001f)
+                towardsSurface = Vector3.ProjectOnPlane(xrCamera.transform.forward, Vector3.up);
+            if (towardsSurface.sqrMagnitude < .0001f)
+                towardsSurface = origin.transform.forward;
+            float yaw = Vector3.SignedAngle(towardsSurface, Vector3.forward, Vector3.up);
+            var align = Quaternion.AngleAxis(yaw, Vector3.up);
+            origin.transform.SetPositionAndRotation(align * (origin.transform.position - worldPoint), align * origin.transform.rotation);
+            Physics.SyncTransforms();
             placed = true;
-            Debug.Log("[DongbaPICO] Forest placed on scanned surface");
+            Debug.Log("[DongbaPICO] Forest placed on scanned surface; front aligned, yaw correction=" + yaw.ToString("F1"));
             marker.SetActive(false);
             if (!forestStarted)
             {
@@ -340,7 +355,7 @@ namespace DongbaXR
         {
             placed = false;scanReadingAnchored=false;
             Debug.Log("[DongbaPICO] Forest reposition requested");
-            origin.transform.position = scanningOrigin;
+            origin.transform.SetPositionAndRotation(scanningOrigin, scanningRotation);
             Physics.SyncTransforms();
             UpdatePlacementVisibility(false);
             status = ScanPrompt;

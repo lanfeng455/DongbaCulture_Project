@@ -205,6 +205,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         yield return VerifyStoryInteractionPermissions(Check);
         yield return VerifyLivingWeather(Check);
         yield return VerifyNatureEditing(Check);
+        yield return VerifyPicoPlacementOrientation(Check);
         yield return VerifyFixedMRUI(Check);
         xrHelpOpen=true;xrModeHold=xrRestartHold=0;
         xrSimX=true;yield return new WaitForSecondsRealtime(1.2f);xrSimX=false;
