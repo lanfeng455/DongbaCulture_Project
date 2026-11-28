@@ -6,8 +6,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     [Range(1.3f,2.2f)] public float FlourishingWindPeriod=1.65f;
     [Range(.08f,.35f)] public float StormGlyphOpacity=.22f;
     [Range(1.5f,6f)] public float FruitDropInterval=2.8f;
-    [Range(1,20)] public int StormBreakLimit=12;
+    [Range(1,20)] public int StormBreakLimit=5;
     [Range(5,14)] public float StormBreakRadius=12f;
+    [Range(6,18)] public float StormBreakInterval=10f;
     [Range(.5f,5f)] public float StormTreeLean=3.5f;
 
     sealed class FruitMark { public Transform root;public SpriteRenderer image;public Vector3 origin,landing;public float age,size;public Being source;public Vector3 branch;public bool released; }
@@ -89,7 +90,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         }
         // Wind damage is finite and funded only by the player's existing damage counter.
         // It never increments damageCount or advances narrative thresholds on its own.
-        int quota=Mathf.Min(StormBreakLimit,Mathf.Max(0,damageCount-2));
+        int quota=Mathf.Min(StormBreakLimit,Mathf.Max(0,(damageCount-2)/3));
         UpdateStormLoading(dt,quota);
         foreach(var fruit in fruitMarks)UpdateFruit(fruit,dt);
         foreach(var wind in stormMarks)UpdateStormWind(wind,dt);
@@ -115,9 +116,9 @@ namespace DongbaPrototype { public partial class ObliqueForest {
                 if(tip.z<=0||tip.y>.87f||tip.x<.10f||tip.x>.90f||(tip.x<.34f&&tip.y>.70f))continue;
             }
             float distance=Vector3.Distance(Feet,tree.home);
-            if(breaking&&(distance<1.6f||distance>StormBreakRadius||!SameWeatherBank(tree.home)))continue;
+            if(breaking&&(distance<3.5f||distance>StormBreakRadius||!SameWeatherBank(tree.home)))continue;
             if(!breaking&&distance>24)continue;
-            float candidate=breaking?distance+FlowerScatter(i+sequence*19,31)*.65f:FlowerScatter(i+sequence*19,31)*5+distance*.25f;
+            float candidate=breaking?Mathf.Abs(distance-7f)+FlowerScatter(i+sequence*19,31)*2f:FlowerScatter(i+sequence*19,31)*5+distance*.25f;
             if(candidate<score){score=candidate;selected=tree;}
         }
         return selected;

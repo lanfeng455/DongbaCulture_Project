@@ -17,6 +17,7 @@ public partial class ObliqueForest {
     bool scrollEntered,scrollRelocated;
     Image storyNightShade,storyCurtainImage,storySunImage,storyMoonImage,storyCaptionPaper,storySkyRod;
     GameObject storyTimeSymbols,scrollFrame,scrollWorld;
+    RectTransform xrDayNightSlot;
     Text afterCaptureCaption;
     GameObject eastPaperContinuation;
     float eastPaperProgress;
@@ -52,10 +53,26 @@ public partial class ObliqueForest {
         }
         storyCurtainImage=StoryOverlay("Story cut / blackout",forestCanvas.transform,Color.clear);
         storyTimeSymbols.SetActive(false);scrollFrame.SetActive(false);afterCaptureCaption.gameObject.SetActive(false);
+        if(XRTrackingControlsCamera)EnsureXRDayNightSlot();
+    }
+    void EnsureXRDayNightSlot(){
+        if(xrDayNightSlot!=null||storyTimeSymbols==null)return;
+        xrDayNightSlot=UIBlock("PICO hanging day-night slot",forestCanvas.transform,new Vector2(.5f,1),new Vector2(.5f,1),new Vector2(0,-30),new Vector2(180,270));
+        xrDayNightSlot.gameObject.AddComponent<RectMask2D>();
+        var symbol=(RectTransform)storyTimeSymbols.transform;symbol.SetParent(xrDayNightSlot,false);
+        symbol.anchorMin=symbol.anchorMax=new Vector2(.5f,1);symbol.pivot=new Vector2(.5f,1);symbol.sizeDelta=new Vector2(110,95);
+    }
+    void UpdateXRDayNight(){
+        EnsureXRDayNightSlot();
+        if(xrDayNightSlot==null)return;
+        bool waiting=journeyStage==JourneyStage.WaitingAtHearth;
+        xrDayNightSlot.gameObject.SetActive(waiting);storyTimeSymbols.SetActive(waiting);
+        // Only the tabletop lighting changes; the real room and text stay readable.
+        Shader.SetGlobalFloat("_DongbaMRNight",nightAmount);
     }
     void ResetAfterCapture(){
         RestoreJourneyInk();retreatSprites=null;retreatGraphics=null;retreatLines=null;eastPaperProgress=0;if(eastPaperContinuation!=null)eastPaperContinuation.SetActive(false);
-        afterCaptureAge=waitingAge=realizationAge=scrollFadeAge=nightAmount=storyCurtain=0;waitingBeat=-1;waitingBeatsShown=0;scrollEntered=scrollRelocated=false;
+        afterCaptureAge=waitingAge=realizationAge=scrollFadeAge=nightAmount=storyCurtain=0;waitingBeat=-1;waitingBeatsShown=0;Shader.SetGlobalFloat("_DongbaMRNight",0);scrollEntered=scrollRelocated=false;
         if(storyNightShade!=null)storyNightShade.color=Color.clear;if(storyCurtainImage!=null)storyCurtainImage.color=Color.clear;
         if(storyCaptionPaper!=null)storyCaptionPaper.gameObject.SetActive(false);if(storyTimeSymbols!=null)storyTimeSymbols.SetActive(false);if(scrollFrame!=null)scrollFrame.SetActive(false);if(scrollWorld!=null)scrollWorld.SetActive(false);
         if(afterCaptureCaption!=null)afterCaptureCaption.gameObject.SetActive(false);
@@ -116,7 +133,7 @@ public partial class ObliqueForest {
     // Continue the same paper tile past the map edge, without an entrance prop or doorway.
     void EnsureEastPaperContinuation(){
         if(eastPaperContinuation==null){var source=GameObject.Find("Stationary paper ground");eastPaperContinuation=Instantiate(source,new Vector3(92,0,0),source.transform.rotation);eastPaperContinuation.name="Eastward paper continuation / no glyphs";}
-        eastPaperContinuation.SetActive(true);
+        eastPaperContinuation.SetActive(!XRTrackingControlsCamera);
     }
     void CacheRetreatInk(){
         var all=FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include,FindObjectsSortMode.None);

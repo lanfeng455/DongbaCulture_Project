@@ -15,7 +15,8 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     Being stormLoadingTree;
     float stormLoadAge;
     bool stormLoadReleasing;
-    const float StormLoadSeconds=1.15f;
+    const float StormLoadSeconds=2.1f;
+    float stormEligibleAge;
     float furthestStormBreak,largestFruitShake,maximumFractureAnchorError;
     int stormLoadsStarted,fruitShakesObserved;
 
@@ -85,7 +86,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
 
     void ResetStormBending(){
         stormLoadingTree=null;stormLoadAge=0;stormLoadReleasing=false;
-        furthestStormBreak=largestFruitShake=maximumFractureAnchorError=0;stormLoadsStarted=fruitShakesObserved=0;
+        furthestStormBreak=largestFruitShake=maximumFractureAnchorError=0;stormEligibleAge=0;stormLoadsStarted=fruitShakesObserved=0;
         foreach(var entry in stormBindings){RestoreStormTree(entry.Key,entry.Value);entry.Value.fruitShakeAt=-100;}
         // Crown bindings are allocated once, after the fixed pool is constructed.
         foreach(var crown in brokenCrowns)if(!crownBlocks.ContainsKey(crown)){
@@ -102,6 +103,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
 
     void UpdateStormLoading(float dt,int quota){
         bool allowed=weatherStorm>.53f&&Balance<=-5&&!ManualStoryDialogueActive&&!fatherIntroActive&&!OpeningSurveyActive;
+        stormEligibleAge=allowed?stormEligibleAge+dt:0;
         if(stormLoadingTree!=null){
             var tree=stormLoadingTree;
             if(!allowed||tree.health<=0||tree.cultivated||Vector3.Distance(Feet,tree.home)>StormBreakRadius||!SameWeatherBank(tree.home))CancelStormLoading(false);
@@ -113,15 +115,15 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             if(stormLoadAge>=StormLoadSeconds){
                 if(BreakTreeInStorm(tree)){
                     stormBrokenCount++;furthestStormBreak=Mathf.Max(furthestStormBreak,Vector3.Distance(Feet,tree.home));
-                    breakAt=clock+Mathf.Lerp(1.15f,.65f,weatherStorm);
+                    breakAt=clock+StormBreakInterval*Mathf.Lerp(.9f,1.2f,FlowerScatter(stormBrokenCount,71));
                 }
                 stormLoadingTree=null;stormLoadAge=0;return;
             }
             stormLoadAge=Mathf.Min(StormLoadSeconds,stormLoadAge+dt);return;
         }
-        if(!allowed||clock<breakAt||stormBrokenCount>=quota)return;
-        // The loaded tree supplies the readable local gust; no narrow global-sine window
-        // that used to limit breakage to one distant tree every six seconds.
+        if(!allowed||stormEligibleAge<5f||clock<breakAt||stormBrokenCount>=quota)return;
+        // A sustained storm must build before an occasional nearby fracture.
+        // Entering a new tree radius never resets this global cooldown.
         var next=SelectWeatherTree(true,stormBrokenCount);
         if(next==null){breakAt=clock+.5f;return;}
         stormLoadingTree=next;stormLoadAge=0;stormLoadReleasing=false;stormLoadsStarted++;

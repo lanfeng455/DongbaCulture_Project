@@ -33,7 +33,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         while(Balance>-14)RegisterDamage();before=damageCount;int careBefore=careCount;
         yield return SampleWeatherFrames(13,"declining");
         check(weatherStorm>.95f&&weatherWindCount>0,"Deep decline continuously sends translucent wind through the forest"); if(XRTrackingControlsCamera)CaptureSceneToTexture("Verification/pico-integration/weather-declining.png");
-        check(stormBrokenCount>=3&&stormBrokenCount<=StormBreakLimit,"Deep decline produces at least three readable staggered nearby breaks in thirteen seconds");
+        check(stormBrokenCount>=1&&stormBrokenCount<=2,"Deep decline breaks only one or two trees in thirteen seconds, with a wind-up and global cooldown");
         check(furthestStormBreak<=StormBreakRadius&&plants.Where(b=>b.windBroken).All(b=>SameWeatherBank(b.home)),"Breaks stay near the player on the same bank");
         check(maximumFractureAnchorError<.0001f,"Detached crown starts at the exact deformed fracture point without a vertical jump");
         check(stormLoadsStarted>=stormBrokenCount,"Every wind fracture starts with a visible bending interval");

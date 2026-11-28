@@ -56,6 +56,7 @@ namespace DongbaPrototype
             foreach(Transform child in forestCanvas.transform)
                 if(!child.name.StartsWith("PICO ")&&child.name!="DialogueCanvas")child.gameObject.SetActive(false);
             EnsureXRNotes();
+            UpdateXRDayNight();
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
             bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen&&!NatureWelcomeVisible&&!NatureAnswerNoticeVisible;
             if(!exploring)xrHelpOpen=false;

@@ -160,7 +160,7 @@ namespace Ivan.Puzzle
                 instruction.text = (learnedClues & HeightClue) != 0 ? (zh ? "白归高处，黑归低处。" : "White above, black below.") : "";
                 if ((learnedClues & GazeClue) != 0)
                     instruction.text += (instruction.text.Length > 0 ? "\n" : "") + (zh ? "两蛇始终相望。\n红石或许能派上用场。" : "Neither snake looks away.\nThe red stones may help.");
-                controls.text = zh ? "WASD / 方向键  移动　·　任意键  对话　·　Esc  菜单"
+                controls.text = MRPuzzleInput.Active ? (zh ? "左摇杆  移动　·　A  对话　·　B  操作说明" : "Left stick  Move   ·   A  Dialogue   ·   B  Controls") : zh ? "WASD / 方向键  移动　·　任意键  对话　·　Esc  菜单"
                     : "WASD / Arrows  Move   ·   Any key  Dialogue   ·   Esc  Menu";
             }
             foreach (var light in caveLights)
