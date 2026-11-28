@@ -1,0 +1,9 @@
+2026-11-28：PC 与 PICO/MR 移除卷边
+
+删除 ScrollUnrollEdge 的右侧纸卷条、柔影和运行时生成贴图逻辑。类和 GUID 仅留空壳兼容已有/组员场景的序列化引用，不再生成任何卷边对象，也不在 Add Component 菜单中显示。
+删除 ObliqueForest.AfterCapture 中旧的左右卷边框，不再生成对应 UI。同步清理旧验证代码对已删除字段的引用。
+卷轴原图、纸张底色、对白、遮盖区域的墨迹揭示和解锁出口流程保持原有功能。
+
+已有 MR 连续关卡验证 79 项通过，Windows 连续关卡运行验证 33 项通过；检查两端运行截图中的卷轴与关卡边缘。MR 不再创建旧卷边画布，因此原来针对该画布的禁用断言不再出现。测试仍沿用既有解谜夹具，不声称全程手工解谜或佩戴头显验证。
+截图与日志：Verification/mr-journey；PICO 安装/启动结果：Verification/scroll-edge-device.txt。
+仅更新 Builds/Current 和 Builds/Android 最新构建。本地 commit，不 push。已有 Current.md 和 Forest Script.xlsx 工作区改动保留、不提交。

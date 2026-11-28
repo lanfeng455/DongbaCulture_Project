@@ -75,16 +75,16 @@ namespace DongbaPrototype {public partial class ObliqueForest {
         }
         InputSystem.QueueStateEvent(keyboard,new KeyboardState());yield return null;
         yield return new WaitForSeconds(.2f);CaptureSceneToTexture("Verification/after-capture/forest-to-reel.png");
-        File.AppendAllText("Verification/after-capture/checks.txt","Forest ink fully retreats beneath reel="+(retreatShot&&blankShot&&blankClean)+"\nEast walk reveals reel before checkpoint="+(journeyStage==JourneyStage.EastJourney&&journeyReelGroup!=null&&journeyReelGroup.alpha>.95f)+"\nNo obsolete temporary scroll world created="+(scrollWorld==null&&!scrollFrame.activeSelf&&!scrollRelocated)+"\nJumped across river="+jumped+"\n");
+        File.AppendAllText("Verification/after-capture/checks.txt","Forest ink fully retreats beneath reel="+(retreatShot&&blankShot&&blankClean)+"\nEast walk reveals reel before checkpoint="+(journeyStage==JourneyStage.EastJourney&&journeyReelGroup!=null&&journeyReelGroup.alpha>.95f)+"\nNo obsolete temporary scroll world created="+(scrollWorld==null&&!scrollRelocated)+"\nJumped across river="+jumped+"\n");
         var endPosition=Feet;yield return new WaitForSeconds(.5f);
         File.AppendAllText("Verification/after-capture/checks.txt","Releasing input pauses walking on reel="+(Vector3.Distance(Feet,endPosition)<.01f)+"\n");
         afterCapturePreviewDone=true;yield return new WaitForEndOfFrame();SetStoryModeEnabled(false);yield return null;
-        File.AppendAllText("Verification/after-capture/checks.txt","Switching from scroll to Sandbox returns to forest="+(!StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<.1f&&!InScrollWorld&&!scrollFrame.activeSelf)+"\n");
+        File.AppendAllText("Verification/after-capture/checks.txt","Switching from scroll to Sandbox returns to forest="+(!StoryModeEnabled&&Vector3.Distance(Feet,ForestSpawn)<.1f&&!InScrollWorld)+"\n");
         SetStoryModeEnabled(true);RestartRun();yield return null;
-        File.AppendAllText("Verification/after-capture/checks.txt","Restart clears montage and scroll="+(journeyStage==JourneyStage.Hunting&&fatherIntroActive&&!InScrollWorld&&nightAmount==0&&storyCurtain==0&&playerImage.enabled&&eastPaperProgress==0&&!retreatApplied&&!scrollFrame.activeSelf)+"\n");
+        File.AppendAllText("Verification/after-capture/checks.txt","Restart clears montage and scroll="+(journeyStage==JourneyStage.Hunting&&fatherIntroActive&&!InScrollWorld&&nightAmount==0&&storyCurtain==0&&playerImage.enabled&&eastPaperProgress==0&&!retreatApplied)+"\n");
         fatherIntroActive=false;journeyStage=JourneyStage.EastJourney;EnsureEastPaperContinuation();player.position=new Vector3(36,0,0);yield return null;yield return new WaitForEndOfFrame();var observed=plants[0].renderer;bool hadFade=eastPaperProgress>.99f&&observed.color.a<.001f;RestartRun();yield return null;
         File.AppendAllText("Verification/after-capture/checks.txt","Restart during blank paper restores ink="+(hadFade&&observed.color.a>.99f&&eastPaperProgress==0&&!retreatApplied)+"\n");
-        SetStoryModeEnabled(false);yield return null;File.AppendAllText("Verification/after-capture/checks.txt","Sandbox clears overlays="+(!storyTimeSymbols.activeSelf&&!scrollFrame.activeSelf&&nightAmount==0)+"\n");Application.Quit();
+        SetStoryModeEnabled(false);yield return null;File.AppendAllText("Verification/after-capture/checks.txt","Sandbox clears overlays="+(!storyTimeSymbols.activeSelf&&nightAmount==0)+"\n");Application.Quit();
     }
     IEnumerator RecordAfterCapture(){
         var folder="Verification/after-capture/frames";Directory.CreateDirectory(folder);int frame=0;

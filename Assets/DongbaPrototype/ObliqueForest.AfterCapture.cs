@@ -16,7 +16,7 @@ public partial class ObliqueForest {
     int waitingBeat=-1,waitingBeatsShown;
     bool scrollEntered,scrollRelocated;
     Image storyNightShade,storyCurtainImage,storySunImage,storyMoonImage,storyCaptionPaper,storySkyRod;
-    GameObject storyTimeSymbols,scrollFrame,scrollWorld;
+    GameObject storyTimeSymbols,scrollWorld;
     RectTransform xrDayNightSlot;
     Text afterCaptureCaption;
     GameObject eastPaperContinuation;
@@ -46,13 +46,8 @@ public partial class ObliqueForest {
         storyMoonImage=StoryOverlay("Moon / PDF82 printed10",symbols,Color.white);storyMoonImage.sprite=Get("story_moon");storyMoonImage.preserveAspect=true;
         afterCaptureCaption=UILabel("After-capture story caption",forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,48),new Vector2(944,88),24,"");afterCaptureCaption.alignment=TextAnchor.MiddleCenter;
         var backing=UIBlock("Story caption paper",forestCanvas.transform,new Vector2(.5f,0),new Vector2(.5f,0),new Vector2(0,28),new Vector2(1000,128));storyCaptionPaper=QuietPaper(backing,.98f);backing.SetSiblingIndex(afterCaptureCaption.transform.GetSiblingIndex());
-        scrollFrame=new GameObject("Scroll rolled edges / non-script page frame",typeof(RectTransform));var frame=(RectTransform)scrollFrame.transform;frame.SetParent(forestCanvas.transform,false);frame.anchorMin=Vector2.zero;frame.anchorMax=Vector2.one;frame.offsetMin=frame.offsetMax=Vector2.zero;
-        for(int side=0;side<2;side++){
-            var rail=UIBlock("Rolled paper edge",frame,new Vector2(side,.5f),new Vector2(side,.5f),new Vector2(side==0?35:-35,0),new Vector2(36,700));rail.gameObject.AddComponent<Image>().color=new Color(.57f,.45f,.29f,.72f);
-            var highlight=UIBlock("Paper fold",rail,new Vector2(.5f,.5f),new Vector2(.5f,.5f),Vector2.zero,new Vector2(22,700));highlight.gameObject.AddComponent<Image>().color=new Color(.88f,.81f,.66f,.95f);
-        }
         storyCurtainImage=StoryOverlay("Story cut / blackout",forestCanvas.transform,Color.clear);
-        storyTimeSymbols.SetActive(false);scrollFrame.SetActive(false);afterCaptureCaption.gameObject.SetActive(false);
+        storyTimeSymbols.SetActive(false);afterCaptureCaption.gameObject.SetActive(false);
         if(XRTrackingControlsCamera)EnsureXRDayNightSlot();
     }
     void EnsureXRDayNightSlot(){
@@ -74,7 +69,7 @@ public partial class ObliqueForest {
         RestoreJourneyInk();retreatSprites=null;retreatGraphics=null;retreatLines=null;eastPaperProgress=0;if(eastPaperContinuation!=null)eastPaperContinuation.SetActive(false);
         afterCaptureAge=waitingAge=realizationAge=scrollFadeAge=nightAmount=storyCurtain=0;waitingBeat=-1;waitingBeatsShown=0;Shader.SetGlobalFloat("_DongbaMRNight",0);scrollEntered=scrollRelocated=false;
         if(storyNightShade!=null)storyNightShade.color=Color.clear;if(storyCurtainImage!=null)storyCurtainImage.color=Color.clear;
-        if(storyCaptionPaper!=null)storyCaptionPaper.gameObject.SetActive(false);if(storyTimeSymbols!=null)storyTimeSymbols.SetActive(false);if(scrollFrame!=null)scrollFrame.SetActive(false);if(scrollWorld!=null)scrollWorld.SetActive(false);
+        if(storyCaptionPaper!=null)storyCaptionPaper.gameObject.SetActive(false);if(storyTimeSymbols!=null)storyTimeSymbols.SetActive(false);if(scrollWorld!=null)scrollWorld.SetActive(false);
         if(afterCaptureCaption!=null)afterCaptureCaption.gameObject.SetActive(false);
         if(playerImage!=null)playerImage.enabled=true;
     }
