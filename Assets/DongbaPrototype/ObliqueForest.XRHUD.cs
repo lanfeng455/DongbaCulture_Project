@@ -7,7 +7,7 @@ namespace DongbaPrototype
     {
         float xrUnits;
         Text xrSummary, xrContext, xrControllerHints, xrPanelStatus, xrHealth, xrGuideTitle, xrGuideActions, xrGuideSettings;
-        RectTransform xrObjectiveNote, xrContextNote, xrHelpNote, xrControlsTab, xrHealthNote;
+        RectTransform xrObjectiveNote, xrContextNote, xrHelpNote, xrControlsTab, xrHealthNote, xrSideFold;
         Material xrHudInk;
         bool xrHelpOpen, xrHelpHeld;
         float xrModeHold,xrRestartHold;
@@ -18,6 +18,8 @@ namespace DongbaPrototype
             xrUnits = units;
             forestCanvas.renderMode = RenderMode.WorldSpace;
             forestCanvas.worldCamera = cam;
+            // The upright sheet is behind the forest, not an overlay over its trees.
+            forestCanvas.sortingOrder = DepthOrder(ForestHalfDepth + 1f) - 100;
             var scaler = forestCanvas.GetComponent<CanvasScaler>();
             scaler.enabled = true; scaler.dynamicPixelsPerUnit = 4;
             scaler.referencePixelsPerUnit = 100;
@@ -25,8 +27,8 @@ namespace DongbaPrototype
             EnsureXRReadingAnchor();
             rect.SetParent(xrReadingAnchor, false);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f,1);
-            rect.sizeDelta = new Vector2(1000, 700);
-            rect.localScale = Vector3.one * (1.18f / 1000);
+            rect.sizeDelta = new Vector2(1000, XRReadingCanvasHeight);
+            rect.localScale = Vector3.one * (XRReadingWidthMetres / 1000);
             rect.localPosition = Vector3.zero;
             rect.localRotation = Quaternion.identity;
             forestCanvas.gameObject.SetActive(false);
@@ -52,6 +54,11 @@ namespace DongbaPrototype
         {
             if (xrSummary != null) return;
             xrHudInk = new Material(Shader.Find("Dongba/Headset Paper UI"));
+            // An ordinary paper crease, not an invented Dongba pictograph.
+            // It touches the far ground edge and makes the floor/side join legible.
+            xrSideFold=UIBlock("PICO paper fold",forestCanvas.transform,new Vector2(.5f,1),Vector2.one*.5f,new Vector2(0,-XRReadingCanvasHeight),new Vector2(1000,2));
+            var fold=xrSideFold.gameObject.AddComponent<Image>();fold.sprite=DongbaUIStyle.BrushSprite;
+            fold.color=new Color(.38f,.28f,.15f,.24f);fold.raycastTarget=false;fold.material=xrHudInk;
             xrObjectiveNote=XRNote("chapter note",new Vector2(0,-180),new Vector2(900,108));
             xrSummary=XRNoteText("Chapter",xrObjectiveNote,new Vector2(0,-3),new Vector2(824,84),32);
             var stroke=DongbaUIStyle.Stroke(xrObjectiveNote,new Vector2(30,-20),new Vector2(4,68),new Color(.49f,.22f,.12f));stroke.material=xrHudInk;
@@ -96,6 +103,7 @@ namespace DongbaPrototype
             bool dialogue=fatherIntroActive||ManualStoryDialogueActive;
             bool exploring=InterfaceExploring&&!ReelPresentationVisible&&!dialogue&&!NatureEditorOpen&&!NatureWelcomeVisible&&!NatureAnswerNoticeVisible;
             if(!exploring)xrHelpOpen=false;
+            xrSideFold.gameObject.SetActive(exploring||NatureEditorOpen||NatureWelcomeVisible||NatureAnswerNoticeVisible);
             string objective=StoryModeEnabled?DongbaLanguage.Text(QuietStoryObjective()):DongbaInterface.Choose("Sandbox Mode","沙盒模式")+" · "+SandboxState;
             xrSummary.text=objective;
             xrObjectiveNote.gameObject.SetActive(exploring&&!NatureAnswerNoticeVisible&&!string.IsNullOrEmpty(objective)&&!xrHelpOpen);
@@ -119,8 +127,8 @@ namespace DongbaPrototype
                 "Invitations belong to sandbox.\n\nFollow the story.\nCare returns in the final act.",
                 "自然邀请在沙盒中开放。\n\n跟随故事前行，\n在终章重新照料森林。");
             xrGuideSettings.text=DongbaInterface.Choose(
-                "Hold Y   Place forest and upper UI again\nHold X   Switch mode (reset)    Hold A   Restart\nB   Close controls",
-                "按住 Y　重新放置森林与上方界面\n按住 X　切换模式（重置）　按住 A　重新开始\nB　收起操作说明");
+                "Hold Y   Place forest and side UI again\nHold X   Switch mode (reset)    Hold A   Restart\nB   Close controls",
+                "按住 Y　重新放置森林与侧面界面\n按住 X　切换模式（重置）　按住 A　重新开始\nB　收起操作说明");
             xrPanelStatus.text=DongbaInterface.Choose(xrHelpOpen?"B   Close controls":"B   Controls",xrHelpOpen?"B   收起操作说明":"B   操作说明");
             xrControlsTab.gameObject.SetActive(exploring&&!xrHelpOpen);
             xrPanelStatus.gameObject.SetActive(exploring&&!xrHelpOpen);

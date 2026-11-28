@@ -4,33 +4,31 @@ namespace DongbaPrototype { public partial class ObliqueForest {
     Transform xrReadingAnchor;
     bool xrReadingAnchored;
     int xrReadingRevision;
-    Vector3 xrReadingEye, xrReadingForward;
+    const float XRReadingWidthMetres=1.18f;
+    const float XRReadingCanvasHeight=700;
+    float XRReadingWallDepth=>ForestHalfDepth+.004f*xrUnits;
 
     void EnsureXRReadingAnchor(){
         if(xrReadingAnchor!=null)return;
-        xrReadingAnchor=new GameObject("PICO upper reading area").transform;
+        xrReadingAnchor=new GameObject("PICO forest paper side").transform;
         xrReadingAnchor.localScale=Vector3.one*xrUnits;
     }
 
-    // Capture yaw and eye height once, not the downward placement gaze. The
-    // reading centre is 19 degrees above the horizon, 1.45 real metres ahead.
-    // Looking down plays the forest; looking up reads. Never chase the headset.
+    // The forest is the horizontal bottom; the reading plane is its far vertical
+    // side. Its lower edge meets the ground, independently of eye height or gaze.
+    // Placement already aligns the forest front to the viewer; do not rotate UI
+    // separately or lift it relative to the headset again.
     public void AnchorXRReadingFrame(){
         if(!XRTrackingControlsCamera||cam==null||xrUnits<=0)return;
         EnsureXRReadingAnchor();
-        xrReadingEye=cam.transform.position;
-        xrReadingForward=Vector3.ProjectOnPlane(cam.transform.forward,Vector3.up);
-        if(xrReadingForward.sqrMagnitude<.01f)xrReadingForward=Vector3.ProjectOnPlane(-xrReadingEye,Vector3.up);
-        if(xrReadingForward.sqrMagnitude<.01f)xrReadingForward=Vector3.forward;
-        xrReadingForward.Normalize();
-        Vector3 top=xrReadingEye+(xrReadingForward*1.45f+Vector3.up*.87f)*xrUnits;
-        xrReadingAnchor.SetPositionAndRotation(top,Quaternion.LookRotation(xrReadingForward,Vector3.up));
+        float height=XRReadingWidthMetres*XRReadingCanvasHeight/1000f*xrUnits;
+        xrReadingAnchor.SetPositionAndRotation(new Vector3(0,height,XRReadingWallDepth),Quaternion.identity);
         xrReadingAnchor.localScale=Vector3.one*xrUnits;
         xrReadingAnchored=true;xrReadingRevision++;
-        Debug.Log("[DongbaMRUI] Upper reading area anchored; revision="+xrReadingRevision);
+        Debug.Log("[DongbaMRUI] Forest side anchored to ground edge; revision="+xrReadingRevision);
     }
 
     public string XRReadingDiagnostic=>xrReadingAnchor==null?"not configured":
-        "upperFixed="+xrReadingAnchored+" revision="+xrReadingRevision+" headParent="+xrReadingAnchor.IsChildOf(cam.transform)+
+        "sideFixed="+xrReadingAnchored+" revision="+xrReadingRevision+" headParent="+xrReadingAnchor.IsChildOf(cam.transform)+
         " anchor="+xrReadingAnchor.position.ToString("F2")+" subtitles=head-follow";
 }}

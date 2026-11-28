@@ -40,7 +40,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             check(east.x>west.x&&east.z>0&&west.z>0,label+"east bank is screen-right and west bank is screen-left");
             check(XRStickMovement(Vector2.right).x>.999f&&XRStickMovement(Vector2.up).z>.999f,label+"stick directions agree with the displayed map");
             check(pico.origin.transform.localScale==Vector3.one*units&&Vector3.Dot(pico.origin.transform.up,Vector3.up)>.999f,label+"rig is rigid, upright and never mirrored");
-            check(Vector3.Dot(xrReadingAnchor.position-cam.transform.position,Vector3.forward)>0&&XRPanelAboveHorizon(xrObjectiveNote),label+"upper information area faces the viewer on the aligned side");
+            check(Vector3.Dot(xrReadingAnchor.position-cam.transform.position,Vector3.forward)>0&&XRPanelOnForestSide(xrObjectiveNote),label+"paper side faces the viewer on the aligned forest edge");
             check(Physics.Raycast(cam.transform.position,-cam.transform.position.normalized,out var hit,300,1<<30)&&hit.point.magnitude<.03f,label+"scanned surface ray stays aligned after rotation");
             check(Balance==initialBalance&&animals.Count==animalCount&&plants.Count==plantCount&&Vector3.Distance(Feet,playerBefore)<.002f&&!StoryModeEnabled,label+"reposition preserves gameplay state");
             if(heading%90==0)CaptureSceneToTexture(folder+"/aligned-"+heading.ToString("F0")+".png");

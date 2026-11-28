@@ -45,7 +45,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
         var corners=new Vector3[4];forestSubtitles.SubtitlePanel.GetWorldCorners(corners);bool inView=true;
         foreach(var corner in corners){var q=cam.WorldToViewportPoint(corner);inView&=q.x>0&&q.x<1&&q.y>0&&q.y<.5f;}
         Check(inView,"Paper strip stays fully inside the lower view");
-        Check(xrReadingAnchor.position.y>cam.transform.position.y+.8f*xrUnits,"Reading frame starts above eye level, independent of downward placement gaze");
+        Check(Mathf.Abs(xrReadingAnchor.position.z-XRReadingWallDepth)<.001f&&XRPanelOnForestSide(xrObjectiveNote),"Reading frame stands on the far forest edge, not above the headset");
         Directory.CreateDirectory("Verification/pico-integration");
         DongbaLanguage.Set(DongbaLocale.Chinese,false);yield return null;yield return null;forestSubtitles.CompleteCurrentLine();yield return null;
         Check(forestSubtitles.HeadsetContinuePrompt=="A   继续","Chinese uses the headset A prompt");
@@ -116,7 +116,7 @@ namespace DongbaPrototype { public partial class ObliqueForest {
             note.GetWorldCorners(noteCorners);
             foreach(var corner in noteCorners){var q=cam.WorldToViewportPoint(corner);notesInside&=q.x>.06f&&q.x<.94f&&q.y>.06f&&q.y<.94f;}
         }
-        Check(XRPanelAboveHorizon(xrObjectiveNote)&&XRPanelAboveHorizon(xrContextNote)&&XRPanelAboveHorizon(xrHelpNote),"Objective, nearby action and controls remain above the placement horizon");
+        Check(XRPanelOnForestSide(xrObjectiveNote)&&XRPanelOnForestSide(xrContextNote)&&XRPanelOnForestSide(xrHelpNote),"Objective, nearby action and controls remain on the upright forest side");
         UpdateXRHelpInput(false,true);UpdateXRHelpInput(true,true);UpdateXRHUD(true,"");
         Check(xrHelpOpen&&xrHelpNote.gameObject.activeSelf&&!xrContextNote.gameObject.activeSelf,"B unfolds controls without stacking interaction UI");
         UpdateXRHelpInput(true,true);Check(xrHelpOpen,"Holding B does not flicker the controls");
